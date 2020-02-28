@@ -14,6 +14,13 @@ def test_register_email():
     # Valid uppwercase and lowercase english characters
     auth.register('latonyaDAVISON@email.com', 'password', 'Latonya', 'Davison')
 
+    # Valid digits
+    auth.register('123456789@email.com', 'password', 'Latonya', 'Davison')
+
+    # Valid mix of digits and english characters
+    auth.register('lantonyDAVISON123@email.com',
+                  'password', 'Latonya', 'Davison')
+
     # No @
     with pytest.raises(InputError) as e:
         auth.register('latonyadavison.com', 'password', 'Latonya', 'Davison')
