@@ -2,7 +2,7 @@ import auth
 import channel
 import channels
 import pytest
-from error import InputError
+from error import InputError, AccessError
 
 
 @pytest.fixture
@@ -10,7 +10,22 @@ def user():
     return auth.register('user.name@email.com', 'password', 'First', 'Last')
 
 
-def test_create(user):
+def test_create_public(user):
+    test_channel = channels.create(user['token'], 'Channel', True)
+    channel.channel_join(user['token'], test_channel['channel_id'])
+    details = channel.details(user['token'], test_channel['channel_id'])
+    assert user['u_id'] == details['all_members'][0]['u_id']
+
+
+def test_create_private(user):
+    test_channel = channels.create(user['token'], 'Channel', False)
+    with pytest.raises(AccessError) as e:
+        channel.channel_join(user['token'], test_channel['channel_id'])
+    details = channel.details(user['token'], test_channel['channel_id'])
+    assert len(details['all_members']) == 0
+
+
+def test_create_types(user):
     channel = channels.create(user['token'], 'Channel', True)
     assert isinstance(channel, dict) == True
     assert isinstance(channel['channel_id'], int) == True
