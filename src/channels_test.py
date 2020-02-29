@@ -5,21 +5,23 @@ import pytest
 from error import InputError
 
 
-def test_create():
-    user = auth.register('user.name@email.com', 'password', 'First', 'Last')
+@pytest.fixture
+def user():
+    return auth.register('user.name@email.com', 'password', 'First', 'Last')
+
+
+def test_create(user):
     channel = channels.create(user['token'], 'Channel', True)
     assert isinstance(channel, dict) == True
     assert isinstance(channel['channel_id'], int) == True
 
 
-def test_create_long_name():
-    user = auth.register('user.name@email.com', 'password', 'First', 'Last')
+def test_create_long_name(user):
     with pytest.raises(InputError) as e:
         channel = channels.create(user['token'], 'i' * 21, True)
 
 
-def test_listall():
-    user = auth.register('user.name@email.com', 'password', 'First', 'Last')
+def test_listall(user):
     channel_1 = channels.create(user['token'], 'One', True)
     channel_2 = channels.create(user['token'], 'Two', True)
     channel_3 = channels.create(user['token'], 'Three', True)
@@ -36,8 +38,7 @@ def test_listall():
         assert channel['channel_id'] in channel_ids
 
 
-def test_list():
-    user = auth.register('user.name@email.com', 'password', 'First', 'Last')
+def test_list(user):
     joined_1 = channels.create(user['token'], 'One', True)
     joined_2 = channels.create(user['token'], 'Two', True)
     not_joined = channels.create(user['token'], 'Three', True)
