@@ -116,4 +116,6 @@ def test_login():
 
 
 def test_logout():
-    pass
+    paris = auth.register('pariscler@email.com',
+                          'pariscler0229', 'Paris', 'Cler')
+    assert auth.logout(paris['token']) == True
