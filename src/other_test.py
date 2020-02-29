@@ -9,9 +9,7 @@ def test_users_all_basic():
                           'averylogrono', 'Avery', 'Logrono')
     user.profile_sethandle(avery['token'], 'averylogrono')
 
+    avery_profile = user.profile(avery['token'], avery['u_id'])['user']
     all_users = other.users_all(avery['token'])
-    assert all_users['users'][0]['u_id'] == avery['u_id']
-    assert all_users['users'][0]['email'] == 'user.name@email.com'
-    assert all_users['users'][0]['name_first'] == 'First'
-    assert all_users['users'][0]['name_last'] == 'Last'
-    assert all_users['users'][0]['handle_str'] == 'averylogrono'
+
+    assert avery_profile in all_users['users']
