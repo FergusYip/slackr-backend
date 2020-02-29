@@ -61,7 +61,7 @@ def test_authorization_change():
 def test_inputErrors():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
 
-    channel_id = channels.create(new_user['token'], 'Channel4', True))
+    channel_id = channels.create(new_user['token'], 'Channel4', True)
 
     with pytest.raises(InputError) as e:
         message.send(new_user['token'], channel_id['channel_id'], 'i' * 1001)
