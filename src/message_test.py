@@ -115,7 +115,7 @@ def test_OneRemoveOneFail():
     message.remove(new_user['token'], second_message['message_id']) # Removing the 2nd message.
     messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
 
-    assert(new_message['message_id'] == messages[0]['message_id'])) # Ensure the recent message was removed from the front of the list.
+    assert(new_message['message_id'] == messages[0]['message_id']) # Ensure the recent message was removed from the front of the list.
 
     message.remove(new_user['token'], new_message['message_id'])
     messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
