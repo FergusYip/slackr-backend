@@ -93,17 +93,16 @@ def test_register_last_name():
         assert auth.register('valid@email.com', 'password', 'Aziza', 'a' * 50)
 
 
-def test_logout():
-    paris = auth.register('pariscler@email.com',
-                          'pariscler0229', 'Paris', 'Cler')
+@pytest.fixture
+def paris():
+    return auth.register('pariscler@email.com', 'pariscler0229', 'Paris', 'Cler')
+
+
+def test_logout(paris):
     assert auth.logout(paris['token'])['is_success'] == True
 
 
-def test_login():
-    paris = auth.register('pariscler@email.com',
-                          'pariscler0229', 'Paris', 'Cler')
-    assert auth.logout(paris['token'])['is_success'] == True
-
+def test_login(paris):
     paris_login = auth.login('pariscler@email.com', 'pariscler0229')
     assert paris_login['u_id'] == paris['u_id']
 
@@ -115,6 +114,19 @@ def test_login():
     with pytest.raises(InputError) as e:
         assert auth.login('non_existent_user@email.com', '12345678')
 
+
+def test_login_multiple_sessions(paris):
+    session_1 = auth.login('pariscler@email.com', 'pariscler0229')
+    session_2 = auth.login('pariscler@email.com', 'pariscler0229')
+    session_3 = auth.login('pariscler@email.com', 'pariscler0229')
+
+    session_tokens = [paris['token'],
+                      session_1['token'],
+                      session_2['token'],
+                      session_3['token']]
+
+    # Verify that all session_tokens are unique
+    assert len(set(session_tokens)) == len(session_tokens)
 
 # Don't know how to test auth_login with invalid email since an invalid email
 # will never belong to a register user. This means that if auth_login is given
