@@ -186,11 +186,24 @@ def test_averageCaseEdit():
     message.edit(new_user['token'], new_message['message_id'], "You're** Oops spelling")
     messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
 
-    assert("You're** Oops spelling" == messages[0]['message]']) # Ensure the edited message is displayed.
+    assert("You're** Oops spelling" == messages[0]['message']) # Ensure the edited message is displayed.
 
 
 def test_emptyStringDelete():
-    pass
+    new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
+    channel_id = channels.create(new_user['token'], 'Channel10', True)
+
+    new_message = message.send(new_user['token'], channel_id['channel_id'], 'I dont like you anymore')
+    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
+
+    # Ensure that the message sent correctly before testing.
+    assert(new_message['message_id'] != messages[0]['message_id']) # Asserting the message was removed properly.
+
+    message.edit(new_user['token'], new_message['message_id'], "")
+    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
+
+    assert(new_message['message_id'] != messages[0]['message_id']) # Ensure the edited message is deleted and no longer the most recent message.
+
 
 def test_AccessErrorUnauthorized():
     pass
