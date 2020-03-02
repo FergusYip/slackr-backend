@@ -7,41 +7,44 @@ from error import InputError, AccessError
 
 @pytest.fixture
 def user():
-    return auth.register('user.name@email.com', 'password', 'First', 'Last')
+    return auth.auth_register('user.name@email.com', 'password', 'First',
+                              'Last')
 
 
 def test_create_public(user):
-    test_channel = channels.create(user['token'], 'Channel', True)
+    test_channel = channels.channels_create(user['token'], 'Channel', True)
     channel.channel_join(user['token'], test_channel['channel_id'])
-    details = channel.details(user['token'], test_channel['channel_id'])
+    details = channel.channel_details(user['token'],
+                                      test_channel['channel_id'])
     assert user['u_id'] == details['all_members'][0]['u_id']
 
 
 def test_create_private(user):
-    test_channel = channels.create(user['token'], 'Channel', False)
+    test_channel = channels.channels_create(user['token'], 'Channel', False)
     with pytest.raises(AccessError) as e:
         channel.channel_join(user['token'], test_channel['channel_id'])
-    details = channel.details(user['token'], test_channel['channel_id'])
+    details = channel.channel_details(user['token'],
+                                      test_channel['channel_id'])
     assert len(details['all_members']) == 0
 
 
 def test_create_types(user):
-    channel = channels.create(user['token'], 'Channel', True)
+    channel = channels.channels_create(user['token'], 'Channel', True)
     assert isinstance(channel, dict) == True
     assert isinstance(channel['channel_id'], int) == True
 
 
 def test_create_long_name(user):
     with pytest.raises(InputError) as e:
-        channel = channels.create(user['token'], 'i' * 21, True)
+        channel = channels.channels_create(user['token'], 'i' * 21, True)
 
 
 def test_listall(user):
-    channel_1 = channels.create(user['token'], 'One', True)
-    channel_2 = channels.create(user['token'], 'Two', True)
-    channel_3 = channels.create(user['token'], 'Three', True)
+    channel_1 = channels.channels_create(user['token'], 'One', True)
+    channel_2 = channels.channels_create(user['token'], 'Two', True)
+    channel_3 = channels.channels_create(user['token'], 'Three', True)
 
-    all_channels = channels.listall(user['token'])['channels']
+    all_channels = channels.channels_listall(user['token'])['channels']
     assert isinstance(all_channels, list) == True
 
     channel_ids = [
@@ -54,16 +57,16 @@ def test_listall(user):
 
 
 def test_list(user):
-    joined_1 = channels.create(user['token'], 'One', True)
-    joined_2 = channels.create(user['token'], 'Two', True)
-    not_joined = channels.create(user['token'], 'Three', True)
+    joined_1 = channels.channels_create(user['token'], 'One', True)
+    joined_2 = channels.channels_create(user['token'], 'Two', True)
+    not_joined = channels.channels_create(user['token'], 'Three', True)
 
     channel.channel_join(user['token'], joined_1['channel_id'])
     channel.channel_join(user['token'], joined_2['channel_id'])
 
     joined_channel_ids = [joined_1['channel_id'], joined_2['channel_id']]
 
-    all_joined_channels = channels.list(user['token'])['channels']
+    all_joined_channels = channels.channels_list(user['token'])['channels']
     assert isinstance(all_joined_channels, list) == True
     assert len(all_joined_channels) == 2
 
