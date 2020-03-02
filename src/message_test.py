@@ -73,8 +73,51 @@ def test_inputErrors():
     assert(new_message['message_id'] == messages[0]['message_id'])
 
 # ========== TESTING MESSAGE REMOVE FUNCTION ==========
+def test_messageRemove():
+    new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
+
+    channel_id = channels.create(new_user['token'], 'Channel5', True)
+
+    new_message = message.send(new_user['token'], channel_id['channel_id'], 'hello world!')
+    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
+    assert(new_message['message_id'] == messages[0]['message_id']) # Ensure the message sent
+
+    message.remove(new_user['token'], new_message['message_id'])
+
+    assert(new_message['message_id'] != messages[0]['message_id'])
 
 def test_messageInputError():
+    new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
+
+    channel_id = channels.create(new_user['token'], 'Channel6', True)
+
+    with pytest.raises(InputError) as e:
+            message.remove(new_user['token'], 1) # Random message ID to remove.
+
+def test_OneRemoveOneFail():
+    new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
+
+    channel_id = channels.create(new_user['token'], 'Channel7', True)
+
+    new_message = message.send(new_user['token'], channel_id['channel_id'], 'hello world!')
+    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
+    assert(new_message['message_id'] == messages[0]['message_id']) # Ensure the message sent
+
+    second_message = message.send(new_user['token'], channel_id['channel_id'], 'hello slackr you mean')
+    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
+    assert(new_message['message_id'] == messages[0]['message_id']) # Ensure the message sent correctly.
+
+    message.remove(new_user['token'], second_message['message_id']) # Removing the 2nd message.
+    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
+
+    assert(new_message['message_id'] == messages[0]['message_id'])) # Ensure the recent message was removed from the front of the list.
+
+    message.remove(new_user['token'], new_message['message_id'])
+    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
+
+    assert(new_message['message_id'] != messages[0]['message_id']) # Ensure both messages were removed from the front of the list.
+
+def test_unauthorizedRemoval():
     pass
 
 
