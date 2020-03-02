@@ -88,3 +88,9 @@ def test_details_invalid():
     # Testing case when channel ID is invalid.
     with pytest.raises(InputError) as e:
         channel.details(dummy_user1['token'], 42045)
+
+    # Testing case when user asking for details isn't part of the channel.
+    # at this point, channel name2 has only dummy_user2 as members.
+    # testing case when dummy_user1 asks for details about channel name2.
+    with pytest.raises(AccessError) as e:
+        channel.details(dummy_user1['token'], c_id2['channel_id'])
