@@ -1,29 +1,29 @@
-import auth
 import pytest
+import auth
 from error import InputError
 
 
-valid_emails = ['latonyaDAVISON@email.com',
+valid_emails = ('latonyaDAVISON@email.com',
                 '123456789@email.com',
                 'lantonyDAVISON123@email.com',
-                '!#$%&*+- /=?^_`{ | }~@email.com']
+                '!#$%&*+- /=?^_`{ | }~@email.com')
 
-invalid_email_at_sign = ['latonyadavison.com',
-                         'latonya@davison@email.com']
+invalid_email_at_sign = ('latonyadavison.com',
+                         'latonya@davison@email.com')
 
-invalid_email_dot_sign = ['.latonyadavison@email.com',
+invalid_email_dot_sign = ('.latonyadavison@email.com',
                           'latonyadavison.@email.com',
-                          'latonya..davison.@email.com']
+                          'latonya..davison.@email.com')
 
-invalid_email_length = ['i' * 65 + '@email.com',
-                        'i' * 64 + '@' + 'd' * 192 + '.com']
+invalid_email_length = ('i' * 65 + '@email.com',
+                        'i' * 64 + '@' + 'd' * 192 + '.com')
 
 
 def test_register_return_type():
     user = auth.register('theresavanaria@email.com', 'password',
                          'Theresa', 'Vanaria')
-    assert isinstance(user['u_id'], int) == True
-    assert isinstance(user['token'], str) == True
+    assert isinstance(user['u_id'], int)
+    assert isinstance(user['token'], str)
 
 
 def test_register_email():
@@ -99,14 +99,14 @@ def paris():
 
 
 def test_logout(paris):
-    assert auth.logout(paris['token'])['is_success'] == True
+    assert auth.logout(paris['token'])['is_success']
 
 
 def test_logout_invalid_token(paris):
-    assert auth.logout(paris['token'])['is_success'] == True
+    assert auth.logout(paris['token'])['is_success']
 
     # input invalidated token into function
-    assert auth.logout(paris['token'])['is_success'] == True
+    assert auth.logout(paris['token'])['is_success']
 
 
 def test_login(paris):
