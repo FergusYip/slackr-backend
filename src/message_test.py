@@ -159,7 +159,7 @@ def test_changeOwners():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     second_user = auth.register('test2@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     # New user has made this channel. (Is the channel owner)
-    channel_id = channels.create(new_user['token'], 'Channel10', True)
+    channel_id = channels.create(new_user['token'], 'Channel11', True)
     channel.addowner(new_user['token'], channel_id['channel_id'], second_user['u_id'])
 
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'Hello Earth!')
@@ -175,13 +175,13 @@ def test_changeOwners():
 
 def test_averageCaseEdit():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    channel_id = channels.create(new_user['token'], 'Channel10', True)
+    channel_id = channels.create(new_user['token'], 'Channel12', True)
 
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'Your good at programming')
     messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
 
     # Ensure that the message sent correctly before testing.
-    assert(new_message['message_id'] != messages[0]['message_id']) # Asserting the message was removed properly.
+    assert(new_message['message_id'] == messages[0]['message_id']) # Asserting the message was removed properly.
 
     message.edit(new_user['token'], new_message['message_id'], "You're** Oops spelling")
     messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
@@ -191,13 +191,13 @@ def test_averageCaseEdit():
 
 def test_emptyStringDelete():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    channel_id = channels.create(new_user['token'], 'Channel10', True)
+    channel_id = channels.create(new_user['token'], 'Channel13', True)
 
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'I dont like you anymore')
     messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
 
     # Ensure that the message sent correctly before testing.
-    assert(new_message['message_id'] != messages[0]['message_id']) # Asserting the message was removed properly.
+    assert(new_message['message_id'] == messages[0]['message_id']) # Asserting the message was added properly.
 
     message.edit(new_user['token'], new_message['message_id'], "")
     messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
@@ -206,7 +206,16 @@ def test_emptyStringDelete():
 
 
 def test_AccessErrorUnauthorized():
-    pass
+    new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
+    second_user = auth.register('anotheremail@gmail.com', 'Password', 'Lorem', 'Ipsum')
+    channel_id = channels.create(new_user['token'], 'Channel14', True)
+
+    new_message = message.send(new_user['token'], channel_id['channel_id'], 'Hola el mundo!')
+    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
+    assert(new_message['message_id'] == messages[0]['message_id']) # Asserting the message was removed properly.
+
+    with pytest.raises(AccessError) as e:
+        message.edit(second_user['token'], new_message['message_id'], "el ladron!")
 
 def test_AccessErrorOwner():
     pass
