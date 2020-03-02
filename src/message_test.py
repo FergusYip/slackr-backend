@@ -1,5 +1,6 @@
 # Testing the message.py file
 
+# Importing specific files for use of their functions.
 import channels
 import channel
 import message
@@ -8,71 +9,74 @@ from error import InputError
 import pytest
 import auth
 
+# =====================================================
 # ========== TESTING MESSAGE SEND FUNCTION ==========
+# =====================================================
 
 # Simple tests of average case messages.
 def test_message_send():
+    # Creating a new user.
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-
+    # Creating a new channel.
     channel_id = channels.create(new_user['token'], 'Channel1', True)
-
+    # Creating a variable 'new_message' to hold the dictionary return from the send function.
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'Hello world!')
+    # 'messages' will hold the list of dictionary information for the most recent 50 messages.
     messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
-
+    # Ensuring the most recent message's id matches the one send from new_user
     assert(new_message['message_id'] == messages[0]['message_id'])
-
-    second_message = message.send(new_user['token'], channel_id['channel_id'], 'testingamessagenospaces')
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
-
-    assert(second_message['message_id'] == messages[0]['message_id'])
-
-    third_message = message.send(new_user['token'], channel_id['channel_id'], 'test message 123')
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
-
-    assert(second_message['message_id'] == messages[1]['message_id'])
 
 # Testing unauthorized sending of messages.
 def test_unauthorized():
+    # Creating a new user to test the function with.
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-
+    # Creating a second user to test this function with.
+    second_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
+    # 'new_user' creates this channel that is PRIVATE.
     channel_id = channels.create(new_user['token'], 'Channel2', False)
-
+    # An AccessError should be raised if 'second_user' attempts to send a message in this private channel
     with pytest.raises(AccessError) as e:
-        message.send(new_user['token'], channel_id['channel_id'], 'Hello team')
+        message.send(second_user['token'], channel_id['channel_id'], 'Hello team')
 
 # Testing a change in authorization affecting message sending.
 def test_authorization_change():
+    # Creating 2 new users and having 'new_user' create a new channel.
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-
-    channel_id = channels.create(new_user['token'], 'Channel3', False)
-
     second_user = auth.register('letmein@test.com', 'Password1', 'Sample', 'Name')
-
+    channel_id = channels.create(new_user['token'], 'Channel3', False)
+    # The second_user should initially be unable to send a message in this channel.
     with pytest.raises(AccessError) as e:
         message.send(second_user['token'], channel_id['channel_id'], 'Why wont this send?')
-
+    # 'new_user' invites the 'second_user' to this new channel.
     channel.invite(new_user['token'], channel_id['channel_id'], second_user['u_id'])
-
+    # Creating variables to hold the dictionary returns for both functions.
     new_message = message.send(second_user['token'], channel_id['channel_id'], 'Hello World!')
     messages = channel.messages(second_user['token'], channel_id['channel_id'], 0)
-
+    # Asserting the most recent message in the channel's id matches the id sent from the user.
     assert(new_message['message_id'] == messages[0]['message_id'])
 
 # Testing an incorrect character length string message.
 def test_inputErrors():
+    # Creating a new user and having them create a new channel.
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-
     channel_id = channels.create(new_user['token'], 'Channel4', True)
-
+    # This should raise an error if the message length is greater than 1000.
     with pytest.raises(InputError) as e:
         message.send(new_user['token'], channel_id['channel_id'], 'i' * 1001)
 
+def test_almostInputError():
+    # Creating a new user and having them create a new channel.
+    new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
+    channel_id = channels.create(new_user['token'], 'New Channel', True)
+    # The message should send if the length of the message is 1000 characters.
     new_message = message.send(second_user['token'], channel_id['channel_id'], 'i' * 1000)
     messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
-
+    # Asserting that the new message sent correctly.
     assert(new_message['message_id'] == messages[0]['message_id'])
 
+# =====================================================
 # ========== TESTING MESSAGE REMOVE FUNCTION ==========
+# =====================================================
 
 def test_messageRemove():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
