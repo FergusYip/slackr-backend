@@ -63,6 +63,10 @@ def test_register_password():
         assert auth.auth_register('richardoutterridge@email.com', '12345',
                                   'Richard', 'Outterridge')
 
+    # 32 character password
+    assert auth.auth_register('richardoutterridge@email.com', 'i' * 32,
+                              'Richard', 'Outterridge')
+
 
 def test_register_first_name():
     # Valid
