@@ -102,6 +102,13 @@ def test_logout(paris):
     assert auth.logout(paris['token'])['is_success'] == True
 
 
+def test_logout_invalid_token(paris):
+    assert auth.logout(paris['token'])['is_success'] == True
+
+    # input invalidated token into function
+    assert auth.logout(paris['token'])['is_success'] == True
+
+
 def test_login(paris):
     paris_login = auth.login('pariscler@email.com', 'pariscler0229')
     assert paris_login['u_id'] == paris['u_id']
