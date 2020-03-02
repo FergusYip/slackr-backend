@@ -208,7 +208,7 @@ def test_emptyStringDelete():
 def test_AccessErrorUnauthorized():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     second_user = auth.register('anotheremail@gmail.com', 'Password', 'Lorem', 'Ipsum')
-    channel_id = channels.create(new_user['token'], 'Channel14', True)
+    channel_id = channels.create(new_user['token'], 'Channel15', True)
 
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'Hola el mundo!')
     messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
@@ -218,4 +218,11 @@ def test_AccessErrorUnauthorized():
         message.edit(second_user['token'], new_message['message_id'], "el ladron!")
 
 def test_AccessErrorOwner():
-    pass
+    new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
+    second_user = auth.register('tester2@test.com', 'Password42', 'Lorem', 'Ipsum')
+    # Creating a private channel that second_user cannot access.
+    channel_id = channels.create(new_user['token'], 'Channel16', False)
+    new_message = message.send(new_user['token'], channel_id['channel_id'], 'edit me')
+    # Second user is not an admin of the channel so cannot edit messages.
+    with pytest.raises(AccessError) as e:
+        message.edit(second_user['token'], new_message['message_id', "hello there"])
