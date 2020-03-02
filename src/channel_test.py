@@ -15,6 +15,10 @@ dummy_user2 = auth.register(
 c_id1 = channels.create(dummy_user1['token'], 'name1', True)
 c_id2 = channels.create(dummy_user2['token'], 'name2', True)
 
+# ===================================================================================
+# testing channel_invite function.
+# ===================================================================================
+
 
 def test_invite_channel():
 
@@ -50,3 +54,37 @@ def test_invite_access():
     # but the channel name2 only has dummy_user2.
     with pytest.raises(AccessError) as e:
         channel.invite(dummy_user1['token'], c_id2, dummy_user2['u_id'])
+
+
+# ===================================================================================
+# testing channel_details function.
+# ===================================================================================
+
+
+def test_details_owner():
+    # Checking if channel name1 has dummy_user1 in owner_members.
+    details = channel.details(dummy_user1['token'], c_id1['channel_id'])
+    owner = False
+
+    for user in details['owner_members']:
+        if user['u_id'] == dummy_user1['u_id']:
+            owner = True
+
+    assert owner == True
+
+
+def test_details_all():
+    # Checking if channel name1 has 2 users in all_members.
+    details = channel.details(dummy_user1['token'], c_id1['channel_id'])
+    size = 0
+
+    for user in details['all_members']:
+        size += 1
+
+    assert size == 2
+
+
+def test_details_invalid():
+    # Testing case when channel ID is invalid.
+    with pytest.raises(InputError) as e:
+        channel.details(dummy_user1['token'], 42045)
