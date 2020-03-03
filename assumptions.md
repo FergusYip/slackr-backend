@@ -19,3 +19,6 @@
 * Handles are the concatentation of the user's first and last name converted to lowercase.
 * If the generated handle is already taken, a modified handle is assigned to the user.
 * Specific testing of how a modified handle is generatedd will be omitted, instead tests will verify that the provided handle is unique.
+
+### message_remove
+* Assume that a message_id of 99999 will not be assigned to a message and can be used to test invalid message_ids.

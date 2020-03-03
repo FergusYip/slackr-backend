@@ -14,7 +14,7 @@ import auth
 # =====================================================
 
 # Simple tests of average case messages.
-def test_message_send():
+def test_averagecase_send():
     # Creating a new user.
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     # Creating a new channel.
@@ -23,35 +23,33 @@ def test_message_send():
     new_message = message.message_send(new_user['token'], channel_id['channel_id'], 'Hello world!')
 
 # Testing unauthorized sending of messages.
-def test_unauthorized():
+def test_sendunauthorized():
     # Creating a new user to test the function with.
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     # Creating a second user to test this function with.
     second_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     # 'new_user' creates this channel that is PRIVATE.
     channel_id = channels.channels_create(new_user['token'], 'Channel2', True)
-    channel.channel_invite(new_user['token'], channel_id['channel_id'], second_user['u_id'])
-    # An AccessError should be raised if 'second_user' attempts to send a message in this private channel
+    # An AccessError should be raised if 'second_user' attempts to send a message in this channel
     with pytest.raises(AccessError) as e:
         message.message_send(second_user['token'], channel_id['channel_id'], 'Hello team')
 
 # Testing a change in authorization affecting message sending.
-def test_authorization_change():
+def test_sendauthorization_change():
     # Creating 2 new users and having 'new_user' create a new channel.
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     second_user = auth.auth_register('letmein@test.com', 'Password1', 'Sample', 'Name')
     channel_id = channels.channels_create(new_user['token'], 'Channel3', True)
     # The second_user should initially be unable to send a message in this channel.
-    channel.channel_invite(new_user['token'], channel_id['channel_id'], second_user['u_id'])
     with pytest.raises(AccessError) as e:
         message.message_send(second_user['token'], channel_id['channel_id'], 'Why wont this send?')
     # 'new_user' invites the 'second_user' to this new channel.
     channel.channel_invite(new_user['token'], channel_id['channel_id'], second_user['u_id'])
     # Creating variables to hold the dictionary returns for both functions.
-    new_message = message.message_send(second_user['token'], channel_id['channel_id'], 'Hello World!')
+    message.message_send(second_user['token'], channel_id['channel_id'], 'Hello World!')
 
 # Testing an incorrect character length string message.
-def test_inputErrors():
+def test_sendonethousandandone():
     # Creating a new user and having them create a new channel.
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     channel_id = channels.channels_create(new_user['token'], 'Channel4', True)
@@ -59,7 +57,7 @@ def test_inputErrors():
     with pytest.raises(InputError) as e:
         message.message_send(new_user['token'], channel_id['channel_id'], 'i' * 1001)
 
-def test_almostInputError():
+def test_onethousandchars():
     # Creating a new user and having them create a new channel.
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     channel_id = channels.channels_create(new_user['token'], 'New Channel', True)
@@ -76,12 +74,6 @@ def test_messageRemove():
     new_message = message.message_send(new_user['token'], channel_id['channel_id'], 'hello world!')
     message.message_remove(new_user['token'], new_message['message_id'])
 
-def test_messageInputError():
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    channel_id = channels.channels_create(new_user['token'], 'Channel6', True)
-    with pytest.raises(InputError) as e:
-            message.message_remove(new_user['token'], 1) # Random message ID to remove.
-
 def test_removeTwo():
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     channel_id = channels.channels_create(new_user['token'], 'Channel7', True)
@@ -92,31 +84,22 @@ def test_removeTwo():
     message.message_remove(new_user['token'], second_message['message_id']) # Removing the 2nd message.
     message.message_remove(new_user['token'], new_message['message_id'])
 
+def test_messageremove_wrongID():
+    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
+    channel_id = channels.channels_create(new_user['token'], 'Channel6', True)
+    with pytest.raises(InputError) as e:
+            message.message_remove(new_user['token'], 99999) # Random message ID to remove.
 
 def test_unauthorizedRemoval(): # Person unauthorized for a channel attempting to remove a message.
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     second_user = auth.auth_register('test2@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
 
     channel_id = channels.channels_create(new_user['token'], 'Channel8', True)
-    channel.channel_invite(new_user['token'], channel_id['channel_id'], second_user['u_id'])
     new_message = message.message_send(new_user['token'], channel_id['channel_id'], 'removemepls')
-
     with pytest.raises(AccessError) as e:
         message.message_remove(second_user['token'], new_message['message_id'])
 
-def test_unauthorizedRemoval2():
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    second_user = auth.auth_register('test2@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    # The channel is public now.
-    channel_id = channels.channels_create(new_user['token'], 'Channel9', True)
-    channel.channel_invite(new_user['token'], channel_id['channel_id'], second_user['u_id'])
-    # Second_user is not the owner/admin of this channel.
-    new_message = message.message_send(new_user['token'], channel_id['channel_id'], 'Hello World!')
-
-    with pytest.raises(AccessError) as e:
-        message.message_remove(second_user['token'], new_message['message_id'])
-
-def test_unauthorizedRemoval3():
+def test_ownerRemoval():
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     second_user = auth.auth_register('test2@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     # New user has made this channel. (Is the channel owner)
@@ -145,7 +128,6 @@ def test_averageCaseEdit():
     new_message = message.message_send(new_user['token'], channel_id['channel_id'], 'Your good at programming')
     message.message_edit(new_user['token'], new_message['message_id'], "You're** Oops spelling")
 
-
 def test_emptyStringDelete():
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     channel_id = channels.channels_create(new_user['token'], 'Channel13', True)
@@ -155,6 +137,14 @@ def test_emptyStringDelete():
     messages = channel.channel_messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
     assert(new_message['message_id'] != messages[0]['message_id']) # Ensure the edited message is deleted and no longer the most recent message.
 
+def test_OwnerEdit():
+    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
+    second_user = auth.auth_register('tester2@test.com', 'Password42', 'Lorem', 'Ipsum')
+    # Creating a private channel that second_user cannot access.
+    channel_id = channels.channels_create(new_user['token'], 'Channel16', True)
+    channel.channel_invite(new_user['token'], channel_id['channel_id'], second_user['u_id'])
+    new_message = message.message_send(second_user['token'], channel_id['channel_id'], 'edit me')
+    message.message_edit(new_user['token'], new_message['message_id', "hello there"])
 
 def test_AccessErrorUnauthorized():
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
@@ -166,22 +156,14 @@ def test_AccessErrorUnauthorized():
     with pytest.raises(AccessError) as e:
         message.message_edit(second_user['token'], new_message['message_id'], "el ladron!")
 
-def test_AccessErrorOwner():
+def test_AccessErrorNotAdmin():
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    second_user = auth.auth_register('tester2@test.com', 'Password42', 'Lorem', 'Ipsum')
-    # Creating a private channel that second_user cannot access.
-    channel_id = channels.channels_create(new_user['token'], 'Channel16', True)
-    channel.channel_invite(new_user['token'], channel_id['channel_id'], second_user['u_id'])
-    new_message = message.message_send(new_user['token'], channel_id['channel_id'], 'edit me')
-    # Second user is not an admin of the channel so cannot edit messages.
-    with pytest.raises(AccessError) as e:
-        message.message_edit(second_user['token'], new_message['message_id', "hello there"])
+    second_user = auth.auth_register('anotheremail@gmail.com', 'Password', 'Lorem', 'Ipsum')
+    third_user = auth.auth_register('wow@gmail.com', 'Password', 'CreativeName', 'Generator')
 
-def test_ownerEdit():
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    second_user = auth.auth_register('tester2@test.com', 'Password42', 'Lorem', 'Ipsum')
-    # Creating a private channel that second_user cannot access.
-    channel_id = channels.channels_create(new_user['token'], 'Channel17', True)
+    channel_id = channels.channels_create(new_user['token'], 'Channel15', True)
     channel.channel_invite(new_user['token'], channel_id['channel_id'], second_user['u_id'])
-    new_message = message.message_send(second_user['token'], channel_id['channel_id'], 'you cant edit me')
-    message.message_edit(new_user['token'], new_message['message_id'], 'yes i can')
+    channel.channel_invite(new_user['token'], channel_id['channel_id'], third_user['u_id'])
+    new_message = message.message_send(second_user['token'], channel_id['channel_id'], 'Bienvenidos!')
+    with pytest.raises(AccessError) as e:
+        message.message_edit(third_user['token'], new_message['message_id'], "el ladron!")
