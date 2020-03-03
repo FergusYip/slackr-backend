@@ -117,12 +117,8 @@ def test_unauthorizedRemoval3():
     second_user = auth.register('test2@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     # New user has made this channel. (Is the channel owner)
     channel_id = channels.create(new_user['token'], 'Channel10', True)
-
     new_message = message.send(second_user['token'], channel_id['channel_id'], 'Hello Earth!')
     message.remove(new_user['token'], new_message['message_id']) # New_user can remove this message as they are the owner.
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
-
-    assert(new_message['message_id'] != messages[0]['message_id']) # Asserting the message was removed properly.
 
 def test_changeOwners():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
@@ -130,13 +126,8 @@ def test_changeOwners():
     # New user has made this channel. (Is the channel owner)
     channel_id = channels.create(new_user['token'], 'Channel11', True)
     channel.addowner(new_user['token'], channel_id['channel_id'], second_user['u_id'])
-
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'Hello Earth!')
     message.remove(second_user['token'], new_message['message_id'])
-
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages list.
-
-    assert(new_message['message_id'] != messages[0]['message_id']) # Asserting the removal was successful.
 
 # =====================================================
 # ========== TESTING MESSAGE EDIT FUNCTION ============
@@ -145,32 +136,17 @@ def test_changeOwners():
 def test_averageCaseEdit():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     channel_id = channels.create(new_user['token'], 'Channel12', True)
-
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'Your good at programming')
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
-
-    # Ensure that the message sent correctly before testing.
-    assert(new_message['message_id'] == messages[0]['message_id']) # Asserting the message was removed properly.
-
     message.edit(new_user['token'], new_message['message_id'], "You're** Oops spelling")
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
-
-    assert("You're** Oops spelling" == messages[0]['message']) # Ensure the edited message is displayed.
 
 
 def test_emptyStringDelete():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     channel_id = channels.create(new_user['token'], 'Channel13', True)
-
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'I dont like you anymore')
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
-
-    # Ensure that the message sent correctly before testing.
-    assert(new_message['message_id'] == messages[0]['message_id']) # Asserting the message was added properly.
-
     message.edit(new_user['token'], new_message['message_id'], "")
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
 
+    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
     assert(new_message['message_id'] != messages[0]['message_id']) # Ensure the edited message is deleted and no longer the most recent message.
 
 
@@ -178,10 +154,7 @@ def test_AccessErrorUnauthorized():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     second_user = auth.register('anotheremail@gmail.com', 'Password', 'Lorem', 'Ipsum')
     channel_id = channels.create(new_user['token'], 'Channel15', True)
-
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'Hola el mundo!')
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
-    assert(new_message['message_id'] == messages[0]['message_id']) # Asserting the message was removed properly.
 
     with pytest.raises(AccessError) as e:
         message.edit(second_user['token'], new_message['message_id'], "el ladron!")
@@ -195,3 +168,11 @@ def test_AccessErrorOwner():
     # Second user is not an admin of the channel so cannot edit messages.
     with pytest.raises(AccessError) as e:
         message.edit(second_user['token'], new_message['message_id', "hello there"])
+
+def test_ownerEdit():
+    new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
+    second_user = auth.register('tester2@test.com', 'Password42', 'Lorem', 'Ipsum')
+    # Creating a private channel that second_user cannot access.
+    channel_id = channels.create(new_user['token'], 'Channel17', True)
+    new_message = message.send(second_user['token'], channel_id['channel_id'], 'you cant edit me')
+    message.edit(new_user['token'], new_message['message_id'], 'yes i can')
