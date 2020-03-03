@@ -2,6 +2,7 @@ import user
 import channel
 import channels
 import auth
+import pytest
 from error import AccessError, InputError
 
 # =====================================================
