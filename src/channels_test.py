@@ -1,7 +1,7 @@
+import pytest
 import auth
 import channel
 import channels
-import pytest
 from error import InputError, AccessError
 
 
@@ -12,6 +12,7 @@ def user():
 
 
 def test_create_public(user):
+    '''Test that any users can join a public channel'''
     test_channel = channels.channels_create(user['token'], 'Channel', True)
     channel.channel_join(user['token'], test_channel['channel_id'])
     details = channel.channel_details(user['token'],
@@ -20,6 +21,7 @@ def test_create_public(user):
 
 
 def test_create_private(user):
+    '''Test that an unauthorised user cannot join a private channel'''
     test_channel = channels.channels_create(user['token'], 'Channel', False)
     with pytest.raises(AccessError) as e:
         channel.channel_join(user['token'], test_channel['channel_id'])
@@ -29,17 +31,20 @@ def test_create_private(user):
 
 
 def test_create_types(user):
+    '''Test the types returned by channels_user'''
     channel = channels.channels_create(user['token'], 'Channel', True)
     assert isinstance(channel, dict) == True
     assert isinstance(channel['channel_id'], int) == True
 
 
 def test_create_long_name(user):
+    '''Test creation of channel with name length > 20'''
     with pytest.raises(InputError) as e:
-        channel = channels.channels_create(user['token'], 'i' * 21, True)
+        channels.channels_create(user['token'], 'i' * 21, True)
 
 
 def test_listall(user):
+    '''Test that all created channels are returned by channels_listall'''
     channel_1 = channels.channels_create(user['token'], 'One', True)
     channel_2 = channels.channels_create(user['token'], 'Two', True)
     channel_3 = channels.channels_create(user['token'], 'Three', True)
@@ -57,6 +62,7 @@ def test_listall(user):
 
 
 def test_list(user):
+    '''Test that channels_list only returns channels the user is in'''
     joined_1 = channels.channels_create(user['token'], 'One', True)
     joined_2 = channels.channels_create(user['token'], 'Two', True)
     not_joined = channels.channels_create(user['token'], 'Three', True)
