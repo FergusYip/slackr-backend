@@ -1,5 +1,6 @@
 import pytest
 import auth
+import user
 from error import InputError
 
 valid_emails = ('latonyaDAVISON@email.com', '123456789@email.com',
@@ -95,6 +96,32 @@ def test_register_last_name():
     with pytest.raises(InputError) as e:
         assert auth.auth_register('valid@email.com', 'password', 'Aziza',
                                   'a' * 50)
+
+
+def test_register_handle():
+    test_user = auth.auth_register('valid@email.com', 'password', 'First',
+                                   'Last')
+    test_profile = user.user_profile(test_user['token'], test_user['u_id'])
+    assert test_profile['user']['handle_str'] == 'firstlast'
+
+
+def test_register_unique_handle():
+    user_1 = auth.auth_register('valid@email.com', 'password', 'First', 'Last')
+    user_profile_1 = user.user_profile(user_1['token'], user_1['u_id'])
+
+    user_2 = auth.auth_register('avalid@email.com', 'password', 'First',
+                                'Last')
+    user_profile_2 = user.user_profile(user_2['token'], user_2['u_id'])
+
+    assert user_profile_1['user']['handle_str'] != user_profile_2['user'][
+        'handle_str']
+
+
+def test_register_long_handle():
+    test_user = auth.auth_register('valid@email.com', 'password',
+                                   '123456789testing', '123456789testing')
+    test_profile = user.user_profile(test_user['token'], test_user['u_id'])
+    assert test_profile['user']['handle_str'] == '123456789testing1234'
 
 
 @pytest.fixture
