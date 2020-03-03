@@ -27,22 +27,22 @@ def test_register_return_type():
 def test_register_email():
     # Valid email
     for email in valid_emails:
-        assert auth.auth_register(email, 'password', 'First', 'Last')
+        auth.auth_register(email, 'password', 'First', 'Last')
 
     # Invalid email with @ sign problems
     for email in invalid_email_at_sign:
         with pytest.raises(InputError) as e:
-            assert auth.auth_register(email, 'password', 'First', 'Last')
+            auth.auth_register(email, 'password', 'First', 'Last')
 
     # Invalid email with . sign problems
     for email in invalid_email_dot_sign:
         with pytest.raises(InputError) as e:
-            assert auth.auth_register(email, 'password', 'First', 'Last')
+            auth.auth_register(email, 'password', 'First', 'Last')
 
     # Invalid email with length problems
     for email in invalid_email_length:
         with pytest.raises(InputError) as e:
-            assert auth.auth_register(email, 'password', 'First', 'Last')
+            auth.auth_register(email, 'password', 'First', 'Last')
 
 
 def test_register_duplicate():
@@ -50,52 +50,52 @@ def test_register_duplicate():
     auth.auth_register('durumarion@email.com', 'password', 'Duru', 'Marion')
 
     with pytest.raises(InputError) as e:
-        assert auth.auth_register('durumarion@email.com', 'password', 'Duru',
-                                  'Marion')
+        auth.auth_register('durumarion@email.com',
+                           'password', 'Duru', 'Marion')
 
 
 def test_register_password():
     # Valid
-    assert auth.auth_register('richardoutterridge@email.com', '123456',
-                              'Richard', 'Outterridge')
+    auth.auth_register('richardoutterridge@email.com', '123456',
+                       'Richard', 'Outterridge')
 
     # <6 Password Length
     with pytest.raises(InputError) as e:
-        assert auth.auth_register('richardoutterridge@email.com', '12345',
-                                  'Richard', 'Outterridge')
+        auth.auth_register('richardoutterridge@email.com', '12345',
+                           'Richard', 'Outterridge')
 
-    # 32 character password
-    assert auth.auth_register('richardoutterridge@email.com', 'i' * 32,
-                              'Richard', 'Outterridge')
+    # 32 character password that is within the (assumed) maximum length for password
+    auth.auth_register('richardoutterridge@email.com', 'i' * 32,
+                       'Richard', 'Outterridge')
 
 
 def test_register_first_name():
     # Valid
-    assert auth.auth_register('valid@email.com', 'password', 'Giltbert',
-                              'Blue')
+    auth.auth_register('valid@email.com', 'password', 'Giltbert',
+                       'Blue')
 
     # <1 Character
     with pytest.raises(InputError) as e:
-        assert auth.auth_register('valid@email.com', 'password', '', 'Blue')
+        auth.auth_register('valid@email.com', 'password', '', 'Blue')
 
     # >50 Characters
     with pytest.raises(InputError) as e:
-        assert auth.auth_register('valid@email.com', 'password', 'a' * 50,
-                                  'Blue')
+        auth.auth_register('valid@email.com', 'password', 'a' * 50,
+                           'Blue')
 
 
 def test_register_last_name():
     # Valid
-    assert auth.auth_register('valid@email.com', 'password', 'Aziza', 'Addens')
+    auth.auth_register('valid@email.com', 'password', 'Aziza', 'Addens')
 
     # <1 Character
     with pytest.raises(InputError) as e:
-        assert auth.auth_register('valid@email.com', 'password', 'Aziza', '')
+        auth.auth_register('valid@email.com', 'password', 'Aziza', '')
 
     # >50 Characters
     with pytest.raises(InputError) as e:
-        assert auth.auth_register('valid@email.com', 'password', 'Aziza',
-                                  'a' * 50)
+        auth.auth_register('valid@email.com', 'password', 'Aziza',
+                           'a' * 50)
 
 
 def test_register_handle():
@@ -147,11 +147,11 @@ def test_login(paris):
 
     # Password is not correct
     with pytest.raises(InputError) as e:
-        assert auth.auth_login('pariscler@email.com', 'incorrect_password')
+        auth.auth_login('pariscler@email.com', 'incorrect_password')
 
     # Email entered does not belong to a user
     with pytest.raises(InputError) as e:
-        assert auth.auth_login('non_existent_user@email.com', '12345678')
+        auth.auth_login('non_existent_user@email.com', '12345678')
 
 
 def test_login_multiple_sessions(paris):
@@ -168,26 +168,18 @@ def test_login_multiple_sessions(paris):
     assert len(set(session_tokens)) == len(session_tokens)
 
 
-# Don't know how to test auth_login with invalid email since an invalid email
-# will never belong to a register user. This means that if auth_login is given
-# an invalid email, it would return two InputErrors
+def test_login_invalid_email():
+    # Invalid email with @ sign problems
+    for email in invalid_email_at_sign:
+        with pytest.raises(InputError) as e:
+            auth.auth_login(email, 'password')
 
-# def test_login_email():
-#     # Valid email
-#     for email in valid_emails:
-#         assert auth.auth_login(email, 'password')
+    # Invalid email with . sign problems
+    for email in invalid_email_dot_sign:
+        with pytest.raises(InputError) as e:
+            auth.auth_login(email, 'password')
 
-#     # Invalid email with @ sign problems
-#     for email in invalid_email_at_sign:
-#         with pytest.raises(InputError) as e:
-#             assert auth.auth_login(email, 'password')
-
-#     # Invalid email with . sign problems
-#     for email in invalid_email_dot_sign:
-#         with pytest.raises(InputError) as e:
-#             assert auth.auth_login(email, 'password')
-
-#     # Invalid email with length problems
-#     for email in invalid_email_length:
-#         with pytest.raises(InputError) as e:
-#             assert auth.auth_login(email, 'password')
+    # Invalid email with length problems
+    for email in invalid_email_length:
+        with pytest.raises(InputError) as e:
+            auth.auth_login(email, 'password')
