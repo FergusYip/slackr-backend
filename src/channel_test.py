@@ -5,22 +5,48 @@ import auth
 from error import InputError
 from error import AccessError
 
-# Making a dummy user with valid details.
-dummy_user1 = auth.auth_register(
-    'something.else@domain.com', 'GreatPassword04', 'something', 'else')
-dummy_user2 = auth.auth_register(
-    'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
 
-# creating channels.
-c_id1 = channels.channels_create(dummy_user1['token'], 'name1', True)
-c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
+@pytest.fixture
+def dummy_user1():
+    dummy_user1 = auth.auth_register(
+        'something.else@domain.com', 'GreatPassword04', 'something', 'else')
+    return dummy_user1
+
+
+@pytest.fixture
+def dummy_user2():
+    dummy_user2 = auth.auth_register(
+        'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
+    return dummy_user2
+
+
+@pytest.fixture
+def channel1(dummy_user1):
+    c_id1 = channels.channels_create(dummy_user1['token'], 'name1', True)
+    return c_id1
+
+
+@pytest.fixture
+def channel2(dummy_user2):
+    c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
+    return c_id2
+
+# # Making a dummy user with valid details.
+# dummy_user1 = auth.auth_register(
+#     'something.else@domain.com', 'GreatPassword04', 'something', 'else')
+# dummy_user2 = auth.auth_register(
+#     'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
+
+# # creating channels.
+# c_id1 = channels.channels_create(dummy_user1['token'], 'name1', True)
+# c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
 
 # ===================================================================================
 # testing channel_invite function.
 # ===================================================================================
 
 
-def test_invite_channel():
+def test_invite_channel(user1):
 
     # testing channel invite function to valid channel.channel_
     channel.channel_invite(
