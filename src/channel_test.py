@@ -23,8 +23,8 @@ c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
 def test_invite_channel():
 
     # testing channel invite function to valid channel.channel_
-    channel.channel_invite(dummy_user1['token'],
-                           c_id1['channel_id'], dummy_user2['u_id'])
+    channel.channel_invite(
+        dummy_user1['token'], c_id1['channel_id'], dummy_user2['u_id'])
 
     # testing channel invite function to invalid channel.channel_
     with pytest.raises(InputError) as e:
@@ -75,6 +75,22 @@ def test_details_owner():
             owner = True
 
     assert owner == True
+
+
+def test_details_added_owner():
+    # Adding another owner (dummy_user2) to name1 and checking if the channel
+    # has 2 owners.
+    channel.channel_addowner(
+        dummy_user1['token'], c_id1['channel_id'], dummy_user2['u_id'])
+    details = channel.channel_details(
+        dummy_user1['token'], c_id1['channel_id'])
+
+    size = 0
+
+    for user in details['owner_members']:
+        size += 1
+
+    assert size == 2
 
 
 def test_details_all():
