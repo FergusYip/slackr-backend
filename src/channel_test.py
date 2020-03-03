@@ -6,14 +6,14 @@ from error import InputError
 from error import AccessError
 
 # Making a dummy user with valid details.
-dummy_user1 = auth.register(
+dummy_user1 = auth.auth_register(
     'something.else@domain.com', 'GreatPassword04', 'something', 'else')
-dummy_user2 = auth.register(
+dummy_user2 = auth.auth_register(
     'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
 
 # creating channels.
-c_id1 = channels.create(dummy_user1['token'], 'name1', True)
-c_id2 = channels.create(dummy_user2['token'], 'name2', True)
+c_id1 = channels.channels_create(dummy_user1['token'], 'name1', True)
+c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
 
 # ===================================================================================
 # testing channel_invite function.
@@ -22,23 +22,25 @@ c_id2 = channels.create(dummy_user2['token'], 'name2', True)
 
 def test_invite_channel():
 
-    # testing channel invite function to valid channel.
-    channel.invite(dummy_user1['token'],
-                   c_id1['channel_id'], dummy_user2['u_id'])
+    # testing channel invite function to valid channel.channel_
+    channel.channel_invite(dummy_user1['token'],
+                           c_id1['channel_id'], dummy_user2['u_id'])
 
-    # testing channel invite function to invalid channel.
+    # testing channel invite function to invalid channel.channel_
     with pytest.raises(InputError) as e:
-        channel.invite(dummy_user1['token'], '3555', dummy_user2['u_id'])
+        channel.channel_invite(
+            dummy_user1['token'], '3555', dummy_user2['u_id'])
 
 
 def test_invite_user():
     # testing channel invite for non-existent user.
     with pytest.raises(InputError) as e:
-        channel.invite(dummy_user1['token'], c_id1['channel_id'], 69)
+        channel.channel_invite(dummy_user1['token'], c_id1['channel_id'], 69)
 
     # testing if the user with user id dummy_user2[u_id] exists in channel c_id1.
     # this should pass if line 19 executed.
-    details = channel.details(dummy_user1['token'], c_id1['channel_id'])
+    details = channel.channel_details(
+        dummy_user1['token'], c_id1['channel_id'])
     user_in_channel = False
 
     for user in details['all_members']:
@@ -49,11 +51,12 @@ def test_invite_user():
 
 
 def test_invite_access():
-    # testing case when inviting user is not a member of a channel.
+    # testing case when inviting user is not a member of a channel.channel_
     # at this point - the channel name1 has both users (dummy_user1 and dummy_user2)
     # but the channel name2 only has dummy_user2.
     with pytest.raises(AccessError) as e:
-        channel.invite(dummy_user1['token'], c_id2, dummy_user2['u_id'])
+        channel.channel_invite(
+            dummy_user1['token'], c_id2, dummy_user2['u_id'])
 
 
 # ===================================================================================
@@ -63,7 +66,8 @@ def test_invite_access():
 
 def test_details_owner():
     # Checking if channel name1 has dummy_user1 in owner_members.
-    details = channel.details(dummy_user1['token'], c_id1['channel_id'])
+    details = channel.channel_details(
+        dummy_user1['token'], c_id1['channel_id'])
     owner = False
 
     for user in details['owner_members']:
@@ -75,7 +79,8 @@ def test_details_owner():
 
 def test_details_all():
     # Checking if channel name1 has 2 users in all_members.
-    details = channel.details(dummy_user1['token'], c_id1['channel_id'])
+    details = channel.channel_details(
+        dummy_user1['token'], c_id1['channel_id'])
     size = 0
 
     for user in details['all_members']:
@@ -87,10 +92,10 @@ def test_details_all():
 def test_details_invalid():
     # Testing case when channel ID is invalid.
     with pytest.raises(InputError) as e:
-        channel.details(dummy_user1['token'], 42045)
+        channel.channel_details(dummy_user1['token'], 42045)
 
-    # Testing case when user asking for details isn't part of the channel.
+    # Testing case when user asking for details isn't part of the channel.channel_
     # at this point, channel name2 has only dummy_user2 as members.
     # testing case when dummy_user1 asks for details about channel name2.
     with pytest.raises(AccessError) as e:
-        channel.details(dummy_user1['token'], c_id2['channel_id'])
+        channel.channel_details(dummy_user1['token'], c_id2['channel_id'])
