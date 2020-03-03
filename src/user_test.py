@@ -56,3 +56,7 @@ def test_inputError():
     # Thus, trying to find profile information should raise an InputError.
     with pytest.raises(InputError) as e:
         user.profile(new_user['token'], 'NOTAUID')
+
+# =====================================================
+# ====== TESTING USER PROFILE SETNAME FUNCTION ========
+# =====================================================
