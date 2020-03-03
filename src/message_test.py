@@ -21,10 +21,6 @@ def test_message_send():
     channel_id = channels.create(new_user['token'], 'Channel1', True)
     # Creating a variable 'new_message' to hold the dictionary return from the send function.
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'Hello world!')
-    # 'messages' will hold the list of dictionary information for the most recent 50 messages.
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
-    # Ensuring the most recent message's id matches the one send from new_user
-    assert(new_message['message_id'] == messages[0]['message_id'])
 
 # Testing unauthorized sending of messages.
 def test_unauthorized():
@@ -51,9 +47,6 @@ def test_authorization_change():
     channel.invite(new_user['token'], channel_id['channel_id'], second_user['u_id'])
     # Creating variables to hold the dictionary returns for both functions.
     new_message = message.send(second_user['token'], channel_id['channel_id'], 'Hello World!')
-    messages = channel.messages(second_user['token'], channel_id['channel_id'], 0)
-    # Asserting the most recent message in the channel's id matches the id sent from the user.
-    assert(new_message['message_id'] == messages[0]['message_id'])
 
 # Testing an incorrect character length string message.
 def test_inputErrors():
@@ -70,9 +63,6 @@ def test_almostInputError():
     channel_id = channels.create(new_user['token'], 'New Channel', True)
     # The message should send if the length of the message is 1000 characters.
     new_message = message.send(second_user['token'], channel_id['channel_id'], 'i' * 1000)
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
-    # Asserting that the new message sent correctly.
-    assert(new_message['message_id'] == messages[0]['message_id'])
 
 # =====================================================
 # ========== TESTING MESSAGE REMOVE FUNCTION ==========
@@ -80,47 +70,26 @@ def test_almostInputError():
 
 def test_messageRemove():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-
     channel_id = channels.create(new_user['token'], 'Channel5', True)
-
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'hello world!')
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
-    assert(new_message['message_id'] == messages[0]['message_id']) # Ensure the message sent
-
     message.remove(new_user['token'], new_message['message_id'])
-
-    assert(new_message['message_id'] != messages[0]['message_id'])
 
 def test_messageInputError():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-
     channel_id = channels.create(new_user['token'], 'Channel6', True)
-
     with pytest.raises(InputError) as e:
             message.remove(new_user['token'], 1) # Random message ID to remove.
 
-def test_OneRemoveOneFail():
+def test_removeTwo():
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-
     channel_id = channels.create(new_user['token'], 'Channel7', True)
 
     new_message = message.send(new_user['token'], channel_id['channel_id'], 'hello world!')
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
-    assert(new_message['message_id'] == messages[0]['message_id']) # Ensure the message sent
-
     second_message = message.send(new_user['token'], channel_id['channel_id'], 'hello slackr you mean')
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0)
-    assert(new_message['message_id'] == messages[0]['message_id']) # Ensure the message sent correctly.
 
     message.remove(new_user['token'], second_message['message_id']) # Removing the 2nd message.
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
-
-    assert(new_message['message_id'] == messages[0]['message_id']) # Ensure the recent message was removed from the front of the list.
-
     message.remove(new_user['token'], new_message['message_id'])
-    messages = channel.messages(new_user['token'], channel_id['channel_id'], 0) # Update the messages variable.
 
-    assert(new_message['message_id'] != messages[0]['message_id']) # Ensure both messages were removed from the front of the list.
 
 def test_unauthorizedRemoval(): # Person unauthorized for a channel attempting to remove a message.
     new_user = auth.register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
