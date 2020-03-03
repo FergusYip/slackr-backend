@@ -49,7 +49,7 @@ def test_averagecase_handle():
     # generation.
     assert('loremipsum' == profile_information['user']['handle_str'])
 
-def test_inputError():
+def test_invalid_uid():
     # Storing the new user's information in a variable to check values.
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
     # Assumptions made about u_ids state that 'NOTAUID' is not a valid u_id.
