@@ -53,14 +53,14 @@ def test_invite_channel(dummy_user1, dummy_user2, channel1):
         dummy_user1['token'], channel1['channel_id'], dummy_user2['u_id'])
 
     # testing channel invite function to invalid channel.channel_
-    with pytest.raises(InputError) as e:
+    with pytest.raises(InputError):
         channel.channel_invite(
             dummy_user1['token'], '3555', dummy_user2['u_id'])
 
 
 def test_invite_user(dummy_user1, dummy_user2, channel1):
     # testing channel invite for non-existent user.
-    with pytest.raises(InputError) as e:
+    with pytest.raises(InputError):
         channel.channel_invite(
             dummy_user1['token'], channel1['channel_id'], 69)
 
@@ -81,7 +81,7 @@ def test_invite_access(dummy_user1, dummy_user2, channel2):
     # testing case when inviting user is not a member of a channel.channel_
     # at this point - the channel name1 has both users (dummy_user1 and dummy_user2)
     # but the channel name2 only has dummy_user2.
-    with pytest.raises(AccessError) as e:
+    with pytest.raises(AccessError):
         channel.channel_invite(
             dummy_user1['token'], channel2, dummy_user2['u_id'])
 
@@ -112,35 +112,26 @@ def test_details_added_owner(dummy_user1, dummy_user2, channel1):
     details = channel.channel_details(
         dummy_user1['token'], channel1['channel_id'])
 
-    size = 0
-
-    for user in details['owner_members']:
-        size += 1
-
-    assert size == 2
+    assert len(details['owner_members']) == 2
 
 
 def test_details_all(dummy_user1, channel1):
     # Checking if channel name1 has 2 users in all_members.
     details = channel.channel_details(
         dummy_user1['token'], channel1['channel_id'])
-    size = 0
 
-    for user in details['all_members']:
-        size += 1
-
-    assert size == 2
+    assert len(details['all_members']) == 2
 
 
 def test_details_invalid(dummy_user1, channel2):
     # Testing case when channel ID is invalid.
-    with pytest.raises(InputError) as e:
+    with pytest.raises(InputError):
         channel.channel_details(dummy_user1['token'], 42045)
 
     # Testing case when user asking for details isn't part of the channel.channel_
     # at this point, channel name2 has only dummy_user2 as members.
     # testing case when dummy_user1 asks for details about channel name2.
-    with pytest.raises(AccessError) as e:
+    with pytest.raises(AccessError):
         channel.channel_details(dummy_user1['token'], channel2['channel_id'])
 
 
