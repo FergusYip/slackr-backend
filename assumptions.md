@@ -16,3 +16,7 @@
 * Handles are the concatentation of the user's first and last name converted to lowercase.
 * If the generated handle is already taken, a modified handle is assigned to the user.
 * Specific testing of how a modified handle is generatedd will be omitted, instead tests will verify that the provided handle is unique.
+
+## channels.py
+### channels_create
+* Channel name only contains ASCII printable characters
