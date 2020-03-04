@@ -30,6 +30,18 @@ def test_search_empty_channel(test_user, make_join_channel):
     assert len(other.search(test_user['token'], '')['messages']) == 0
 
 
+def test_search_return_type(test_user, make_join_channel):
+    test_channel = make_join_channel(test_user, 'Channel')
+    message.message_send(test_user['token'], test_channel['channel_id'],
+                         'Hello world!')
+
+    results = other.search(test_user['token'], 'Hello')['messages'][0]
+    assert isinstance(results['message_id'], int)
+    assert isinstance(results['u_id'], int)
+    assert isinstance(results['message'], str)
+    assert isinstance(results['time_created'], int)
+
+
 def test_search_single_channel(test_user, make_join_channel):
     test_channel = make_join_channel(test_user, 'Channel')
     message.message_send(test_user['token'], test_channel['channel_id'],
