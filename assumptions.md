@@ -19,4 +19,12 @@
 
 ## channels.py
 ### channels_create
-* Channel name only contains ASCII printable characters
+* Channel name only contains ASCII printable characters.
+* Channel names do not have to be unique.
+
+## other.py
+### search
+* If user is not a part of any channel, search returns no messages.
+* If the query string is empty, search returns all messages from every channel the user is a part of.
+* Query string is case insensitive.
+
