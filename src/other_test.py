@@ -59,6 +59,7 @@ def test_search_return_type(test_user, make_join_channel):
                          'Hello world!')
 
     results = other.search(test_user['token'], 'Hello')['messages'][0]
+    assert isinstance(results, dict)
     assert isinstance(results['message_id'], int)
     assert isinstance(results['u_id'], int)
     assert isinstance(results['message'], str)
