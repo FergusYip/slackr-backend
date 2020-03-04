@@ -18,6 +18,10 @@ def test_users_all_invalid_token(invalid_token):
         other.users_all(invalid_token)
 
 
+def test_search_no_channel(test_user):
+    assert len(other.search(test_user['token'], '')['messages']) == 0
+
+
 def test_search_invalid_token(invalid_token):
     with pytest.raises(AccessError):
         other.search(invalid_token, '')
