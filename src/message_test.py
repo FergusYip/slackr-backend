@@ -156,7 +156,7 @@ def test_AccessErrorUnauthorized():
     with pytest.raises(AccessError) as e:
         message.message_edit(second_user['token'], new_message['message_id'], "el ladron!")
 
-def test_AccessErrorNotAdmin():
+def test_AccessErrorNotOwner():
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
     second_user = auth.auth_register('anotheremail@gmail.com', 'Password', 'Lorem', 'Ipsum')
     third_user = auth.auth_register('wow@gmail.com', 'Password', 'CreativeName', 'Generator')
