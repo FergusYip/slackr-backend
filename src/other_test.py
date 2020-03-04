@@ -71,6 +71,19 @@ def test_search_multiple_channels(test_user, make_join_channel):
     assert len(other.search(test_user['token'], 'Channel')['messages']) == 3
 
 
+def test_search_unauthorised_channels(new_user, make_join_channel):
+    tom = new_user('tom@email.com')
+
+    jerry = new_user('jerry@email.com')
+    mice_ch = make_join_channel(jerry, 'Mice Only')
+
+    message.message_send(jerry['token'], mice_ch['channel_id'],
+                         'Tom can\'t see this')
+
+    assert len(other.search(jerry['token'], '')['messages']) == 1
+    assert len(other.search(tom['token'], '')['messages']) == 0
+
+
 def test_search_case_insensitive(test_user, make_join_channel):
     test_channel = make_join_channel(test_user, 'Channel')
     message.message_send(test_user['token'], test_channel['channel_id'],

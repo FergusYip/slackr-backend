@@ -22,6 +22,14 @@ def test_channel(test_user):
 
 
 @pytest.fixture
+def new_user():
+    def _new_user(email):
+        return auth.auth_register(email, 'password', 'First', 'Last')
+
+    return _new_user
+
+
+@pytest.fixture
 def make_join_channel():
     def _make_join_channel(target_user, channel_name):
         ch = channels.channels_create(target_user['token'], target_user, True)
