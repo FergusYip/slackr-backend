@@ -57,6 +57,18 @@ def test_invalid_uid():
     with pytest.raises(InputError) as e:
         user.user_profile(new_user['token'], 'NOTAUID')
 
+def invalid_token():
+    # Storing the new user's information in a variable to check values.
+    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
+    with pytest.raises(AccessError) as e:
+        user.user_profile('INVALIDTOKEN', new_user['u_id'])
+
+def unauthorized_profile():
+    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
+    second_user = auth.auth_register('unique@test.com', 'PaSsWoRd1', 'Hello', 'World')
+    # Any user should be able to call this command.
+    user.user_profile(second_user['token'], new_user['u_id'])
+
 # =====================================================
 # ====== TESTING USER PROFILE SETNAME FUNCTION ========
 # =====================================================
@@ -94,5 +106,73 @@ def test_lastoverfifty():
     with pytest.raises(InputError) as e:
         user.user_profile_setname(new_user['token'], 'Ipsum', 'i' * 50)
 
-'''Possible testing of invalid token. I.e. if a second user tries to change
-the target user's name without being authorized. AccessError?'''
+def invalidtoken_namechange():
+    # Function to raise an AccessError if the token passed is invalid.
+    with pytest.raises(AccessError) as e:
+        user.user_profile_setname('INVALIDTOKEN', 'Johnny', 'McJohnny')
+
+# =====================================================
+# ===== TESTING USER PROFILE SET EMAIL FUNCTION =======
+# =====================================================
+
+def averagecase_email_change():
+    # Standard case of a user changing their email address.
+    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
+    user.user_profile_setemail(new_user['token'], 'unique42@hemail.com')
+
+def already_used_emailchange():
+    # Case where a user already exists with that email address.
+    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
+    second_user = auth.auth_register('tester@test.com', 'PaSsWoRd1', 'Unique', 'Name')
+    with pytest.raises(InputError) as e:
+        user.user_profile_setemail(second_user['token'], 'test@test.com')
+
+def no_change_email():
+    # Case where the user tries to change their email address to the current one.
+    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
+    with pytest.raises(InputError) as e:
+        user.user_profile_setemail(new_user['token'], 'test@test.com')
+
+def invalidtoken_emailchange():
+    # Function to raise an AccessError if the token passed is invalid.
+    with pytest.raises(AccessError) as e:
+        user.user_profile_setemail('INVALIDTOKEN', 'doesntmatter@gmail.com')
+
+# Valid emails tuple created by Fergus Yip
+@pytest.fixture
+def valid_emails():
+    '''Fixture for a tuple of valid emails'''
+
+    return ('latonyaDAVISON@email.com', '123456789@email.com',
+            'lantonyDAVISON123@email.com', 'lantony_davison@email.com',
+            'lantony.davison@email.com', 'lantony-davison@email.com')
+
+# Invalid emails tuple created by Fergus Yip
+@pytest.fixture
+def invalid_emails():
+    '''Fixture for a tuple of invalid emails'''
+
+    return (
+        '.latonyadavison@email.com',
+        'latonyadavison.@email.com',
+        'latonya..davison.@email.com',
+        'latonya@davison@email.com',
+        'latonyadavison.com',
+    )
+
+def test_validemailchange(valid_emails):
+    # Testing the change to a variety of valid email types.
+    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
+    for email in valid_emails:
+        user.user_profile_setemail(new_user['token'], email)
+
+def test_invalidemailchange(invalid_emails):
+    # Testing the change to a variety of invalid email types.
+    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
+    for email in invalid_emails:
+        with pytest.raises(InputError) as e:
+            user.user_profile_setemail(new_user['token'], email)
+
+# =====================================================
+# ===== TESTING USER PROFILE SET HANDLE FUNCTION ======
+# =====================================================

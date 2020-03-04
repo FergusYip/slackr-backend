@@ -45,3 +45,25 @@ def make_join_channel():
         return ch
 
     return _make_join_channel
+
+
+@pytest.fixture
+def valid_emails():
+    '''Fixture for a tuple of valid emails'''
+
+    return ('latonyaDAVISON@email.com', '123456789@email.com',
+            'lantonyDAVISON123@email.com', 'lantony_davison@email.com',
+            'lantony.davison@email.com', 'lantony-davison@email.com')
+
+
+@pytest.fixture
+def invalid_emails():
+    '''Fixture for a tuple of invalid emails'''
+
+    return (
+        '.latonyadavison@email.com',
+        'latonyadavison.@email.com',
+        'latonya..davison.@email.com',
+        'latonya@davison@email.com',
+        'latonyadavison.com',
+    )
