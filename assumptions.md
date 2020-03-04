@@ -20,6 +20,7 @@
 ## channels.py
 ### channels_create
 * Channel name only contains ASCII printable characters.
+* Channel names do not have to be unique.
 
 ## other.py
 ### search
