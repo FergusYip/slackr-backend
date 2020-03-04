@@ -5,14 +5,12 @@ import user
 from error import AccessError
 
 
-def test_users_all_basic():
-    avery = auth.auth_register('averylogrono@email.com', 'averylogrono',
-                               'Avery', 'Logrono')
+def test_users_all(test_user):
+    test_user_profile = user.user_profile(test_user['token'],
+                                          test_user['u_id'])['user']
+    all_users = other.users_all(test_user['token'])
 
-    avery_profile = user.user_profile(avery['token'], avery['u_id'])['user']
-    all_users = other.users_all(avery['token'])
-
-    assert avery_profile in all_users['users']
+    assert test_user_profile in all_users['users']
 
 
 def test_users_all_invalid_token(invalid_token):
