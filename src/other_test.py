@@ -25,13 +25,13 @@ def test_search_no_channel(test_user):
     assert len(other.search(test_user['token'], '')['messages']) == 0
 
 
-def test_search_empty_channel(test_user, test_channel):
-    channel.channel_join(test_user['token'], test_channel['channel_id'])
+def test_search_empty_channel(test_user, make_join_channel):
+    test_channel = make_join_channel(test_user, 'Channel')
     assert len(other.search(test_user['token'], '')['messages']) == 0
 
 
-def test_search_single_channel(test_user, test_channel):
-    channel.channel_join(test_user['token'], test_channel['channel_id'])
+def test_search_single_channel(test_user, make_join_channel):
+    test_channel = make_join_channel(test_user, 'Channel')
     message.message_send(test_user['token'], test_channel['channel_id'],
                          'Hello world!')
 
@@ -43,8 +43,8 @@ def test_search_single_channel(test_user, test_channel):
     assert msg_in_channel == msg_in_search
 
 
-def test_search_multiple_messages(test_user, test_channel):
-    channel.channel_join(test_user['token'], test_channel['channel_id'])
+def test_search_multiple_messages(test_user, make_join_channel):
+    test_channel = make_join_channel(test_user, 'Channel')
 
     message.message_send(test_user['token'], test_channel['channel_id'],
                          'Alpha')
@@ -58,26 +58,23 @@ def test_search_multiple_messages(test_user, test_channel):
     assert len(other.search(test_user['token'], 'Romeo')['messages']) == 0
 
 
-def test_search_multiple_channels(test_user):
-    ch1 = channels.channels_create(test_user['token'], 'Channel', True)
-    channel.channel_join(test_user['token'], ch1['channel_id'])
+def test_search_multiple_channels(test_user, make_join_channel):
+    ch1 = make_join_channel(test_user, 'Channel 1')
     message.message_send(test_user['token'], ch1['channel_id'], 'Channel 1')
 
-    ch2 = channels.channels_create(test_user['token'], 'Channel', True)
-    channel.channel_join(test_user['token'], ch1['channel_id'])
+    ch2 = make_join_channel(test_user, 'Channel 2')
     message.message_send(test_user['token'], ch2['channel_id'], 'Channel 2')
 
-    ch3 = channels.channels_create(test_user['token'], 'Channel', True)
-    channel.channel_join(test_user['token'], ch1['channel_id'])
+    ch3 = make_join_channel(test_user, 'Channel 3')
     message.message_send(test_user['token'], ch3['channel_id'], 'Channel 3')
 
     assert len(other.search(test_user['token'], 'Channel')['messages']) == 3
 
 
-def test_search_case_insensitive(test_user, test_channel):
-    channel.channel_join(test_user['token'], test_channel['channel_id'])
-    msg = message.message_send(test_user['token'], test_channel['channel_id'],
-                               'Hello world!')
+def test_search_case_insensitive(test_user, make_join_channel):
+    test_channel = make_join_channel(test_user, 'Channel')
+    message.message_send(test_user['token'], test_channel['channel_id'],
+                         'Hello world!')
     msg_in_channel = channel.channel_messages(test_user['token'],
                                               test_channel['channel_id'],
                                               0)['messages'][0]

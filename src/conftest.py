@@ -1,5 +1,6 @@
 import pytest
 import auth
+import channel
 import channels
 
 
@@ -18,3 +19,13 @@ def invalid_token(test_user):
 @pytest.fixture
 def test_channel(test_user):
     return channels.channels_create(test_user['token'], 'Channel', True)
+
+
+@pytest.fixture
+def make_join_channel():
+    def _make_join_channel(target_user, channel_name):
+        ch = channels.channels_create(target_user['token'], target_user, True)
+        channel.channel_join(target_user['token'], ch['channel_id'])
+        return ch
+
+    return _make_join_channel
