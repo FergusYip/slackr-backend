@@ -360,3 +360,41 @@ def test_addowner_uid(dummy_user2, dummy_user3, channel2):
 # ===================================================================================
 # testing channel_removeowner function.
 # ===================================================================================
+
+
+def test_removeowner(dummy_user1, dummy_user3, channel1):
+    '''
+    Testing the basic functionality of the channel_removeowner() function.
+    '''
+
+    channel.channel_removeowner(
+        dummy_user1['token'], channel1['channel_id'], dummy_user3['u_id'])
+
+    details = channel.channel_details(
+        dummy_user1['token'], channel1['channel_id'])
+
+    assert len(details['owner_members']) == 2
+
+    # removeowner function should only make a user a non-owner. The total number of
+    # users should still be the same.
+    assert len(details['all_members']) == 3
+
+
+def test_removeowner_uid(dummy_user1, dummy_user3, channel1):
+    '''
+    Checking for InputError when a user who is not an owner of a channel 
+    tries to remove another owner.
+    '''
+
+    with pytest.raises(InputError):
+        channel.channel_removeowner(
+            dummy_user3['token'], channel1['channel_id'], dummy_user1['u_id'])
+
+    details = channel.channel_details(
+        dummy_user1['token'], channel1['channel_id'])
+
+    assert len(details['owner_members']) == 2
+
+
+def test_removeowner_empty(dummy_user1, dummy_user2, channel2):
+    pass
