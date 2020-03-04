@@ -32,8 +32,8 @@ def test_create_types(test_user):
     '''Test the types returned by channels_user'''
 
     channel = channels.channels_create(test_user['token'], 'Channel', True)
-    assert isinstance(channel, dict) == True
-    assert isinstance(channel['channel_id'], int) == True
+    assert isinstance(channel, dict)
+    assert isinstance(channel['channel_id'], int)
 
 
 def test_create_long_name(test_user):
@@ -57,7 +57,6 @@ def test_listall(test_user):
     channel_3 = channels.channels_create(test_user['token'], 'Three', True)
 
     all_channels = channels.channels_listall(test_user['token'])['channels']
-    assert isinstance(all_channels, list) == True
 
     channel_ids = [
         channel_1['channel_id'], channel_2['channel_id'],
@@ -66,6 +65,15 @@ def test_listall(test_user):
 
     for channel in all_channels:
         assert channel['channel_id'] in channel_ids
+
+
+def test_listall_return_type(test_user, make_join_channel):
+    test_channel = make_join_channel(test_user, 'Channel')
+    all_channels = channels.channels_listall(test_user['token'])['channels']
+    assert isinstance(all_channels, list)
+    assert isinstance(all_channels[0], dict)
+    assert isinstance(all_channels[0]['channel_id'], int)
+    assert isinstance(all_channels[0]['name'], str)
 
 
 def test_listall_no_channels(test_user):
@@ -93,14 +101,21 @@ def test_list(test_user):
 
     joined_channel_ids = [joined_1['channel_id'], joined_2['channel_id']]
 
-    all_joined_channels = channels.channels_list(
-        test_user['token'])['channels']
-    assert isinstance(all_joined_channels, list) == True
-    assert len(all_joined_channels) == 2
+    joined_channels = channels.channels_list(test_user['token'])['channels']
+    assert len(joined_channels) == 2
 
-    for chan in all_joined_channels:
+    for chan in joined_channels:
         assert chan['channel_id'] in joined_channel_ids
         assert chan['channel_id'] != not_joined['channel_id']
+
+
+def test_list_return_type(test_user, make_join_channel):
+    test_channel = make_join_channel(test_user, 'Channel')
+    all_channels = channels.channels_list(test_user['token'])['channels']
+    assert isinstance(all_channels, list)
+    assert isinstance(all_channels[0], dict)
+    assert isinstance(all_channels[0]['channel_id'], int)
+    assert isinstance(all_channels[0]['name'], str)
 
 
 def test_list_no_channels(test_user):
