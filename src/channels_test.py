@@ -110,7 +110,7 @@ def test_list_no_channels(test_user):
     assert len(all_channels) == 0
 
 
-def test_create_invalid_token(invalid_token):
+def test_list_invalid_token(invalid_token):
     '''Test that channels_list raises an AccessError when given invalid token'''
     with pytest.raises(AccessError):
         channels.channels_list(invalid_token)
