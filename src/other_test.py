@@ -9,6 +9,8 @@ from error import AccessError
 
 
 def test_users_all_single_user(test_user):
+    '''Test that a single user profile is returned by user_all'''
+
     test_user_profile = user.user_profile(test_user['token'],
                                           test_user['u_id'])['user']
     all_users = other.users_all(test_user['token'])
@@ -17,6 +19,8 @@ def test_users_all_single_user(test_user):
 
 
 def test_users_all_multiple_users(new_user):
+    '''Test that user_all returns the number of registered users'''
+
     user_1 = new_user('user_1@email.com')
     assert len(other.users_all(user_1['token'])['users']) == 1
 
@@ -28,20 +32,28 @@ def test_users_all_multiple_users(new_user):
 
 
 def test_users_all_invalid_token(invalid_token):
+    '''Test user_all with invalid token'''
+
     with pytest.raises(AccessError):
         other.users_all(invalid_token)
 
 
 def test_search_no_channel(test_user):
+    '''Test search function when there is no channel'''
+
     assert len(other.search(test_user['token'], '')['messages']) == 0
 
 
 def test_search_empty_channel(test_user, make_join_channel):
+    '''Test search function when channel has no messages'''
+
     test_channel = make_join_channel(test_user, 'Channel')
     assert len(other.search(test_user['token'], '')['messages']) == 0
 
 
 def test_search_return_type(test_user, make_join_channel):
+    '''Test the types of values returned by search'''
+
     test_channel = make_join_channel(test_user, 'Channel')
     message.message_send(test_user['token'], test_channel['channel_id'],
                          'Hello world!')
@@ -54,6 +66,8 @@ def test_search_return_type(test_user, make_join_channel):
 
 
 def test_search_single_channel(test_user, make_join_channel):
+    '''Test that the sole message is returned by search'''
+
     test_channel = make_join_channel(test_user, 'Channel')
     message.message_send(test_user['token'], test_channel['channel_id'],
                          'Hello world!')
@@ -67,6 +81,8 @@ def test_search_single_channel(test_user, make_join_channel):
 
 
 def test_search_multiple_messages(test_user, make_join_channel):
+    '''Test search with multiple unique messages'''
+
     test_channel = make_join_channel(test_user, 'Channel')
 
     message.message_send(test_user['token'], test_channel['channel_id'],
@@ -82,6 +98,8 @@ def test_search_multiple_messages(test_user, make_join_channel):
 
 
 def test_search_multiple_channels(test_user, make_join_channel):
+    '''Test that search works on multiple channels'''
+
     ch1 = make_join_channel(test_user, 'Channel 1')
     message.message_send(test_user['token'], ch1['channel_id'], 'Channel 1')
 
@@ -95,6 +113,8 @@ def test_search_multiple_channels(test_user, make_join_channel):
 
 
 def test_search_unauthorised_channels(new_user, make_join_channel):
+    '''Test that users cannot search unauthorised channels'''
+
     tom = new_user('tom@email.com')
 
     jerry = new_user('jerry@email.com')
@@ -108,6 +128,8 @@ def test_search_unauthorised_channels(new_user, make_join_channel):
 
 
 def test_search_case_insensitive(test_user, make_join_channel):
+    '''Test that query string is not case sensitive'''
+
     test_channel = make_join_channel(test_user, 'Channel')
     message.message_send(test_user['token'], test_channel['channel_id'],
                          'Hello world!')
@@ -119,5 +141,7 @@ def test_search_case_insensitive(test_user, make_join_channel):
 
 
 def test_search_invalid_token(invalid_token):
+    '''Test search function with invalid token'''
+
     with pytest.raises(AccessError):
         other.search(invalid_token, '')
