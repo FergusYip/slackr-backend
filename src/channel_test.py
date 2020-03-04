@@ -6,6 +6,9 @@ import message
 from error import InputError
 from error import AccessError
 
+
+# ================================= MAKING USERS ====================================
+
 # Making a dummy user (dummy_user1) with valid details.
 @pytest.fixture
 def dummy_user1():
@@ -27,6 +30,10 @@ def dummy_user3():
     dummy_user3 = auth.auth_register(
         'dummy.user3@domain.com', 'ReallCoolPassword9800!', 'dummy', 'three')
     return dummy_user3
+
+
+# ================================= MAKING CHANNELS ====================================
+
 
 # Making a dummy channel (channel1) with valid details.
 @pytest.fixture
@@ -212,7 +219,8 @@ def test_messages_remove(dummy_user2, channel1):
 
 def test_messages_id(dummy_user1):
     '''
-    Checking for an InputError when the channel_messages function gets an invalid channel_id.
+    Checking for an InputError when an invalid channel_id is passed into the 
+    channel_messages function.
     '''
 
     with pytest.raises(InputError):
@@ -221,8 +229,8 @@ def test_messages_id(dummy_user1):
 
 def test_messages_start(dummy_user1, channel1):
     '''
-    Checking for an InputError when the channel_messages function get a start that is greater
-    than the size of the message history
+    Checking for an InputError when the channel_messages function get a start
+    that is greater than the size of the message history
     '''
 
     history = channel.channel_messages(
@@ -235,7 +243,8 @@ def test_messages_start(dummy_user1, channel1):
 
 def test_messages_access(dummy_user1, channel2):
     '''
-    Checking for an AccessError when dummy_user1 asks for message history of channel2.
+    Checking for an AccessError when dummy_user1 asks for message history of 
+    channel2.
     Because at this point channel2 only has user2 as a member.
     '''
 
@@ -265,7 +274,8 @@ def test_join_new(dummy_user1, dummy_user3, channel1):
 
 def test_join_id(dummy_user1):
     '''
-    Testing for an InputError when an channel user id is fed.
+    Testing for an InputError when an invalid channel id is passed into the 
+    channel_join function.
     '''
 
     with pytest.raises(InputError):
@@ -288,3 +298,65 @@ def test_join_member(dummy_user1, channel1):
 
     with pytest.raises(AccessError):
         channel.channel_join(dummy_user1['token'], channel1['channel_id'])
+
+
+# ===================================================================================
+# testing channel_addowner function.
+# ===================================================================================
+
+
+def test_addowner(dummy_user1, dummy_user3, channel1):
+    '''
+    Testing basic functionality of the channel_addowner function.
+    '''
+
+    channel.channel_addowner(
+        dummy_user1['token'], channel1['channel_id'], dummy_user3['u_id'])
+    details = channel.channel_details(
+        dummy_user1['token'], channel1['channel_id'])
+
+    assert len(details['owner_members']) == 3
+
+
+def test_addowner_owner(dummy_user1, channel1):
+    '''
+    Checking for InputError when dummy_user1, who is already a member of channel1 tries 
+    to call the channel_addowner() function.
+    '''
+
+    with pytest.raises(InputError):
+        channel.channel_addowner(
+            dummy_user1['token'], channel1['channel_id'], dummy_user1['u_id'])
+
+
+def test_addowner_cid(dummy_user1, dummy_user2, channel1):
+    '''
+    Checking for InputError when an invalid channel_id is passed into the 
+    channel_addowner() function.
+    '''
+
+    with pytest.raises(InputError):
+        channel.channel_addowner(
+            dummy_user1['token'], 39503, dummy_user2['u_id'])
+
+
+def test_addowner_uid(dummy_user2, dummy_user3, channel2):
+    '''
+    Checking for InputError when an invalid user id is passed into the 
+    channel_addowner() function.
+    Checking for InputError when the user id of a user who is not in 
+    the channel is passed into channel_addowner()
+    '''
+
+    with pytest.raises(InputError):
+        channel.channel_addowner(
+            dummy_user2['token'], channel2['channel_id'], 898009)
+
+    with pytest.raises(InputError):
+        channel.channel_addowner(
+            dummy_user2['token'], channel2['channel_id'], dummy_user3['u_id'])
+
+
+# ===================================================================================
+# testing channel_removeowner function.
+# ===================================================================================
