@@ -142,3 +142,8 @@ def test_details_invalid(dummy_user1, channel2):
     # testing case when dummy_user1 asks for details about channel name2.
     with pytest.raises(AccessError) as e:
         channel.channel_details(dummy_user1['token'], channel2['channel_id'])
+
+
+# ===================================================================================
+# testing channel_messages function.
+# ===================================================================================
