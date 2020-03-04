@@ -21,6 +21,12 @@ def dummy_user2():
         'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
     return dummy_user2
 
+# Making another dummy user (dummy_user3) with valid details.
+@pytest.fixture
+def dummy_user3():
+    dummy_user3 = auth.auth_register(
+        'dummy.user3@domain.com', 'ReallCoolPassword9800!', 'dummy', 'three')
+    return dummy_user3
 
 # Making a dummy channel (channel1) with valid details.
 @pytest.fixture
@@ -35,6 +41,12 @@ def channel2(dummy_user2):
     c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
     return c_id2
 
+
+# Making a private dummy channel (channel_priv) with valid details.
+@pytest.fixture
+def channel_priv(dummy_user3):
+    c_priv = channels.channels_create(dummy_user3['token'], 'name3', False)
+    return c_priv
 
 # ===================================================================================
 # testing channel_invite function.
@@ -230,3 +242,49 @@ def test_messages_access(dummy_user1, channel2):
     with pytest.raises(AccessError):
         channel.channel_messages(
             dummy_user1['token'], channel2['channel_id'], 0)
+
+
+# ===================================================================================
+# testing channel_join function.
+# ===================================================================================
+
+
+def test_join_new(dummy_user1, dummy_user3, channel1):
+    '''
+    Testing basic functions of channel_join.
+    New user joining channel1 (public) and checking if channel1 has 3 members.
+    '''
+
+    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
+
+    details = channel.channel_details(
+        dummy_user1['token'], channel1['channel_id'])
+
+    assert len(details['all_members']) == 3
+
+
+def test_join_id(dummy_user1):
+    '''
+    Testing for an InputError when an channel user id is fed.
+    '''
+
+    with pytest.raises(InputError):
+        channel.channel_join(dummy_user1['token'], 90439)
+
+
+def test_join_private(dummy_user1, channel_priv):
+    '''
+    Testing channel_join function for a private channel.
+    '''
+
+    with pytest.raises(InputError):
+        channel.channel_join(dummy_user1['token'], channel_priv['channel_id'])
+
+
+def test_join_member(dummy_user1, channel1):
+    '''
+    Testing channel_join function when the user is already a member of the channel.
+    '''
+
+    with pytest.raises(AccessError):
+        channel.channel_join(dummy_user1['token'], channel1['channel_id'])
