@@ -6,6 +6,10 @@ import message
 from error import InputError
 from error import AccessError
 
+'''
+so just assume that at the start of every function, everything is reset and whatevers been passed into the function exists and that's all.
+'''
+
 
 # ================================= MAKING USERS ====================================
 
@@ -71,6 +75,11 @@ def test_invite_channel(dummy_user1, dummy_user2, channel1):
     channel.channel_invite(
         dummy_user1['token'], channel1['channel_id'], dummy_user2['u_id'])
 
+    details = channel.channel_details(
+        dummy_user1['token'], channel1['channel_id'])
+
+    assert len(details['all_members']) == 2
+
     # testing channel invite function to invalid channel.
     with pytest.raises(InputError):
         channel.channel_invite(
@@ -88,17 +97,11 @@ def test_invite_user(dummy_user1, dummy_user2, channel1):
         channel.channel_invite(
             dummy_user1['token'], channel1['channel_id'], 69)
 
-    # testing if the user with user id dummy_user2[u_id] exists in channel c_id1.
-    # this should pass if line 19 executed.
+    # testing if there is only one member in channel1.
     details = channel.channel_details(
         dummy_user1['token'], channel1['channel_id'])
-    user_in_channel = False
 
-    for user in details['all_members']:
-        if user['u_id'] == dummy_user2['u_id']:
-            user_in_channel = True
-
-    assert user_in_channel == True
+    assert len(details['all_members']) == 1
 
 
 def test_invite_access(dummy_user1, dummy_user2, channel2):
@@ -119,11 +122,12 @@ def test_invite_access(dummy_user1, dummy_user2, channel2):
 
 def test_details_owner(dummy_user1, channel1):
     '''
-    Checking if channel name1 has dummy_user1 in owner_members.
+    Checking if channe1 has dummy_user1 in owner_members.
     '''
 
     details = channel.channel_details(
         dummy_user1['token'], channel1['channel_id'])
+
     owner = False
 
     for user in details['owner_members']:
@@ -141,6 +145,7 @@ def test_details_added_owner(dummy_user1, dummy_user2, channel1):
 
     channel.channel_addowner(
         dummy_user1['token'], channel1['channel_id'], dummy_user2['u_id'])
+
     details = channel.channel_details(
         dummy_user1['token'], channel1['channel_id'])
 
@@ -149,13 +154,13 @@ def test_details_added_owner(dummy_user1, dummy_user2, channel1):
 
 def test_details_all(dummy_user1, channel1):
     '''
-    Checking if channel name1 has 2 users in all_members.
+    Checking if channel1 has 1 user in all_members.
     '''
 
     details = channel.channel_details(
         dummy_user1['token'], channel1['channel_id'])
 
-    assert len(details['all_members']) == 2
+    assert len(details['all_members']) == 1
 
 
 def test_details_invalid(dummy_user1, channel2):
@@ -167,9 +172,7 @@ def test_details_invalid(dummy_user1, channel2):
     with pytest.raises(InputError):
         channel.channel_details(dummy_user1['token'], 42045)
 
-    # Testing case when user asking for details isn't part of the channel
-    # at this point, channel name2 has only dummy_user2 as members.
-    # testing case when dummy_user1 asks for details about channel name2.
+    # Testing case when the user asking for details isn't part of the channel.
     with pytest.raises(AccessError):
         channel.channel_details(dummy_user1['token'], channel2['channel_id'])
 
@@ -184,6 +187,9 @@ def test_messages_sent(dummy_user1, dummy_user2, channel1):
     assert that the length of the message history is now 2.
     assert that the start value is actually 0.
     '''
+
+    channel.channel_invite(
+        dummy_user1['token'], channel1['channel_id'], dummy_user2['u_id'])
 
     message.message_send(
         dummy_user1['token'], channel1['channel_id'], "Im Batman")
@@ -200,21 +206,21 @@ def test_messages_sent(dummy_user1, dummy_user2, channel1):
     assert(history['start'] == 0)
 
 
-def test_messages_remove(dummy_user2, channel1):
+def test_messages_remove(dummy_user2, channel2):
     '''
     dummy_user2 sends another message, then removes it. 
     assert that the length of the message history is still 2.
     '''
 
     message_id = message.message_send(
-        dummy_user2['token'], channel1['channel_id'], "idk why I talk to you.")
+        dummy_user2['token'], channel2['channel_id'], "idk why I talk to you.")
 
     message.message_remove(dummy_user2['token'], message_id['message_id'])
 
     history = channel.channel_messages(
-        dummy_user2['token'], channel1['channel_id'], 0)
+        dummy_user2['token'], channel2['channel_id'], 0)
 
-    assert len(history['messages']) == 2
+    assert len(history['messages']) == 0
 
 
 def test_messages_id(dummy_user1):
@@ -232,6 +238,11 @@ def test_messages_start(dummy_user1, channel1):
     Checking for an InputError when the channel_messages function get a start
     that is greater than the size of the message history
     '''
+    message.message_send(dummy_user1['token'],
+                         channel1['channel_id'], "I walk")
+    message.message_send(dummy_user1['token'], channel1['channel_id'], "a")
+    message.message_send(dummy_user1['token'],
+                         channel1['channel_id'], "lonely road")
 
     history = channel.channel_messages(
         dummy_user1['token'], channel1['channel_id'], 0)
@@ -243,9 +254,8 @@ def test_messages_start(dummy_user1, channel1):
 
 def test_messages_access(dummy_user1, channel2):
     '''
-    Checking for an AccessError when dummy_user1 asks for message history of 
-    channel2.
-    Because at this point channel2 only has user2 as a member.
+    Checking for an AccessError when a user asks for message history of a channel
+    that he is not a member of.
     '''
 
     with pytest.raises(AccessError):
@@ -269,13 +279,13 @@ def test_join_new(dummy_user1, dummy_user3, channel1):
     details = channel.channel_details(
         dummy_user1['token'], channel1['channel_id'])
 
-    assert len(details['all_members']) == 3
+    assert len(details['all_members']) == 2
 
 
 def test_join_id(dummy_user1):
     '''
     Testing for an InputError when an invalid channel id is passed into the 
-    channel_join function.
+    channel_join() function.
     '''
 
     with pytest.raises(InputError):
@@ -287,7 +297,7 @@ def test_join_private(dummy_user1, channel_priv):
     Testing channel_join function for a private channel.
     '''
 
-    with pytest.raises(InputError):
+    with pytest.raises(AccessError):
         channel.channel_join(dummy_user1['token'], channel_priv['channel_id'])
 
 
@@ -296,8 +306,12 @@ def test_join_member(dummy_user1, channel1):
     Testing channel_join function when the user is already a member of the channel.
     '''
 
-    with pytest.raises(AccessError):
-        channel.channel_join(dummy_user1['token'], channel1['channel_id'])
+    channel.channel_join(dummy_user1['token'], channel1['channel_id'])
+
+    details = channel.channel_details(
+        dummy_user1['token'], channel1['channel_id'])
+
+    assert len(details['all_members']) == 1
 
 
 # ===================================================================================
@@ -307,20 +321,23 @@ def test_join_member(dummy_user1, channel1):
 
 def test_addowner(dummy_user1, dummy_user3, channel1):
     '''
-    Testing basic functionality of the channel_addowner function.
+    Testing basic functionality of the channel_addowner() function.
     '''
+
+    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
 
     channel.channel_addowner(
         dummy_user1['token'], channel1['channel_id'], dummy_user3['u_id'])
+
     details = channel.channel_details(
         dummy_user1['token'], channel1['channel_id'])
 
-    assert len(details['owner_members']) == 3
+    assert len(details['owner_members']) == 2
 
 
-def test_addowner_owner(dummy_user1, channel1):
+def test_addowner_owner_self(dummy_user1, channel1):
     '''
-    Checking for InputError when dummy_user1, who is already a member of channel1 tries 
+    Checking for InputError when dummy_user1, who is already an owner of channel1 tries 
     to call the channel_addowner() function.
     '''
 
@@ -329,11 +346,26 @@ def test_addowner_owner(dummy_user1, channel1):
             dummy_user1['token'], channel1['channel_id'], dummy_user1['u_id'])
 
 
+def test_addowner_owner(dummy_user1, dummy_user2, dummy_user3, channel1):
+    '''
+    Checking for AccessError when a user that is not an owner of the channel tries to
+    call the channel_addowner() function.
+    '''
+
+    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
+    channel.channel_join(dummy_user2['token'], channel1['channel_id'])
+
+    channel.channel_addowner(
+        dummy_user2['token'], channel1['channel_id'], dummy_user3['u_id'])
+
+
 def test_addowner_cid(dummy_user1, dummy_user2, channel1):
     '''
     Checking for InputError when an invalid channel_id is passed into the 
     channel_addowner() function.
     '''
+
+    channel.channel_join(dummy_user2['token'], channel1['channel_id'])
 
     with pytest.raises(InputError):
         channel.channel_addowner(
@@ -362,11 +394,28 @@ def test_addowner_uid(dummy_user2, dummy_user3, channel2):
 # ===================================================================================
 
 
-def test_removeowner(dummy_user1, dummy_user3, channel1):
+def test_removeowner(dummy_user1, dummy_user2, dummy_user3, channel1):
     '''
     Testing the basic functionality of the channel_removeowner() function.
     '''
 
+    # making dummy_user 2 and 3 members, and then owners of channel1.
+    channel.channel_join(dummy_user2['token'], channel1['channel_id'])
+    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
+
+    channel.channel_addowner(
+        dummy_user1['token'], channel1['channel_id'], dummy_user2['u_id'])
+
+    channel.channel_addowner(
+        dummy_user1['token'], channel1['channel_id'], dummy_user3['u_id'])
+
+    # checking if channel1 now has 3 owners.
+    details = channel.channel_details(
+        dummy_user1['token'], channel1['channel_id'])
+
+    assert len(details['owner_members']) == 3
+
+    # testing functionality of the channel_removeowner() function.
     channel.channel_removeowner(
         dummy_user1['token'], channel1['channel_id'], dummy_user3['u_id'])
 
@@ -382,23 +431,25 @@ def test_removeowner(dummy_user1, dummy_user3, channel1):
 
 def test_removeowner_uid(dummy_user1, dummy_user3, channel1):
     '''
-    Checking for InputError when a user who is not an owner of a channel 
+    Checking for AccessError when a user who is not an owner of a channel 
     tries to remove another owner.
     '''
 
-    with pytest.raises(InputError):
+    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
+
+    with pytest.raises(AccessError):
         channel.channel_removeowner(
             dummy_user3['token'], channel1['channel_id'], dummy_user1['u_id'])
 
     details = channel.channel_details(
         dummy_user1['token'], channel1['channel_id'])
 
-    assert len(details['owner_members']) == 2
+    assert len(details['owner_members']) == 1
 
 
 def test_removeowner_empty(dummy_user1, dummy_user2, channel2):
     '''
-    Testing the removeowner function for a channel with no owners.
+    Testing the channel_removeowner() function for a channel with no owners.
     '''
 
     channel.channel_invite(
@@ -415,7 +466,7 @@ def test_removeowner_empty(dummy_user1, dummy_user2, channel2):
     assert len(details['all_members']) == 2
 
 
-def test_removeowner_cid(dummy_user1, dummy_user2):
+def test_removeowner_cid(dummy_user1, dummy_user2, channel1):
     '''
     Testing for InputError when an invalid channel id is passed into the 
     channel_removeowner() function.
