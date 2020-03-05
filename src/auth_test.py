@@ -193,11 +193,8 @@ def test_logout(paris):
     assert auth.auth_logout(paris['token'])['is_success']
 
 
-def test_logout_invalid_token(paris):
+def test_logout_invalid_token(invalid_token):
     '''Test that auth_logout raises an AccessError when given invalid token'''
 
-    assert auth.auth_logout(paris['token'])['is_success']
-
-    # input invalidated token into function
     with pytest.raises(AccessError):
-        auth.auth_logout(paris['token'])['is_success']
+        auth.auth_logout(invalid_token)['is_success']
