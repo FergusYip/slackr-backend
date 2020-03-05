@@ -131,6 +131,10 @@ def test_addowner_uid(dummy_user2, dummy_user3, channel2):
 
 
 def test_invalid_token_addowner(dummy_user1, channel1, invalid_token):
+    '''
+    Testing case when the token passed into the channel_addowner() function is invalid.
+    '''
+
     with pytest.raises(AccessError):
         channel.channel_addowner(
             invalid_token, channel1['channel_id'], dummy_user1['u_id'])
