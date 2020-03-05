@@ -6,13 +6,11 @@
 * Password length could be upwards of 32 characters.
 * Passwords will only consist of ASCII printable characters.
 * Email addresses are validated using the method in the GeeksforGeeks article as opposed to RFC documents.
+* *auth_register* logs the user in.
 
 ###  auth_login
 
 * Test *auth_login* under the assumption that invalid emails will produce an error regardless (i.e if the email is invalid or that the user does not exist).
-
-### auth_logout
-* If an invalid token is provided, *auth_logout* will return true, since the session token is already invalid.
 
 ### auth_register
 * The generated handle will contain alphanumeric characters.
@@ -21,11 +19,20 @@
 * If the generated handle is already taken, a modified handle is assigned to the user.
 * Specific testing of how a modified handle is generated will be omitted, instead tests will verify that the provided handle is unique.
 
-___
-
 ## channel.py
-
 ### channel_leave
 
 * When the only owner of a channel with multiple people leaves, the channel will have no owner.
 * When all members of a channel leave, the channel will not be deleted.
+
+## channels.py
+### channels_create
+* Channel name only contains ASCII printable characters.
+* Channel names do not have to be unique.
+
+## other.py
+### search
+* If user is not a part of any channel, search returns no messages.
+* If the query string is empty, search returns all messages from every channel the user is a part of.
+* Query string is case insensitive.
+>>>>>>> rearranging_structure
