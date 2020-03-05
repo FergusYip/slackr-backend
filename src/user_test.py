@@ -77,6 +77,8 @@ def test_averagecase_setname():
     # Creating a user and calling user_profile_setname without raising an error.
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
     user.user_profile_setname(new_user['token'], 'Ipsum', 'Lorem')
+    profile_info = user.user_profile(new_user['token'], new_user['u_id'])
+    assert profile_info['name_first'] == 'Ipsum'
 
 def test_firstzerocharacter():
     # Creating a user and changing their first name to be 0 characters. Thus,
@@ -119,6 +121,8 @@ def averagecase_email_change():
     # Standard case of a user changing their email address.
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
     user.user_profile_setemail(new_user['token'], 'unique42@hemail.com')
+    profile_info = user.user_profile(new_user['token'], new_user['u_id'])
+    assert profile_info['email'] == 'unique42@hemail.com'
 
 def already_used_emailchange():
     # Case where a user already exists with that email address.
@@ -165,6 +169,8 @@ def test_validemailchange(valid_emails):
     new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
     for email in valid_emails:
         user.user_profile_setemail(new_user['token'], email)
+        profile_info = user.user_profile(new_user['token'], new_user['u_id'])
+        assert profile_info['email'] == email
 
 def test_invalidemailchange(invalid_emails):
     # Testing the change to a variety of invalid email types.
