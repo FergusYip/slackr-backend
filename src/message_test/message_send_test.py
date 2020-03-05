@@ -1,4 +1,3 @@
-# Importing specific files for use of their functions.
 import channels
 import channel
 import message
@@ -11,53 +10,67 @@ import auth
 # ========== TESTING MESSAGE SEND FUNCTION ============
 # =====================================================
 
-# Simple tests of average case messages.
-def test_averagecase_send():
-    # Creating a new user.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    # Creating a new channel.
-    channel_id = channels.channels_create(new_user['token'], 'Channel1', True)
-    # Creating a variable 'new_message' to hold the dictionary return from the send function.
-    new_message = message.message_send(new_user['token'], channel_id['channel_id'], 'Hello world!')
+def test_averagecase_send(test_channel, test_user):
 
-# Testing unauthorized sending of messages.
-def test_sendunauthorized():
-    # Creating a new user to test the function with.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    # Creating a second user to test this function with.
-    second_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    # 'new_user' creates this channel that is PRIVATE.
-    channel_id = channels.channels_create(new_user['token'], 'Channel2', True)
-    # An AccessError should be raised if 'second_user' attempts to send a message in this channel
-    with pytest.raises(AccessError) as e:
-        message.message_send(second_user['token'], channel_id['channel_id'], 'Hello team')
+    ''' Testing an average case where a created user in a channel sends a message '''
 
-# Testing a change in authorization affecting message sending.
-def test_sendauthorization_change():
-    # Creating 2 new users and having 'new_user' create a new channel.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    second_user = auth.auth_register('letmein@test.com', 'Password1', 'Sample', 'Name')
-    channel_id = channels.channels_create(new_user['token'], 'Channel3', True)
-    # The second_user should initially be unable to send a message in this channel.
-    with pytest.raises(AccessError) as e:
-        message.message_send(second_user['token'], channel_id['channel_id'], 'Why wont this send?')
-    # 'new_user' invites the 'second_user' to this new channel.
-    channel.channel_invite(new_user['token'], channel_id['channel_id'], second_user['u_id'])
-    # Creating variables to hold the dictionary returns for both functions.
-    message.message_send(second_user['token'], channel_id['channel_id'], 'Hello World!')
+    message.message_send(test_user['token'], test_channel['channel_id'], 'Message')
 
-# Testing an incorrect character length string message.
-def test_sendonethousandandone():
-    # Creating a new user and having them create a new channel.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    channel_id = channels.channels_create(new_user['token'], 'Channel4', True)
-    # This should raise an error if the message length is greater than 1000.
-    with pytest.raises(InputError) as e:
-        message.message_send(new_user['token'], channel_id['channel_id'], 'i' * 1001)
 
-def test_onethousandchars():
-    # Creating a new user and having them create a new channel.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Dummy', 'Name')
-    channel_id = channels.channels_create(new_user['token'], 'New Channel', True)
-    # The message should send if the length of the message is 1000 characters.
+def test_sendunauthorized(test_channel, test_user, new_user):
+
+    ''' Testing that an AccessError is thrown when a user attempts to send a
+    message in a channel to which they are not joined. '''
+
+    second_user = new_user('test@test.com')
+
+    with pytest.raises(AccessError):
+        message.message_send(second_user['token'], test_channel['channel_id'], 'Message')
+
+
+def test_sendauthorization_change(test_channel, test_user, new_user):
+
+    ''' Testing a scenario where a user attempts to send a message in a server they have
+    not joined. This should throw an AccessError. After a channel invitation they should
+    be able to send messages inside the channel. '''
+
+    second_user = new_user('tester2@test.com')
+
+    with pytest.raises(AccessError):
+        message.message_send(second_user['token'], test_channel['channel_id'], 'Message')
+
+    channel.channel_invite(test_user['token'], test_channel['channel_id'], second_user['u_id'])
+
+    message.message_send(second_user['token'], test_channel['channel_id'], 'Message')
+
+
+def test_sendonethousandandone(test_channel, test_user):
+
+    ''' Testing an InputError that should be thrown when the message is greater than
+    1000 characters. '''
+
+    with pytest.raises(InputError):
+        message.message_send(test_user['token'], test_channel['channel_id'], 'i' * 1001)
+
+
+def test_onethousandchars(test_channel, test_user):
+
+    ''' Testing the maximum length of a message sends correctly. '''
+
     new_message = message.message_send(second_user['token'], channel_id['channel_id'], 'i' * 1000)
+
+
+def test_nochar_send(test_channel, test_user, new_user):
+
+    ''' Testing that a message of zero characters raises an InputError. '''
+
+    with pytest.raises(InputError):
+        message.message_send(test_user['token'], test_channel['channel_id'], '')
+
+
+def test_invalidtoken_send(test_channel, test_user):
+
+    ''' Testing that an invalid token will raise an AccessError. '''
+
+    with pytest.raises(AccessError):
+        message.message_send('NOTAVALIDTOKEN', test_channel['channel_id'], 'Message')
