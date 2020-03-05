@@ -397,35 +397,4 @@ def test_removeowner_uid(dummy_user1, dummy_user3, channel1):
 
 
 def test_removeowner_empty(dummy_user1, dummy_user2, channel2):
-    '''
-    Testing the removeowner function for a channel with no owners.
-    '''
-
-    channel.channel_invite(
-        dummy_user2['token'], channel2['channel_id'], dummy_user1['u_id'])
-
-    channel.channel_removeowner(
-        dummy_user2['token'], channel2['channel_id'], dummy_user2['u_id'])
-
-    details = channel.channel_details(
-        dummy_user2['token'], channel2['channel_id'])
-
-    assert len(details['owner_members']) == 0
-
-    assert len(details['all_members']) == 2
-
-
-def test_removeowner_cid(dummy_user1, dummy_user2):
-    '''
-    Testing for InputError when an invalid channel id is passed into the 
-    channel_removeowner() function.
-    '''
-
-    with pytest.raises(InputError):
-        channel.channel_removeowner(
-            dummy_user1['token'], 98984, dummy_user2['u_id'])
-
-
-# ===================================================================================
-# testing channel_leave function.
-# ===================================================================================
+    pass
