@@ -143,5 +143,9 @@ def test_messages_access(dummy_user1, channel2):
 
 
 def test_invalid_token_messages(dummy_user1, channel1, invalid_token):
+    '''
+    Testing case when the token passed into the channel_messages() function is invalid.
+    '''
+
     with pytest.raises(AccessError):
         channel.channel_messages(invalid_token, channel1['channel_id'], 0)
