@@ -28,3 +28,10 @@
 * If user is not a part of any channel, search returns no messages.
 * If the query string is empty, search returns all messages from every channel the user is a part of.
 * Query string is case insensitive.
+
+## message.py
+* 'NOTAVALIDTOKEN' is not a valid token and can be checked to see if it raises an AccessError.
+### message_remove
+* Assuming the number '99999' is an invalid message_id and will not be used.
+### message_send
+* Assuming that a message of zero characters is an InputError and cannot be sent.
