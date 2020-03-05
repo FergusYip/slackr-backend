@@ -79,6 +79,7 @@ def test_averagecase_setname():
     user.user_profile_setname(new_user['token'], 'Ipsum', 'Lorem')
     profile_info = user.user_profile(new_user['token'], new_user['u_id'])
     assert profile_info['name_first'] == 'Ipsum'
+    assert profile_info['name_last'] == 'Lorem'
 
 def test_firstzerocharacter():
     # Creating a user and changing their first name to be 0 characters. Thus,
