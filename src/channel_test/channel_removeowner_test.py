@@ -144,6 +144,10 @@ def test_removeowner_cid(dummy_user1, dummy_user2, channel1):
 
 
 def test_invalid_token_removeowner(dummy_user1, channel1, invalid_token):
+    '''
+    Testing case when the token passed into the channel_removeowner() function is invalid.
+    '''
+
     with pytest.raises(AccessError):
         channel.channel_removeowner(
             invalid_token, channel1['channel_id'], dummy_user1['u_id'])

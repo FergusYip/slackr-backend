@@ -111,6 +111,10 @@ def test_invite_access(dummy_user1, dummy_user2, channel2):
 
 
 def test_invalid_token_invite(dummy_user1, channel1, invalid_token):
+    '''
+    Testing case when the token passed into the channel_invite() function is invalid.
+    '''
+
     with pytest.raises(AccessError):
         channel.channel_invite(
             invalid_token, channel1['channel_id'], dummy_user1['u_id'])

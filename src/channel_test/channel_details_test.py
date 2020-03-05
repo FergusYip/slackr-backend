@@ -118,5 +118,9 @@ def test_details_invalid(dummy_user1, channel2):
 
 
 def test_invalid_token_details(channel1, invalid_token):
+    '''
+    Testing case when the token passed into the channel_details() function is invalid.
+    '''
+
     with pytest.raises(AccessError):
         channel.channel_details(invalid_token, channel1['channel_id'])
