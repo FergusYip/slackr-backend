@@ -107,5 +107,9 @@ def test_join_member(dummy_user1, channel1):
 
 
 def test_invalid_token_join(channel1, invalid_token):
+    '''
+    Testing case when the token passed into the channel_join() function is invalid.
+    '''
+
     with pytest.raises(AccessError):
         channel.channel_join(invalid_token, channel1['channel_id'])
