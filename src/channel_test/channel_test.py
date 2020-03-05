@@ -6,11 +6,6 @@ import message
 from error import InputError
 from error import AccessError
 
-'''
-so just assume that at the start of every function, everything is reset and whatevers been passed into the function exists and that's all.
-'''
-
-
 # ================================= MAKING USERS ====================================
 
 # Making a dummy user (dummy_user1) with valid details.
@@ -115,6 +110,12 @@ def test_invite_access(dummy_user1, dummy_user2, channel2):
             dummy_user1['token'], channel2, dummy_user2['u_id'])
 
 
+def test_invalid_token_invite(dummy_user1, channel1, invalid_token):
+    with pytest.raises(AccessError):
+        channel.channel_invite(
+            invalid_token, channel1['channel_id'], dummy_user1['u_id'])
+
+
 # ===================================================================================
 # testing channel_details function.
 # ===================================================================================
@@ -175,6 +176,11 @@ def test_details_invalid(dummy_user1, channel2):
     # Testing case when the user asking for details isn't part of the channel.
     with pytest.raises(AccessError):
         channel.channel_details(dummy_user1['token'], channel2['channel_id'])
+
+
+def test_invalid_token_details(channel1, invalid_token):
+    with pytest.raises(AccessError):
+        channel.channel_details(invalid_token, channel1['channel_id'])
 
 
 # ===================================================================================
@@ -263,6 +269,11 @@ def test_messages_access(dummy_user1, channel2):
             dummy_user1['token'], channel2['channel_id'], 0)
 
 
+def test_invalid_token_messages(dummy_user1, channel1, invalid_token):
+    with pytest.raises(AccessError):
+        channel.channel_messages(invalid_token, channel1['channel_id'], 0)
+
+
 # ===================================================================================
 # testing channel_join function.
 # ===================================================================================
@@ -312,6 +323,11 @@ def test_join_member(dummy_user1, channel1):
         dummy_user1['token'], channel1['channel_id'])
 
     assert len(details['all_members']) == 1
+
+
+def test_invalid_token_join(channel1, invalid_token):
+    with pytest.raises(AccessError):
+        channel.channel_join(invalid_token, channel1['channel_id'])
 
 
 # ===================================================================================
@@ -387,6 +403,12 @@ def test_addowner_uid(dummy_user2, dummy_user3, channel2):
     with pytest.raises(InputError):
         channel.channel_addowner(
             dummy_user2['token'], channel2['channel_id'], dummy_user3['u_id'])
+
+
+def test_invalid_token_addowner(dummy_user1, channel1, invalid_token):
+    with pytest.raises(AccessError):
+        channel.channel_addowner(
+            invalid_token, channel1['channel_id'], dummy_user1['u_id'])
 
 
 # ===================================================================================
@@ -477,6 +499,7 @@ def test_removeowner_cid(dummy_user1, dummy_user2, channel1):
             dummy_user1['token'], 98984, dummy_user2['u_id'])
 
 
-# ===================================================================================
-# testing channel_leave function.
-# ===================================================================================
+def test_invalid_token_removeowner(dummy_user1, channel1, invalid_token):
+    with pytest.raises(AccessError):
+        channel.channel_removeowner(
+            invalid_token, channel1['channel_id'], dummy_user1['u_id'])
