@@ -19,20 +19,38 @@
 * If the generated handle is already taken, a modified handle is assigned to the user.
 * Specific testing of how a modified handle is generated will be omitted, instead tests will verify that the provided handle is unique.
 
+___
+
+
+
 ## channel.py
+
 ### channel_leave
 
 * When the only owner of a channel with multiple people leaves, the channel will have no owner.
 * When all members of a channel leave, the channel will not be deleted.
 
+### channel_join
+
+* when a user that is already a member of a channel tries to join that same channel, the function does nothing.
+
+___
+
+
+
 ## channels.py
+
 ### channels_create
 * Channel name only contains ASCII printable characters.
 * Channel names do not have to be unique.
 
+___
+
+
+
 ## other.py
+
 ### search
 * If user is not a part of any channel, search returns no messages.
 * If the query string is empty, search returns all messages from every channel the user is a part of.
 * Query string is case insensitive.
->>>>>>> rearranging_structure
