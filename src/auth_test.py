@@ -103,28 +103,6 @@ def test_register_long_handle():
     assert test_profile['user']['handle_str'] == '123456789testing1234'
 
 
-@pytest.fixture
-def valid_emails():
-    '''Fixture for a tuple of valid emails'''
-
-    return ('latonyaDAVISON@email.com', '123456789@email.com',
-            'lantonyDAVISON123@email.com', 'lantony_davison@email.com',
-            'lantony.davison@email.com', 'lantony-davison@email.com')
-
-
-@pytest.fixture
-def invalid_emails():
-    '''Fixture for a tuple of invalid emails'''
-
-    return (
-        '.latonyadavison@email.com',
-        'latonyadavison.@email.com',
-        'latonya..davison.@email.com',
-        'latonya@davison@email.com',
-        'latonyadavison.com',
-    )
-
-
 def test_register_email_valid(valid_emails):
     '''Test input of valid emails into auth_register'''
 
@@ -215,11 +193,8 @@ def test_logout(paris):
     assert auth.auth_logout(paris['token'])['is_success']
 
 
-def test_logout_invalid_token(paris):
+def test_logout_invalid_token(invalid_token):
     '''Test that auth_logout raises an AccessError when given invalid token'''
 
-    assert auth.auth_logout(paris['token'])['is_success']
-
-    # input invalidated token into function
     with pytest.raises(AccessError):
-        auth.auth_logout(paris['token'])['is_success']
+        auth.auth_logout(invalid_token)['is_success']
