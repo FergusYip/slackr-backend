@@ -26,7 +26,7 @@ def test_emptyStringDelete(test_channel, test_user):
     message.message_edit(test_user['token'], new_message['message_id'], "")
     messages = channel.channel_messages(test_user['token'], test_channel['channel_id'], 0)
 
-    assert(new_message['message_id'] != messages[0]['message_id'])
+    assert(new_message['message_id'] != messages['messages'][0]['message_id'])
 
 
 def test_OwnerEdit(test_channel, test_user, new_user):
