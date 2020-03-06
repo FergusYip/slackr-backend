@@ -8,8 +8,7 @@
 * Email addresses are validated using the method in the GeeksforGeeks article as opposed to RFC documents.
 * *auth_register* logs the user in.
 
-###  auth_login
-
+### auth_login
 * Test *auth_login* under the assumption that invalid emails will produce an error regardless (i.e if the email is invalid or that the user does not exist).
 
 ### auth_register
