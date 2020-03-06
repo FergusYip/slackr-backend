@@ -7,64 +7,67 @@ from error import AccessError, InputError
 # ===== TESTING USER PROFILE SET EMAIL FUNCTION =======
 # =====================================================
 
-def averagecase_email_change():
-    # Standard case of a user changing their email address.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
-    user.user_profile_setemail(new_user['token'], 'unique42@hemail.com')
-    profile_info = user.user_profile(new_user['token'], new_user['u_id'])
-    assert profile_info['email'] == 'unique42@hemail.com'
+def averagecase_email_change(test_user):
 
-def already_used_emailchange():
-    # Case where a user already exists with that email address.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
-    second_user = auth.auth_register('tester@test.com', 'PaSsWoRd1', 'Unique', 'Name')
-    with pytest.raises(InputError) as e:
+    ''' Testing an average case where a user will change their own email to
+    a valid and unique email address. '''
+
+    user.user_profile_setemail(test_user['token'], 'tester2@test.com')
+    profile_info = user.user_profile(test_user['token'], test_user['u_id'])
+
+    assert profile_info['user']['email'] == 'tester2@test.com'
+
+
+def already_used_emailchange(test_user, new_user):
+
+    ''' Testing a case where a user attempts to change their email address to
+    one that is already in use. '''
+
+    user.user_profile_setemail(test_user['token'], 'test@test.com')
+
+    second_user = new_user('tester@test.com')
+
+    with pytest.raises(InputError):
         user.user_profile_setemail(second_user['token'], 'test@test.com')
 
-def no_change_email():
-    # Case where the user tries to change their email address to the current one.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
-    with pytest.raises(InputError) as e:
-        user.user_profile_setemail(new_user['token'], 'test@test.com')
+
+def no_change_email(test_user):
+
+    ''' Testing a case where the user attempts to change their email address
+    to their current one. '''
+
+    user.user_profile_setemail(test_user['token'], 'test@test.com')
+
+    with pytest.raises(InputError):
+        user.user_profile_setemail(test_user['token'], 'test@test.com')
+
 
 def invalidtoken_emailchange():
-    # Function to raise an AccessError if the token passed is invalid.
-    with pytest.raises(AccessError) as e:
-        user.user_profile_setemail('INVALIDTOKEN', 'doesntmatter@gmail.com')
 
-# Valid emails tuple created by Fergus Yip
-@pytest.fixture
-def valid_emails():
-    '''Fixture for a tuple of valid emails'''
+    ''' Testing a case where an invalid token is input into the function. This
+    will result in an AccessError being raised. '''
 
-    return ('latonyaDAVISON@email.com', '123456789@email.com',
-            'lantonyDAVISON123@email.com', 'lantony_davison@email.com',
-            'lantony.davison@email.com', 'lantony-davison@email.com')
+    with pytest.raises(AccessError):
+        user.user_profile_setemail('NOTAVALIDTOKEN', 'test@test.com')
 
-# Invalid emails tuple created by Fergus Yip
-@pytest.fixture
-def invalid_emails():
-    '''Fixture for a tuple of invalid emails'''
 
-    return (
-        '.latonyadavison@email.com',
-        'latonyadavison.@email.com',
-        'latonya..davison.@email.com',
-        'latonya@davison@email.com',
-        'latonyadavison.com',
-    )
+def test_validemailchange(test_user, valid_emails):
 
-def test_validemailchange(valid_emails):
-    # Testing the change to a variety of valid email types.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
+    ''' Testing the user_profile_setemail function against the pytest fixture
+    featuring a tuple of valid emails. '''
+
     for email in valid_emails:
-        user.user_profile_setemail(new_user['token'], email)
-        profile_info = user.user_profile(new_user['token'], new_user['u_id'])
-        assert profile_info['email'] == email
+        user.user_profile_setemail(test_user['token'], email)
+        profile_info = user.user_profile(test_user['token'], test_user['u_id'])
 
-def test_invalidemailchange(invalid_emails):
-    # Testing the change to a variety of invalid email types.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
+        assert profile_info['user']['email'] == email
+
+
+def test_invalidemailchange(test_user, invalid_emails):
+
+    ''' Testing the user_profile_setemail function against the pytest fixture
+    featuring a tuple of invalid emails. '''
+
     for email in invalid_emails:
-        with pytest.raises(InputError) as e:
-            user.user_profile_setemail(new_user['token'], email)
+        with pytest.raises(InputError):
+            user.user_profile_setemail(test_user['token'], email)

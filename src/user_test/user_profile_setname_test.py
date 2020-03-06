@@ -7,43 +7,58 @@ from error import AccessError, InputError
 # ====== TESTING USER PROFILE SETNAME FUNCTION ========
 # =====================================================
 
-def test_averagecase_setname():
-    # Creating a user and calling user_profile_setname without raising an error.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
-    user.user_profile_setname(new_user['token'], 'Ipsum', 'Lorem')
-    profile_info = user.user_profile(new_user['token'], new_user['u_id'])
-    assert profile_info['name_first'] == 'Ipsum'
-    assert profile_info['name_last'] == 'Lorem'
+def test_averagecase_setname(test_user):
 
-def test_firstzerocharacter():
-    # Creating a user and changing their first name to be 0 characters. Thus,
-    # raising an InputError as this is invalid.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
-    with pytest.raises(InputError) as e:
-        user.user_profile_setname(new_user['token'], '', 'Lorem')
+    ''' Testing an average case where a user will change their name to a valid
+    choice. '''
 
-def test_firstoverfifty():
-    # Creating a user and chaning thier first name to be over 50 characters.
-    # Thus, raising an InputError.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
-    with pytest.raises(InputError) as e:
-        user.user_profile_setname(new_user['token'], 'i' * 51, 'Lorem')
+    user.user_profile_setname(test_user['token'], 'Ipsum', 'Lorem')
+    profile_info = user.user_profile(test_user['token'], test_user['u_id'])
 
-def test_lastzerocharacter():
-    # Creating a user and changing their last name to be 0 characters. Thus,
-    # raising an InputError.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
-    with pytest.raises(InputError) as e:
-        user.user_profile_setname(new_user['token'], 'Ipsum', '')
+    assert profile_info['user']['name_first'] == 'Ipsum'
+    assert profile_info['user']['name_last'] == 'Lorem'
 
-def test_lastoverfifty():
-    # Creating a user and changing their last name to be over 50 characters.
-    # Thus, raising an InputError.
-    new_user = auth.auth_register('test@test.com', 'PaSsWoRd1', 'Lorem', 'Ipsum')
-    with pytest.raises(InputError) as e:
-        user.user_profile_setname(new_user['token'], 'Ipsum', 'i' * 50)
+
+def test_firstzerocharacter(test_user):
+
+    ''' Testing that the user_profile_setname function will raise an InputError
+    if the value of the first name contains zero characters. '''
+
+    with pytest.raises(InputError):
+        user.user_profile_setname(test_user['token'], '', 'Lorem')
+
+
+def test_firstoverfifty(test_user):
+
+    ''' Testing that the user_profile_setname function will raise an InputError
+    if the value of the first name is greater than 50 characters (50 uninclusive). '''
+
+    with pytest.raises(InputError):
+        user.user_profile_setname(test_user['token'], 'i' * 51, 'Lorem')
+
+
+def test_lastzerocharacter(test_user):
+
+    ''' Testing that the user_profile_setname function will raise an InputError
+    if the value of the last name contains zero characters. '''
+
+    with pytest.raises(InputError):
+        user.user_profile_setname(test_user['token'], 'Ipsum', '')
+
+
+def test_lastoverfifty(test_user):
+
+    ''' Testing that the user_profile_setname function will raise an InputError
+    if the value of the last name is greater than 50 characters (50 uninclusive). '''
+
+    with pytest.raises(InputError):
+        user.user_profile_setname(test_user['token'], 'Ipsum', 'i' * 51)
+
 
 def invalidtoken_namechange():
-    # Function to raise an AccessError if the token passed is invalid.
-    with pytest.raises(AccessError) as e:
-        user.user_profile_setname('INVALIDTOKEN', 'Johnny', 'McJohnny')
+
+    ''' Testing that an AccessError is raised if the token passed to the
+    user_profile_setname function is invalid. '''
+
+    with pytest.raises(AccessError):
+        user.user_profile_setname('NOTAVALIDTOKEN', 'Johnny', 'McJohnny')

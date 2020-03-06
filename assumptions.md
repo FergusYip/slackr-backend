@@ -66,3 +66,6 @@ ___
 ### user_profile_sethandle
 * knownhandle is a unique handle that is not existing already prior to testing.
 * Attempting to change the user's handle to the user's current handle will result in an InputError
+### user_profile
+* 99999 is an invalid u_id that is not being used by any users.
+* 'NOTAVALIDTOKEN' is an invalid token that will never be used by a user.
