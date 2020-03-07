@@ -39,7 +39,8 @@ ___
 ## message.py
 
 ### message_remove
-* The number '99999' is an invalid *message_id* and will not be used.
+* *message_id* will only be positive integers
+* Negative *message_id* (i.e. -1) are invalid
 
 ### message_send
 * A message of zero characters is an **InputError** and cannot be sent.
@@ -54,11 +55,10 @@ ___
 ___
 
 ## user.py
+* *u_id* will only be positive integers
+* Negative *u_id* (i.e. -1) are invalid
 
 ### user_profile_sethandle
 * Handle consists of only lowercase characters
 * knownhandle is a unique handle that is not existing already prior to testing.
 * Attempting to change the user's handle to the user's current handle will result in an **InputError**
-
-### user_profile
-* 99999 is an invalid *u_id* that is not being used by any users.
