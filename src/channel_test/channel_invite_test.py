@@ -110,7 +110,7 @@ def test_invite_access(dummy_user1, dummy_user2, channel2):
             dummy_user1['token'], channel2, dummy_user2['u_id'])
 
 
-def test_invalid_token_invite(dummy_user1, channel1, invalid_token):
+def test_invite_invalid_token(dummy_user1, channel1, invalid_token):
     '''
     Testing case when the token passed into the channel_invite() function is invalid.
     '''

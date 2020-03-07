@@ -106,7 +106,7 @@ def test_join_member(dummy_user1, channel1):
     assert len(details['all_members']) == 1
 
 
-def test_invalid_token_join(channel1, invalid_token):
+def test_join_invalid_token(channel1, invalid_token):
     '''
     Testing case when the token passed into the channel_join() function is invalid.
     '''

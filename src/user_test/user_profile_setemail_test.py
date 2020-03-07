@@ -7,7 +7,7 @@ from error import AccessError, InputError
 # ===== TESTING USER PROFILE SET EMAIL FUNCTION =======
 # =====================================================
 
-def averagecase_email_change(test_user):
+def test_profile_setemail(test_user):
 
     ''' Testing an average case where a user will change their own email to
     a valid and unique email address. '''
@@ -18,7 +18,7 @@ def averagecase_email_change(test_user):
     assert profile_info['user']['email'] == 'tester2@test.com'
 
 
-def already_used_emailchange(test_user, new_user):
+def test_profile_setemail_used_by_other_user(test_user, new_user):
 
     ''' Testing a case where a user attempts to change their email address to
     one that is already in use. '''
@@ -31,7 +31,7 @@ def already_used_emailchange(test_user, new_user):
         user.user_profile_setemail(second_user['token'], 'test@test.com')
 
 
-def no_change_email(test_user):
+def test_profile_setemail_no_change(test_user):
 
     ''' Testing a case where the user attempts to change their email address
     to their current one. '''
@@ -42,16 +42,16 @@ def no_change_email(test_user):
         user.user_profile_setemail(test_user['token'], 'test@test.com')
 
 
-def invalidtoken_emailchange():
+def test_profile_setemail_invalidtoken(invalid_token):
 
     ''' Testing a case where an invalid token is input into the function. This
     will result in an AccessError being raised. '''
 
     with pytest.raises(AccessError):
-        user.user_profile_setemail('NOTAVALIDTOKEN', 'test@test.com')
+        user.user_profile_setemail(invalid_token, 'test@test.com')
 
 
-def test_validemailchange(test_user, valid_emails):
+def test_profile_setemail_valid_emails(test_user, valid_emails):
 
     ''' Testing the user_profile_setemail function against the pytest fixture
     featuring a tuple of valid emails. '''
@@ -63,7 +63,7 @@ def test_validemailchange(test_user, valid_emails):
         assert profile_info['user']['email'] == email
 
 
-def test_invalidemailchange(test_user, invalid_emails):
+def test_profile_setemail_invalid_emails(test_user, invalid_emails):
 
     ''' Testing the user_profile_setemail function against the pytest fixture
     featuring a tuple of invalid emails. '''

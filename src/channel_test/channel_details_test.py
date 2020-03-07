@@ -117,7 +117,7 @@ def test_details_invalid(dummy_user1, channel2):
         channel.channel_details(dummy_user1['token'], channel2['channel_id'])
 
 
-def test_invalid_token_details(channel1, invalid_token):
+def test_details_invalid_token(channel1, invalid_token):
     '''
     Testing case when the token passed into the channel_details() function is invalid.
     '''

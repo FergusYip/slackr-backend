@@ -17,35 +17,36 @@
 * Handles are the concatenation of the user's first and last name converted to lowercase.
 * If the generated handle is already taken, a modified handle is assigned to the user.
 * Specific testing of how a modified handle is generated will be omitted, instead tests will verify that the provided handle is unique.
-
 ___
 
-
-
 ## channel.py
+* *channel_id* will only be positive integers
+* Negative *channel_id* (i.e. -1) are invalid
 
 ### channel_leave
-
 * When the only owner of a channel with multiple people leaves, the channel will have no owner.
 * When all members of a channel leave, the channel will not be deleted.
 
 ### channel_join
-
-* when a user that is already a member of a channel tries to join that same channel, the function does nothing.
-
+* When a user that is already a member of a channel tries to join that same channel, the function does nothing.
 ___
-
-
 
 ## channels.py
 
 ### channels_create
-* Channel name only contains ASCII printable characters.
+* Channel names only contains ASCII printable characters.
 * Channel names do not have to be unique.
-
 ___
 
+## message.py
 
+### message_remove
+* *message_id* will only be positive integers
+* Negative *message_id* (i.e. -1) are invalid
+
+### message_send
+* A message of zero characters is an **InputError** and cannot be sent.
+___
 
 ## other.py
 
@@ -53,18 +54,13 @@ ___
 * If user is not a part of any channel, search returns no messages.
 * If the query string is empty, search returns all messages from every channel the user is a part of.
 * Query string is case insensitive.
-
-## message.py
-* 'NOTAVALIDTOKEN' is not a valid token and can be checked to see if it raises an AccessError.
-### message_remove
-* Assuming the number '99999' is an invalid message_id and will not be used.
-### message_send
-* Assuming that a message of zero characters is an InputError and cannot be sent.
+___
 
 ## user.py
+* *u_id* will only be positive integers
+* Negative *u_id* (i.e. -1) are invalid
+
 ### user_profile_sethandle
+* Handle consists of only lowercase characters
 * knownhandle is a unique handle that is not existing already prior to testing.
-* Attempting to change the user's handle to the user's current handle will result in an InputError
-### user_profile
-* 99999 is an invalid u_id that is not being used by any users.
-* 'NOTAVALIDTOKEN' is an invalid token that will never be used by a user.
+* Attempting to change the user's handle to the user's current handle will result in an **InputError**
