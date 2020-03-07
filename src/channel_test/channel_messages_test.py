@@ -142,7 +142,7 @@ def test_messages_access(dummy_user1, channel2):
             dummy_user1['token'], channel2['channel_id'], 0)
 
 
-def test_invalid_token_messages(dummy_user1, channel1, invalid_token):
+def test_messages_invalid_token(dummy_user1, channel1, invalid_token):
     '''
     Testing case when the token passed into the channel_messages() function is invalid.
     '''

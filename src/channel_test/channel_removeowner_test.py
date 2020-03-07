@@ -143,7 +143,7 @@ def test_removeowner_cid(dummy_user1, dummy_user2, channel1):
             dummy_user1['token'], 98984, dummy_user2['u_id'])
 
 
-def test_invalid_token_removeowner(dummy_user1, channel1, invalid_token):
+def test_removeowner_invalid_token(dummy_user1, channel1, invalid_token):
     '''
     Testing case when the token passed into the channel_removeowner() function is invalid.
     '''
