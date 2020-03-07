@@ -57,7 +57,7 @@ def test_send_within_char_limit(test_channel, test_user):
 
     ''' Testing the maximum length of a message sends correctly. '''
 
-    new_message = message.message_send(second_user['token'], channel_id['channel_id'], 'i' * 1000)
+    new_message = message.message_send(test_user['token'], test_channel['channel_id'], 'i' * 1000)
 
 
 def test_send_empty(test_channel, test_user, new_user):
