@@ -67,11 +67,12 @@ def test_edit_unauthorised_default(test_channel, test_user, new_user):
         message.message_edit(third_user['token'], new_message['message_id'], 'New Message')
 
 
-def test_edit_invalidtoken(test_channel, test_user):
+def test_edit_invalidtoken(test_channel, test_user, invalid_token):
 
     ''' Testing that an invalid token will raise an AccessError. '''
 
     new_message = message.message_send(test_user['token'], test_channel['channel_id'], 'Message')
 
     with pytest.raises(AccessError):
-        message.message_edit('NOTAVALIDTOKEN', new_message['message_id'], 'New Message')
+        message.message_edit(invalid_token, new_message['message_id'],
+                             'New Message')

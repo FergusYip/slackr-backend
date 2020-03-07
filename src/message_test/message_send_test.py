@@ -68,9 +68,10 @@ def test_send_empty(test_channel, test_user, new_user):
         message.message_send(test_user['token'], test_channel['channel_id'], '')
 
 
-def test_send_invalidtoken(test_channel, test_user):
+def test_send_invalidtoken(test_channel, test_user, invalid_token):
 
     ''' Testing that an invalid token will raise an AccessError. '''
 
     with pytest.raises(AccessError):
-        message.message_send('NOTAVALIDTOKEN', test_channel['channel_id'], 'Message')
+        message.message_send(invalid_token, test_channel['channel_id'],
+                             'Message')

@@ -76,9 +76,9 @@ def test_invalid_uid(test_user):
         user.user_profile(test_user['token'], 99999)
 
 
-def invalid_token(test_user):
+def invalid_token(test_user, invalid_token):
 
     ''' Testing that the user_profile function if an invalid token is input. '''
 
     with pytest.raises(AccessError):
-        user.user_profile('NOTAVALIDTOKEN', test_user['u_id'])
+        user.user_profile(invalid_token, test_user['u_id'])

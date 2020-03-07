@@ -74,11 +74,11 @@ def test_remove_new_owners(test_channel, test_user, new_user):
     message.message_remove(second_user['token'], new_message['message_id'])
 
 
-def test_remove_invalidtoken(test_channel, test_user):
+def test_remove_invalidtoken(test_channel, test_user, invalid_token):
 
     ''' Testing that an invalid token will raise an AccessError. '''
 
     new_message = message.message_send(test_user['token'], test_channel['channel_id'], 'Message')
 
     with pytest.raises(AccessError):
-        message.message_remove('NOTAVALIDTOKEN', new_message['message_id'])
+        message.message_remove(invalid_token, new_message['message_id'])
