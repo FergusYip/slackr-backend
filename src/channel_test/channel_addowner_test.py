@@ -130,7 +130,7 @@ def test_addowner_uid(dummy_user2, dummy_user3, channel2):
             dummy_user2['token'], channel2['channel_id'], dummy_user3['u_id'])
 
 
-def test_invalid_token_addowner(dummy_user1, channel1, invalid_token):
+def test_addowner_invalid_token(dummy_user1, channel1, invalid_token):
     '''
     Testing case when the token passed into the channel_addowner() function is invalid.
     '''

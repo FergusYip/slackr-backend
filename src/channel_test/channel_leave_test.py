@@ -136,7 +136,7 @@ def test_leave_cid(dummy_user1):
         channel.channel_leave(dummy_user1['token'], 94859)
 
 
-def test_invalid_token_leave(channel1, invalid_token):
+def test_leave_invalid_token(channel1, invalid_token):
     '''
     Testing case when the token passed into the channel_leave() function is invalid.
     '''
