@@ -20,6 +20,8 @@
 ___
 
 ## channel.py
+* *channel_id* will only be positive integers
+* Negative *channel_id* (i.e. -1) are invalid
 
 ### channel_leave
 * When the only owner of a channel with multiple people leaves, the channel will have no owner.
