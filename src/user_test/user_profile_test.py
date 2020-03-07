@@ -73,7 +73,7 @@ def test_invalid_uid(test_user):
     ''' Testing the user_profile function if an incorrect u_id is input. '''
 
     with pytest.raises(InputError):
-        user.user_profile(test_user['token'], 99999)
+        user.user_profile(test_user['token'], -1)
 
 
 def invalid_token(test_user, invalid_token):

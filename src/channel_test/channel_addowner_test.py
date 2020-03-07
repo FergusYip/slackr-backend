@@ -110,7 +110,7 @@ def test_addowner_cid(dummy_user1, dummy_user2, channel1):
 
     with pytest.raises(InputError):
         channel.channel_addowner(
-            dummy_user1['token'], 39503, dummy_user2['u_id'])
+            dummy_user1['token'], -1, dummy_user2['u_id'])
 
 
 def test_addowner_uid(dummy_user2, dummy_user3, channel2):
@@ -123,7 +123,7 @@ def test_addowner_uid(dummy_user2, dummy_user3, channel2):
 
     with pytest.raises(InputError):
         channel.channel_addowner(
-            dummy_user2['token'], channel2['channel_id'], 898009)
+            dummy_user2['token'], channel2['channel_id'], -1)
 
     with pytest.raises(InputError):
         channel.channel_addowner(

@@ -109,7 +109,7 @@ def test_messages_id(dummy_user1):
     '''
 
     with pytest.raises(InputError):
-        channel.channel_messages(dummy_user1['token'], 31415926, 0)
+        channel.channel_messages(dummy_user1['token'], -1, 0)
 
 
 def test_messages_start(dummy_user1, channel1):

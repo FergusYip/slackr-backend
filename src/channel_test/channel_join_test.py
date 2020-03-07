@@ -81,7 +81,7 @@ def test_join_id(dummy_user1):
     '''
 
     with pytest.raises(InputError):
-        channel.channel_join(dummy_user1['token'], 90439)
+        channel.channel_join(dummy_user1['token'], -1)
 
 
 def test_join_private(dummy_user1, channel_priv):

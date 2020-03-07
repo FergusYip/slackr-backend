@@ -34,7 +34,7 @@ def test_remove_wrong_id(test_channel, test_user):
     ''' Testing if an InputError is thrown when an invalid message_id is input. '''
 
     with pytest.raises(InputError):
-        message.message_remove(test_user['token'], 99999)
+            message.message_remove(test_user['token'], -1)
 
 
 def test_remove_unauthorized(test_channel, test_user, new_user):
