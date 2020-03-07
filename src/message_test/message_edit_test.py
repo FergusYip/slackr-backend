@@ -54,8 +54,7 @@ def test_edit_unauthorised(test_channel, test_user, new_user):
 
     def test_edit_unauthorised_default(test_channel, test_user, new_user):
 
-     Testing an AccessError thrown when a default user attempts to edit another
-    default user's message.
+    '''Testing an AccessError thrown when a default user attempts to edit another default user's message.'''
 
     second_user = new_user('tester2@gmail.com')
     third_user = new_user('tester3@gmail.com')
