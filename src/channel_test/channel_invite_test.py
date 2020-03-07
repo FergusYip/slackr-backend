@@ -78,7 +78,7 @@ def test_invite_channel(dummy_user1, dummy_user2, channel1):
     # testing channel invite function to invalid channel.
     with pytest.raises(InputError):
         channel.channel_invite(
-            dummy_user1['token'], '3555', dummy_user2['u_id'])
+            dummy_user1['token'], -1, dummy_user2['u_id'])
 
 
 def test_invite_user(dummy_user1, dummy_user2, channel1):

@@ -110,7 +110,7 @@ def test_details_invalid(dummy_user1, channel2):
     '''
 
     with pytest.raises(InputError):
-        channel.channel_details(dummy_user1['token'], 42045)
+        channel.channel_details(dummy_user1['token'], -1)
 
     # Testing case when the user asking for details isn't part of the channel.
     with pytest.raises(AccessError):

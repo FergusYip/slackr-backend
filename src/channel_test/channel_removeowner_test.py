@@ -140,7 +140,7 @@ def test_removeowner_cid(dummy_user1, dummy_user2, channel1):
 
     with pytest.raises(InputError):
         channel.channel_removeowner(
-            dummy_user1['token'], 98984, dummy_user2['u_id'])
+            dummy_user1['token'], -1, dummy_user2['u_id'])
 
 
 def test_invalid_token_removeowner(dummy_user1, channel1, invalid_token):

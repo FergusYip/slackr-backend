@@ -133,7 +133,7 @@ def test_leave_cid(dummy_user1):
     '''
 
     with pytest.raises(InputError):
-        channel.channel_leave(dummy_user1['token'], 94859)
+        channel.channel_leave(dummy_user1['token'], -1)
 
 
 def test_invalid_token_leave(channel1, invalid_token):
