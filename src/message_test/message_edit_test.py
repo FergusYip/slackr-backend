@@ -52,7 +52,7 @@ def test_edit_unauthorised(test_channel, test_user, new_user):
         message.message_edit(second_user['token'], new_message['message_id'], 'New Message')
 
 
-''' def test_edit_unauthorised_default(test_channel, test_user, new_user):
+    def test_edit_unauthorised_default(test_channel, test_user, new_user):
 
      Testing an AccessError thrown when a default user attempts to edit another
     default user's message.
@@ -64,7 +64,7 @@ def test_edit_unauthorised(test_channel, test_user, new_user):
     new_message = message.message_send(second_user['token'], test_channel['channel_id'], 'Message')
 
     with pytest.raises(AccessError):
-        message.message_edit(third_user['token'], new_message['message_id'], 'New Message') '''
+        message.message_edit(third_user['token'], new_message['message_id'], 'New Message')
 
 
 def test_edit_invalidtoken(test_channel, test_user, invalid_token):

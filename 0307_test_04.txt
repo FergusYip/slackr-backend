@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.7.3, pytest-3.10.1, py-1.7.0, pluggy-0.8.0
+rootdir: /tmp_amd/adams/export/adams/5/z5248282/cs1531/proj, inifile:
+plugins: cov-2.8.1
+collected 122 items / 1 errors
+
+==================================== ERRORS ====================================
+____________ ERROR collecting src/message_test/message_edit_test.py ____________
+/usr/lib/python3/dist-packages/_pytest/python.py:450: in _importtestmodule
+    mod = self.fspath.pyimport(ensuresyspath=importmode)
+/usr/lib/python3/dist-packages/py/_path/local.py:668: in pyimport
+    __import__(modname)
+E     File "/tmp_amd/adams/export/adams/5/z5248282/cs1531/proj/src/message_test/message_edit_test.py", line 57
+E       Testing an AccessError thrown when a default user attempts to edit another
+E                ^
+E   SyntaxError: invalid syntax
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 errors during collection !!!!!!!!!!!!!!!!!!!!
+=========================== 1 error in 0.33 seconds ============================
