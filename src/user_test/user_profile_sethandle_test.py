@@ -12,10 +12,10 @@ def test_profile_sethandle(test_user):
     ''' Average case test where a user will change their handle to a different
     valid handle. '''
 
-    user.user_profile_sethandle(test_user['token'], 'testeraccount42')
+    user.user_profile_sethandle(test_user['token'], 'knownhandle')
     profile_info = user.user_profile(test_user['token'], test_user['u_id'])
 
-    assert profile_info['user']['handle_str'] == 'testeraccount42'
+    assert profile_info['user']['handle_str'] == 'knownhandle'
 
 
 def test_profile_sethandle_below_char_limit(test_user):
