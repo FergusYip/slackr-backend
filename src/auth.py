@@ -4,7 +4,7 @@ from json import dumps
 from flask import Flask, request
 from error import AccessError, InputError
 
-SECRET = 'Need to decide on something'
+SECRET = 'the chunts'
 
 DATA = {
     'users': [],
@@ -23,10 +23,9 @@ def invalid_name(name):
     return True
 
 
-def generateToken(username):
+def generateToken(u_id):
     global SECRET
-    encoded = jwt.encode({'username': username}, SECRET, algorithm='HS256')
-    print(encoded)
+    encoded = jwt.encode({'u_id': u_id}, SECRET, algorithm='HS256')
     return str(encoded)
 
 
