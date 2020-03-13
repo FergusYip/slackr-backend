@@ -3,10 +3,15 @@ import jwt
 from json import dumps
 from flask import Flask, request
 from error import AccessError, InputError
+from datetime import datetime, timezone
 
 SECRET = 'the chunts'
 
 data_store = {}
+
+
+def utc_now():
+    return int(datetime.now(timezone.utc).timestamp())
 
 
 def invalid_password(password):
