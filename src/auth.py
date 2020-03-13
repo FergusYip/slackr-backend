@@ -6,9 +6,7 @@ from error import AccessError, InputError
 
 SECRET = 'the chunts'
 
-DATA = {
-    'users': [],
-}
+data_store = {}
 
 
 def invalid_password(password):
@@ -34,8 +32,7 @@ def hashPassword(password):
 
 
 def auth_register(email, password, name_first, name_last):
-    global DATA
-
+    global data_store
     if invalid_password(password) \
         or invalid_name(name_first) \
         or invalid_name(name_last):
@@ -50,8 +47,9 @@ def auth_register(email, password, name_first, name_last):
     })
 
 
-def auth_login(DATA, email, password):
-    for user in data['users']:
+def auth_login(email, password):
+    global data_store
+    for user in data_store['users']:
         if user['email'] == email and user['password'] == hashPassword(
                 password):
             return {'u_id': user['u_id'], 'token': generateToken(user['u_id'])}
