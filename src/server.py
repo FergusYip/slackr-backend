@@ -1,4 +1,5 @@
 import sys
+import pickle
 from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
@@ -20,6 +21,14 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
+
+data_store = {}
+
+@APP.route('/save', methods=['POST'])
+def save_state():
+    global data_store
+    with open('datastore.p', 'wb') as FILE:
+        pickle.dump(data_store, FILE)
 
 # Example
 @APP.route("/echo", methods=['GET'])
