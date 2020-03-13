@@ -50,14 +50,11 @@ def auth_register(email, password, name_first, name_last):
     })
 
 
-def auth_login(email, password):
-    global DATA
+def auth_login(DATA, email, password):
     for user in data['users']:
-        if user['username'] == username and user['password'] == hashPassword(
+        if user['email'] == email and user['password'] == hashPassword(
                 password):
-            return sendSuccess({
-                'token': generateToken(username),
-            })
+            return {'u_id': user['u_id'], 'token': generateToken(user['u_id'])}
     return InputError()
 
 
@@ -65,3 +62,7 @@ def auth_logout(token):
     return {
         'is_success': True,
     }
+
+
+if __name__ == "__main__":
+    pass
