@@ -38,6 +38,15 @@ def auth_register(email, password, name_first, name_last):
         or invalid_name(name_last):
         return InputError()
 
+    # user = {
+    #     'u_id': None,
+    #     'email': email,
+    #     'password': hashPassword(password),
+    #     'name_first': name_first,
+    #     'name_last': name_last,
+    #     'handle_str':
+    # }
+
     data['users'].append({
         'username': username,
         'password': hashPassword(password),
