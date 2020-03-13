@@ -27,10 +27,19 @@ APP.register_error_handler(Exception, defaultHandler)
 data_store = {}
 
 
+def load_state():
+    global data_store
+    try:
+        FILE = open('data_store.p', 'rb')
+        data_store = pickle.load(FILE)
+    except Exception:
+        data_store = {}
+
+
 @APP.route('/save', methods=['POST'])
 def save_state():
     global data_store
-    with open('datastore.p', 'wb') as FILE:
+    with open('data_store.p', 'wb') as FILE:
         pickle.dump(data_store, FILE)
 
 
@@ -204,4 +213,5 @@ def workspace_reset():
 
 
 if __name__ == "__main__":
+    load_state()
     APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
