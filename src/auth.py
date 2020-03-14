@@ -3,7 +3,6 @@ import jwt
 from json import dumps
 from flask import Flask, request
 from error import AccessError, InputError
-from datetime import datetime, timezone
 from email import invalid_email
 import math
 
