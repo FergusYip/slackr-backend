@@ -32,12 +32,13 @@ def channels_list():
 	u_id = payload['u_id']
 
 	channels = []
-	for channel in data_store['channels'] if u_id in channel['all_members']:
-		channel_dict = {
-			'channel_id': channel['channel_id'],
-			'name': channel['name']
-		}
-		channels.append(channel_dict)
+	for channel in data_store['channels']:
+		if u_id in channel['all_members']
+			channel_dict = {
+				'channel_id': channel['channel_id'],
+				'name': channel['name']
+			}
+			channels.append(channel_dict)
 
 	return dumps({
 		'channels': channels
