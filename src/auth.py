@@ -34,7 +34,7 @@ def generate_token(u_id):
     return token
 
 
-def hash_password(password):
+def hash_pw(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 
@@ -101,7 +101,7 @@ def auth_register(email=request.args.get('email'),
     user = {
         'u_id': u_id,
         'email': email,
-        'password': hashPassword(password),
+        'password': hash_pw(password),
         'name_first': name_first,
         'name_last': name_last,
         'handle_str': generate_handle(name_first, name_last)
@@ -119,11 +119,15 @@ def auth_register(email=request.args.get('email'),
 def auth_login(email=request.args.get('email'),
                password=request.args.get('password')):
     global data_store
+
     for user in data_store['users']:
-        if user['email'] == email and user['password'] == hashPassword(
-                password):
+        if user['email'] == email and user['password'] == hash_pw(password):
             return {'u_id': user['u_id'], 'token': generateToken(user['u_id'])}
-    return InputError()
+        elif user['email'] == email and user['password'] != hash_pw(password):
+            raise InputError(description='Password is not correct')
+
+    # If email does not match any user in data store
+    raise InputError(description='Email entered does not belong to a user')
 
 
 @APP.route("/auth/logout", methods=['POST'])
