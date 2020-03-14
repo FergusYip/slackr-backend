@@ -4,6 +4,7 @@ from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from error import InputError
+from auth import auth
 
 
 def defaultHandler(err):
@@ -24,7 +25,9 @@ CORS(APP)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
-data_store = {}
+APP.register_blueprint(auth)
+
+data_store = {'users': [], 'channels': [], 'tokens': []}
 
 
 def load_state():
@@ -33,7 +36,7 @@ def load_state():
         FILE = open('data_store.p', 'rb')
         data_store = pickle.load(FILE)
     except Exception:
-        data_store = {}
+        data_store = {'users': [], 'channels': [], 'tokens': []}
 
 
 @APP.route('/save', methods=['POST'])
@@ -50,21 +53,6 @@ def echo():
     if data == 'echo':
         raise InputError(description='Cannot echo "echo"')
     return dumps({'data': data})
-
-
-@APP.route("/auth/login", methods=['POST'])
-def auth_login():
-    pass
-
-
-@APP.route("/auth/logout", methods=['POST'])
-def auth_logout():
-    pass
-
-
-@APP.route("/auth/register", methods=['POST'])
-def auth_register():
-    pass
 
 
 @APP.route("/channel/invite", methods=['POST'])
@@ -214,4 +202,5 @@ def workspace_reset():
 
 if __name__ == "__main__":
     load_state()
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    APP.run(debug=True,
+            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))

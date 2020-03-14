@@ -3,7 +3,7 @@ import jwt
 import math
 import hashlib
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError, InputError
 from email_validation import invalid_email
@@ -13,6 +13,8 @@ APP = Flask(__name__)
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
+
+auth = Blueprint('auth', __name__, url_prefix='/auth')
 
 SECRET = 'the chunts'
 
@@ -70,7 +72,7 @@ def generate_handle(name_first, name_last):
     return handle_str
 
 
-@APP.route("/auth/register", methods=['POST'])
+@auth.route("/register", methods=['POST'])
 def auth_register():
 
     email = request.args.get('email')
@@ -123,7 +125,7 @@ def auth_register():
     })
 
 
-@APP.route("/auth/login", methods=['POST'])
+@auth.route("/login", methods=['POST'])
 def auth_login():
 
     email = request.args.get('email')
@@ -145,7 +147,7 @@ def auth_login():
     raise InputError(description='Email entered does not belong to a user')
 
 
-@APP.route("/auth/logout", methods=['POST'])
+@auth.route("/logout", methods=['POST'])
 def auth_logout():
 
     token = request.args.get('token')
