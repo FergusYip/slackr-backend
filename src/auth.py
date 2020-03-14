@@ -104,10 +104,10 @@ def auth_register(email=request.args.get('email'),
 
     data_store['users'].append(user)
 
-    return {
+    return dumps({
         'u_id': u_id,
-        'token': generateToken(username),
-    }
+        'token': generate_token(u_id),
+    })
 
 
 @APP.route("/auth/login", methods=['POST'])
@@ -119,7 +119,10 @@ def auth_login(email=request.args.get('email'),
 
     for user in data_store['users']:
         if user['email'] == email and user['password'] == hash_pw(password):
-            return {'u_id': user['u_id'], 'token': generateToken(user['u_id'])}
+            return dumps({
+                'u_id': user['u_id'],
+                'token': generate_token(user['u_id'])
+            })
         elif user['email'] == email and user['password'] != hash_pw(password):
             raise InputError(description='Password is not correct')
 
