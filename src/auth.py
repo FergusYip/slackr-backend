@@ -4,6 +4,7 @@ from json import dumps
 from flask import Flask, request
 from error import AccessError, InputError
 from datetime import datetime, timezone
+import math
 
 SECRET = 'the chunts'
 
@@ -26,14 +27,44 @@ def invalid_name(name):
     return True
 
 
-def generateToken(u_id):
+def generate_token(u_id):
     global SECRET
     encoded = jwt.encode({'u_id': u_id}, SECRET, algorithm='HS256')
     return str(encoded)
 
 
-def hashPassword(password):
+def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
+
+
+def is_unique_handle(handle_str):
+    for user in data_store['users']:
+        if user['handle_str'] is handle_str:
+            return False
+    return True
+
+
+def generate_handle(name_first, name_last):
+    global data_store
+
+    concatentation = name_first.lower() + name_last.lower()
+    handle_str = concatentation[:20]
+
+    unique_modifier = 0
+    while not is_unique_handle(handle_str):
+        split_handle = list(handle_str)
+
+        # Remove n number of characters from split_handle
+        unique_digits = int(math.log10(unique_modifier)) + 1
+        for n in range(unique_digits):
+            split_handle.pop()
+
+        split_handle.append(str(unique_modifier))
+        handle_str = ''.join(split_handle)
+
+        unique_modifier += 1
+
+    return handle_str
 
 
 @APP.route("/auth/register", methods=['POST'])
@@ -72,7 +103,7 @@ def auth_register(email=request.args.get('email'),
         'password': hashPassword(password),
         'name_first': name_first,
         'name_last': name_last,
-        'handle_str': None
+        'handle_str': generate_handle(name_first, name_last)
     }
 
     data_store['users'].append(user)
