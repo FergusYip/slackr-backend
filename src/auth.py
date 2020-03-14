@@ -25,7 +25,7 @@ def invalid_name(name):
 
 
 def generate_token(u_id):
-    token = str(jwt.encode({'u_id': u_id}, SECRET, algorithm='HS256'))
+    token = jwt.encode({'u_id': u_id}, SECRET, algorithm='HS256')
     data_store['tokens'].append(token)
     return token
 
