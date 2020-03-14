@@ -32,11 +32,23 @@ def channels_list():
 
 @APP.route("/channels/listall", methods=['GET'])
 def channels_listall():
+    token = request.args.get('token')
+
+    try:
+        payload = jwt.decode(token.encode('utf-8'), SECRET)
+    except:
+        raise AccessError(description='Token is invalid')
+
+	channels = []
+    for channel in data_store['channels']:
+		channel_dict = {
+			'channel_id': channel['channel_id'],
+			'name': channel['name']
+		}
+		channels.append(channel_dict)
+
     return dumps({
-        'channels': [{
-            'channel_id': 1,
-            'name': 'My Channel',
-        }],
+        'channels': channels
     })
 
 
