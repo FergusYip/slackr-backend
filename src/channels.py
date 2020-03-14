@@ -1,6 +1,5 @@
 import sys
 import jwt
-import hashlib
 from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
