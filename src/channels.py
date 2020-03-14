@@ -1,12 +1,10 @@
 import sys
 import jwt
-import math
 import hashlib
 from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from error import AccessError, InputError
-from email_validation import invalid_email
 
 APP = Flask(__name__)
 CORS(APP)
