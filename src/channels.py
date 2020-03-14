@@ -22,11 +22,25 @@ def invalid_channel_name(channel_name):
 
 @APP.route("/channels/list", methods=['GET'])
 def channels_list():
+    token = request.args.get('token')
+
+    try:
+        payload = jwt.decode(token.encode('utf-8'), SECRET)
+    except:
+        raise AccessError(description='Token is invalid')
+
+	u_id = payload['u_id']
+
+	channels = []
+    for channel in data_store['channels'] if u_id in channel['all_members']:
+		channel_dict = {
+			'channel_id': channel['channel_id'],
+			'name': channel['name']
+		}
+		channels.append(channel_dict)
+
     return dumps({
-        'channels': [{
-            'channel_id': 1,
-            'name': 'My Channel',
-        }],
+        'channels': channels
     })
 
 
