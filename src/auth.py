@@ -36,40 +36,56 @@ def hashPassword(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-def auth_register(email, password, name_first, name_last):
-    
-
-
-def auth_login(email, password):
-    
 @APP.route("/auth/register", methods=['POST'])
-def auth_register():
+def auth_register(email=request.args.get('email'),
+                  password=request.args.get('password'),
+                  name_first=request.args.get('name_first'),
+                  name_last=request.args.get('name_last')):
+
     global data_store
-    if invalid_password(password) \
-        or invalid_name(name_first) \
-        or invalid_name(name_last):
-        return InputError()
 
-    # user = {
-    #     'u_id': None,
-    #     'email': email,
-    #     'password': hashPassword(password),
-    #     'name_first': name_first,
-    #     'name_last': name_last,
-    #     'handle_str':
-    # }
+    if invalid_password(password):
+        raise InputError(
+            description='Password entered is less than 6 characters long')
 
-    data['users'].append({
-        'username': username,
+    if invalid_name(name_first):
+        raise InputError(
+            description=
+            'First name is not between 1 and 50 characters inclusive')
+
+    if invalid_name(name_last):
+        raise InputError(
+            description='Last name is not between 1 and 50 characters inclusive'
+        )
+
+    for user in data_store['users']:
+        if email == user[email]:
+            raise InputError(
+                description=
+                'Email address is already being used by another user')
+
+    u_id = data_store['users'][-1]['u_id'] + 1
+
+    user = {
+        'u_id': u_id,
+        'email': email,
         'password': hashPassword(password),
-    })
-    return sendSuccess({
+        'name_first': name_first,
+        'name_last': name_last,
+        'handle_str': None
+    }
+
+    data_store['users'].append(user)
+
+    return {
+        'u_id': u_id,
         'token': generateToken(username),
-    })
+    }
 
 
 @APP.route("/auth/login", methods=['POST'])
-def auth_login():
+def auth_login(email=request.args.get('email'),
+               password=request.args.get('password')):
     global data_store
     for user in data_store['users']:
         if user['email'] == email and user['password'] == hashPassword(
@@ -79,16 +95,14 @@ def auth_login():
 
 
 @APP.route("/auth/logout", methods=['POST'])
-def auth_logout(token):
+def auth_logout(token=request.args.get('token')):
     global data_store
     if token in data_store['tokens']:
         data_store['tokens'].remove(token)
         return True
     else:
-   	    raise AccessError(description='Unable to logout due to invalid token')
+        raise AccessError(description='Unable to logout due to invalid token')
     return False
-
-
 
 
 if __name__ == "__main__":
