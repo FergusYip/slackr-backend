@@ -4,6 +4,7 @@ from json import dumps
 from flask import Flask, request
 from error import AccessError, InputError
 from datetime import datetime, timezone
+from email import invalid_email
 import math
 
 SECRET = 'the chunts'
@@ -90,6 +91,9 @@ def auth_register(email=request.args.get('email'),
             description='Last name is not between 1 and 50 characters inclusive'
         )
 
+    if invalid_email(email):
+        raise InputError(description='Email entered is not a valid email ')
+
     for user in data_store['users']:
         if email == user[email]:
             raise InputError(
@@ -119,6 +123,9 @@ def auth_register(email=request.args.get('email'),
 def auth_login(email=request.args.get('email'),
                password=request.args.get('password')):
     global data_store
+
+    if invalid_email(email):
+        raise InputError(description='Email entered is not a valid email ')
 
     for user in data_store['users']:
         if user['email'] == email and user['password'] == hash_pw(password):
