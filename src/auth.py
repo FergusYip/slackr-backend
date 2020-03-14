@@ -12,10 +12,6 @@ SECRET = 'the chunts'
 data_store = {}
 
 
-def utc_now():
-    return int(datetime.now(timezone.utc).timestamp())
-
-
 def invalid_password(password):
     if len(password) < 6:
         return True
