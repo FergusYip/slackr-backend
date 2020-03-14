@@ -25,7 +25,6 @@ def invalid_name(name):
 
 
 def generate_token(u_id):
-    global SECRET
     token = str(jwt.encode({'u_id': u_id}, SECRET, algorithm='HS256'))
     data_store['tokens'].append(token)
     return token
@@ -43,8 +42,6 @@ def is_unique_handle(handle_str):
 
 
 def generate_handle(name_first, name_last):
-    global data_store
-
     concatentation = name_first.lower() + name_last.lower()
     handle_str = concatentation[:20]
 
@@ -70,8 +67,6 @@ def auth_register(email=request.args.get('email'),
                   password=request.args.get('password'),
                   name_first=request.args.get('name_first'),
                   name_last=request.args.get('name_last')):
-
-    global data_store
 
     if invalid_password(password):
         raise InputError(
@@ -118,7 +113,6 @@ def auth_register(email=request.args.get('email'),
 @APP.route("/auth/login", methods=['POST'])
 def auth_login(email=request.args.get('email'),
                password=request.args.get('password')):
-    global data_store
 
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
@@ -135,7 +129,6 @@ def auth_login(email=request.args.get('email'),
 
 @APP.route("/auth/logout", methods=['POST'])
 def auth_logout(token=request.args.get('token')):
-    global data_store
 
     try:
         jwt.decode(token, SECRET)
