@@ -80,7 +80,10 @@ def channels_create():
     if not data_store['channels']:
         channel_id = 1
     else:
-        channel_id = max(data_store['channels']['channel_id']) + 1
+        channel_ids = [
+            channel['channel_id'] for channel in data_store['channels']
+        ]
+        channel_id = max(channel_ids) + 1
 
     u_id = payload['u_id']
 
