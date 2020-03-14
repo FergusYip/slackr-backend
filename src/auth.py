@@ -7,6 +7,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from error import AccessError, InputError
 from email_validation import invalid_email
+from datetime import datetime, timedelta
 
 APP = Flask(__name__)
 CORS(APP)
@@ -15,7 +16,7 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 SECRET = 'the chunts'
 
-data_store = {'users': [], 'tokens': []}
+data_store = {'users': [], 'channels': [], 'tokens': []}
 
 
 def invalid_password(password):
@@ -31,7 +32,7 @@ def invalid_name(name):
 
 
 def generate_token(u_id):
-    payload = {'u_id': u_id}
+    payload = {'u_id': u_id, 'exp': datetime.utcnow() + timedelta(minutes=30)}
     token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
     data_store['tokens'].append(token)
     return token
