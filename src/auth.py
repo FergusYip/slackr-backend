@@ -1,14 +1,21 @@
-import hashlib
+import sys
 import jwt
+import math
+import hashlib
 from json import dumps
 from flask import Flask, request
+from flask_cors import CORS
 from error import AccessError, InputError
-from email import invalid_email
-import math
+from email_validation import invalid_email
+
+APP = Flask(__name__)
+CORS(APP)
+
+APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 SECRET = 'the chunts'
 
-data_store = {}
+data_store = {'users': [], 'tokens': []}
 
 
 def invalid_password(password):
@@ -24,7 +31,8 @@ def invalid_name(name):
 
 
 def generate_token(u_id):
-    token = jwt.encode({'u_id': u_id}, SECRET, algorithm='HS256')
+    payload = {'u_id': u_id}
+    token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
     data_store['tokens'].append(token)
     return token
 
@@ -62,10 +70,12 @@ def generate_handle(name_first, name_last):
 
 
 @APP.route("/auth/register", methods=['POST'])
-def auth_register(email=request.args.get('email'),
-                  password=request.args.get('password'),
-                  name_first=request.args.get('name_first'),
-                  name_last=request.args.get('name_last')):
+def auth_register():
+
+    email = request.args.get('email')
+    password = request.args.get('password')
+    name_first = request.args.get('name_first')
+    name_last = request.args.get('name_last')
 
     if invalid_password(password):
         raise InputError(
@@ -85,12 +95,15 @@ def auth_register(email=request.args.get('email'),
         raise InputError(description='Email entered is not a valid email ')
 
     for user in data_store['users']:
-        if email == user[email]:
+        if email == user['email']:
             raise InputError(
                 description=
                 'Email address is already being used by another user')
 
-    u_id = data_store['users'][-1]['u_id'] + 1
+    if not data_store['users']:
+        u_id = 1
+    else:
+        u_id = data_store['users'][-1]['u_id'] + 1
 
     user = {
         'u_id': u_id,
@@ -110,8 +123,10 @@ def auth_register(email=request.args.get('email'),
 
 
 @APP.route("/auth/login", methods=['POST'])
-def auth_login(email=request.args.get('email'),
-               password=request.args.get('password')):
+def auth_login():
+
+    email = request.args.get('email')
+    password = request.args.get('password')
 
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
@@ -130,19 +145,22 @@ def auth_login(email=request.args.get('email'),
 
 
 @APP.route("/auth/logout", methods=['POST'])
-def auth_logout(token=request.args.get('token')):
+def auth_logout():
+
+    token = request.args.get('token')
 
     try:
-        jwt.decode(token, SECRET)
+        jwt.decode(token.encode('utf-8'), SECRET)
     except:
         raise AccessError(description='Unable to logout due to invalid token')
 
     if token in data_store['tokens']:
         data_store['tokens'].remove(token)
-        return True
+        return dumps({'is_success': True})
     else:
-        return False
+        return dumps({'is_success': False})
 
 
 if __name__ == "__main__":
-    pass
+    APP.run(debug=True,
+            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
