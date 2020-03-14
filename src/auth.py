@@ -133,12 +133,17 @@ def auth_login(email=request.args.get('email'),
 @APP.route("/auth/logout", methods=['POST'])
 def auth_logout(token=request.args.get('token')):
     global data_store
+
+    try:
+        jwt.decode(token, SECRET)
+    except:
+        raise AccessError(description='Unable to logout due to invalid token')
+
     if token in data_store['tokens']:
         data_store['tokens'].remove(token)
         return True
     else:
-        raise AccessError(description='Unable to logout due to invalid token')
-    return False
+        return False
 
 
 if __name__ == "__main__":
