@@ -37,6 +37,13 @@ def hashPassword(password):
 
 
 def auth_register(email, password, name_first, name_last):
+    
+
+
+def auth_login(email, password):
+    
+@APP.route("/auth/register", methods=['POST'])
+def auth_register():
     global data_store
     if invalid_password(password) \
         or invalid_name(name_first) \
@@ -61,7 +68,8 @@ def auth_register(email, password, name_first, name_last):
     })
 
 
-def auth_login(email, password):
+@APP.route("/auth/login", methods=['POST'])
+def auth_login():
     global data_store
     for user in data_store['users']:
         if user['email'] == email and user['password'] == hashPassword(
@@ -70,10 +78,17 @@ def auth_login(email, password):
     return InputError()
 
 
+@APP.route("/auth/logout", methods=['POST'])
 def auth_logout(token):
-    return {
-        'is_success': True,
-    }
+    global data_store
+    if token in data_store['tokens']:
+        data_store['tokens'].remove(token)
+        return True
+    else:
+   	    raise AccessError(description='Unable to logout due to invalid token')
+    return False
+
+
 
 
 if __name__ == "__main__":
