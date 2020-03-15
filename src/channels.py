@@ -1,4 +1,5 @@
 import sys
+import jwt
 from json import dumps
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
