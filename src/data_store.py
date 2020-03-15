@@ -1,11 +1,17 @@
 SECRET = 'the chunts'
-PERMISSIONS = {'owner': 1, 'member': 2}
+
+# Permission values
+OWNER = 1
+MEMBER = 2
 
 data_store = {
     'users': [],
     'channels': [],
     'tokens': [],
-    'permissions': PERMISSIONS
+    'permissions': {
+        'owner': OWNER,
+        'member': MEMBER
+    }
 }
 
 if __name__ == "__main__":
