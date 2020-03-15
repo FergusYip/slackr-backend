@@ -17,7 +17,7 @@ def invalid_channel_name(channel_name):
     return len(channel_name) > 20
 
 
-@APP.route("/list", methods=['GET'])
+@channels.route("/list", methods=['GET'])
 def channels_list():
     token = request.args.get('token')
 
@@ -40,7 +40,7 @@ def channels_list():
     return dumps({'channels': channels})
 
 
-@APP.route("/listall", methods=['GET'])
+@channels.route("/listall", methods=['GET'])
 def channels_listall():
     token = request.args.get('token')
 
@@ -60,7 +60,7 @@ def channels_listall():
     return dumps({'channels': channels})
 
 
-@APP.route("/create", methods=['POST'])
+@channels.route("/create", methods=['POST'])
 def channels_create():
     token = request.args.get('token')
     name = request.args.get('name')
