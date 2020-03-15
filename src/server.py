@@ -6,6 +6,7 @@ from flask_cors import CORS
 from error import InputError
 from auth import auth
 from channels import channels
+from other import other
 from data_store import data_store
 
 
@@ -29,6 +30,7 @@ APP.register_error_handler(Exception, defaultHandler)
 
 APP.register_blueprint(auth, url_prefix='/auth')
 APP.register_blueprint(channels, url_prefix='/channels')
+APP.register_blueprint(other)
 
 
 def load_state():
