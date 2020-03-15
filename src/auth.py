@@ -3,20 +3,19 @@ import jwt
 import math
 import hashlib
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError, InputError
 from email_validation import invalid_email
 from datetime import datetime, timedelta
+from data_store import data_store, PERMISSIONS, SECRET, OWNER, MEMBER
 
 APP = Flask(__name__)
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-SECRET = 'the chunts'
-
-data_store = {'users': [], 'channels': [], 'tokens': []}
+auth = Blueprint('auth', __name__)
 
 
 def invalid_password(password):
@@ -70,7 +69,7 @@ def generate_handle(name_first, name_last):
     return handle_str
 
 
-@APP.route("/auth/register", methods=['POST'])
+@auth.route("/register", methods=['POST'])
 def auth_register():
 
     email = request.args.get('email')
@@ -103,8 +102,11 @@ def auth_register():
 
     if not data_store['users']:
         u_id = 1
+        permission_id = OWNER
     else:
-        u_id = data_store['users'][-1]['u_id'] + 1
+        u_ids = [user['u_id'] for user in data_store['users']]
+        u_id = max(u_ids) + 1
+        permission_id = MEMBER
 
     user = {
         'u_id': u_id,
@@ -113,6 +115,7 @@ def auth_register():
         'name_first': name_first,
         'name_last': name_last,
         'handle_str': generate_handle(name_first, name_last)
+        'permission_id': permission_id
     }
 
     data_store['users'].append(user)
@@ -123,7 +126,7 @@ def auth_register():
     })
 
 
-@APP.route("/auth/login", methods=['POST'])
+@auth.route("/login", methods=['POST'])
 def auth_login():
 
     email = request.args.get('email')
@@ -145,7 +148,7 @@ def auth_login():
     raise InputError(description='Email entered does not belong to a user')
 
 
-@APP.route("/auth/logout", methods=['POST'])
+@auth.route("/logout", methods=['POST'])
 def auth_logout():
 
     token = request.args.get('token')

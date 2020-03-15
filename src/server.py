@@ -36,7 +36,7 @@ def load_state():
         FILE = open('data_store.p', 'rb')
         data_store = pickle.load(FILE)
     except Exception:
-        data_store = {}
+        data_store = {'users': [], 'channels': [], 'tokens': []}
 
 
 @APP.route('/save', methods=['POST'])
