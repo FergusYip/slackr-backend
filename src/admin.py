@@ -32,18 +32,22 @@ def user_data(u_id):
     return None
 
 
+def all_u_id():
+    return [user['u_id'] for user in data_store['users']]
+
+
 @admin.route("/userpermission/change", methods=['POST'])
 def admin_userpermission_change():
     token = request.args.get('token')
-    u_id = request.args.get('u_id')
-    permission_id = request.args.get('permission_id')
+    u_id = int(request.args.get('u_id'))
+    permission_id = int(request.args.get('permission_id'))
 
     try:
         payload = jwt.decode(token.encode('utf-8'), SECRET)
     except:
         raise AccessError(description='Unable to logout due to invalid token')
 
-    if not user_data(u_id):
+    if u_id not in all_u_id():
         raise InputError(description='u_id does not refer to a valid user')
 
     if permission_id not in permission_values():

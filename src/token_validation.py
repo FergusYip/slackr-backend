@@ -2,9 +2,10 @@ import jwt
 from error import AccessError
 from data_store import data_store, SECRET
 
+
 def decode_token(token):
     '''Decide a given jwt token and return the payload'''
-    
+
     try:
         payload = jwt.decode(token.encode('utf-8'), SECRET)
     except:
