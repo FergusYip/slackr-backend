@@ -1,25 +1,23 @@
 import sys
-import jwt
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError, InputError
+from data_store import data_store, SECRET
 
 APP = Flask(__name__)
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-SECRET = 'the chunts'
-
-data_store = {'users': [], 'channels': [], 'tokens': []}
+channels = Blueprint('channels', __name__)
 
 
 def invalid_channel_name(channel_name):
     return len(channel_name) > 20
 
 
-@APP.route("/channels/list", methods=['GET'])
+@APP.route("/list", methods=['GET'])
 def channels_list():
     token = request.args.get('token')
 
@@ -42,12 +40,12 @@ def channels_list():
     return dumps({'channels': channels})
 
 
-@APP.route("/channels/listall", methods=['GET'])
+@APP.route("/listall", methods=['GET'])
 def channels_listall():
     token = request.args.get('token')
 
     try:
-        payload = jwt.decode(token.encode('utf-8'), SECRET)
+        jwt.decode(token.encode('utf-8'), SECRET)
     except:
         raise AccessError(description='Token is invalid')
 
@@ -62,7 +60,7 @@ def channels_listall():
     return dumps({'channels': channels})
 
 
-@APP.route("/channels/create", methods=['POST'])
+@APP.route("/create", methods=['POST'])
 def channels_create():
     token = request.args.get('token')
     name = request.args.get('name')
