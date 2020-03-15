@@ -4,7 +4,7 @@ import jwt
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError, InputError
-from data_store import data_store, PERMISSIONS, SECRET, OWNER, MEMBER
+from data_store import data_store, SECRET, OWNER, MEMBER
 
 APP = Flask(__name__)
 CORS(APP)
