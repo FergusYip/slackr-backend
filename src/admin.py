@@ -1,30 +1,22 @@
 import sys
 from json import dumps
 import jwt
-from flask import Flask, request
+from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError, InputError
+from data_store import data_store, PERMISSIONS, SECRET, OWNER, MEMBER
 
 APP = Flask(__name__)
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-SECRET = 'the chunts'
-
-PERMISSIONS = {'owner': 1, 'member': 2}
-
-data_store = {
-    'users': [],
-    'channels': [],
-    'tokens': [],
-    'permissions': PERMISSIONS
-}
+auth = Blueprint('admin', __name__)
 
 
 def is_owner(u_id):
     for user in data_store['users']:
-        if user['u_id'] is u_id and user['permission_id'] == 1:
+        if user['u_id'] is u_id and user['permission_id'] is OWNER:
             return True
     return False
 
@@ -40,7 +32,7 @@ def user_data(u_id):
     return None
 
 
-@APP.route("/admin/userpermission/change", methods=['POST'])
+@APP.route("/userpermission/change", methods=['POST'])
 def admin_userpermission_change():
     token = request.args.get('token')
     u_id = request.args.get('u_id')
