@@ -104,7 +104,8 @@ def auth_register():
         u_id = 1
         permission_id = OWNER
     else:
-        u_id = data_store['users'][-1]['u_id'] + 1
+        u_ids = [user['u_id'] for user in data_store['users']]
+        u_id = max(u_ids) + 1
         permission_id = MEMBER
 
     user = {
