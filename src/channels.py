@@ -1,5 +1,4 @@
 import sys
-import jwt
 from json import dumps
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
@@ -46,7 +45,7 @@ def channels_listall():
     token = request.args.get('token')
 
     try:
-        payload = jwt.decode(token.encode('utf-8'), SECRET)
+        jwt.decode(token.encode('utf-8'), SECRET)
     except:
         raise AccessError(description='Token is invalid')
 
