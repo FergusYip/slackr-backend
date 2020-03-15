@@ -15,7 +15,7 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-auth = Blueprint('auth', __name__, url_prefix='/auth')
+auth = Blueprint('auth', __name__)
 
 
 def invalid_password(password):
