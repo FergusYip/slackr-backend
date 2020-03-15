@@ -4,6 +4,9 @@ from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from error import InputError
+from auth import auth
+from channels import channels
+from data_store import data_store
 
 
 def defaultHandler(err):
@@ -24,11 +27,11 @@ CORS(APP)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
-data_store = {}
+APP.register_blueprint(auth, url_prefix='/auth')
+APP.register_blueprint(channels, url_prefix='/channels')
 
 
 def load_state():
-    global data_store
     try:
         FILE = open('data_store.p', 'rb')
         data_store = pickle.load(FILE)
@@ -38,9 +41,13 @@ def load_state():
 
 @APP.route('/save', methods=['POST'])
 def save_state():
-    global data_store
     with open('data_store.p', 'wb') as FILE:
         pickle.dump(data_store, FILE)
+
+
+@APP.route('/data', methods=['GET'])
+def data():
+    return dumps(data_store)
 
 
 # Example
@@ -50,21 +57,6 @@ def echo():
     if data == 'echo':
         raise InputError(description='Cannot echo "echo"')
     return dumps({'data': data})
-
-
-@APP.route("/auth/login", methods=['POST'])
-def auth_login():
-    pass
-
-
-@APP.route("/auth/logout", methods=['POST'])
-def auth_logout():
-    pass
-
-
-@APP.route("/auth/register", methods=['POST'])
-def auth_register():
-    pass
 
 
 @APP.route("/channel/invite", methods=['POST'])
@@ -99,21 +91,6 @@ def channel_addowner():
 
 @APP.route("/channel/removeowner", methods=['POST'])
 def channel_removeowner():
-    pass
-
-
-@APP.route("/channels/list", methods=['GET'])
-def channels_list():
-    pass
-
-
-@APP.route("/channels/listall", methods=['GET'])
-def channels_listall():
-    pass
-
-
-@APP.route("/channels/create", methods=['POST'])
-def channels_create():
     pass
 
 
@@ -177,16 +154,6 @@ def user_profile_handle():
     pass
 
 
-@APP.route("/users/all", methods=['GET'])
-def users_all():
-    pass
-
-
-@APP.route("/search", methods=['GET'])
-def search():
-    pass
-
-
 @APP.route("/standup/start", methods=['POST'])
 def standup_start():
     pass
@@ -202,11 +169,6 @@ def standup_send():
     pass
 
 
-@APP.route("/admin/userpermission/change", methods=['POST'])
-def admin_userpermission_change():
-    pass
-
-
 @APP.route("/workspace/reset", methods=['POST'])
 def workspace_reset():
     pass
@@ -214,4 +176,5 @@ def workspace_reset():
 
 if __name__ == "__main__":
     load_state()
-    APP.run(port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    APP.run(debug=True,
+            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
