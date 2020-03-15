@@ -1,28 +1,36 @@
 import sys
 from json import dumps
 import jwt
-from flask import Flask, request
+from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError
+from data_store import data_store, SECRET
 
 APP = Flask(__name__)
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-SECRET = 'the chunts'
+other = Blueprint('other', __name__)
 
-data_store = {'users': [], 'channels': [], 'tokens': []}
 
 def user_channels(u_id):
     '''Retrieve a list of a user's joined channels'''
-    return [channel for channel in data_store['channels'] if u_id in channel['all_members']]
+    return [
+        channel for channel in data_store['channels']
+        if u_id in channel['all_members']
+    ]
+
 
 def channel_search(channel, query_str):
     '''Retrieve all messages in a channel which contain the query string'''
-    return [message for message in channel['messages'] if query_str in message['message']]
+    return [
+        message for message in channel['messages']
+        if query_str in message['message']
+    ]
 
-@APP.route("/users/all", methods=['GET'])
+
+@other.route("/users/all", methods=['GET'])
 def users_all():
     token = request.args.get('token')
     try:
@@ -43,7 +51,8 @@ def users_all():
 
     return dumps({'users': users})
 
-@APP.route("/search", methods=['GET'])
+
+@other.route("/search", methods=['GET'])
 def search():
     token = request.args.get('token')
     query_str = request.args.get('query_str')
