@@ -5,6 +5,7 @@ from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError, InputError
 from data_store import data_store, SECRET
+from token_validation import decode_token
 
 APP = Flask(__name__)
 CORS(APP)
@@ -22,10 +23,7 @@ def invalid_channel_name(channel_name):
 def channels_list():
     token = request.args.get('token')
 
-    try:
-        payload = jwt.decode(token.encode('utf-8'), SECRET)
-    except:
-        raise AccessError(description='Token is invalid')
+    payload = decode_token(token)
 
     u_id = payload['u_id']
 
@@ -45,10 +43,7 @@ def channels_list():
 def channels_listall():
     token = request.args.get('token')
 
-    try:
-        jwt.decode(token.encode('utf-8'), SECRET)
-    except:
-        raise AccessError(description='Token is invalid')
+    payload = decode_token(token)
 
     channels = []
     for channel in data_store['channels']:
@@ -67,11 +62,7 @@ def channels_create():
     name = request.args.get('name')
     is_public = request.args.get('is_public')
 
-    try:
-        payload = jwt.decode(token.encode('utf-8'), SECRET)
-    except:
-        raise AccessError(
-            description='Unable to create channel due to invalid token')
+    payload = decode_token(token)
 
     if invalid_channel_name(name):
         raise InputError(description='Name is more than 20 characters long')
