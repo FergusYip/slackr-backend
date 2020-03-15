@@ -11,7 +11,7 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-auth = Blueprint('admin', __name__)
+admin = Blueprint('admin', __name__)
 
 
 def is_owner(u_id):
@@ -32,7 +32,7 @@ def user_data(u_id):
     return None
 
 
-@APP.route("/userpermission/change", methods=['POST'])
+@admin.route("/userpermission/change", methods=['POST'])
 def admin_userpermission_change():
     token = request.args.get('token')
     u_id = request.args.get('u_id')
