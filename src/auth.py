@@ -16,10 +16,6 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 auth = Blueprint('auth', __name__, url_prefix='/auth')
 
-SECRET = 'the chunts'
-
-data_store = {'users': [], 'channels': [], 'tokens': []}
-
 
 def invalid_password(password):
     if len(password) < 6:

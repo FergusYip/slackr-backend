@@ -1,3 +1,4 @@
+SECRET = 'the chunts'
 PERMISSIONS = {'owner': 1, 'member': 2}
 
 data_store = {
