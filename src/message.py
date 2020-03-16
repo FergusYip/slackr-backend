@@ -1,4 +1,25 @@
+import sys
+import jwt
+import math
+import hashlib
+from json import dumps
+from flask import Flask, request, Blueprint
+from flask_cors import CORS
+from error import AccessError, InputError
+from email_validation import invalid_email
+from datetime import datetime, timedelta
+from data_store import data_store, PERMISSIONS, SECRET, OWNER, MEMBER
+
+APP = Flask(__name__)
+CORS(APP)
+
+APP.config['TRAP_HTTP_EXCEPTIONS'] = True
+
+@APP.route("/send", method=['POST'])
 def message_send(token, channel_id, message):
+    token = request.args.get('token')
+    channelid = request.args.get('channel_id')
+    message = 
     return {
         'message_id': 1,
     }
