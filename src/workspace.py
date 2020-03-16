@@ -9,10 +9,10 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-WORKSPACE = Blueprint('workspace', __name__)
+workspace = Blueprint('workspace', __name__)
 
 
-@WORKSPACE.route("/workspace/reset", methods=['POST'])
+@workspace.route("/workspace/reset", methods=['POST'])
 def workspace_reset():
     '''Reset the workspace state'''
     data_store = empty_data_store
