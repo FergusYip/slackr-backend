@@ -2,7 +2,7 @@ import sys
 from json import dumps
 from flask import Flask, Blueprint
 from flask_cors import CORS
-from data_store import data_store, empty_data_store
+from data_store import data_store, EMPTY_DATA_STORE
 
 APP = Flask(__name__)
 CORS(APP)
