@@ -15,7 +15,7 @@ workspace = Blueprint('workspace', __name__)
 @workspace.route("/workspace/reset", methods=['POST'])
 def workspace_reset():
     '''Reset the workspace state'''
-    data_store = empty_data_store
+    data_store = EMPTY_DATA_STORE
     return dumps({})
 
 

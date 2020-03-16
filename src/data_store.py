@@ -14,7 +14,7 @@ data_store = {
     }
 }
 
-empty_data_store = {
+EMPTY_DATA_STORE = {
     'users': [],
     'channels': [],
     'tokens': [],
