@@ -14,5 +14,15 @@ data_store = {
     }
 }
 
+EMPTY_DATA_STORE = {
+    'users': [],
+    'channels': [],
+    'tokens': [],
+    'permissions': {
+        'owner': OWNER,
+        'member': MEMBER
+    }
+}
+
 if __name__ == "__main__":
     pass
