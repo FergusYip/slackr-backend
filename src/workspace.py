@@ -1,6 +1,6 @@
 import sys
 from json import dumps
-from flask import Flask, request, Blueprint
+from flask import Flask, Blueprint
 from flask_cors import CORS
 from data_store import data_store, empty_data_store
 
