@@ -152,8 +152,10 @@ def message_edit():
 def message_sendlater():
 
     '''
+    CURRENTLY UNFINISHED!!!
     Function that will send a message in a desired channel at a specified
     time in the future.
+    CURRENTLY UNFINISHED!!!
     '''
 
     payload = request.get_json()
@@ -219,7 +221,7 @@ def message_react(token, message_id, react_id):
     if user_id not in u_ids_reacted:
         u_ids_reacted.append(user_id)
 
-    if helpers.get_message(message_id) == None:
+    if helpers.get_message(message_id, channel_id) == None:
         raise InputError(
             description='Message ID does not exist')
 
