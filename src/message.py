@@ -36,19 +36,28 @@ def generate_message_id(channel_id):
         messageID = max(messageIDs) + 1 
 
 def get_message(message_id):
-    for message in datastore['channels']['messages']:
+    for message in data_store['channels']['messages']:
         if message_id == message['message_id']:
             return message
     return None
 
 def message_existance(message_id):
-    for message in datastore['channels']['messages']:
+    for message in data_store['channels']['messages']:
         if message_id == message['message_id']:
             return True
     return False
 
+def get_user(u_id):
+    for user in data_store['users']:
+        if user['u_id'] == u_id:
+            return user
+    return None
+
 def is_user_admin(u_id, channel_id):
-    if data_store['permissions']['owner'] == u_id:
+    user_info = get_user(u_id)
+    if user_info is None:
+        return False
+    if user_info['permission_id'] == 1:
         return True
     channel_info = get_channel(channel_id)
     if u_id in channel_info['owner_members']:
@@ -112,7 +121,7 @@ def message_remove(token, message_id):
     
     channel_info = get_channel(channelid)
 
-    data_store['channels']['channel_info']['messages'].remove(message_info)
+    channel_info['messages'].remove(message_info)
 
     return dumps({})
 
