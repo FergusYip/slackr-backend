@@ -7,10 +7,11 @@ from error import AccessError, InputError
 BASE_URL = 'http://127.0.0.1'
 PORT = '8080'
 
-# @pytest.fixture
-# def reset():
-#     '''Fixture for resetting the workspace'''
-#     requests.get(f"{BASE_URL}/workspace/reset")
+
+@pytest.fixture
+def reset():
+    '''Fixture for resetting the workspace'''
+    requests.post(f"{BASE_URL}:{PORT}/workspace/reset")
 
 
 @pytest.fixture
@@ -66,10 +67,9 @@ def new_user():
             'name_first': name_first,
             'name_last': name_last
         }
-        register = requests.post(f"{BASE_URL}:{PORT}/auth/register",
-                                 json=user_info)
-        payload = register.json()
-        return payload
+        user = requests.post(f"{BASE_URL}:{PORT}/auth/register",
+                             json=user_info).json()
+        return user
 
     return _new_user
 
@@ -84,9 +84,8 @@ def make_join_channel():
             'is_public': True
         }
         new_channel = requests.post(f"{BASE_URL}:{PORT}/channels/create",
-                                    json=channel_info)
-        payload = new_channel.json()
-        return payload
+                                    json=channel_info).json()
+        return new_channel
 
     return _make_join_channel
 
@@ -96,9 +95,9 @@ def get_user_profile():
     '''Factory as a fixture for a retrieving user info'''
     def _get_user_profile(token, u_id):
         query_string = urllib.parse.urlencode({'token': token, 'u_id': u_id})
-        user_profile = requests.get(f"{BASE_URL}/user/profile?{query_string}")
-        payload = user_profile.json()
-        return payload
+        user_profile = requests.get(
+            f"{BASE_URL}:{PORT}/user/profile?{query_string}").json()
+        return user_profile
 
     return _get_user_profile
 
