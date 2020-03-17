@@ -47,7 +47,11 @@ data_store = {
             'u_id': u_id,
             'message': message,
             'time_created': time_created,
-            'reacts': reacts, <- I assume this is a list
+            'reacts': [{
+                'react_id': react_id,
+                'u_ids': u_id,
+                'is_this_user_reacted': is_this_user_reacted
+            }],
             'is_pinned': is_pinned
         }]
     }],
