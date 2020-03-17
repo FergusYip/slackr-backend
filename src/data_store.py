@@ -13,16 +13,6 @@ data_store = {
         'member': MEMBER
     }
 }
-
-EMPTY_DATA_STORE = {
-    'users': [],
-    'channels': [],
-    'tokens': [],
-    'permissions': {
-        'owner': OWNER,
-        'member': MEMBER
-    }
-}
 '''
 Sample Data Store Structure
 
