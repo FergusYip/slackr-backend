@@ -15,11 +15,33 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-@APP.route("/send", method=['POST'])
+@APP.route("/send", methods=['POST'])
 def message_send(token, channel_id, message):
     token = request.args.get('token')
     channelid = request.args.get('channel_id')
-    message = 
+    message = request.args.get('message')
+
+    if (len(message) > 1000):
+        raise InputError(
+            description='Message is greater than 1,000 characters')
+    
+    for channels in data_store['channels']:
+        if channelid == channels['channel_id']:
+            if 
+
+
+    AccessError when:  the authorised user has not joined the channel they are trying to post to
+
+    message_id = 
+
+    message = {
+        'message_id':
+        'u_id':
+        'message':
+        'time_created':
+        'reacts':
+    }
+
     return {
         'message_id': 1,
     }
