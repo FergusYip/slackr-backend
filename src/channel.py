@@ -6,6 +6,7 @@ from flask_cors import CORS
 from error import AccessError, InputError
 from data_store import data_store, SECRET
 from token_validation import decode_token
+# from helper import
 
 APP = Flask(__name__)
 CORS(APP)
@@ -46,24 +47,22 @@ def add_into_channel(inviter, c_id, invited):
                 channels['all_members'].append(invited)
 
 
+@channel.route("/details", methods=['GET'])
 def channel_details(token, channel_id):
-    return {
-        'name': 'Hayden',
-        'owner_members': [
-            {
-                'u_id': 1,
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-            }
-        ],
-        'all_members': [
-            {
-                'u_id': 1,
-                'name_first': 'Hayden',
-                'name_last': 'Jacobs',
-            }
-        ],
-    }
+    payload = request.get_json()
+
+    token = payload['token']
+    c_id = payload['channel_id']
+
+    token_data = decode_token(token)
+    auth_user = token_data['u_id']
+    channels = data_store['channels']
+
+    if c_id not in channels:
+        raise InputError
+
+    if auth_user not in channels['all_members']:
+        raise AccessError
 
 
 def channel_messages(token, channel_id, start):
