@@ -10,6 +10,7 @@ from email_validation import invalid_email
 from datetime import datetime, timedelta, timezone
 from data_store import data_store, SECRET, OWNER, MEMBER
 from token_validation import decode_token
+import helpers
 
 APP = Flask(__name__)
 CORS(APP)
@@ -17,15 +18,6 @@ CORS(APP)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 MESSAGE = Blueprint('message', __name__)
-
-def utc_now():
-    return int(datetime.now(timezone.utc).timestamp())
-
-def get_channel(channel_id):
-    for channel in data_store['channels']:
-        if channel_id == channel['channel_id']:
-            return channel
-    return None
 
 def generate_message_id(channel_id):
     channel_info = get_channel(channel_id)
@@ -35,39 +27,10 @@ def generate_message_id(channel_id):
         messageIDs = [message['message_id'] for message in channel_info['messages']]
         messageID = max(messageIDs) + 1
 
-def get_message(message_id):
-    for message in data_store['channels']['messages']:
-        if message_id == message['message_id']:
-            return message
-    return None
-
-def message_existance(message_id):
-    for message in data_store['channels']['messages']:
-        if message_id == message['message_id']:
-            return True
-    return False
-
-def get_user(u_id):
-    for user in data_store['users']:
-        if user['u_id'] == u_id:
-            return user
-    return None
-
-def is_user_admin(u_id, channel_id):
-    user_info = get_user(u_id)
-    if user_info is None:
-        return False
-    if user_info['permission_id'] == 1:
-        return True
-    channel_info = get_channel(channel_id)
-    if u_id in channel_info['owner_members']:
-        return True
-    return False
-
 @MESSAGE.route("/send", methods=['POST'])
 def message_send():
     channelid = request.args.get('channel_id')
-    channel_info = get_channel(channelid)
+    channel_info = helpers.get_channel(channelid)
     messageID = generate_message_id(channelid)
 
     token = request.args.get('token')
@@ -75,7 +38,7 @@ def message_send():
     userID = payload['u_id']
 
     message = request.args.get('message')
-    time_now = utc_now()
+    time_now = helpers.utc_now()
 
     if len(message) > 1000:
         raise InputError(
@@ -106,10 +69,10 @@ def message_remove():
     payload = decode_token(token)
     userID = payload['u_id']
 
-    message_info = get_message(message_id)
+    message_info = helpers.get_message(message_id)
 
     channelid = request.args.get('channel_id')
-    channel_info = get_channel(channelid)
+    channel_info = helpers.get_channel(channelid)
 
     if not message_existance(message_id):
         raise InputError(
@@ -135,9 +98,9 @@ def message_edit(token, message_id, message):
     new_message = payload['message']
 
     channelid = payload['channel_id']
-    channel_info = get_channel(channelid)
+    channel_info = helpers.get_channel(channelid)
 
-    message_info = get_message(message_id)
+    message_info = helpers.get_message(message_id)
 
     if len(new_message) > 1000:
         raise InputError(
