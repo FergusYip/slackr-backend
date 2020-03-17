@@ -9,6 +9,7 @@ from error import AccessError, InputError
 from email_validation import invalid_email
 from datetime import datetime, timedelta
 from data_store import data_store, PERMISSIONS, SECRET, OWNER, MEMBER
+from token_validation import decode_token
 
 APP = Flask(__name__)
 CORS(APP)
@@ -21,23 +22,32 @@ def message_send(token, channel_id, message):
     channelid = request.args.get('channel_id')
     message = request.args.get('message')
 
+    payload = decode_token(token)
+    userID = payload['u_id']
+
     if (len(message) > 1000):
         raise InputError(
             description='Message is greater than 1,000 characters')
     
     for channels in data_store['channels']:
         if channelid == channels['channel_id']:
-            if 
+            if userID not in channels['all_members']:
+                raise AccessError(
+                    description='User does not have Access to send messages in the current channel')
+            break
 
-
-    AccessError when:  the authorised user has not joined the channel they are trying to post to
-
-    message_id = 
+    for channels in data_store['channels']:
+        if channelid == channels['channel_id']:
+            if not channels['messages']:
+                messageID = 1
+            else:
+                messageIDs = [message['message_id'] for message in channels['messages']]
+                messageID = max(messageIDs) + 1 
 
     message = {
-        'message_id':
-        'u_id':
-        'message':
+        'message_id': messageID
+        'u_id': userID
+        'message': message
         'time_created':
         'reacts':
     }
