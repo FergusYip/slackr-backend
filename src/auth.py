@@ -8,7 +8,7 @@ from flask_cors import CORS
 from error import AccessError, InputError
 from email_validation import invalid_email
 from datetime import datetime, timedelta
-from data_store import data_store, PERMISSIONS, SECRET, OWNER, MEMBER
+from data_store import data_store, SECRET, OWNER, MEMBER
 
 APP = Flask(__name__)
 CORS(APP)
@@ -114,7 +114,7 @@ def auth_register():
         'password': hash_pw(password),
         'name_first': name_first,
         'name_last': name_last,
-        'handle_str': generate_handle(name_first, name_last)
+        'handle_str': generate_handle(name_first, name_last),
         'permission_id': permission_id
     }
 
