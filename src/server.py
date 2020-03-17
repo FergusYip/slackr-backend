@@ -4,7 +4,7 @@ from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from error import InputError
-from auth import auth
+from auth import AUTH
 from channels import channels
 from other import other
 from admin import admin
@@ -30,7 +30,7 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
 APP.register_blueprint(admin, url_prefix='/admin')
-APP.register_blueprint(auth, url_prefix='/auth')
+APP.register_blueprint(AUTH, url_prefix='/auth')
 APP.register_blueprint(channels, url_prefix='/channels')
 APP.register_blueprint(other)
 
