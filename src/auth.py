@@ -16,7 +16,7 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-auth = Blueprint('auth', __name__)
+AUTH = Blueprint('auth', __name__)
 
 
 def invalid_password(password):
@@ -39,7 +39,11 @@ def get_user(email):
 
 
 def generate_token(u_id):
-    payload = {'u_id': u_id, 'exp': datetime.utcnow() + timedelta(minutes=30)}
+    payload = {
+        'u_id': u_id,
+        'iat': datetime.utcnow(),
+        'exp': datetime.utcnow() + timedelta(minutes=30)
+    }
     token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
     data_store['tokens'].append(token)
     return token
@@ -92,7 +96,7 @@ def generate_handle(name_first, name_last):
     return handle_str
 
 
-@auth.route("/register", methods=['POST'])
+@AUTH.route("/register", methods=['POST'])
 def auth_register():
 
     email = request.args.get('email')
@@ -139,7 +143,7 @@ def auth_register():
     })
 
 
-@auth.route("/login", methods=['POST'])
+@AUTH.route("/login", methods=['POST'])
 def auth_login():
 
     email = request.args.get('email')
@@ -162,14 +166,14 @@ def auth_login():
         })
 
 
-@auth.route("/logout", methods=['POST'])
+@AUTH.route("/logout", methods=['POST'])
 def auth_logout():
 
     token = request.args.get('token')
     decode_token(token)
+    data_store['token_blacklist'].append(token)
 
-    if token in data_store['tokens']:
-        data_store['tokens'].remove(token)
+    if token in data_store['token_blacklist']:
         return dumps({'is_success': True})
     else:
         return dumps({'is_success': False})
