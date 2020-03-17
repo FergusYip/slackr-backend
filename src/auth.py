@@ -16,7 +16,7 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-auth = Blueprint('auth', __name__)
+AUTH = Blueprint('auth', __name__)
 
 
 def invalid_password(password):
@@ -92,7 +92,7 @@ def generate_handle(name_first, name_last):
     return handle_str
 
 
-@auth.route("/register", methods=['POST'])
+@AUTH.route("/register", methods=['POST'])
 def auth_register():
 
     email = request.args.get('email')
@@ -139,7 +139,7 @@ def auth_register():
     })
 
 
-@auth.route("/login", methods=['POST'])
+@AUTH.route("/login", methods=['POST'])
 def auth_login():
 
     email = request.args.get('email')
@@ -162,7 +162,7 @@ def auth_login():
         })
 
 
-@auth.route("/logout", methods=['POST'])
+@AUTH.route("/logout", methods=['POST'])
 def auth_logout():
 
     token = request.args.get('token')
