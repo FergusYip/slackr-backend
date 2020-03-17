@@ -15,16 +15,6 @@ def reset():
 
 
 @pytest.fixture
-def invalid_token(test_user):
-    '''Fixture for a creating an invalid token'''
-    token = test_user['token']
-    logout = requests.post(f"{BASE_URL}:{PORT}/auth/register",
-                           json={'token': token})
-    assert logout['is_success']
-    return token
-
-
-@pytest.fixture
 def new_user():
     '''Factory as a fixture for a creating a new user with a specified email'''
     def _new_user(email='valid@email.com',
@@ -42,6 +32,15 @@ def new_user():
         return user
 
     return _new_user
+
+
+@pytest.fixture
+def invalid_token(new_user):
+    '''Fixture for a creating an invalid token'''
+    user = new_user()
+    token = user['token']
+    requests.post(f"{BASE_URL}:{PORT}/auth/logout", json={'token': token})
+    return token
 
 
 @pytest.fixture
