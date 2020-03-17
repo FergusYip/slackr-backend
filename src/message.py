@@ -35,6 +35,26 @@ def generate_message_id(channel_id):
         messageIDs = [message['message_id'] for message in channel_info['messages']]
         messageID = max(messageIDs) + 1 
 
+def get_message(message_id):
+    for message in datastore['channels']['messages']:
+        if message_id == message['message_id']:
+            return message
+    return None
+
+def message_existance(message_id):
+    for message in datastore['channels']['messages']:
+        if message_id == message['message_id']:
+            return True
+    return False
+
+def is_user_admin(u_id, channel_id):
+    if data_store['permissions']['owner'] == u_id:
+        return True
+    channel_info = get_channel(channel_id)
+    if u_id in channel_info['owner_members']:
+        return True
+    return False
+
 @message.route("/send", methods=['POST'])
 def message_send():
     channelid = request.args.get('channel_id')
@@ -71,9 +91,30 @@ def message_send():
         'message_id': messageID
     })
 
+
+@message.route("/remove", methods=['DELETE'])
 def message_remove(token, message_id):
-    return {
-    }
+    token = request.args.get('token')
+    payload = decode_token(token)
+    userID = payload['u_id']
+
+    channelid = request.args.get('channel_id')
+    
+    if not message_existance(message_id):
+        raise InputError(
+            description='Message does not exist')
+    
+    message_info = get_message(message_id)
+
+    if message_info['u_id'] != userID and not is_user_admin(userID, channelid):
+        raise AccessError(
+            description='User does not have access to remove this message')
+    
+    channel_info = get_channel(channelid)
+
+    data_store['channels']['channel_info']['messages'].remove(message_info)
+
+    return dumps({})
 
 def message_edit(token, message_id, message):
     return {
