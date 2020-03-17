@@ -5,7 +5,7 @@ import hashlib
 from json import dumps
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
-from error import AccessError, InputError
+from error import InputError
 from email_validation import invalid_email
 from datetime import datetime, timedelta
 from data_store import data_store, SECRET, OWNER, MEMBER
@@ -45,7 +45,6 @@ def generate_token(u_id):
         'exp': datetime.utcnow() + timedelta(minutes=30)
     }
     token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
-    data_store['tokens'].append(token)
     return token
 
 
@@ -98,11 +97,11 @@ def generate_handle(name_first, name_last):
 
 @AUTH.route("/register", methods=['POST'])
 def auth_register():
-
-    email = request.args.get('email')
-    password = request.args.get('password')
-    name_first = request.args.get('name_first')
-    name_last = request.args.get('name_last')
+    payload = request.get_json()
+    email = payload['email']
+    password = payload['password']
+    name_first = payload['name_first']
+    name_last = payload['name_last']
 
     if invalid_password(password):
         raise InputError(
@@ -125,8 +124,9 @@ def auth_register():
         raise InputError(
             description='Email address is already being used by another user')
 
+    u_id = generate_u_id()
     user = {
-        'u_id': generate_u_id(),
+        'u_id': u_id,
         'email': email,
         'password': hash_pw(password),
         'name_first': name_first,
@@ -145,9 +145,10 @@ def auth_register():
 
 @AUTH.route("/login", methods=['POST'])
 def auth_login():
+    payload = request.get_json()
+    email = payload['email']
+    password = payload['password']
 
-    email = request.args.get('email')
-    password = request.args.get('password')
     user = get_user(email)
 
     if invalid_email(email):
@@ -168,8 +169,9 @@ def auth_login():
 
 @AUTH.route("/logout", methods=['POST'])
 def auth_logout():
+    payload = request.get_json()
+    token = payload['token']
 
-    token = request.args.get('token')
     decode_token(token)
     data_store['token_blacklist'].append(token)
 
