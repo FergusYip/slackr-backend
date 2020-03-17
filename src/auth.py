@@ -167,9 +167,9 @@ def auth_logout():
 
     token = request.args.get('token')
     decode_token(token)
+    data_store['token_blacklist'].append(token)
 
-    if token in data_store['tokens']:
-        data_store['tokens'].remove(token)
+    if token in data_store['token_blacklist']:
         return dumps({'is_success': True})
     else:
         return dumps({'is_success': False})

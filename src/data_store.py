@@ -7,7 +7,7 @@ MEMBER = 2
 data_store = {
     'users': [],
     'channels': [],
-    'tokens': [],
+    'token_blacklist': [],
     'permissions': {
         'owner': OWNER,
         'member': MEMBER
