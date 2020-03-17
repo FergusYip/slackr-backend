@@ -120,17 +120,14 @@ def auth_register():
         raise InputError(
             description='Email address is already being used by another user')
 
-    u_id = generate_u_id()
-    permission_id = set_default_permission()
-
     user = {
-        'u_id': u_id,
+        'u_id': generate_u_id(),
         'email': email,
         'password': hash_pw(password),
         'name_first': name_first,
         'name_last': name_last,
         'handle_str': generate_handle(name_first, name_last),
-        'permission_id': permission_id
+        'permission_id': set_default_permission(),
     }
 
     data_store['users'].append(user)
