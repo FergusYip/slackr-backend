@@ -9,6 +9,7 @@ from error import AccessError, InputError
 from email_validation import invalid_email
 from datetime import datetime, timedelta
 from data_store import data_store, SECRET, OWNER, MEMBER
+from token_validation import decode_token
 
 APP = Flask(__name__)
 CORS(APP)
@@ -165,11 +166,7 @@ def auth_login():
 def auth_logout():
 
     token = request.args.get('token')
-
-    try:
-        jwt.decode(token.encode('utf-8'), SECRET)
-    except:
-        raise AccessError(description='Unable to logout due to invalid token')
+    decode_token(token)
 
     if token in data_store['tokens']:
         data_store['tokens'].remove(token)
