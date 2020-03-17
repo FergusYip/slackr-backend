@@ -1,118 +1,163 @@
+import json
+import requests
+import urllib
 import pytest
-import auth
-import user
-from error import InputError
+# import auth
+# import user
+from error import AccessError, InputError
+
+BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_register_return_type():
+def reset():
+    requests.post(f"{BASE_URL}/workspace/reset")
+
+
+def test_register_return_type(new_user):
     '''Test the types of values returned by auth_register'''
+    reset()
 
-    user = auth.auth_register('theresavanaria@email.com', 'password',
-                              'Theresa', 'Vanaria')
+    user = new_user()
+    print(user)
     assert isinstance(user['u_id'], int)
     assert isinstance(user['token'], str)
 
 
-def test_register_duplicate():
-    '''Test the registration of multiple users with the same email'''
+# def test_register_duplicate():
+#     '''Test the registration of multiple users with the same email'''
+#     reset()
 
-    # Setup 'existing' user
-    auth.auth_register('durumarion@email.com', 'password', 'Duru', 'Marion')
+#     user_info = {
+#         'email': 'theresavanaria@email.com',
+#         'password': 'password',
+#         'name_first': 'Theresa',
+#         'name_last': 'Vanaria'
+#     }
 
-    with pytest.raises(InputError):
-        auth.auth_register('durumarion@email.com', 'password', 'Duru',
-                           'Marion')
+#     # # Setup 'existing' user
+#     requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
+#     with pytest.raises(InputError):
+#         requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
-def test_register_password():
-    '''Test the input of various password lengths into auth_register'''
+# def test_register_password():
+#     '''Test the input of various password lengths into auth_register'''
+#     reset()
 
-    # Valid
-    auth.auth_register('richardoutterridge@email.com', '123456', 'Richard',
-                       'Outterridge')
+#     user_info = {
+#         'email': 'theresavanaria@email.com',
+#         'password': 'password',
+#         'name_first': 'Theresa',
+#         'name_last': 'Vanaria'
+#     }
 
-    # <6 Password Length
-    with pytest.raises(InputError):
-        auth.auth_register('richardoutterridge@email.com', '12345', 'Richard',
-                           'Outterridge')
+#     # Valid
+#     requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
-    # 32 character password that is within the (assumed) maximum length for password
-    auth.auth_register('richardoutterridge@email.com', 'i' * 32, 'Richard',
-                       'Outterridge')
+#     # <6 Password Length
+#     user_info['password'] = '12345'
+#     with pytest.raises(InputError):
+#         requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
+#     # 32 character password that is within the (assumed) maximum length for password
+#     user_info['password'] = 'i' * 32
+#     with pytest.raises(InputError):
+#         requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
-def test_register_first_name():
-    '''Test the input of various first name lengths into auth_register'''
+# def test_register_first_name():
+#     '''Test the input of various first name lengths into auth_register'''
+#     reset()
 
-    # Valid
-    auth.auth_register('valid@email.com', 'password', 'Giltbert', 'Blue')
+#     user_info = {
+#         'email': 'theresavanaria@email.com',
+#         'password': 'password',
+#         'name_first': 'Theresa',
+#         'name_last': 'Vanaria'
+#     }
 
-    # <1 Character
-    with pytest.raises(InputError):
-        auth.auth_register('valid@email.com', 'password', '', 'Blue')
+#     # Valid
+#     requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
-    # >50 Characters
-    with pytest.raises(InputError):
-        auth.auth_register('valid@email.com', 'password', 'a' * 50, 'Blue')
+#     # <1 Character
+#     user_info['name_first'] = ''
+#     with pytest.raises(InputError):
+#         requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
+#     # >50 Characters
+#     user_info['name_first'] = 'i' * 51
+#     with pytest.raises(InputError):
+#         requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
-def test_register_last_name():
-    '''Test the input of various last name lengths into auth_register'''
+# def test_register_last_name():
+#     '''Test the input of various last name lengths into auth_register'''
+#     reset()
 
-    # Valid
-    auth.auth_register('valid@email.com', 'password', 'Aziza', 'Addens')
+#     user_info = {
+#         'email': 'theresavanaria@email.com',
+#         'password': 'password',
+#         'name_first': 'Theresa',
+#         'name_last': 'Vanaria'
+#     }
 
-    # <1 Character
-    with pytest.raises(InputError):
-        auth.auth_register('valid@email.com', 'password', 'Aziza', '')
+#     # Valid
+#     requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
-    # >50 Characters
-    with pytest.raises(InputError):
-        auth.auth_register('valid@email.com', 'password', 'Aziza', 'a' * 50)
+#     # <1 Character
+#     user_info['name_last'] = ''
+#     with pytest.raises(InputError):
+#         requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
+#     # >50 Characters
+#     user_info['name_last'] = 'i' * 51
+#     with pytest.raises(InputError):
+#         requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
-def test_register_handle():
-    '''Test that the handle generated by auth_register matches assumption'''
+# def test_register_handle(test_user):
+#     '''Test that the handle generated by auth_register matches assumption'''
+#     reset()
 
-    test_user = auth.auth_register('valid@email.com', 'password', 'First',
-                                   'Last')
-    test_profile = user.user_profile(test_user['token'], test_user['u_id'])
-    assert test_profile['user']['handle_str'] == 'firstlast'
+#     query_string = urllib.parse.urlencode({
+#         'token': test_user['token'],
+#         'u_id': test_user['u_id']
+#     })
 
+#     user_profile = requests.get(f"{BASE_URL}/user/profile?{query_string}")
+#     payload = user_profile.json()
+#     assert payload['handle_str'] == 'firstlast'
 
-def test_register_unique_handle():
-    '''Test that handles generated by auth_register are unique'''
+# def test_register_unique_handle(new_user, get_user_profile):
+#     '''Test that handles generated by auth_register are unique'''
+#     reset()
 
-    user_1 = auth.auth_register('valid@email.com', 'password', 'First', 'Last')
-    user_profile_1 = user.user_profile(user_1['token'], user_1['u_id'])
+#     user_1 = new_user('valid1@email.com')
+#     user_profile_1 = get_user_profile(user_1['token'], user_1['u_id'])
 
-    user_2 = auth.auth_register('avalid@email.com', 'password', 'First',
-                                'Last')
-    user_profile_2 = user.user_profile(user_2['token'], user_2['u_id'])
+#     user_2 = new_user('valid2@email.com')
+#     user_profile_2 = get_user_profile(user_2['token'], user_2['u_id'])
 
-    assert user_profile_1['user']['handle_str'] != user_profile_2['user'][
-        'handle_str']
+#     assert user_profile_1['user']['handle_str'] != user_profile_2['user'][
+#         'handle_str']
 
+# def test_register_long_handle(new_user, get_user_profile):
+#     '''Test that handles generated by auth_register are cut off at 20 characters'''
+#     reset()
 
-def test_register_long_handle():
-    '''Test that handles generated by auth_register are cut off at 20 characters'''
+#     user = new_user('valid@email.com', 'password', '123456789testing',
+#                     '123456789testing')
+#     user_profile = get_user_profile(user['token'], user['u_id'])
+#     assert user_profile['user']['handle_str'] == '123456789testing1234'
 
-    test_user = auth.auth_register('valid@email.com', 'password',
-                                   '123456789testing', '123456789testing')
-    test_profile = user.user_profile(test_user['token'], test_user['u_id'])
-    assert test_profile['user']['handle_str'] == '123456789testing1234'
+# def test_register_email_valid(valid_emails, new_user):
+#     '''Test input of valid emails into auth_register'''
+#     reset()
 
+#     for email in valid_emails:
+#         new_user(email)
 
-def test_register_email_valid(valid_emails):
-    '''Test input of valid emails into auth_register'''
+# def test_register_email_invalid(invalid_emails, new_user):
+#     '''Test input of invalid emails into auth_register'''
+#     reset()
 
-    for email in valid_emails:
-        auth.auth_register(email, 'password', 'First', 'Last')
-
-
-def test_register_email_invalid(invalid_emails):
-    '''Test input of invalid emails into auth_register'''
-
-    for email in invalid_emails:
-        with pytest.raises(InputError):
-            auth.auth_register(email, 'password', 'First', 'Last')
+#     for email in invalid_emails:
+#         with pytest.raises(InputError):
+#             new_user(email)
