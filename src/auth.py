@@ -30,11 +30,11 @@ def invalid_name(name):
     return True
 
 
-def existing_email(email):
+def get_user(email):
     for user in data_store['users']:
         if email == user['email']:
-            return True
-    return False
+            return user
+    return None
 
 
 def generate_token(u_id):
@@ -116,7 +116,7 @@ def auth_register():
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
 
-    if existing_email(email):
+    if get_user(email) is not None:
         raise InputError(
             description='Email address is already being used by another user')
 
@@ -143,21 +143,22 @@ def auth_login():
 
     email = request.args.get('email')
     password = request.args.get('password')
+    user = get_user(email)
 
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
 
-    for user in data_store['users']:
-        if user['email'] == email and user['password'] == hash_pw(password):
-            return dumps({
-                'u_id': user['u_id'],
-                'token': generate_token(user['u_id'])
-            })
-        elif user['email'] == email and user['password'] != hash_pw(password):
-            raise InputError(description='Password is not correct')
+    if not user:
+        raise InputError(description='Email entered does not belong to a user')
 
-    # If email does not match any user in data store
-    raise InputError(description='Email entered does not belong to a user')
+    if user['password'] != hash_pw(password):
+        raise InputError(description='Password is not correct')
+
+    if user['password'] == hash_pw(password):
+        return dumps({
+            'u_id': user['u_id'],
+            'token': generate_token(user['u_id'])
+        })
 
 
 @auth.route("/logout", methods=['POST'])
