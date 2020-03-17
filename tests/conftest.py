@@ -15,22 +15,6 @@ def reset():
 
 
 @pytest.fixture
-def test_user():
-    '''Fixture for a creating a test user'''
-
-    user_info = {
-        'email': 'test.user@email.com',
-        'password': 'password',
-        'name_first': 'First',
-        'name_last': 'Last'
-    }
-    register = requests.post(f"{BASE_URL}:{PORT}/auth/register",
-                             json=user_info)
-    payload = register.json()
-    return payload
-
-
-@pytest.fixture
 def invalid_token(test_user):
     '''Fixture for a creating an invalid token'''
     token = test_user['token']
@@ -38,20 +22,6 @@ def invalid_token(test_user):
                            json={'token': token})
     assert logout['is_success']
     return token
-
-
-@pytest.fixture
-def test_channel(test_user):
-    '''Fixture for a creating a test channel'''
-    channel_info = {
-        'token': test_user['token'],
-        'channel_name': 'Channel',
-        'is_public': True
-    }
-    new_channel = requests.post(f"{BASE_URL}:{PORT}/channels/create",
-                                json=channel_info)
-    payload = new_channel.json()
-    return payload
 
 
 @pytest.fixture
@@ -72,6 +42,20 @@ def new_user():
         return user
 
     return _new_user
+
+
+@pytest.fixture
+def test_channel(new_user):
+    '''Fixture for a creating a test channel'''
+    channel_info = {
+        'token': new_user['token'],
+        'channel_name': 'Channel',
+        'is_public': True
+    }
+    new_channel = requests.post(f"{BASE_URL}:{PORT}/channels/create",
+                                json=channel_info)
+    payload = new_channel.json()
+    return payload
 
 
 @pytest.fixture

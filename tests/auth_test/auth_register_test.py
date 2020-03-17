@@ -1,6 +1,4 @@
-import json
 import requests
-import urllib
 import pytest
 # import auth
 # import user
