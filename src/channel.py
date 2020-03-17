@@ -6,7 +6,7 @@ from flask_cors import CORS
 from error import AccessError, InputError
 from data_store import data_store, SECRET
 from token_validation import decode_token
-# from helper import
+import helpers
 
 APP = Flask(__name__)
 CORS(APP)
@@ -26,7 +26,7 @@ def channel_invite():
 
     token_data = decode_token(token)
 
-    if invited not in data_store['users']:
+    if helpers.get_user(invited) is None:
         raise InputError(description='User does not exist.')
 
     add_into_channel(token_data['u_id'], c_id, invited)
@@ -38,13 +38,13 @@ def add_into_channel(inviter, c_id, invited):
     '''
     Appends a user ID into the channel with ID c_id.
     '''
-    for channels in data_store['channels']:
-        if channels['channel_id'] == c_id:
-            if inviter not in channels['all_members']:
+    for channel in data_store['channels']:
+        if channel['channel_id'] == c_id:
+            if inviter not in channel['all_members']:
                 raise AccessError(
                     description='User does not have permission to invite')
             else:
-                channels['all_members'].append(invited)
+                channel['all_members'].append(invited)
 
 
 @channel.route("/details", methods=['GET'])
@@ -55,14 +55,27 @@ def channel_details(token, channel_id):
     c_id = payload['channel_id']
 
     token_data = decode_token(token)
+
     auth_user = token_data['u_id']
-    channels = data_store['channels']
 
-    if c_id not in channels:
-        raise InputError
+    # if channel doesn't exist.
+    if helpers.get_channel(c_id) is None:
+        raise InputError(description='Channel does not exist.')
 
-    if auth_user not in channels['all_members']:
-        raise AccessError
+    # if user asking for details is not in the channel.
+    if helpers.is_user_in_channel(auth_user, c_id):
+        raise AccessError(description='Authorized user not in the channel')
+
+    # finding the right channel.
+    for ch in data_store['channels']:
+        if ch['channel_id'] == channel_id:
+            channel = ch
+
+    return {
+        'name': channel['name'],
+        'owner_members': channel['owner_members'],
+        'all_members': channel['all_members']
+    }
 
 
 def channel_messages(token, channel_id, start):
