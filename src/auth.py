@@ -37,6 +37,21 @@ def generate_token(u_id):
     return token
 
 
+def generate_u_id():
+    if not data_store['users']:
+        return 1
+    else:
+        u_ids = [user['u_id'] for user in data_store['users']]
+        return = max(u_ids) + 1
+
+
+def set_default_permission():
+    if not data_store['users']:
+        return OWNER
+    else:
+        return MEMBER
+
+
 def hash_pw(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
@@ -100,13 +115,8 @@ def auth_register():
                 description=
                 'Email address is already being used by another user')
 
-    if not data_store['users']:
-        u_id = 1
-        permission_id = OWNER
-    else:
-        u_ids = [user['u_id'] for user in data_store['users']]
-        u_id = max(u_ids) + 1
-        permission_id = MEMBER
+    u_id = generate_u_id()
+    permission_id = set_default_permission()
 
     user = {
         'u_id': u_id,
