@@ -9,6 +9,7 @@ from error import AccessError, InputError
 from email_validation import invalid_email
 from datetime import datetime, timedelta
 from data_store import data_store, SECRET, OWNER, MEMBER
+from token_validation import decode_token
 
 APP = Flask(__name__)
 CORS(APP)
@@ -30,11 +31,33 @@ def invalid_name(name):
     return True
 
 
+def get_user(email):
+    for user in data_store['users']:
+        if email == user['email']:
+            return user
+    return None
+
+
 def generate_token(u_id):
     payload = {'u_id': u_id, 'exp': datetime.utcnow() + timedelta(minutes=30)}
     token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
     data_store['tokens'].append(token)
     return token
+
+
+def generate_u_id():
+    if not data_store['users']:
+        return 1
+    else:
+        u_ids = [user['u_id'] for user in data_store['users']]
+        return max(u_ids) + 1
+
+
+def set_default_permission():
+    if not data_store['users']:
+        return OWNER
+    else:
+        return MEMBER
 
 
 def hash_pw(password):
@@ -94,28 +117,18 @@ def auth_register():
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
 
-    for user in data_store['users']:
-        if email == user['email']:
-            raise InputError(
-                description=
-                'Email address is already being used by another user')
-
-    if not data_store['users']:
-        u_id = 1
-        permission_id = OWNER
-    else:
-        u_ids = [user['u_id'] for user in data_store['users']]
-        u_id = max(u_ids) + 1
-        permission_id = MEMBER
+    if get_user(email) is not None:
+        raise InputError(
+            description='Email address is already being used by another user')
 
     user = {
-        'u_id': u_id,
+        'u_id': generate_u_id(),
         'email': email,
         'password': hash_pw(password),
         'name_first': name_first,
         'name_last': name_last,
         'handle_str': generate_handle(name_first, name_last),
-        'permission_id': permission_id
+        'permission_id': set_default_permission(),
     }
 
     data_store['users'].append(user)
@@ -131,32 +144,29 @@ def auth_login():
 
     email = request.args.get('email')
     password = request.args.get('password')
+    user = get_user(email)
 
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
 
-    for user in data_store['users']:
-        if user['email'] == email and user['password'] == hash_pw(password):
-            return dumps({
-                'u_id': user['u_id'],
-                'token': generate_token(user['u_id'])
-            })
-        elif user['email'] == email and user['password'] != hash_pw(password):
-            raise InputError(description='Password is not correct')
+    if not user:
+        raise InputError(description='Email entered does not belong to a user')
 
-    # If email does not match any user in data store
-    raise InputError(description='Email entered does not belong to a user')
+    if user['password'] != hash_pw(password):
+        raise InputError(description='Password is not correct')
+
+    if user['password'] == hash_pw(password):
+        return dumps({
+            'u_id': user['u_id'],
+            'token': generate_token(user['u_id'])
+        })
 
 
 @auth.route("/logout", methods=['POST'])
 def auth_logout():
 
     token = request.args.get('token')
-
-    try:
-        jwt.decode(token.encode('utf-8'), SECRET)
-    except:
-        raise AccessError(description='Unable to logout due to invalid token')
+    decode_token(token)
 
     if token in data_store['tokens']:
         data_store['tokens'].remove(token)
