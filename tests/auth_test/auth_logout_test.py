@@ -1,24 +1,24 @@
+import requests
 import pytest
-import auth
-from error import InputError, AccessError
+from error import AccessError
+
+BASE_URL = 'http://127.0.0.1:8080'
 
 
-@pytest.fixture
-def paris():
-    '''Fixture for a creating a user named Paris Cler'''
-
-    return auth.auth_register('pariscler@email.com', 'pariscler0229', 'Paris',
-                              'Cler')
-
-
-def test_logout(paris):
+def test_logout(new_user):
     '''Test that auth_logout returns True on successful Logout'''
 
-    assert auth.auth_logout(paris['token'])['is_success']
+    user = new_user()
+
+    logout = requests.post(f"{BASE_URL}/auth/logout",
+                           json={
+                               'token': user['token']
+                           }).json()
+    assert logout['is_success']
 
 
 def test_logout_invalid_token(invalid_token):
     '''Test that auth_logout raises an AccessError when given invalid token'''
 
     with pytest.raises(AccessError):
-        auth.auth_logout(invalid_token)['is_success']
+        requests.post(f"{BASE_URL}/auth/logout", json={'token': invalid_token})
