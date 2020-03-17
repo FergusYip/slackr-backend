@@ -71,11 +71,13 @@ def channel_details(token, channel_id):
         if ch['channel_id'] == channel_id:
             channel = ch
 
-    return {
+    details = {
         'name': channel['name'],
         'owner_members': channel['owner_members'],
         'all_members': channel['all_members']
     }
+
+    return dumps({details})
 
 
 def channel_messages(token, channel_id, start):
