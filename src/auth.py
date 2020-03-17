@@ -30,6 +30,13 @@ def invalid_name(name):
     return True
 
 
+def existing_email(email):
+    for user in data_store['users']:
+        if email == user['email']:
+            return True
+    return False
+
+
 def generate_token(u_id):
     payload = {'u_id': u_id, 'exp': datetime.utcnow() + timedelta(minutes=30)}
     token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
@@ -42,7 +49,7 @@ def generate_u_id():
         return 1
     else:
         u_ids = [user['u_id'] for user in data_store['users']]
-        return = max(u_ids) + 1
+        return max(u_ids) + 1
 
 
 def set_default_permission():
@@ -109,11 +116,9 @@ def auth_register():
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
 
-    for user in data_store['users']:
-        if email == user['email']:
-            raise InputError(
-                description=
-                'Email address is already being used by another user')
+    if existing_email(email):
+        raise InputError(
+            description='Email address is already being used by another user')
 
     u_id = generate_u_id()
     permission_id = set_default_permission()
