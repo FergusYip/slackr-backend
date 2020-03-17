@@ -13,7 +13,6 @@ def test_register_return_type(new_user, reset):
     '''Test the types of values returned by auth_register'''
 
     user = new_user()
-    print(user)
     assert isinstance(user['u_id'], int)
     assert isinstance(user['token'], str)
 
