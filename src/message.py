@@ -126,8 +126,10 @@ def message_remove():
 @MESSAGE.route("/edit", methods=['PUT'])
 def message_edit(token, message_id, message):
     payload = request.get_json()
+
     token = payload['token']
-    user_id = payload['u_id']
+    token_info = decode_token(token)
+    userID = token_info['u_id']
 
     message_id = payload['message_id']
     new_message = payload['message']
@@ -135,10 +137,22 @@ def message_edit(token, message_id, message):
     channelid = payload['channel_id']
     channel_info = get_channel(channelid)
 
+    message_info = get_message(message_id)
 
+    if len(new_message) > 1000:
+        raise InputError(
+            description='Message is over 1,000 characters')
 
+    if message_info['u_id'] != userID and not is_user_admin(userID, channelid):
+        raise AccessError(
+            description='User does not have access to remove this message')
 
-    }
+    if len(new_message) == 0:
+        channel_info['messages'].remove(message_info)
+    else: 
+        message_info['message'] = new_message
+    
+    return dumps({})
 
 def message_sendlater(token, channel_id, message, time_sent):
     return {
