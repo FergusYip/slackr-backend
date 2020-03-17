@@ -128,3 +128,6 @@ dmypy.json
 
 # Pickles
 .p
+
+# VSCode
+.vscode
