@@ -63,12 +63,12 @@ def channel_details():
         raise InputError(description='Channel does not exist.')
 
     # if user asking for details is not in the channel.
-    if helpers.is_user_in_channel(auth_user, c_id):
+    if helpers.is_user_in_channel(auth_user, c_id) is False:
         raise AccessError(description='Authorized user not in the channel')
 
     # finding the right channel.
     for ch in data_store['channels']:
-        if ch['channel_id'] == channel_id:
+        if ch['channel_id'] == c_id:
             channel = ch
 
     details = {
@@ -93,11 +93,23 @@ def channel_messages(token, channel_id):
     message = {'messages': []}
     message['start'] = start
 
-    # auth_user = token_data['u_id']
-
     last_message_id = channel['messages'][-1]['message_id']
 
-    # if the last message is less than start + 50, append everything from start.
+    # input error when the given start is greater than the id of last message.
+    if start > last_message_id:
+        raise InputError(description='start is greater than end')
+
+    # if channel doesn't exist.
+    if helpers.get_channel(c_id) is None:
+        raise InputError(description='Channel does not exist.')
+
+    # access error when authorized user not a member of channel.
+    if helpers.is_user_in_channel(token_data['u_id'], c_id) is False:
+        raise AccessError(
+            description='authorized user not a member of channel.')
+
+    # if the last message is less than start + 50,
+    # append everything from start.
     if last_message_id < start + 50:
         message['end'] = -1
 
@@ -106,7 +118,8 @@ def channel_messages(token, channel_id):
 
         message['end'] = start + 50
 
-    # if last message is less than or equal to start + 50, append next 50 from start.
+    # if last message is less than or equal to start + 50,
+    # append next 50 from start.
     else:
         for i in range(51):
             message['message'].append(channel['messages'][start + i])
