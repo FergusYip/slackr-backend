@@ -4,7 +4,8 @@ import jwt
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError
-from data_store import data_store, SECRET
+from data_store import data_store
+from token_validation import decode_token
 
 APP = Flask(__name__)
 CORS(APP)
@@ -32,11 +33,10 @@ def channel_search(channel, query_str):
 
 @other.route("/users/all", methods=['GET'])
 def users_all():
-    token = request.args.get('token')
-    try:
-        jwt.decode(token.encode('utf-8'), SECRET)
-    except:
-        raise AccessError(description='Invalid token')
+    payload = request.get_json()
+    token = payload['token']
+
+    decode_token(token)
 
     users = []
     for user in data_store['users']:
@@ -54,13 +54,11 @@ def users_all():
 
 @other.route("/search", methods=['GET'])
 def search():
-    token = request.args.get('token')
-    query_str = request.args.get('query_str')
+    payload = request.get_json()
+    token = payload['token']
+    query_str = payload['query_str']
 
-    try:
-        payload = jwt.decode(token.encode('utf-8'), SECRET)
-    except:
-        raise AccessError(description='Invalid token')
+    decode_token(token)
 
     messages = []
     for channel in user_channels(payload['u_id']):
