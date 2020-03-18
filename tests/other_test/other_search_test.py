@@ -1,4 +1,4 @@
-'''Pytest script for testing other.py routes'''
+'''Pytest script for testing search route'''
 
 import requests
 import pytest
