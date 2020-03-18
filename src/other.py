@@ -1,9 +1,7 @@
 import sys
 from json import dumps
-import jwt
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
-from error import AccessError
 from data_store import data_store
 from token_validation import decode_token
 
@@ -12,7 +10,7 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-other = Blueprint('other', __name__)
+OTHER = Blueprint('other', __name__)
 
 
 def user_channels(u_id):
