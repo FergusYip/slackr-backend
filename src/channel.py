@@ -48,7 +48,7 @@ def add_into_channel(inviter, c_id, invited):
 
 
 @channel.route("/details", methods=['GET'])
-def channel_details(token, channel_id):
+def channel_details():
     payload = request.get_json()
 
     token = payload['token']
@@ -80,19 +80,40 @@ def channel_details(token, channel_id):
     return dumps({details})
 
 
-def channel_messages(token, channel_id, start):
-    return {
-        'messages': [
-            {
-                'message_id': 1,
-                'u_id': 1,
-                'message': 'Hello world',
-                'time_created': 1582426789,
-            }
-        ],
-        'start': 0,
-        'end': 50,
-    }
+@channel.route("/messages", methods=[''])
+def channel_messages(token, channel_id):
+    payload = request.get_json()
+
+    token = payload['token']
+    token_data = decode_token(token)
+    c_id = payload['channel_id']
+    start = payload['start']
+    channel = helpers.get_channel(c_id)
+
+    message = {'messages': []}
+    message['start'] = start
+
+    # auth_user = token_data['u_id']
+
+    last_message_id = channel['messages'][-1]['message_id']
+
+    # if the last message is less than start + 50, append everything from start.
+    if last_message_id < start + 50:
+        message['end'] = -1
+
+        for i in range(start, last_message_id + 1):
+            message['message'].append(channel['messages'][i])
+
+        message['end'] = start + 50
+
+    # if last message is less than or equal to start + 50, append next 50 from start.
+    else:
+        for i in range(51):
+            message['message'].append(channel['messages'][start + i])
+
+        message['end'] = last_message_id
+
+    return dumps({message})
 
 
 def channel_leave(token, channel_id):
