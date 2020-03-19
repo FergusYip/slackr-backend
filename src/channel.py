@@ -90,8 +90,10 @@ def channel_messages(token, channel_id):
     start = payload['start']
     channel = helpers.get_channel(c_id)
 
-    message = {'messages': []}
-    message['start'] = start
+    # message = {'messages': []}
+    # message['start'] = start
+
+    message = {'messages': [], 'start': start, 'end': start + 50}
 
     # input error when the given start is greater than the id of last message.
     if start > len(channel['messages']):
@@ -106,39 +108,42 @@ def channel_messages(token, channel_id):
         raise AccessError(
             description='authorized user not a member of channel.')
 
-    for i in range(51):
-        mes = channel['messages'][start + i]
+    # i = 0
+    # for msg in channel['messages']:
+    #     if i > 50:
+    #         break
 
-        # end of messages list
-        if mes == channel['messages'][-1]:
-            message['end'] = -1
+    #     try:
+    #         mes = channel['messages'][start + i]
+    #     except IndexError:
+    #         message['end'] = -1
+    #         break
 
-        # reached start + 50
-        elif mes == channel['messages'][start + 50]:
-            message['end'] = start + 50
-            message['messages'].append(mes)
-            return dumps({message})
+    # message['messages'].append(mes)
+    # i += 1
 
-        message['messages'].append(mes)
+    # for i in range(51):
+    #     try:
+    #         mes = channel['messages'][start + i]
+    #     except IndexError:
+    #         message['end'] = -1
+    #         break
+    #     message['messages'].append(mes)
 
     return dumps({message})
 
 
 def channel_leave(token, channel_id):
-    return {
-    }
+    return {}
 
 
 def channel_join(token, channel_id):
-    return {
-    }
+    return {}
 
 
 def channel_addowner(token, channel_id, u_id):
-    return {
-    }
+    return {}
 
 
 def channel_removeowner(token, channel_id, u_id):
-    return {
-    }
+    return {}
