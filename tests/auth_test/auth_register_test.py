@@ -1,8 +1,5 @@
 import requests
 import pytest
-# import auth
-# import user
-from error import AccessError, InputError
 
 BASE_URL = 'http://127.0.0.1:8080'
 
@@ -28,8 +25,10 @@ def test_register_duplicate(reset):
     # # Setup 'existing' user
     requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
-    with pytest.raises(InputError):
-        requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    error = requests.post(f"{BASE_URL}/auth/register", json=user_info)
+
+    with pytest.raises(requests.HTTPError):
+        requests.Response.raise_for_status(error)
 
 
 def test_register_password(reset):
@@ -47,13 +46,13 @@ def test_register_password(reset):
 
     # <6 Password Length
     user_info['password'] = '12345'
-    with pytest.raises(InputError):
-        requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    error = requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    with pytest.raises(requests.HTTPError):
+        requests.Response.raise_for_status(error)
 
     # 32 character password that is within the (assumed) maximum length for password
     user_info['password'] = 'i' * 32
-    with pytest.raises(InputError):
-        requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    requests.post(f"{BASE_URL}/auth/register", json=user_info)
 
 
 def test_register_first_name(reset):
@@ -71,13 +70,15 @@ def test_register_first_name(reset):
 
     # <1 Character
     user_info['name_first'] = ''
-    with pytest.raises(InputError):
-        requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    error = requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    with pytest.raises(requests.HTTPError):
+        requests.Response.raise_for_status(error)
 
     # >50 Characters
     user_info['name_first'] = 'i' * 51
-    with pytest.raises(InputError):
-        requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    error = requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    with pytest.raises(requests.HTTPError):
+        requests.Response.raise_for_status(error)
 
 
 def test_register_last_name(reset):
@@ -95,13 +96,15 @@ def test_register_last_name(reset):
 
     # <1 Character
     user_info['name_last'] = ''
-    with pytest.raises(InputError):
-        requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    error = requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    with pytest.raises(requests.HTTPError):
+        requests.Response.raise_for_status(error)
 
     # >50 Characters
     user_info['name_last'] = 'i' * 51
-    with pytest.raises(InputError):
-        requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    error = requests.post(f"{BASE_URL}/auth/register", json=user_info)
+    with pytest.raises(requests.HTTPError):
+        requests.Response.raise_for_status(error)
 
 
 @pytest.mark.skip(reason='user_profile not implemented')
@@ -145,9 +148,18 @@ def test_register_email_valid(valid_emails, new_user, reset):
         new_user(email)
 
 
-def test_register_email_invalid(invalid_emails, new_user, reset):
+def test_register_email_invalid(invalid_emails, reset):
     '''Test input of invalid emails into auth_register'''
 
     for email in invalid_emails:
-        with pytest.raises(InputError):
-            new_user(email)
+        user_info = {
+            'email': email,
+            'password': 'password',
+            'name_first': 'First',
+            'name_last': 'Last'
+        }
+
+        error = requests.post(f"{BASE_URL}/auth/register", json=user_info)
+
+        with pytest.raises(requests.HTTPError):
+            requests.Response.raise_for_status(error)
