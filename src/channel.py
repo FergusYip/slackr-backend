@@ -81,17 +81,17 @@ def channel_details():
 
 
 @channel.route("/messages", methods=['GET'])
-def channel_messages(token, channel_id):
+def channel_messages():
     payload = request.get_json()
 
     token = payload['token']
     token_data = decode_token(token)
+
     c_id = payload['channel_id']
     start = payload['start']
     channel = helpers.get_channel(c_id)
 
-    message = {'messages': []}
-    message['start'] = start
+    messages = {'messages': [], 'start': start, 'end': start + 50}
 
     # input error when the given start is greater than the id of last message.
     if start > len(channel['messages']):
@@ -107,38 +107,47 @@ def channel_messages(token, channel_id):
             description='authorized user not a member of channel.')
 
     for i in range(51):
-        mes = channel['messages'][start + i]
+        try:
+            message = channel['messages'][start + i]
+        except IndexError:
+            messages['end'] = -1
+            break
 
-        # end of messages list
-        if mes == channel['messages'][-1]:
-            message['end'] = -1
+        message_reacts = []
+        reacts = message['reacts']
+        for react in reacts:
+            is_this_user_reacted = token_data['u_id'] in react['u_id']
+            react_info = {
+                'react_id': react['react_id'],
+                'u_ids': react['u_id'],
+                'is_this_user_reacted': is_this_user_reacted
+            }
+            message_reacts.append(react_info)
 
-        # reached start + 50
-        elif mes == channel['messages'][start + 50]:
-            message['end'] = start + 50
-            message['messages'].append(mes)
-            return dumps({message})
+        message_info = {
+            'message_id': message['message_id'],
+            'u_id': message['u_id'],
+            'message': message['message'],
+            'time_created': message['time_created'],
+            'reacts': message_reacts,
+            'is_pinned': message['is_pinned']
+        }
+        messages['messages'].append(message_info)
 
-        message['messages'].append(mes)
-
-    return dumps({message})
+    return dumps(messages)
 
 
 def channel_leave(token, channel_id):
-    return {
-    }
+    return {}
 
 
 def channel_join(token, channel_id):
-    return {
-    }
+    return {}
 
 
 def channel_addowner(token, channel_id, u_id):
-    return {
-    }
+    return {}
 
 
 def channel_removeowner(token, channel_id, u_id):
-    return {
-    }
+    return {}
