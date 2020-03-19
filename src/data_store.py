@@ -4,7 +4,7 @@ SECRET = 'the chunts'
 OWNER = 1
 MEMBER = 2
 
-data_store = {
+DATA_STORE = {
     'users': [],
     'channels': [],
     'token_blacklist': [],
@@ -13,6 +13,66 @@ data_store = {
         'member': MEMBER
     }
 }
+
+
+def get_token_blacklist():
+    return DATA_STORE['token_blacklist']
+
+
+def get_permissions():
+    return DATA_STORE['permissions']
+
+
+def get_users():
+    return DATA_STORE['users']
+
+
+def get_user(u_id):
+    for user in get_users():
+        if user['u_id'] == u_id:
+            return user
+    return None
+
+
+def get_u_ids():
+    return [user['u_id'] for user in DATA_STORE['users']]
+
+
+def get_channels():
+    return DATA_STORE['channels']
+
+
+def get_channel(channel_id):
+    for channel in get_channels():
+        if channel_id == channel['channel_id']:
+            return channel
+    return None
+
+
+def get_messages(channel):
+    if channel is None:
+        return None
+
+    return channel['messages']
+
+
+def get_message(channel, message_id):
+    if channel is None:
+        return None
+
+    for message in channel['messages']:
+        if message_id == message['message_id']:
+            return message
+    return None
+
+
+def get_reacts(message):
+    if message is None:
+        return None
+
+    return message['reacts']
+
+
 '''
 Sample Data Store Structure
 
