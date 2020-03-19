@@ -10,7 +10,6 @@ def test_logout(reset, new_user):
     user = new_user()
     logout_input = {'token': user['token']}
     logout = requests.post(f"{BASE_URL}/auth/logout", json=logout_input).json()
-    print(logout)
     assert logout['is_success']
 
 
