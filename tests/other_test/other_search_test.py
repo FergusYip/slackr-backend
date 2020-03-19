@@ -2,7 +2,6 @@
 
 import requests
 import pytest
-from error import AccessError
 
 BASE_URL = 'http://127.0.0.1:8080'
 
@@ -180,5 +179,7 @@ def test_search_invalid_token(reset, invalid_token):
 
     search_input = {'token': invalid_token, 'query_str': ''}
 
-    with pytest.raises(AccessError):
-        requests.get(f'{BASE_URL}/search', json=search_input).json()
+    error = requests.get(f'{BASE_URL}/search', json=search_input)
+
+    with pytest.raises(requests.HTTPError):
+        requests.Response.raise_for_status(error)
