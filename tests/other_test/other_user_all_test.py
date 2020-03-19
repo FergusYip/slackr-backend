@@ -2,7 +2,6 @@
 
 import requests
 import pytest
-from error import AccessError
 
 BASE_URL = 'http://127.0.0.1:8080'
 
@@ -45,6 +44,7 @@ def test_users_all_invalid_token(reset, invalid_token):
     '''Test user_all with invalid token'''
 
     users_all_input = {'token': invalid_token}
+    error = requests.get(f'{BASE_URL}/users/all', json=users_all_input)
 
-    with pytest.raises(AccessError):
-        requests.get(f'{BASE_URL}/users/all', json=users_all_input)
+    with pytest.raises(requests.HTTPError):
+        requests.Response.raise_for_status(error)
