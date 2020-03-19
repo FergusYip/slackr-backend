@@ -1,8 +1,5 @@
 import requests
 import pytest
-# import auth
-# import user
-from error import AccessError, InputError
 
 BASE_URL = 'http://127.0.0.1:8080'
 
