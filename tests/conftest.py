@@ -46,8 +46,9 @@ def invalid_token(new_user):
 @pytest.fixture
 def test_channel(new_user):
     '''Fixture for a creating a test channel'''
+    user = new_user()
     channel_info = {
-        'token': new_user['token'],
+        'token': user['token'],
         'channel_name': 'Channel',
         'is_public': True
     }
