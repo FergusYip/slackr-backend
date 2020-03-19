@@ -1,6 +1,5 @@
 import requests
 import pytest
-from error import AccessError
 
 BASE_URL = 'http://127.0.0.1:8080'
 
@@ -9,16 +8,16 @@ def test_logout(reset, new_user):
     '''Test that auth_logout returns True on successful Logout'''
 
     user = new_user()
-
-    logout = requests.post(f"{BASE_URL}/auth/logout",
-                           json={
-                               'token': user['token']
-                           }).json()
+    logout_input = {'token': user['token']}
+    logout = requests.post(f"{BASE_URL}/auth/logout", json=logout_input).json()
+    print(logout)
     assert logout['is_success']
 
 
 def test_logout_invalid_token(reset, invalid_token):
     '''Test that auth_logout raises an AccessError when given invalid token'''
 
-    with pytest.raises(AccessError):
-        requests.post(f"{BASE_URL}/auth/logout", json={'token': invalid_token})
+    logout_input = {'token': invalid_token}
+    error = requests.post(f"{BASE_URL}/auth/logout", json=logout_input)
+    with pytest.raises(requests.HTTPError):
+        requests.Response.raise_for_status(error)
