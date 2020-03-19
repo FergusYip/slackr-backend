@@ -81,19 +81,17 @@ def channel_details():
 
 
 @channel.route("/messages", methods=['GET'])
-def channel_messages(token, channel_id):
+def channel_messages():
     payload = request.get_json()
 
     token = payload['token']
     token_data = decode_token(token)
+
     c_id = payload['channel_id']
     start = payload['start']
     channel = helpers.get_channel(c_id)
 
-    # message = {'messages': []}
-    # message['start'] = start
-
-    message = {'messages': [], 'start': start, 'end': start + 50}
+    messages = {'messages': [], 'start': start, 'end': start + 50}
 
     # input error when the given start is greater than the id of last message.
     if start > len(channel['messages']):
@@ -108,29 +106,35 @@ def channel_messages(token, channel_id):
         raise AccessError(
             description='authorized user not a member of channel.')
 
-    # i = 0
-    # for msg in channel['messages']:
-    #     if i > 50:
-    #         break
+    for i in range(51):
+        try:
+            message = channel['messages'][start + i]
+        except IndexError:
+            messages['end'] = -1
+            break
 
-    #     try:
-    #         mes = channel['messages'][start + i]
-    #     except IndexError:
-    #         message['end'] = -1
-    #         break
+        message_reacts = []
+        reacts = message['reacts']
+        for react in reacts:
+            is_this_user_reacted = token_data['u_id'] in react['u_id']
+            react_info = {
+                'react_id': react['react_id'],
+                'u_ids': react['u_id'],
+                'is_this_user_reacted': is_this_user_reacted
+            }
+            message_reacts.append(react_info)
 
-    # message['messages'].append(mes)
-    # i += 1
+        message_info = {
+            'message_id': message['message_id'],
+            'u_id': message['u_id'],
+            'message': message['message'],
+            'time_created': message['time_created'],
+            'reacts': message_reacts,
+            'is_pinned': message['is_pinned']
+        }
+        messages['messages'].append(message_info)
 
-    # for i in range(51):
-    #     try:
-    #         mes = channel['messages'][start + i]
-    #     except IndexError:
-    #         message['end'] = -1
-    #         break
-    #     message['messages'].append(mes)
-
-    return dumps({message})
+    return dumps(messages)
 
 
 def channel_leave(token, channel_id):
