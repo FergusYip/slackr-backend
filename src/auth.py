@@ -41,7 +41,7 @@ def get_user(email):
 def generate_token(u_id):
     payload = {
         'u_id': u_id,
-        'iat': datetime.utcnow(),
+        'iat': datetime.utcnow().timestamp(),
         'exp': datetime.utcnow() + timedelta(minutes=30)
     }
     token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')

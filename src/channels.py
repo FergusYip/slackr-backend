@@ -1,10 +1,9 @@
 import sys
-import jwt
 from json import dumps
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError, InputError
-from data_store import data_store, SECRET
+from data_store import data_store
 from token_validation import decode_token
 
 APP = Flask(__name__)
@@ -12,18 +11,19 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-channels = Blueprint('channels', __name__)
+CHANNELS = Blueprint('channels', __name__)
 
 
 def invalid_channel_name(channel_name):
     return len(channel_name) > 20
 
 
-@channels.route("/list", methods=['GET'])
+@CHANNELS.route("/list", methods=['GET'])
 def channels_list():
-    token = request.args.get('token')
+    payload = request.get_json()
+    token = payload['token']
 
-    payload = decode_token(token)
+    decode_token(token)
 
     u_id = payload['u_id']
 
@@ -39,11 +39,12 @@ def channels_list():
     return dumps({'channels': channels})
 
 
-@channels.route("/listall", methods=['GET'])
+@CHANNELS.route("/listall", methods=['GET'])
 def channels_listall():
-    token = request.args.get('token')
+    payload = request.get_json()
+    token = payload['token']
 
-    payload = decode_token(token)
+    decode_token(token)
 
     channels = []
     for channel in data_store['channels']:
@@ -56,13 +57,14 @@ def channels_listall():
     return dumps({'channels': channels})
 
 
-@channels.route("/create", methods=['POST'])
+@CHANNELS.route("/create", methods=['POST'])
 def channels_create():
-    token = request.args.get('token')
-    name = request.args.get('name')
-    is_public = request.args.get('is_public')
+    payload = request.get_json()
+    token = payload['token']
+    name = payload['name']
+    is_public = payload['is_public']
 
-    payload = decode_token(token)
+    token_payload = decode_token(token)
 
     if invalid_channel_name(name):
         raise InputError(description='Name is more than 20 characters long')
@@ -75,7 +77,7 @@ def channels_create():
         ]
         channel_id = max(channel_ids) + 1
 
-    u_id = payload['u_id']
+    u_id = token_payload['u_id']
 
     # Assuming that the user creating the channel automatically joins the channel
     channel = {

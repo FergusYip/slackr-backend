@@ -5,7 +5,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from error import InputError
 from auth import AUTH
-from channels import channels
+from channels import CHANNELS
 from other import OTHER
 from admin import admin
 from workspace import workspace
@@ -32,7 +32,7 @@ APP.register_error_handler(Exception, defaultHandler)
 
 APP.register_blueprint(admin, url_prefix='/admin')
 APP.register_blueprint(AUTH, url_prefix='/auth')
-APP.register_blueprint(channels, url_prefix='/channels')
+APP.register_blueprint(CHANNELS, url_prefix='/channels')
 APP.register_blueprint(OTHER)
 APP.register_blueprint(workspace)
 
