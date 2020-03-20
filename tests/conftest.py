@@ -44,34 +44,19 @@ def invalid_token(new_user):
 
 
 @pytest.fixture
-def test_channel(new_user):
-    '''Fixture for a creating a test channel'''
-    user = new_user()
-    channel_info = {
-        'token': user['token'],
-        'channel_name': 'Channel',
-        'is_public': True
-    }
-    new_channel = requests.post(f"{BASE_URL}:{PORT}/channels/create",
-                                json=channel_info)
-    payload = new_channel.json()
-    return payload
-
-
-@pytest.fixture
-def make_join_channel():
+def new_channel():
     '''Factory as a fixture for a test user to create a new channel and joining it'''
-    def _make_join_channel(target_user, channel_name):
+    def _new_channel(target_user, channel_name='Channel Name'):
         channel_info = {
             'token': target_user['token'],
             'channel_name': channel_name,
             'is_public': True
         }
-        new_channel = requests.post(f"{BASE_URL}:{PORT}/channels/create",
-                                    json=channel_info).json()
-        return new_channel
+        channel = requests.post(f"{BASE_URL}:{PORT}/channels/create",
+                                json=channel_info).json()
+        return channel
 
-    return _make_join_channel
+    return _new_channel
 
 
 @pytest.fixture
@@ -84,6 +69,22 @@ def get_user_profile():
         return user_profile
 
     return _get_user_profile
+
+
+@pytest.fixture
+def send_msg():
+    '''Factory as a fixture for a test user to create a new channel and joining it'''
+    def _send_msg(token, channel_id, message):
+        message_input = {
+            'token': token,
+            'channel_id': channel_id,
+            'message': message
+        }
+        message = requests.post(f'{BASE_URL}/message/send',
+                                json=message_input).json()
+        return message
+
+    return _send_msg
 
 
 @pytest.fixture
