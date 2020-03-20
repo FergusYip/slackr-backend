@@ -1,18 +1,18 @@
 SECRET = 'the chunts'
 
-# Permission values
-OWNER = 1
-MEMBER = 2
-
 data_store = {
     'users': [],
     'channels': [],
     'token_blacklist': [],
     'permissions': {
-        'owner': OWNER,
-        'member': MEMBER
+        'owner': 1,
+        'member': 2
+    },
+    'reactions': {
+        'thumbs_up': 1
     }
 }
+
 '''
 Sample Data Store Structure
 
@@ -39,16 +39,15 @@ data_store = {
             'time_created': time_created,
             'reacts': [{
                 'react_id': react_id,
-                'u_ids': u_id,
-                'is_this_user_reacted': is_this_user_reacted
+                'u_ids': [u_id],
             }],
             'is_pinned': is_pinned
         }]
     }],
     'tokens': [],
     'permissions': {
-        'owner': OWNER,
-        'member': MEMBER
+        'owner': 1,
+        'member': 2
     }
 }
 
