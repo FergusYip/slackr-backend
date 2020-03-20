@@ -65,3 +65,29 @@ def get_react(message_id, channel_id, react_id):
             return react 
             break
     return None
+
+def is_pinned(message_id, channel_id):
+    message = get_message(message_id, channel_id)
+
+    if message['is_pinned'] == 1:
+        return True 
+    else: 
+        return False
+
+def is_channel_member(user_id, channel_id):
+    channel = get_channel(channel_id)
+
+    if user_id in channel['all_members']:
+        return True 
+    else:
+        return False
+
+def has_user_reacted(user_id, message_id, channel_id, react_id):
+    react = get_react(message_id, channel_id, react_id):
+
+    if user_id in react['u_ids']:
+        return True 
+    else:
+        return False
+
+    

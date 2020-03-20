@@ -40,7 +40,6 @@ data_store = {
             'reacts': [{
                 'react_id': react_id,
                 'u_ids': [u_id],
-                'is_this_user_reacted': is_this_user_reacted
             }],
             'is_pinned': is_pinned
         }]
