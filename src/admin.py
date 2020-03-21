@@ -15,13 +15,6 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 ADMIN = Blueprint('admin', __name__)
 
 
-def is_owner(u_id):
-    user = helpers.get_user(u_id)
-    if user['permission_id'] == data_store['permissions']['owner']:
-        return True
-    return False
-
-
 @ADMIN.route("/userpermission/change", methods=['POST'])
 def admin_userpermission_change():
     payload = request.get_json()
@@ -38,7 +31,7 @@ def admin_userpermission_change():
         raise InputError(
             description='permission_id does not refer to a valid permission')
 
-    if not is_owner(token_payload['u_id']):
+    if not helpers.is_owner(token_payload['u_id']):
         raise AccessError(description='The authorised user is not an owner')
 
     user = helpers.get_user(u_id)

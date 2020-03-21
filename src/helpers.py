@@ -31,6 +31,13 @@ def get_user(u_id):
     return None
 
 
+def is_owner(u_id):
+    user = get_user(u_id)
+    if user['permission_id'] == data_store['permissions']['owner']:
+        return True
+    return False
+
+
 def is_user_admin(u_id, channel_id):
     user_info = get_user(u_id)
     if user_info is None:
