@@ -7,15 +7,10 @@ from data_store import data_store
 from token_validation import decode_token
 import helpers
 
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
-
 ADMIN = Blueprint('admin', __name__)
 
 
-@ADMIN.route("/userpermission/change", methods=['POST'])
+@ADMIN.route('/userpermission/change', methods=['POST'])
 def admin_userpermission_change():
     payload = request.get_json()
     token = payload['token']
@@ -40,6 +35,5 @@ def admin_userpermission_change():
     return dumps({})
 
 
-if __name__ == "__main__":
-    APP.run(debug=True,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+if __name__ == '__main__':
+    pass
