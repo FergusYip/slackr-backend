@@ -1,11 +1,11 @@
 import sys
 from json import dumps
-import jwt
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError, InputError
-from data_store import data_store, SECRET
+from data_store import data_store
 from token_validation import decode_token
+import helpers
 
 APP = Flask(__name__)
 CORS(APP)
@@ -16,48 +16,33 @@ ADMIN = Blueprint('admin', __name__)
 
 
 def is_owner(u_id):
-    for user in data_store['users']:
-        if user['u_id'] is u_id and user['permission_id'] is OWNER:
-            return True
+    user = helpers.get_user(u_id)
+    if user['permission_id'] == data_store['permissions']['owner']:
+        return True
     return False
-
-
-def permission_values():
-    return data_store['permissions'].values()
-
-
-def user_data(u_id):
-    for user in data_store['users']:
-        if u_id is user['u_id']:
-            return user
-    return None
-
-
-def all_u_id():
-    return [user['u_id'] for user in data_store['users']]
 
 
 @ADMIN.route("/userpermission/change", methods=['POST'])
 def admin_userpermission_change():
-	payload = request.get_json()
-	token = payload['token']
-	u_id = payload['u_id']
-	permission_id = payload['permission_id']
+    payload = request.get_json()
+    token = payload['token']
+    u_id = payload['u_id']
+    permission_id = payload['permission_id']
 
-	decode_token(token)
+    token_payload = decode_token(token)
 
-    if u_id not in all_u_id():
+    if u_id not in helpers.get_all_u_id():
         raise InputError(description='u_id does not refer to a valid user')
 
-    if permission_id not in permission_values():
+    if permission_id not in helpers.get_permissions():
         raise InputError(
             description='permission_id does not refer to a valid permission')
 
-    if not is_owner(payload['u_id']):
+    if not is_owner(token_payload['u_id']):
         raise AccessError(
             description='The authorised user is not an admin or owner')
 
-    user = user_data(u_id)
+    user = helpers.get_user(u_id)
     user['permission_id'] = permission_id
 
     return dumps({})
