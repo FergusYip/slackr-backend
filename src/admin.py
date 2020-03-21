@@ -4,7 +4,8 @@ import jwt
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError, InputError
-from data_store import data_store, SECRET, OWNER, MEMBER
+from data_store import data_store, SECRET
+from token_validation import decode_token
 
 APP = Flask(__name__)
 CORS(APP)
@@ -38,14 +39,12 @@ def all_u_id():
 
 @ADMIN.route("/userpermission/change", methods=['POST'])
 def admin_userpermission_change():
-    token = request.args.get('token')
-    u_id = int(request.args.get('u_id'))
-    permission_id = int(request.args.get('permission_id'))
+	payload = request.get_json()
+	token = payload['token']
+	u_id = payload['u_id']
+	permission_id = payload['permission_id']
 
-    try:
-        payload = jwt.decode(token.encode('utf-8'), SECRET)
-    except:
-        raise AccessError(description='Unable to logout due to invalid token')
+	decode_token(token)
 
     if u_id not in all_u_id():
         raise InputError(description='u_id does not refer to a valid user')
