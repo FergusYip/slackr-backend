@@ -39,8 +39,7 @@ def admin_userpermission_change():
             description='permission_id does not refer to a valid permission')
 
     if not is_owner(token_payload['u_id']):
-        raise AccessError(
-            description='The authorised user is not an admin or owner')
+        raise AccessError(description='The authorised user is not an owner')
 
     user = helpers.get_user(u_id)
     user['permission_id'] = permission_id
