@@ -1,20 +1,12 @@
 import sys
-import jwt
 import math
 import hashlib
 from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
+from flask import request, Blueprint
 from error import InputError
 from email_validation import invalid_email
-from datetime import datetime, timedelta
-from data_store import data_store, SECRET, OWNER, MEMBER
-from token_validation import decode_token
-
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
+from data_store import data_store
+from token_validation import decode_token, encode_token
 
 AUTH = Blueprint('auth', __name__)
 
@@ -38,16 +30,6 @@ def get_user(email):
     return None
 
 
-def generate_token(u_id):
-    payload = {
-        'u_id': u_id,
-        'iat': datetime.utcnow().timestamp(),
-        'exp': datetime.utcnow() + timedelta(minutes=30)
-    }
-    token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
-    return token
-
-
 def generate_u_id():
     if not data_store['users']:
         return 1
@@ -58,9 +40,9 @@ def generate_u_id():
 
 def set_default_permission():
     if not data_store['users']:
-        return OWNER
+        return data_store['permissions']['owner']
     else:
-        return MEMBER
+        return data_store['permissions']['member']
 
 
 def hash_pw(password):
@@ -139,7 +121,7 @@ def auth_register():
 
     return dumps({
         'u_id': u_id,
-        'token': generate_token(u_id),
+        'token': encode_token(u_id),
     })
 
 
@@ -163,7 +145,7 @@ def auth_login():
     if user['password'] == hash_pw(password):
         return dumps({
             'u_id': user['u_id'],
-            'token': generate_token(user['u_id'])
+            'token': encode_token(user['u_id'])
         })
 
 
@@ -182,5 +164,4 @@ def auth_logout():
 
 
 if __name__ == "__main__":
-    APP.run(debug=True,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    pass
