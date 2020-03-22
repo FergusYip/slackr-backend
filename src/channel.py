@@ -134,7 +134,7 @@ def channel_messages():
         }
         messages['messages'].append(message_info)
 
-    return dumps(messages)
+    return dumps(messages)  # shouldn't it be return dumps({message_info})?
 
 
 def channel_leave(token, channel_id):
