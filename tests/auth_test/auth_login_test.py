@@ -111,4 +111,6 @@ def test_login_email_invalid(invalid_emails):
 
     for email in invalid_emails:
         user_info['email'] = email
-        requests.post(f"{BASE_URL}/auth/login", json=user_info).json()
+        error = requests.post(f"{BASE_URL}/auth/login", json=user_info)
+        with pytest.raises(requests.HTTPError):
+            requests.Response.raise_for_status(error)
