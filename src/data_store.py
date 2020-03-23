@@ -22,15 +22,15 @@ except FileNotFoundError:
     }
 
 
-def save_loop():
-    while True:
-        time.sleep(2)
-        pickle.dump(data_store, open('data_store.p', 'wb'))
+def save():
+    with open('data_store.p', 'wb') as FILE:
+        pickle.dump(data_store, FILE)
 
 
-def auto_save():
-    auto_save_thread = threading.Thread(target=save_loop)
-    auto_save_thread.start()
+def autosave():
+    timer = threading.Timer(1.0, timerAction)
+    timer.start()
+    save()
 
 
 '''

@@ -8,7 +8,7 @@ from channels import CHANNELS
 from other import OTHER
 from admin import ADMIN
 from workspace import workspace
-from data_store import data_store
+from data_store import data_store, autosave
 
 
 def defaultHandler(err):
@@ -84,5 +84,6 @@ def standup_send():
 
 
 if __name__ == "__main__":
-    APP.run(debug=True,
+    autosave()
+    APP.run(debug=False,
             port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
