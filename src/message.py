@@ -331,10 +331,44 @@ def message_pin():
 
     return dumps({})
     
-
+@MESSAGE.route("/unpin", methods=['POST'])
 def message_unpin(token, message_id):
-    return {
-    }
+
+    '''
+    Function that will remove the 'pinned' status of a message.
+    '''
+
+    payload = request.get_json()
+
+    token = payload['token']
+    token_info = decode_token(token)
+    user_id = token_info['u_id']
+
+    channel_id = payload['channel_id']
+    channel_info = helpers.get_channel(channel_id)
+
+    message_id = payload['message_id']
+    message_info = helpers.get_message(message_id, channel_id)
+
+    if message_info == None:
+        raise InputError(
+            description='message_id is not a valid message')
+    
+    if not helpers.is_user_admin(user_id, channel_id):
+        raise InputError(
+            description='User is not an admin')
+    
+    if not helpers.is_pinned(message_id, channel_id):
+        raise InputError(
+            description='Message is not pinned')
+    
+    if not helpers.is_channel_member(user_id, channel_id):
+        raise AccessError(
+            description='User is not a member of the channel')
+
+    message_info['is_pinned'] = 0
+
+    return dumps({})
 
 if __name__ == "__main__":
     APP.run(debug=True,

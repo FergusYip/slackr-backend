@@ -3,11 +3,11 @@ import pickle
 from json import dumps
 from flask import Flask
 from flask_cors import CORS
+from admin import ADMIN
 from auth import AUTH
 from channels import CHANNELS
 from other import OTHER
-from admin import ADMIN
-from workspace import workspace
+from workspace import WORKSPACE
 from data_store import data_store, autosave
 
 AUTOSAVE_ENABLED = True
@@ -36,7 +36,7 @@ APP.register_blueprint(ADMIN, url_prefix='/admin')
 APP.register_blueprint(AUTH, url_prefix='/auth')
 APP.register_blueprint(CHANNELS, url_prefix='/channels')
 APP.register_blueprint(OTHER)
-APP.register_blueprint(workspace)
+APP.register_blueprint(WORKSPACE)
 
 
 @APP.route('/save', methods=['POST'])
