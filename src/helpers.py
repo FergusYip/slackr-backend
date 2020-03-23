@@ -307,5 +307,21 @@ def message_remove_reaction(react_dict, message_id, channel_id):
                     message['reacts'].remove(react_dict)
                     break
 
+def message_pin(message_id, channel_id):
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            for message in channel['messages']:
+                if message_id == message['message_id']:
+                    message['is_pinned'] = True
+                    break
+
+def message_unpin(message_id, channel_id):
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            for message in channel['messages']:
+                if message_id == message['message_id']:
+                    message['is_pinned'] = False
+                    break
+
 if __name__ == '__main__':
     pass

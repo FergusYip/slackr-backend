@@ -1,14 +1,15 @@
+'''
+Functionality to provide messaging services between users on the program. Will
+allow users to send messages, react to messages, pin messages, and alter/remove
+their own messages.
+'''
+
 import sys
-import jwt
-import math
-import hashlib
 from json import dumps
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError, InputError
-from email_validation import invalid_email
-from datetime import datetime, timedelta, timezone
-from data_store import data_store, SECRET
+from data_store import data_store
 from token_validation import decode_token
 import helpers
 
@@ -25,12 +26,13 @@ def generate_message_id(channel_id):
     Function that will generate a unique message_id within a specific channel.
     '''
 
-    channel_info = get_channel(channel_id)
+    channel_info = helpers.get_channel(channel_id)
     if not channel_info['messages']:
-        messageID = 1
+        message_id = 1
     else:
-        messageIDs = [message['message_id'] for message in channel_info['messages']]
-        messageID = max(messageIDs) + 1
+        message_ids = [message['message_id'] for message in channel_info['messages']]
+        message_id = max(message_ids) + 1
+    return message_id
 
 @MESSAGE.route("/send", methods=['POST'])
 def message_send():
@@ -46,13 +48,13 @@ def message_send():
     token_info = decode_token(token)
     user_id = token_info['u_id']
 
+    channel_id = payload['channel_id']
+    channel_info = helpers.get_channel(channel_id)
+
     message = payload['message']
     message_id = generate_message_id(channel_id)
 
     time_now = helpers.utc_now()
-
-    channel_id = payload['channel_id']
-    channel_info = helpers.get_channel(channel_id)
 
     if len(message) > 1000:
         raise InputError(
@@ -100,7 +102,7 @@ def message_remove():
 
     message_info = helpers.get_message(message_id, channel_id)
 
-    if helpers.get_message(message_id, channel_id) == None:
+    if helpers.get_message(message_id, channel_id) is None:
         raise InputError(
             description='Message does not exist')
 
@@ -130,7 +132,6 @@ def message_edit():
     new_message = payload['message']
 
     channel_id = payload['channel_id']
-    channel_info = helpers.get_channel(channel_id)
 
     message_info = helpers.get_message(message_id, channel_id)
 
@@ -167,13 +168,13 @@ def message_sendlater():
 
     time_sent = payload['time_sent']
 
-    message = payload['message']
-    message_id = generate_message_id(channel_id)
-
     channel_id = payload['channel_id']
     channel_info = helpers.get_channel(channel_id)
 
-    if helpers.get_channel(channel_id) == None:
+    message = payload['message']
+    message_id = generate_message_id(channel_id)
+
+    if helpers.get_channel(channel_id) is None:
         raise InputError(
             description='Channel ID is invalid')
 
@@ -209,16 +210,14 @@ def message_react():
     token_info = decode_token(token)
     user_id = token_info['u_id']
 
+    channel_id = payload['channel_id']
+
     message_id = payload['message_id']
-    message_info = helpers.get_message(message_id, channel_id)
 
     react_id = payload['react_id']
 
-    channel_id = payload['channel_id']
-    channel_info = helpers.get_channel(channel_id)        
-
     if helpers.is_channel_member(user_id, channel_id):
-        if helpers.get_message(message_id, channel_id) == None:
+        if helpers.get_message(message_id, channel_id) is None:
             raise InputError(
                 description='Message does not exist')
 
@@ -232,7 +231,7 @@ def message_react():
 
     react_info = helpers.get_react(message_id, channel_id, react_id)
 
-    if react_info == None:
+    if react_info is None:
         # If there are no reacts with react_id present yet.
         u_ids_reacted = [user_id]
         react_addition = {
@@ -260,23 +259,21 @@ def message_unreact():
     user_id = token_info['u_id']
 
     channel_id = payload['channel_id']
-    channel_info = helpers.get_channel(channel_id)
 
     message_id = payload['message_id']
-    message_info = helpers.get_message(message_id, channel_id)
 
     react_id = payload['react_id']
 
     if helpers.is_channel_member(user_id, channel_id):
-        if helpers.get_message(message_id, channel_id) == None:
+        if helpers.get_message(message_id, channel_id) is None:
             raise InputError(
                 description='Message does not exist')
-    
+
     if react_id not in data_store['reactions'].values():
         raise InputError(
             description='react_id is invalid')
-    
-    if helpers.get_react(message_id, channel_id, react_id) == None:
+
+    if helpers.get_react(message_id, channel_id, react_id) is None:
         raise InputError(
             description='Message does not have this type of reaction')
 
@@ -285,14 +282,14 @@ def message_unreact():
     if user_id not in react_removal['u_ids']:
         raise InputError(
             description='User has not reacted to this message')
-    
+
     if len(react_removal) == 1:
         # If the current user is the only reaction on the message.
-        helpers.message_remove_reaction(react_removal, message_id, channel_id)    
+        helpers.message_remove_reaction(react_removal, message_id, channel_id)
     else:
         # If there are other u_ids reacting with the same react ID.
         helpers.message_remove_react_uid(user_id, message_id, channel_id, react_id)
-    
+
     return dumps({})
 
 @MESSAGE.route("/pin", methods=['POST'])
@@ -310,31 +307,30 @@ def message_pin():
     user_id = token_info['u_id']
 
     channel_id = payload['channel_id']
-    channel_info = helpers.get_channel(channel_id)
 
     message_id = payload['message_id']
     message_info = helpers.get_message(message_id, channel_id)
 
-    if message_info == None:
+    if message_info is None:
         raise InputError(
-            description='message_id is not a valid message')
-    
+            description='Message is invalid')
+
     if not helpers.is_user_admin(user_id, channel_id):
         raise InputError(
             description='User is not an admin')
-    
+
     if helpers.is_pinned(message_id, channel_id):
         raise InputError(
             description='Message is already pinned')
-    
+
     if not helpers.is_channel_member(user_id, channel_id):
         raise AccessError(
             description='User is not a member of the channel')
-    
-    message_info['is_pinned'] = 1
+
+    helpers.message_pin(message_id, channel_id)
 
     return dumps({})
-    
+
 @MESSAGE.route("/unpin", methods=['POST'])
 def message_unpin(token, message_id):
 
@@ -349,28 +345,27 @@ def message_unpin(token, message_id):
     user_id = token_info['u_id']
 
     channel_id = payload['channel_id']
-    channel_info = helpers.get_channel(channel_id)
 
     message_id = payload['message_id']
     message_info = helpers.get_message(message_id, channel_id)
 
-    if message_info == None:
+    if message_info is None:
         raise InputError(
             description='message_id is not a valid message')
-    
+
     if not helpers.is_user_admin(user_id, channel_id):
         raise InputError(
             description='User is not an admin')
-    
+
     if not helpers.is_pinned(message_id, channel_id):
         raise InputError(
             description='Message is not pinned')
-    
+
     if not helpers.is_channel_member(user_id, channel_id):
         raise AccessError(
             description='User is not a member of the channel')
 
-    message_info['is_pinned'] = 0
+    helpers.message_unpin(message_id, channel_id)
 
     return dumps({})
 
