@@ -8,7 +8,7 @@ from auth import AUTH
 from channels import CHANNELS
 from other import OTHER
 from admin import admin
-from workspace import workspace
+from workspace import WORKSPACE
 from data_store import data_store
 
 
@@ -34,7 +34,7 @@ APP.register_blueprint(admin, url_prefix='/admin')
 APP.register_blueprint(AUTH, url_prefix='/auth')
 APP.register_blueprint(CHANNELS, url_prefix='/channels')
 APP.register_blueprint(OTHER)
-APP.register_blueprint(workspace)
+APP.register_blueprint(WORKSPACE)
 
 
 def load_state():
