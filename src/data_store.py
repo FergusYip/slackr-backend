@@ -1,17 +1,37 @@
+import time
+import threading
+import pickle
+
 SECRET = 'the chunts'
 
-data_store = {
-    'users': [],
-    'channels': [],
-    'token_blacklist': [],
-    'permissions': {
-        'owner': 1,
-        'member': 2
-    },
-    'reactions': {
-        'thumbs_up': 1
+try:
+    FILE = open('data_store.p', 'rb')
+    data_store = pickle.load(FILE)
+except FileNotFoundError:
+    data_store = {
+        'users': [],
+        'channels': [],
+        'token_blacklist': [],
+        'permissions': {
+            'owner': 1,
+            'member': 2
+        },
+        'reactions': {
+            'thumbs_up': 1
+        }
     }
-}
+
+
+def save_loop():
+    while True:
+        time.sleep(2)
+        pickle.dump(data_store, open('data_store.p', 'wb'))
+
+
+def auto_save():
+    auto_save_thread = threading.Thread(target=save_loop)
+    auto_save_thread.start()
+
 
 '''
 Sample Data Store Structure
