@@ -1,7 +1,18 @@
+from datetime import datetime, timedelta
 import jwt
 from error import AccessError
 from data_store import data_store, SECRET
 from helpers import get_all_u_id
+
+
+def encode_token(u_id):
+    payload = {
+        'u_id': u_id,
+        'iat': datetime.utcnow().timestamp(),
+        'exp': datetime.utcnow() + timedelta(minutes=30)
+    }
+    token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
+    return token
 
 
 def decode_token(token):
