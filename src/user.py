@@ -1,11 +1,14 @@
+'''
+Functionality for users of the program to get other user's profile information,
+as well as change their own personal information.
+'''
+
 import sys
-import jwt
 from json import dumps
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
-from error import AccessError, InputError
+from error import InputError
 from email_validation import invalid_email
-from data_store import data_store, SECRET
 from token_validation import decode_token
 import helpers
 
@@ -27,17 +30,19 @@ def user_profile():
     payload = request.get_json()
 
     token = payload['token']
-    token_info = decode_token(token)
-    user_id = token_info['u_id']
 
-    target_user = u_id
+    # By calling the decode function, multiple error checks are performed.
+    decode_token(token)
 
-    if not get_user(target_user):
+    # The user ID of the person you want information for.
+    target_user = payload['u_id']
+
+    if not helpers.get_user(target_user):
         raise InputError(
             description='User ID is not a valid user')
-    
-    user_info = get_user(target_user)
-    
+
+    user_info = helpers.get_user(target_user)
+
     return dumps(user_info)
 
 @USER.route('/profile/setname', methods='PUT')
@@ -54,14 +59,14 @@ def user_profile_setname():
     token_info = decode_token(token)
     user_id = token_info['u_id']
 
-    first_name = name_first
-    last_name = name_last 
+    first_name = payload['name_first']
+    last_name = payload['name_last']
 
-    if not helpers.check_name(first_name):
+    if not helpers.user_check_name(first_name):
         raise InputError(
             description='First name is not between 1 and 50 characters')
-    
-    if not helpers.check_name(last_name):
+
+    if not helpers.user_check_name(last_name):
         raise InputError(
             description='Last name is not between 1 and 50 characters')
 
@@ -99,7 +104,7 @@ def user_profile_setemail(token, email):
 
 @USER.route('/profile/sethandle', methods='PUT')
 def user_profile_sethandle(token, handle_str):
-    
+
     '''
     Function that will take a desired handle and will change the authorized
     user's information to reflect this new handle.
