@@ -7,7 +7,7 @@ from error import InputError
 from auth import AUTH
 from channels import CHANNELS
 from other import OTHER
-from admin import admin
+from admin import ADMIN
 from workspace import workspace
 from data_store import data_store
 
@@ -30,7 +30,7 @@ CORS(APP)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
-APP.register_blueprint(admin, url_prefix='/admin')
+APP.register_blueprint(ADMIN, url_prefix='/admin')
 APP.register_blueprint(AUTH, url_prefix='/auth')
 APP.register_blueprint(CHANNELS, url_prefix='/channels')
 APP.register_blueprint(OTHER)
