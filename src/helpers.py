@@ -222,6 +222,48 @@ def get_permissions():
 	"""
     return data_store['permissions'].values()
 
+def user_change_first_last_name(u_id, first_name, last_name):
+    for user in data_store['users']:
+        if user['u_id'] == u_id:
+            user['name_first'] = first_name
+            user['name_last'] = last_name
+            break
+
+def user_change_email(u_id, email):
+    for user in data_store['users']:
+        if user['u_id'] == u_id:
+            user['email'] = email
+            break
+
+def user_check_name(name):
+    if 1 <= len(name) <= 50:
+        return True
+    else: 
+        return False
+
+def is_email_used(email):
+    for user in data_store['users']:
+        if user['email'] == email:
+            return True
+    return False
+
+def is_handle_used(handle):
+    for user in data_store['users']:
+        if user['handle_str'] == handle:
+            return True
+    return False
+
+def handle_length_check(handle):
+    if 2 <= len(handle) <= 20:
+        return True
+    else:
+        return False
+
+def user_change_handle(u_id, handle):
+    for user in data_store['users']:
+        if user['u_id'] == u_id:
+            user['handle_str'] = handle
+            break
 
 if __name__ == '__main__':
     pass
