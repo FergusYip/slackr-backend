@@ -1,5 +1,7 @@
 import sys
 import pickle
+import time
+import threading
 from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
@@ -39,10 +41,21 @@ APP.register_blueprint(workspace)
 
 def load_state():
     try:
-        FILE = open('data_store.p', 'rb')
-        data_store = pickle.load(FILE)
-    except Exception:
+        file = open('data_store.p', 'rb')
+        data_store = pickle.load(file)
+    except FileNotFoundError:
         data_store = {'users': [], 'channels': [], 'tokens': []}
+
+
+def auto_save():
+    while True:
+        pickle.dump(data_store, open('data_store.p', 'wb'))
+        time.sleep(1)
+
+
+def thread_save():
+    auto_save_thread = threading.Thread(target=auto_save)
+    auto_save_thread.start()
 
 
 @APP.route('/save', methods=['POST'])
@@ -93,5 +106,6 @@ def standup_send():
 
 if __name__ == "__main__":
     load_state()
+    thread_save()
     APP.run(debug=True,
             port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
