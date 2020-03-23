@@ -10,6 +10,9 @@ from admin import ADMIN
 from workspace import workspace
 from data_store import data_store, autosave
 
+AUTOSAVE_ENABLED = True
+DEBUG_MODE = not AUTOSAVE_ENABLED  # Do not change this line
+
 
 def defaultHandler(err):
     response = err.get_response()
@@ -84,6 +87,7 @@ def standup_send():
 
 
 if __name__ == "__main__":
-    autosave()
-    APP.run(debug=False,
+    if AUTOSAVE_ENABLED:
+        autosave()
+    APP.run(debug=DEBUG_MODE,
             port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
