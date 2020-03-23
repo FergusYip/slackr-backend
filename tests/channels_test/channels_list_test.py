@@ -1,47 +1,54 @@
+import requests
 import pytest
-import auth
-import channel
-import channels
 from error import InputError, AccessError
 
+BASE_URL = 'http://127.0.0.1:8080'
 
-def test_list(test_user):
+
+def test_list_return_type(reset, new_user, make_join_channel):
+    user = new_user()
+    make_join_channel(user, 'Channel')
+
+    list_input = {'token': user['token']}
+    channels_list = requests.get(f'{BASE_URL}/channels/list',
+                                 json=list_input).json()['channels']
+    assert isinstance(channels_list, list)
+    assert isinstance(channels_list[0], dict)
+    assert isinstance(channels_list[0]['channel_id'], int)
+    assert isinstance(channels_list[0]['name'], str)
+
+
+def test_list(reset, new_user, make_join_channel):
     '''Test that channels_list only returns channels the user is in'''
 
-    joined_1 = channels.channels_create(test_user['token'], 'One', True)
-    joined_2 = channels.channels_create(test_user['token'], 'Two', True)
-    not_joined = channels.channels_create(test_user['token'], 'Three', True)
+    user_1 = new_user(email='user_1@email.com')
+    user_2 = new_user(email='user_2@email.com')
 
-    channel.channel_join(test_user['token'], joined_1['channel_id'])
-    channel.channel_join(test_user['token'], joined_2['channel_id'])
+    make_join_channel(user_1, 'User 1 Channel')
 
-    joined_channel_ids = [joined_1['channel_id'], joined_2['channel_id']]
+    list_input_1 = {'token': user_1['token']}
+    user_1_channels = requests.get(f'{BASE_URL}/channels/list',
+                                   json=list_input_1).json()
 
-    joined_channels = channels.channels_list(test_user['token'])['channels']
-    assert len(joined_channels) == 2
+    list_input_2 = {'token': user_2['token']}
+    user_2_channels = requests.get(f'{BASE_URL}/channels/list',
+                                   json=list_input_2).json()
 
-    for chan in joined_channels:
-        assert chan['channel_id'] in joined_channel_ids
-        assert chan['channel_id'] != not_joined['channel_id']
-
-
-def test_list_return_type(test_user, make_join_channel):
-    test_channel = make_join_channel(test_user, 'Channel')
-    all_channels = channels.channels_list(test_user['token'])['channels']
-    assert isinstance(all_channels, list)
-    assert isinstance(all_channels[0], dict)
-    assert isinstance(all_channels[0]['channel_id'], int)
-    assert isinstance(all_channels[0]['name'], str)
+    assert len(user_1_channels['channels']) == 1
+    assert len(user_2_channels['channels']) == 0
 
 
-def test_list_no_channels(test_user):
+def test_list_no_channels(reset, new_user):
     '''Test that channels_list doesn't return any channels when there aren't any'''
+    user = new_user()
+    list_input = {'token': user['token']}
+    channels_list = requests.get(f'{BASE_URL}/channels/list',
+                                 json=list_input).json()['channels']
+    assert len(channels_list) == 0
 
-    all_channels = channels.channels_list(test_user['token'])['channels']
-    assert len(all_channels) == 0
 
-
-def test_list_invalid_token(invalid_token):
+def test_list_invalid_token(reset, invalid_token):
     '''Test that channels_list raises an AccessError when given invalid token'''
+    list_input = {'token': invalid_token}
     with pytest.raises(AccessError):
-        channels.channels_list(invalid_token)
+        requests.get(f'{BASE_URL}/channels/list', json=list_input).json()

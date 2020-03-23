@@ -1,21 +1,14 @@
 import sys
-import jwt
 import math
 import hashlib
 from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
-from error import AccessError, InputError
+from flask import request, Blueprint
+from error import InputError
 from email_validation import invalid_email
-from datetime import datetime, timedelta
-from data_store import data_store, SECRET, OWNER, MEMBER
+from data_store import data_store
+from token_validation import decode_token, encode_token
 
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
-
-auth = Blueprint('auth', __name__)
+AUTH = Blueprint('auth', __name__)
 
 
 def invalid_password(password):
@@ -30,11 +23,26 @@ def invalid_name(name):
     return True
 
 
-def generate_token(u_id):
-    payload = {'u_id': u_id, 'exp': datetime.utcnow() + timedelta(minutes=30)}
-    token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
-    data_store['tokens'].append(token)
-    return token
+def get_user(email):
+    for user in data_store['users']:
+        if email == user['email']:
+            return user
+    return None
+
+
+def generate_u_id():
+    if not data_store['users']:
+        return 1
+    else:
+        u_ids = [user['u_id'] for user in data_store['users']]
+        return max(u_ids) + 1
+
+
+def set_default_permission():
+    if not data_store['users']:
+        return data_store['permissions']['owner']
+    else:
+        return data_store['permissions']['member']
 
 
 def hash_pw(password):
@@ -69,13 +77,13 @@ def generate_handle(name_first, name_last):
     return handle_str
 
 
-@auth.route("/register", methods=['POST'])
+@AUTH.route("/register", methods=['POST'])
 def auth_register():
-
-    email = request.args.get('email')
-    password = request.args.get('password')
-    name_first = request.args.get('name_first')
-    name_last = request.args.get('name_last')
+    payload = request.get_json()
+    email = payload['email']
+    password = payload['password']
+    name_first = payload['name_first']
+    name_last = payload['name_last']
 
     if invalid_password(password):
         raise InputError(
@@ -94,20 +102,11 @@ def auth_register():
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
 
-    for user in data_store['users']:
-        if email == user['email']:
-            raise InputError(
-                description=
-                'Email address is already being used by another user')
+    if get_user(email) is not None:
+        raise InputError(
+            description='Email address is already being used by another user')
 
-    if not data_store['users']:
-        u_id = 1
-        permission_id = OWNER
-    else:
-        u_ids = [user['u_id'] for user in data_store['users']]
-        u_id = max(u_ids) + 1
-        permission_id = MEMBER
-
+    u_id = generate_u_id()
     user = {
         'u_id': u_id,
         'email': email,
@@ -115,56 +114,54 @@ def auth_register():
         'name_first': name_first,
         'name_last': name_last,
         'handle_str': generate_handle(name_first, name_last),
-        'permission_id': permission_id
+        'permission_id': set_default_permission(),
     }
 
     data_store['users'].append(user)
 
     return dumps({
         'u_id': u_id,
-        'token': generate_token(u_id),
+        'token': encode_token(u_id),
     })
 
 
-@auth.route("/login", methods=['POST'])
+@AUTH.route("/login", methods=['POST'])
 def auth_login():
+    payload = request.get_json()
+    email = payload['email']
+    password = payload['password']
 
-    email = request.args.get('email')
-    password = request.args.get('password')
+    user = get_user(email)
 
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
 
-    for user in data_store['users']:
-        if user['email'] == email and user['password'] == hash_pw(password):
-            return dumps({
-                'u_id': user['u_id'],
-                'token': generate_token(user['u_id'])
-            })
-        elif user['email'] == email and user['password'] != hash_pw(password):
-            raise InputError(description='Password is not correct')
+    if not user:
+        raise InputError(description='Email entered does not belong to a user')
 
-    # If email does not match any user in data store
-    raise InputError(description='Email entered does not belong to a user')
+    if user['password'] != hash_pw(password):
+        raise InputError(description='Password is not correct')
+
+    if user['password'] == hash_pw(password):
+        return dumps({
+            'u_id': user['u_id'],
+            'token': encode_token(user['u_id'])
+        })
 
 
-@auth.route("/logout", methods=['POST'])
+@AUTH.route("/logout", methods=['POST'])
 def auth_logout():
+    payload = request.get_json()
+    token = payload['token']
 
-    token = request.args.get('token')
+    decode_token(token)
+    data_store['token_blacklist'].append(token)
 
-    try:
-        jwt.decode(token.encode('utf-8'), SECRET)
-    except:
-        raise AccessError(description='Unable to logout due to invalid token')
-
-    if token in data_store['tokens']:
-        data_store['tokens'].remove(token)
+    if token in data_store['token_blacklist']:
         return dumps({'is_success': True})
     else:
         return dumps({'is_success': False})
 
 
 if __name__ == "__main__":
-    APP.run(debug=True,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    pass
