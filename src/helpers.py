@@ -40,22 +40,6 @@ def get_message(message_id, channel_id):
     return None
 
 
-def message_existance(message_id, channel_id):
-    """ Returns whether a message with message_id exists in channel with channel_id
-
-	Parameters:
-		message_id (int): The id of the message
-		channel_id (int): The id of the channel containing the message
-
-	Returns:
-		(bool): Whether the message is in channel
-
-	"""
-    if get_message(message_id, channel_id) is not None:
-        return True
-    return False
-
-
 def get_user(u_id):
     """ Returns a user with u_id
 
@@ -157,6 +141,8 @@ def get_react(message_id, channel_id, react_id):
 
 	"""
     message = get_message(message_id, channel_id)
+    if message == None:
+        return None
     for react in message['reacts']:
         if react_id == react['react_id']:
             return react
@@ -264,6 +250,62 @@ def user_change_handle(u_id, handle):
         if user['u_id'] == u_id:
             user['handle_str'] = handle
             break
+
+def message_send_message(message_dict, channel_id):
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            channel['messages'].append(message_dict)
+            break
+
+def message_remove_message(message_dict, channel_id):
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            channel['messages'].remove(message_dict)
+            break
+
+def message_edit_message(new_message, message_id, channel_id):
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            for message in channel['messages']:
+                if message_id == message['message_id']:
+                    message['message'] = new_message
+                    break
+
+def message_add_react(react_dict, message_id, channel_id):
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            for message in channel['messages']:
+                if message_id == message['message_id']:
+                    message['reacts'].append(react_dict)
+                    break
+
+def message_add_react_uid(user_id, message_id, channel_id, react_id):
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            for message in channel['messages']:
+                if message_id == message['message_id']:
+                    for react in message['reacts']:
+                        if react_id == react['react_id']:
+                            react['u_ids'].append(user_id)
+                            break
+
+def message_remove_react_uid(user_id, message_id, channel_id, react_id):
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            for message in channel['messages']:
+                if message_id == message['message_id']:
+                    for react in message['reacts']:
+                        if react_id == react['react_id']:
+                            react['u_ids'].remove(user_id)
+                            break
+
+def message_remove_reaction(react_dict, message_id, channel_id):
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            for message in channel['messages']:
+                if message_id == message['message_id']:
+                    message['reacts'].remove(react_dict)
+                    break
 
 if __name__ == '__main__':
     pass

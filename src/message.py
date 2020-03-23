@@ -36,7 +36,8 @@ def generate_message_id(channel_id):
 def message_send():
 
     '''
-    Function that will send a message to a desired channel.
+    Function that will take in a string as a message
+    and append this message to a channel's list of messages.
     '''
 
     payload = request.get_json()
@@ -65,7 +66,7 @@ def message_send():
         raise AccessError(
             description='User does not have Access to send messages in the current channel')
 
-    message = {
+    message_info = {
         'message_id': message_id,
         'u_id': user_id,
         'message': message,
@@ -74,7 +75,7 @@ def message_send():
         'is_pinned': False
     }
 
-    channel_info['messages'].append(message)
+    helpers.message_send_message(message_info, channel_id)
 
     return dumps({
         'message_id': message_id
@@ -84,7 +85,8 @@ def message_send():
 def message_remove():
 
     '''
-    Function that will remove a message from a desired channel.
+    Function that will take in a message ID and remove this
+    message from the list of messages in a specific channel.
     '''
 
     payload = request.get_json()
@@ -94,13 +96,11 @@ def message_remove():
     user_id = token_info['u_id']
 
     message_id = payload['message_id']
-
     channel_id = payload['channel_id']
-    channel_info = helpers.get_channel(channel_id)
 
-    message_info = helpers.get_message(message_id)
+    message_info = helpers.get_message(message_id, channel_id)
 
-    if not helpers.message_existance(message_id):
+    if helpers.get_message(message_id, channel_id) == None:
         raise InputError(
             description='Message does not exist')
 
@@ -108,7 +108,7 @@ def message_remove():
         raise AccessError(
             description='User does not have access to remove this message')
 
-    channel_info['messages'].remove(message_info)
+    helpers.message_remove_message(message_info, channel_id)
 
     return dumps({})
 
@@ -116,7 +116,8 @@ def message_remove():
 def message_edit():
 
     '''
-    Function that will edit an existing message within a desired channel.
+    Function that will take in a new message that will overwrite
+    an existing message in a desired channel.
     '''
 
     payload = request.get_json()
@@ -131,7 +132,7 @@ def message_edit():
     channel_id = payload['channel_id']
     channel_info = helpers.get_channel(channel_id)
 
-    message_info = helpers.get_message(message_id)
+    message_info = helpers.get_message(message_id, channel_id)
 
     if len(new_message) > 1000:
         raise InputError(
@@ -142,9 +143,9 @@ def message_edit():
             description='User does not have access to remove this message')
 
     if len(new_message) == 0:
-        channel_info['messages'].remove(message_info)
+        helpers.message_remove_message(message_info, channel_id)
     else:
-        message_info['message'] = new_message
+        helpers.message_edit_message(new_message, message_id, channel_id)
 
     return dumps({})
 
@@ -209,20 +210,21 @@ def message_react():
     user_id = token_info['u_id']
 
     message_id = payload['message_id']
-    message_info = helpers.get_message(message_id)
+    message_info = helpers.get_message(message_id, channel_id)
 
     react_id = payload['react_id']
 
     channel_id = payload['channel_id']
-    channel_info = helpers.get_channel(channel_id)
+    channel_info = helpers.get_channel(channel_id)        
 
-    if not helpers.check_message_channel_permissions(message_id, channel_id, u_id):
-        raise InputError(
-            description='Message ID does not exist')
+    if helpers.is_channel_member(user_id, channel_id):
+        if helpers.get_message(message_id, channel_id) == None:
+            raise InputError(
+                description='Message does not exist')
 
     if react_id not in data_store['reactions'].values():
         raise InputError(
-            description='react_id is invalid')
+            description='Reaction type is invalid')
 
     if helpers.has_user_reacted(user_id, message_id, channel_id, react_id):
         raise InputError(
@@ -231,17 +233,16 @@ def message_react():
     react_info = helpers.get_react(message_id, channel_id, react_id)
 
     if react_info == None:
-        # If there is no react with react_id present yet.
+        # If there are no reacts with react_id present yet.
         u_ids_reacted = [user_id]
         react_addition = {
             'react_id': react_id,
             'u_ids': u_ids_reacted
         }
-        message_info['reacts'].append(react_info)
+        helpers.message_add_react(react_addition, message_id, channel_id)
     else:
-        # If another user has already reacted with react_id
-        u_ids_already_reacted = react_info['u_ids']
-        u_ids_already_reacted.append(user_id)
+        # If another user has already reacted with react_id.
+        helpers.message_add_react_uid(user_id, message_id, channel_id, react_id)
 
     return dumps({})
 
@@ -266,9 +267,10 @@ def message_unreact():
 
     react_id = payload['react_id']
 
-    if not helpers.check_message_channel_permissions(message_id, channel_id, user_id):
-        raise InputError(
-            description='Message ID is invalid')
+    if helpers.is_channel_member(user_id, channel_id):
+        if helpers.get_message(message_id, channel_id) == None:
+            raise InputError(
+                description='Message does not exist')
     
     if react_id not in data_store['reactions'].values():
         raise InputError(
@@ -285,9 +287,11 @@ def message_unreact():
             description='User has not reacted to this message')
     
     if len(react_removal) == 1:
-        message_info['reacts'].remove(react_removal)
+        # If the current user is the only reaction on the message.
+        helpers.message_remove_reaction(react_removal, message_id, channel_id)    
     else:
-        react_removal['u_ids'].remove(user_id)
+        # If there are other u_ids reacting with the same react ID.
+        helpers.message_remove_react_uid(user_id, message_id, channel_id, react_id)
     
     return dumps({})
 
