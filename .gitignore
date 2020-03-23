@@ -127,7 +127,7 @@ dmypy.json
 *.py~
 
 # Pickles
-.p
+*.p
 
 # VSCode
 .vscode
