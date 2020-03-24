@@ -31,11 +31,8 @@ def get_user(email):
 
 
 def generate_u_id():
-    if not data_store['users']:
-        return 1
-    else:
-        u_ids = [user['u_id'] for user in data_store['users']]
-        return max(u_ids) + 1
+    data_store['max_ids']['u_id'] += 1
+    return data_store['max_ids']['u_id']
 
 
 def set_default_permission():
