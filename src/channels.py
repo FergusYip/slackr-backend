@@ -2,7 +2,7 @@ import sys
 from json import dumps
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
-from error import AccessError, InputError
+from error import InputError
 from data_store import data_store
 from token_validation import decode_token
 
