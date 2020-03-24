@@ -26,22 +26,12 @@ def generate_message_id():
     Function that will generate a unique message_id within a specific channel.
     '''
 
-<<<<<<< HEAD
     message_id = data_store['max_ids']['message_id'] + 1
 
     data_store['max_ids']['message_id'] = message_id
 
     return message_id
     
-=======
-    channel_info = helpers.get_channel(channel_id)
-    if not channel_info['messages']:
-        message_id = 1
-    else:
-        message_ids = [message['message_id'] for message in channel_info['messages']]
-        message_id = max(message_ids) + 1
-    return message_id
->>>>>>> iteration2
 
 @MESSAGE.route("/send", methods=['POST'])
 def message_send():
