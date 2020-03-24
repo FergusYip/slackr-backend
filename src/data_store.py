@@ -1,6 +1,7 @@
 import time
 import threading
 import pickle
+from datetime import datetime
 
 SECRET = 'the chunts'
 
@@ -23,7 +24,8 @@ except FileNotFoundError:
             'u_id': 0,
             'channel_id': 0,
             'message_id': 0,
-        }
+        },
+        'time_created': int(datetime.utcnow().timestamp())
     }
 
 

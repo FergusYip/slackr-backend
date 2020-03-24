@@ -27,8 +27,8 @@ def channel_invite():
     payload = request.get_json()
 
     token = payload['token']
-    c_id = payload['channel_id']
-    invited = payload['u_id']
+    c_id = int(payload['channel_id'])
+    invited = int(payload['u_id'])
 
     token_data = decode_token(token)
 
@@ -64,7 +64,7 @@ def channel_details():
 
     token_data = decode_token(token)
 
-    auth_user = token_data['u_id']
+    auth_user = int(token_data['u_id'])
 
     # if channel doesn't exist.
     if helpers.get_channel(c_id) is None:
@@ -115,8 +115,8 @@ def channel_messages():
     token = request.values.get('token')
     token_data = decode_token(token)
 
-    c_id = request.values.get('channel_id')
-    start = request.values.get('start')
+    c_id = int(request.values.get('channel_id'))
+    start = int(request.values.get('start'))
     channel = helpers.get_channel(c_id)
 
     messages = {'messages': [], 'start': start, 'end': start + 50}
@@ -176,7 +176,7 @@ def channel_leave():
     token = payload['token']
     token_data = decode_token(token)
 
-    c_id = payload['channel_id']
+    c_id = int(payload['channel_id'])
     channel = helpers.get_channel(c_id)
 
     # input error if channel doesn't exist.
@@ -206,9 +206,9 @@ def channel_join():
     token = payload['token']
     token_data = decode_token(token)
 
-    c_id = payload['channel_id']
+    c_id = int(payload['channel_id'])
     channel = helpers.get_channel(c_id)
-    user = token_data['u_id']
+    user = int(token_data['u_id'])
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -235,10 +235,10 @@ def channel_addowner():
     token = payload['token']
     token_data = decode_token(token)
 
-    c_id = payload['channel_id']
+    c_id = int(payload['channel_id'])
     channel = helpers.get_channel(c_id)
-    user = payload['u_id']
-    auth_user = token_data['u_id']
+    user = int(payload['u_id'])
+    auth_user = int(token_data['u_id'])
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -275,10 +275,10 @@ def channel_removeowner():
     token = payload['token']
     token_data = decode_token(token)
 
-    c_id = payload['channel_id']
+    c_id = int(payload['channel_id'])
     channel = helpers.get_channel(c_id)
-    user = payload['u_id']
-    auth_user = token_data['u_id']
+    user = int(payload['u_id'])
+    auth_user = int(token_data['u_id'])
 
     # input error if channel doesn't exist.
     if channel is None:
