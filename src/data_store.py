@@ -18,6 +18,11 @@ except FileNotFoundError:
         },
         'reactions': {
             'thumbs_up': 1
+        },
+        'max_ids': {
+            'u_id': 0,
+            'channel_id': 0,
+            'message_id': 0,
         }
     }
 
@@ -28,7 +33,7 @@ def save():
 
 
 def autosave():
-    timer = threading.Timer(1.0, timerAction)
+    timer = threading.Timer(1.0, autosave)
     timer.start()
     save()
 
