@@ -31,7 +31,7 @@ def generate_message_id():
     data_store['max_ids']['message_id'] = message_id
 
     return message_id
-    
+
 
 @MESSAGE.route("/send", methods=['POST'])
 def message_send():
@@ -171,7 +171,7 @@ def message_sendlater():
     channel_info = helpers.get_channel(channel_id)
 
     message = payload['message']
-    message_id = generate_message_id(channel_id)
+    message_id = generate_message_id()
 
     if helpers.get_channel(channel_id) is None:
         raise InputError(
