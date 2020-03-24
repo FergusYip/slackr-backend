@@ -13,10 +13,10 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-channel = Blueprint('channel', __name__)
+CHANNEL = Blueprint('channel', __name__)
 
 
-@channel.route("/invite", methods=['POST'])
+@CHANNEL.route("/invite", methods=['POST'])
 def channel_invite():
     payload = request.get_json()
 
@@ -47,7 +47,7 @@ def add_into_channel(inviter, c_id, invited):
                 channel['all_members'].append(invited)
 
 
-@channel.route("/details", methods=['GET'])
+@CHANNEL.route("/details", methods=['GET'])
 def channel_details():
     payload = request.get_json()
 
@@ -78,7 +78,7 @@ def channel_details():
     return dumps({details})
 
 
-@channel.route("/messages", methods=['GET'])
+@CHANNEL.route("/messages", methods=['GET'])
 def channel_messages():
     payload = request.get_json()
 
@@ -135,7 +135,7 @@ def channel_messages():
     return dumps(messages)  # shouldn't it be return dumps({message_info})?
 
 
-@channel.route("/leave", methods=['POST'])
+@CHANNEL.route("/leave", methods=['POST'])
 def channel_leave():
     payload = request.get_json()
 
@@ -162,7 +162,7 @@ def channel_leave():
     return dumps({})
 
 
-@channel.route("/join", methods=['POST'])
+@CHANNEL.route("/join", methods=['POST'])
 def channel_join():
     payload = request.get_json()
 
@@ -188,7 +188,7 @@ def channel_join():
     return dumps({})
 
 
-@channel.route("/addowner", methods=['POST'])
+@CHANNEL.route("/addowner", methods=['POST'])
 def channel_addowner():
     payload = request.get_json()
 
