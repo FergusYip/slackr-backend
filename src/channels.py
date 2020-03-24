@@ -16,13 +16,9 @@ def generate_channel_id():
     return data_store['max_ids']['channel_id']
 
 
-@CHANNELS.route("/list", methods=['GET'])
-def channels_list():
-    token = request.values.get('token')
+def channels_list(token):
     token_payload = decode_token(token)
-
     u_id = token_payload['u_id']
-
     channels = []
     for channel in data_store['channels']:
         if u_id in channel['all_members']:
@@ -32,12 +28,16 @@ def channels_list():
             }
             channels.append(channel_dict)
 
-    return dumps({'channels': channels})
+    return {'channels': channels}
 
 
-@CHANNELS.route("/listall", methods=['GET'])
-def channels_listall():
+@CHANNELS.route("/list", methods=['GET'])
+def route_channels_list():
     token = request.values.get('token')
+    return dumps(channels_list(token))
+
+
+def channels_listall(token):
     decode_token(token)
 
     channels = []
@@ -48,16 +48,16 @@ def channels_listall():
         }
         channels.append(channel_dict)
 
-    return dumps({'channels': channels})
+    return {'channels': channels}
 
 
-@CHANNELS.route("/create", methods=['POST'])
-def channels_create():
-    payload = request.get_json()
-    token = payload['token']
-    name = payload['name']
-    is_public = payload['is_public']
+@CHANNELS.route("/listall", methods=['GET'])
+def route_channels_listall():
+    token = request.values.get('token')
+    return dumps(channels_listall(token))
 
+
+def channels_create(token, name, is_public):
     token_payload = decode_token(token)
 
     if invalid_channel_name(name):
@@ -78,8 +78,16 @@ def channels_create():
     }
 
     data_store['channels'].append(channel)
+    return {'channel_id': channel_id}
 
-    return dumps({'channel_id': channel_id})
+
+@CHANNELS.route("/create", methods=['POST'])
+def route_channels_create():
+    payload = request.get_json()
+    token = payload['token']
+    name = payload['name']
+    is_public = payload['is_public']
+    return dumps(channels_create(token, name, is_public))
 
 
 if __name__ == "__main__":
