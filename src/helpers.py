@@ -323,5 +323,10 @@ def message_unpin(message_id, channel_id):
                     message['is_pinned'] = False
                     break
 
+def channel_join(channel_id, u_id):
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            channel['all_members'].append(u_id)
+
 if __name__ == '__main__':
     pass
