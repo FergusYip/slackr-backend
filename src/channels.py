@@ -18,12 +18,10 @@ def generate_channel_id():
 
 @CHANNELS.route("/list", methods=['GET'])
 def channels_list():
-    payload = request.get_json()
-    token = payload['token']
+    token = request.values.get('token')
+    token_payload = decode_token(token)
 
-    decode_token(token)
-
-    u_id = payload['u_id']
+    u_id = token_payload['u_id']
 
     channels = []
     for channel in data_store['channels']:
@@ -39,9 +37,7 @@ def channels_list():
 
 @CHANNELS.route("/listall", methods=['GET'])
 def channels_listall():
-    payload = request.get_json()
-    token = payload['token']
-
+    token = request.values.get('token')
     decode_token(token)
 
     channels = []
