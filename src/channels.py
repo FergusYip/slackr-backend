@@ -18,6 +18,11 @@ def invalid_channel_name(channel_name):
     return len(channel_name) > 20
 
 
+def generate_channel_id():
+    data_store['max_ids']['channel_id'] += 1
+    return data_store['max_ids']['channel_id']
+
+
 @CHANNELS.route("/list", methods=['GET'])
 def channels_list():
     payload = request.get_json()
@@ -69,13 +74,7 @@ def channels_create():
     if invalid_channel_name(name):
         raise InputError(description='Name is more than 20 characters long')
 
-    if not data_store['channels']:
-        channel_id = 1
-    else:
-        channel_ids = [
-            channel['channel_id'] for channel in data_store['channels']
-        ]
-        channel_id = max(channel_ids) + 1
+    channel_id = generate_channel_id()
 
     u_id = token_payload['u_id']
 
