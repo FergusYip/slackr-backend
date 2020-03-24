@@ -17,7 +17,7 @@ def workspace_reset():
     data_store['max_ids']['channel_id'] = 0
     data_store['max_ids']['message_id'] = 0
 
-    data_store['time_created'] = datetime.utcnow()
+    data_store['time_created'] = int(datetime.utcnow().timestamp())
 
     return dumps({})
 

@@ -25,7 +25,7 @@ except FileNotFoundError:
             'channel_id': 0,
             'message_id': 0,
         },
-        'time_created': datetime.utcnow()
+        'time_created': int(datetime.utcnow().timestamp())
     }
 
 
