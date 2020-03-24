@@ -3,6 +3,7 @@ from json import dumps
 from flask import request, Blueprint
 from data_store import data_store
 from token_validation import decode_token
+from helpers import user_channels, channel_search
 
 OTHER = Blueprint('other', __name__)
 
@@ -46,22 +47,6 @@ def search(token, query_str):
         messages.append(channel_results)
 
     return {'messages': messages}
-
-
-def user_channels(u_id):
-    '''Retrieve a list of a user's joined channels'''
-    return [
-        channel for channel in data_store['channels']
-        if u_id in channel['all_members']
-    ]
-
-
-def channel_search(channel, query_str):
-    '''Retrieve all messages in a channel which contain the query string'''
-    return [
-        message for message in channel['messages']
-        if query_str in message['message']
-    ]
 
 
 if __name__ == "__main__":
