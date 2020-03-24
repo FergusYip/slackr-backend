@@ -222,6 +222,8 @@ def channel_addowner():
 
     channel['owner_members'].append(user)
 
+    return dumps({})
+
 
 def channel_removeowner(token, channel_id, u_id):
     return {}
