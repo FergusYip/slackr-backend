@@ -82,6 +82,12 @@ def auth_register():
     name_first = payload['name_first']
     name_last = payload['name_last']
 
+    if not email or not password or not name_first or not name_last:
+        raise InputError(
+            description=
+            'Insufficient parameters. Requires email, password, name_first, name_last.'
+        )
+
     if invalid_password(password):
         raise InputError(
             description='Password entered is less than 6 characters long')
@@ -128,6 +134,11 @@ def auth_login():
     email = payload['email']
     password = payload['password']
 
+    if not email or not password:
+        raise InputError(
+            description='Insufficient parameters. Requires email and password.'
+        )
+
     user = get_user(email)
 
     if invalid_email(email):
@@ -150,6 +161,10 @@ def auth_login():
 def auth_logout():
     payload = request.get_json()
     token = payload['token']
+
+    if not token:
+        raise InputError(
+            description='Insufficient parameters. Requires token.')
 
     decode_token(token)
     data_store['token_blacklist'].append(token)
