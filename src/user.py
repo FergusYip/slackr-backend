@@ -19,7 +19,7 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 USER = Blueprint('user', __name__)
 
-@USER.route('/profile', methods='GET')
+@USER.route('/profile', methods=['GET'])
 def user_profile():
 
     '''
@@ -27,25 +27,33 @@ def user_profile():
     user on the Slackr platform.
     '''
 
-    payload = request.get_json()
+    u_id = int(request.values.get('u_id'))
 
-    token = payload['token']
+    token = request.values.get('token')
 
     # By calling the decode function, multiple error checks are performed.
     decode_token(token)
 
     # The user ID of the person you want information for.
-    target_user = payload['u_id']
+    target_user = u_id
 
-    if not helpers.get_user(target_user):
+    if helpers.get_user(target_user) is None:
         raise InputError(
             description='User ID is not a valid user')
 
     user_info = helpers.get_user(target_user)
 
-    return dumps(user_info)
+    user_return = {
+        'u_id': user_info['u_id'],
+        'email': user_info['email'],
+        'name_first': user_info['name_first'],
+        'name_last': user_info['name_last'],
+        'handle_str': user_info['handle_str']
+    }
 
-@USER.route('/profile/setname', methods='PUT')
+    return dumps(user_return)
+
+@USER.route('/profile/setname', methods=['PUT'])
 def user_profile_setname():
 
     '''
@@ -74,8 +82,8 @@ def user_profile_setname():
 
     return dumps({})
 
-@USER.route('/profile/setemail', methods='PUT')
-def user_profile_setemail(token, email):
+@USER.route('/profile/setemail', methods=['PUT'])
+def user_profile_setemail():
 
     '''
     Function that will take a desired email and will change
@@ -88,7 +96,7 @@ def user_profile_setemail(token, email):
     token_info = decode_token(token)
     user_id = token_info['u_id']
 
-    desired_email = email
+    desired_email = payload['email']
 
     if invalid_email(desired_email):
         raise InputError(
@@ -102,8 +110,8 @@ def user_profile_setemail(token, email):
 
     return dumps({})
 
-@USER.route('/profile/sethandle', methods='PUT')
-def user_profile_sethandle(token, handle_str):
+@USER.route('/profile/sethandle', methods=['PUT'])
+def user_profile_sethandle():
 
     '''
     Function that will take a desired handle and will change the authorized
@@ -116,7 +124,7 @@ def user_profile_sethandle(token, handle_str):
     token_info = decode_token(token)
     user_id = token_info['u_id']
 
-    desired_handle = handle_str
+    desired_handle = payload['handle_str']
 
     if not helpers.handle_length_check(desired_handle):
         raise InputError(

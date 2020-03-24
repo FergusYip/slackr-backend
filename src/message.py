@@ -20,19 +20,18 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 MESSAGE = Blueprint('message', __name__)
 
-def generate_message_id(channel_id):
+def generate_message_id():
 
     '''
     Function that will generate a unique message_id within a specific channel.
     '''
 
-    channel_info = helpers.get_channel(channel_id)
-    if not channel_info['messages']:
-        message_id = 1
-    else:
-        message_ids = [message['message_id'] for message in channel_info['messages']]
-        message_id = max(message_ids) + 1
+    message_id = data_store['max_ids']['message_id'] + 1
+
+    data_store['max_ids']['message_id'] = message_id
+
     return message_id
+    
 
 @MESSAGE.route("/send", methods=['POST'])
 def message_send():
@@ -52,7 +51,7 @@ def message_send():
     channel_info = helpers.get_channel(channel_id)
 
     message = payload['message']
-    message_id = generate_message_id(channel_id)
+    message_id = generate_message_id()
 
     time_now = helpers.utc_now()
 
