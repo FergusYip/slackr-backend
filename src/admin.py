@@ -1,6 +1,5 @@
 from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
+from flask import request, Blueprint
 from error import AccessError, InputError
 from data_store import data_store
 from token_validation import decode_token

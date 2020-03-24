@@ -63,7 +63,7 @@ def generate_handle(name_first, name_last):
 
         # Remove n number of characters from split_handle
         unique_digits = int(math.log10(unique_modifier)) + 1
-        for n in range(unique_digits):
+        for _ in range(unique_digits):
             split_handle.pop()
 
         split_handle.append(str(unique_modifier))
