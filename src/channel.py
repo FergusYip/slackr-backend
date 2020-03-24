@@ -91,13 +91,12 @@ def channel_messages():
     '''
     Implementing invite function by appending user to channel['all_members']
     '''
-    payload = request.get_json()
 
-    token = payload['token']
+    token = request.values.get('token')
     token_data = decode_token(token)
 
-    c_id = payload['channel_id']
-    start = payload['start']
+    c_id = request.values.get('channel_id')
+    start = request.values.get('start')
     channel = helpers.get_channel(c_id)
 
     messages = {'messages': [], 'start': start, 'end': start + 50}
