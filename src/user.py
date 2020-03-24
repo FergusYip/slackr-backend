@@ -19,6 +19,10 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 USER = Blueprint('user', __name__)
 
+# ======================================================================
+# ======================== FLASK ROUTES ================================
+# ======================================================================
+
 @USER.route('/profile', methods=['GET'])
 def route_user_profile():
 
@@ -31,37 +35,15 @@ def route_user_profile():
 
     return dumps(user_profile(token, target_user))
 
-def user_profile_setname(token, first_name, last_name):
-
-    '''
-    Function that will take a desired first and last name and will change
-    the authorized user's information to be updated with this information.
-    '''
-
-    token_info = decode_token(token)
-    user_id = token_info['u_id']
-
-    if not helpers.user_check_name(first_name):
-        raise InputError(
-            description='First name is not between 1 and 50 characters')
-
-    if not helpers.user_check_name(last_name):
-        raise InputError(
-            description='Last name is not between 1 and 50 characters')
-
-    helpers.user_change_first_last_name(user_id, first_name, last_name)
-
-    return {}
-
 @USER.route('/profile/setname', methods=['PUT'])
 def route_user_profile_setname():
 
     '''
-    Flask route to call the user_profile function.
+    Flask route to call the user_profile_setname function.
     '''
 
     payload = request.get_json()
-    
+
     token = payload['token']
     first_name = payload['name_first']
     last_name = payload['name_last']
@@ -69,60 +51,36 @@ def route_user_profile_setname():
     return dumps(user_profile_setname(token, first_name, last_name))
 
 @USER.route('/profile/setemail', methods=['PUT'])
-def user_profile_setemail():
+def route_user_profile_setemail():
 
     '''
-    Function that will take a desired email and will change
-    the authorized user's information to be updated with this information.
+    Flask route to call the user_profile_setemail function.
     '''
 
     payload = request.get_json()
 
     token = payload['token']
-    token_info = decode_token(token)
-    user_id = token_info['u_id']
-
     desired_email = payload['email']
 
-    if invalid_email(desired_email):
-        raise InputError(
-            description='Email address is invalid')
-
-    if helpers.is_email_used(desired_email):
-        raise InputError(
-            description='Email address is already being used by another user')
-
-    helpers.user_change_email(user_id, desired_email)
-
-    return dumps({})
+    return dumps(user_profile_setemail(token, desired_email))
 
 @USER.route('/profile/sethandle', methods=['PUT'])
-def user_profile_sethandle():
+def route_user_profile_sethandle():
 
     '''
-    Function that will take a desired handle and will change the authorized
-    user's information to reflect this new handle.
+    Flask route to call the user_profile_sethandle function.
     '''
 
     payload = request.get_json()
 
     token = payload['token']
-    token_info = decode_token(token)
-    user_id = token_info['u_id']
-
     desired_handle = payload['handle_str']
 
-    if not helpers.handle_length_check(desired_handle):
-        raise InputError(
-            description='Handle is not between 2 and 20 characters')
+    return dumps(user_profile_sethandle(token, desired_handle))
 
-    if helpers.is_handle_used(desired_handle):
-        raise InputError(
-            description='Handle is already being used by another user')
-
-    helpers.user_change_handle(user_id, desired_handle)
-
-    return dumps({})
+# ======================================================================
+# =================== FUNCTION IMPLEMENTATION ==========================
+# ======================================================================
 
 def user_profile(token, target_uid):
 
@@ -149,6 +107,72 @@ def user_profile(token, target_uid):
     }
 
     return user_return
+
+def user_profile_setname(token, first_name, last_name):
+
+    '''
+    Function that will take a desired first and last name and will change
+    the authorized user's information to be updated with this information.
+    '''
+
+    token_info = decode_token(token)
+    user_id = token_info['u_id']
+
+    if not helpers.user_check_name(first_name):
+        raise InputError(
+            description='First name is not between 1 and 50 characters')
+
+    if not helpers.user_check_name(last_name):
+        raise InputError(
+            description='Last name is not between 1 and 50 characters')
+
+    helpers.user_change_first_last_name(user_id, first_name, last_name)
+
+    return {}
+
+def user_profile_setemail(token, email):
+
+    '''
+    Function that will take a desired email and will change
+    the authorized user's information to be updated with this information.
+    '''
+
+    token_info = decode_token(token)
+    user_id = token_info['u_id']
+
+    if invalid_email(email):
+        raise InputError(
+            description='Email address is invalid')
+
+    if helpers.is_email_used(email):
+        raise InputError(
+            description='Email address is already being used by another user')
+
+    helpers.user_change_email(user_id, email)
+
+    return {}
+
+def user_profile_sethandle(token, handle_str):
+
+    '''
+    Function that will take a desired handle and will change the authorized
+    user's information to reflect this new handle.
+    '''
+
+    token_info = decode_token(token)
+    user_id = token_info['u_id']
+
+    if not helpers.handle_length_check(handle_str):
+        raise InputError(
+            description='Handle is not between 2 and 20 characters')
+
+    if helpers.is_handle_used(handle_str):
+        raise InputError(
+            description='Handle is already being used by another user')
+
+    helpers.user_change_handle(user_id, handle_str)
+
+    return {}
 
 if __name__ == "__main__":
     APP.run(debug=True,
