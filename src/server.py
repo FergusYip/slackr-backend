@@ -5,6 +5,8 @@ from flask import Flask, request
 from flask_cors import CORS
 from error import InputError
 from auth import AUTH
+from message import MESSAGE
+from user import USER
 from channels import CHANNELS
 from other import OTHER
 from admin import admin
@@ -33,6 +35,9 @@ APP.register_error_handler(Exception, defaultHandler)
 APP.register_blueprint(admin, url_prefix='/admin')
 APP.register_blueprint(AUTH, url_prefix='/auth')
 APP.register_blueprint(CHANNELS, url_prefix='/channels')
+APP.register_blueprint(USER, url_prefix='/user')
+APP.register_blueprint(MESSAGE, url_prefix='/message')
+
 APP.register_blueprint(OTHER)
 APP.register_blueprint(workspace)
 
@@ -56,6 +61,7 @@ def data():
     return dumps(data_store)
 
 
+<<<<<<< Updated upstream
 # Example
 @APP.route("/echo", methods=['GET'])
 def echo():
@@ -141,6 +147,9 @@ def message_edit():
 
 
 @APP.route("/user/profile", methods=['GET'])
+=======
+'''@APP.route("/user/profile", methods=['GET'])
+>>>>>>> Stashed changes
 def user_profile():
     pass
 
@@ -157,7 +166,7 @@ def user_profile_setemail():
 
 @APP.route("/user/profile/sethandle", methods=['PUT'])
 def user_profile_handle():
-    pass
+    pass'''
 
 
 @APP.route("/standup/start", methods=['POST'])
