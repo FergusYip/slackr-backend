@@ -1,76 +1,36 @@
+import time
+import threading
+import pickle
+
 SECRET = 'the chunts'
 
-# Permission values
-OWNER = 1
-MEMBER = 2
-
-DATA_STORE = {
-    'users': [],
-    'channels': [],
-    'token_blacklist': [],
-    'permissions': {
-        'owner': OWNER,
-        'member': MEMBER
+try:
+    FILE = open('data_store.p', 'rb')
+    data_store = pickle.load(FILE)
+except FileNotFoundError:
+    data_store = {
+        'users': [],
+        'channels': [],
+        'token_blacklist': [],
+        'permissions': {
+            'owner': 1,
+            'member': 2
+        },
+        'reactions': {
+            'thumbs_up': 1
+        }
     }
-}
 
 
-def get_token_blacklist():
-    return DATA_STORE['token_blacklist']
+def save():
+    with open('data_store.p', 'wb') as FILE:
+        pickle.dump(data_store, FILE)
 
 
-def get_permissions():
-    return DATA_STORE['permissions']
-
-
-def get_users():
-    return DATA_STORE['users']
-
-
-def get_user(u_id):
-    for user in get_users():
-        if user['u_id'] == u_id:
-            return user
-    return None
-
-
-def get_u_ids():
-    return [user['u_id'] for user in DATA_STORE['users']]
-
-
-def get_channels():
-    return DATA_STORE['channels']
-
-
-def get_channel(channel_id):
-    for channel in get_channels():
-        if channel_id == channel['channel_id']:
-            return channel
-    return None
-
-
-def get_messages(channel):
-    if channel is None:
-        return None
-
-    return channel['messages']
-
-
-def get_message(channel, message_id):
-    if channel is None:
-        return None
-
-    for message in channel['messages']:
-        if message_id == message['message_id']:
-            return message
-    return None
-
-
-def get_reacts(message):
-    if message is None:
-        return None
-
-    return message['reacts']
+def autosave():
+    timer = threading.Timer(1.0, timerAction)
+    timer.start()
+    save()
 
 
 '''
@@ -99,16 +59,15 @@ data_store = {
             'time_created': time_created,
             'reacts': [{
                 'react_id': react_id,
-                'u_ids': u_id,
-                'is_this_user_reacted': is_this_user_reacted
+                'u_ids': [u_id],
             }],
             'is_pinned': is_pinned
         }]
     }],
     'tokens': [],
     'permissions': {
-        'owner': OWNER,
-        'member': MEMBER
+        'owner': 1,
+        'member': 2
     }
 }
 

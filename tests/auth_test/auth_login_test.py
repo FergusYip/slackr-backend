@@ -1,6 +1,5 @@
 import requests
 import pytest
-from error import InputError
 
 BASE_URL = 'http://127.0.0.1:8080'
 
@@ -47,9 +46,10 @@ def test_login_password(new_user, reset):
 
     new_user(email=user_info['email'], password='correct password')
 
-    # Password is not correct
-    with pytest.raises(InputError):
-        requests.post(f"{BASE_URL}/auth/login", json=user_info).json()
+    error = requests.post(f"{BASE_URL}/auth/login", json=user_info)
+
+    with pytest.raises(requests.HTTPError):
+        requests.Response.raise_for_status(error)
 
 
 def test_login_invalid_user(reset):
@@ -60,8 +60,10 @@ def test_login_invalid_user(reset):
         'password': 'password',
     }
 
-    with pytest.raises(InputError):
-        requests.post(f"{BASE_URL}/auth/login", json=user_info).json()
+    error = requests.post(f"{BASE_URL}/auth/login", json=user_info)
+
+    with pytest.raises(requests.HTTPError):
+        requests.Response.raise_for_status(error)
 
 
 def test_login_multiple_sessions(new_user):
@@ -109,4 +111,6 @@ def test_login_email_invalid(invalid_emails):
 
     for email in invalid_emails:
         user_info['email'] = email
-        requests.post(f"{BASE_URL}/auth/login", json=user_info).json()
+        error = requests.post(f"{BASE_URL}/auth/login", json=user_info)
+        with pytest.raises(requests.HTTPError):
+            requests.Response.raise_for_status(error)
