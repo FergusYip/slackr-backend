@@ -20,55 +20,26 @@ APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 USER = Blueprint('user', __name__)
 
 @USER.route('/profile', methods=['GET'])
-def user_profile():
+def route_user_profile():
 
     '''
-    Function that will return the profile information of a desired
-    user on the Slackr platform.
+    Flask route to call the user_profile function.
     '''
-
-    u_id = int(request.values.get('u_id'))
 
     token = request.values.get('token')
+    target_user = int(request.values.get('u_id'))
 
-    # By calling the decode function, multiple error checks are performed.
-    decode_token(token)
+    return dumps(user_profile(token, target_user))
 
-    # The user ID of the person you want information for.
-    target_user = u_id
-
-    if helpers.get_user(target_user) is None:
-        raise InputError(
-            description='User ID is not a valid user')
-
-    user_info = helpers.get_user(target_user)
-
-    user_return = {
-        'u_id': user_info['u_id'],
-        'email': user_info['email'],
-        'name_first': user_info['name_first'],
-        'name_last': user_info['name_last'],
-        'handle_str': user_info['handle_str']
-    }
-
-    return dumps(user_return)
-
-@USER.route('/profile/setname', methods=['PUT'])
-def user_profile_setname():
+def user_profile_setname(token, first_name, last_name):
 
     '''
     Function that will take a desired first and last name and will change
     the authorized user's information to be updated with this information.
     '''
 
-    payload = request.get_json()
-
-    token = payload['token']
     token_info = decode_token(token)
     user_id = token_info['u_id']
-
-    first_name = payload['name_first']
-    last_name = payload['name_last']
 
     if not helpers.user_check_name(first_name):
         raise InputError(
@@ -80,7 +51,22 @@ def user_profile_setname():
 
     helpers.user_change_first_last_name(user_id, first_name, last_name)
 
-    return dumps({})
+    return {}
+
+@USER.route('/profile/setname', methods=['PUT'])
+def route_user_profile_setname():
+
+    '''
+    Flask route to call the user_profile function.
+    '''
+
+    payload = request.get_json()
+    
+    token = payload['token']
+    first_name = payload['name_first']
+    last_name = payload['name_last']
+
+    return dumps(user_profile_setname(token, first_name, last_name))
 
 @USER.route('/profile/setemail', methods=['PUT'])
 def user_profile_setemail():
@@ -137,6 +123,32 @@ def user_profile_sethandle():
     helpers.user_change_handle(user_id, desired_handle)
 
     return dumps({})
+
+def user_profile(token, target_uid):
+
+    '''
+    Function that will return the profile information of a desired
+    user on the Slackr platform.
+    '''
+
+    # By calling the decode function, multiple error checks are performed.
+    decode_token(token)
+
+    if helpers.get_user(target_uid) is None:
+        raise InputError(
+            description='User ID is not a valid user')
+
+    user_info = helpers.get_user(target_uid)
+
+    user_return = {
+        'u_id': user_info['u_id'],
+        'email': user_info['email'],
+        'name_first': user_info['name_first'],
+        'name_last': user_info['name_last'],
+        'handle_str': user_info['handle_str']
+    }
+
+    return user_return
 
 if __name__ == "__main__":
     APP.run(debug=True,

@@ -11,6 +11,7 @@ from flask_cors import CORS
 from error import AccessError, InputError
 from data_store import data_store
 from token_validation import decode_token
+import threading
 import helpers
 
 APP = Flask(__name__)
@@ -47,11 +48,10 @@ def message_send():
     token_info = decode_token(token)
     user_id = token_info['u_id']
 
-    channel_id = payload['channel_id']
+    channel_id = int(payload['channel_id'])
     channel_info = helpers.get_channel(channel_id)
 
     message = payload['message']
-    message_id = generate_message_id()
 
     time_now = helpers.utc_now()
 
@@ -66,6 +66,8 @@ def message_send():
     if user_id not in channel_info['all_members']:
         raise AccessError(
             description='User does not have Access to send messages in the current channel')
+
+    message_id = generate_message_id()
 
     message_info = {
         'message_id': message_id,
@@ -191,9 +193,19 @@ def message_sendlater():
         raise AccessError(
             description='User does not have Access to send messages in the current channel')
 
+    send_later(time_sent)
+
     return dumps({
         'message_id': message_id
     })
+
+def send_later(time_sent):
+    time_now = helpers.utc_now()
+
+    duration = time_sent - time_now
+
+    timer = threading.Timer(duration, message_send)
+    timer.start() 
 
 @MESSAGE.route("/react", methods=['POST'])
 def message_react():
