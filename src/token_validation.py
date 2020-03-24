@@ -8,7 +8,7 @@ from helpers import get_all_u_id
 def encode_token(u_id):
     payload = {
         'u_id': u_id,
-        'iat': datetime.utcnow().timestamp(),
+        'iat': datetime.utcnow(),
         'exp': datetime.utcnow() + timedelta(minutes=30)
     }
     token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
@@ -27,6 +27,9 @@ def decode_token(token):
         raise AccessError(description='Session has expired')
     except:
         raise AccessError(description='Token is invalid')
+
+    if payload['exp'] > data_store['time_created']:
+        raise AccessError(description='Session has expired')
 
     if payload['u_id'] not in get_all_u_id():
         raise AccessError(description='u_id does not belong to a user')
