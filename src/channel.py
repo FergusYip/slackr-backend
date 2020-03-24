@@ -77,13 +77,33 @@ def channel_details():
     # finding the right channel.
     channel = helpers.get_channel(c_id)
 
+    owner_members = []
+    for owner_id in channel['owner_members']:
+        owner = helpers.get_user(owner_id)
+        owner_dict = {
+            'u_id': owner['u_id'],
+            'name_first': owner['name_first'],
+            'name_last': owner['name_last'],
+        }
+        owner_members.append(owner_dict)
+
+    all_members = []
+    for user_id in channel['all_members']:
+        user = helpers.get_user(user_id)
+        user_dict = {
+            'u_id': user['u_id'],
+            'name_first': user['name_first'],
+            'name_last': user['name_last'],
+        }
+        all_members.append(user_dict)
+
     details = {
         'name': channel['name'],
-        'owner_members': channel['owner_members'],
-        'all_members': channel['all_members']
+        'owner_members': owner_members,
+        'all_members': all_members
     }
 
-    return dumps({details})
+    return dumps(details)
 
 
 @CHANNEL.route("/messages", methods=['GET'])
