@@ -60,7 +60,7 @@ def channel_details():
     relavant information of a channel.
     '''
     token = request.values.get('token')
-    c_id = request.values.get('channel_id')
+    c_id = int(request.values.get('channel_id'))
 
     token_data = decode_token(token)
 
@@ -200,7 +200,7 @@ def channel_join():
 
     # appends to channel['all_members'] if user not already a member.
     if helpers.is_channel_member(user, c_id) is False:
-        channel['all_members'].append(user)
+        helpers.channel_join(c_id, user)
 
     return dumps({})
 
