@@ -1,4 +1,3 @@
-import sys
 import math
 import hashlib
 from json import dumps
@@ -63,7 +62,7 @@ def generate_handle(name_first, name_last):
 
         # Remove n number of characters from split_handle
         unique_digits = int(math.log10(unique_modifier)) + 1
-        for n in range(unique_digits):
+        for _ in range(unique_digits):
             split_handle.pop()
 
         split_handle.append(str(unique_modifier))
@@ -74,13 +73,12 @@ def generate_handle(name_first, name_last):
     return handle_str
 
 
-@AUTH.route("/register", methods=['POST'])
-def auth_register():
-    payload = request.get_json()
-    email = payload['email']
-    password = payload['password']
-    name_first = payload['name_first']
-    name_last = payload['name_last']
+def auth_register(email, password, name_first, name_last):
+    if not email or not password or not name_first or not name_last:
+        raise InputError(
+            description=
+            'Insufficient parameters. Requires email, password, name_first, name_last.'
+        )
 
     if invalid_password(password):
         raise InputError(
@@ -116,17 +114,27 @@ def auth_register():
 
     data_store['users'].append(user)
 
-    return dumps({
+    return {
         'u_id': u_id,
         'token': encode_token(u_id),
-    })
+    }
 
 
-@AUTH.route("/login", methods=['POST'])
-def auth_login():
+@AUTH.route("/register", methods=['POST'])
+def route_auth_register():
     payload = request.get_json()
     email = payload['email']
     password = payload['password']
+    name_first = payload['name_first']
+    name_last = payload['name_last']
+    return dumps(auth_register(email, password, name_first, name_last))
+
+
+def auth_login(email, password):
+    if not email or not password:
+        raise InputError(
+            description='Insufficient parameters. Requires email and password.'
+        )
 
     user = get_user(email)
 
@@ -139,25 +147,38 @@ def auth_login():
     if user['password'] != hash_pw(password):
         raise InputError(description='Password is not correct')
 
-    if user['password'] == hash_pw(password):
-        return dumps({
-            'u_id': user['u_id'],
-            'token': encode_token(user['u_id'])
-        })
+    return {'u_id': user['u_id'], 'token': encode_token(user['u_id'])}
 
 
-@AUTH.route("/logout", methods=['POST'])
-def auth_logout():
+@AUTH.route("/login", methods=['POST'])
+def route_auth_login():
     payload = request.get_json()
-    token = payload['token']
+    email = payload['email']
+    password = payload['password']
+    return dumps(auth_login(email, password))
+
+
+def auth_logout(token):
+    if not token:
+        raise InputError(
+            description='Insufficient parameters. Requires token.')
 
     decode_token(token)
     data_store['token_blacklist'].append(token)
 
     if token in data_store['token_blacklist']:
-        return dumps({'is_success': True})
+        is_success = False
     else:
-        return dumps({'is_success': False})
+        is_success = False
+
+    return {'is_success': is_success}
+
+
+@AUTH.route("/logout", methods=['POST'])
+def route_auth_logout():
+    payload = request.get_json()
+    token = payload['token']
+    return dumps(auth_logout(token))
 
 
 if __name__ == "__main__":
