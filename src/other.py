@@ -29,7 +29,7 @@ def channel_search(channel, query_str):
     ]
 
 
-@other.route("/users/all", methods=['GET'])
+@OTHER.route("/users/all", methods=['GET'])
 def users_all():
     payload = request.get_json()
     token = payload['token']
@@ -50,7 +50,7 @@ def users_all():
     return dumps({'users': users})
 
 
-@other.route("/search", methods=['GET'])
+@OTHER.route("/search", methods=['GET'])
 def search():
     payload = request.get_json()
     token = payload['token']

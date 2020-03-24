@@ -1,17 +1,19 @@
 import sys
 import pickle
 from json import dumps
-from flask import Flask, request
+from flask import Flask
 from flask_cors import CORS
-from error import InputError
+from admin import ADMIN
 from auth import AUTH
 from message import MESSAGE
 from user import USER
 from channels import CHANNELS
 from other import OTHER
-from admin import admin
-from workspace import workspace
-from data_store import data_store
+from workspace import WORKSPACE
+from data_store import data_store, autosave
+
+AUTOSAVE_ENABLED = True
+DEBUG_MODE = not AUTOSAVE_ENABLED  # Do not change this line
 
 
 def defaultHandler(err):
@@ -32,28 +34,21 @@ CORS(APP)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
-APP.register_blueprint(admin, url_prefix='/admin')
+APP.register_blueprint(ADMIN, url_prefix='/admin')
 APP.register_blueprint(AUTH, url_prefix='/auth')
 APP.register_blueprint(CHANNELS, url_prefix='/channels')
 APP.register_blueprint(USER, url_prefix='/user')
 APP.register_blueprint(MESSAGE, url_prefix='/message')
 
 APP.register_blueprint(OTHER)
-APP.register_blueprint(workspace)
-
-
-def load_state():
-    try:
-        FILE = open('data_store.p', 'rb')
-        data_store = pickle.load(FILE)
-    except Exception:
-        data_store = {'users': [], 'channels': [], 'tokens': []}
+APP.register_blueprint(WORKSPACE)
 
 
 @APP.route('/save', methods=['POST'])
 def save_state():
     with open('data_store.p', 'wb') as FILE:
         pickle.dump(data_store, FILE)
+    return dumps({})
 
 
 @APP.route('/data', methods=['GET'])
@@ -96,12 +91,8 @@ def standup_send():
     pass
 
 
-@APP.route("/workspace/reset", methods=['POST'])
-def workspace_reset():
-    pass
-
-
 if __name__ == "__main__":
-    load_state()
-    APP.run(debug=True,
+    if AUTOSAVE_ENABLED:
+        autosave()
+    APP.run(debug=DEBUG_MODE,
             port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
