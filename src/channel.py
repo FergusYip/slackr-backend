@@ -13,10 +13,10 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-channel = Blueprint('channel', __name__)
+Channel = Blueprint('channel', __name__)
 
 
-@channel.route("/invite", methods=['POST'])
+@Channel.route("/invite", methods=['POST'])
 def channel_invite():
     payload = request.get_json()
 
@@ -47,7 +47,7 @@ def add_into_channel(inviter, c_id, invited):
                 channel['all_members'].append(invited)
 
 
-@channel.route("/details", methods=['GET'])
+@Channel.route("/details", methods=['GET'])
 def channel_details():
     payload = request.get_json()
 
@@ -78,7 +78,7 @@ def channel_details():
     return dumps({details})
 
 
-@channel.route("/messages", methods=['GET'])
+@Channel.route("/messages", methods=['GET'])
 def channel_messages():
     payload = request.get_json()
 
@@ -135,7 +135,7 @@ def channel_messages():
     return dumps(messages)  # shouldn't it be return dumps({message_info})?
 
 
-@channel.route("/leave", methods=['POST'])
+@Channel.route("/leave", methods=['POST'])
 def channel_leave():
     payload = request.get_json()
 
@@ -162,7 +162,7 @@ def channel_leave():
     return dumps({})
 
 
-@channel.route("/join", methods=['POST'])
+@Channel.route("/join", methods=['POST'])
 def channel_join():
     payload = request.get_json()
 
@@ -188,7 +188,7 @@ def channel_join():
     return dumps({})
 
 
-@channel.route("/addowner", methods=['POST'])
+@Channel.route("/addowner", methods=['POST'])
 def channel_addowner():
     payload = request.get_json()
 
@@ -225,5 +225,35 @@ def channel_addowner():
     return dumps({})
 
 
-def channel_removeowner(token, channel_id, u_id):
-    return {}
+@Channel.route('/removeowner', methods=['POST'])
+def channel_removeowner():
+    payload = request.get_json()
+
+    token = payload['token']
+    token_data = decode_token(token)
+
+    c_id = payload['channel_id']
+    channel = helpers.get_channel(c_id)
+    user = payload['u_id']
+    auth_user = token_data['u_id']
+
+    # input error if channel doesn't exist.
+    if channel is None:
+        raise InputError(description='Channel does not exist.')
+
+    # input error when user does not exist.
+    if helpers.get_user(user) is None:
+        raise InputError(description='User does not exist.')
+
+    # input error when user is not an owner
+    if helpers.is_user_admin(user, c_id) is False:
+        raise InputError(description='User is not an owner of channel.')
+
+    # access error when authorized user not owner of channel.
+    if helpers.is_user_admin(auth_user, c_id) is False:
+        raise AccessError(description='Authorized user not owner of channel.')
+
+    # removing user from channel['owner_members']
+    channel['owner_members'].remove(user)
+
+    return dumps({})
