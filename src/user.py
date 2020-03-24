@@ -140,6 +140,14 @@ def user_profile_setemail(token, email):
     token_info = decode_token(token)
     user_id = token_info['u_id']
 
+    user_info = helpers.get_user(user_id)
+
+    if email == user_info['email']:
+        # To stop an error occurring when the user either types their current
+        # email address, or accidently presses the edit button. Assists with
+        # a greater user experience.
+        return {}
+
     if invalid_email(email):
         raise InputError(
             description='Email address is invalid')
@@ -161,6 +169,14 @@ def user_profile_sethandle(token, handle_str):
 
     token_info = decode_token(token)
     user_id = token_info['u_id']
+
+    user_info = helpers.get_user(user_id)
+
+    if handle_str == user_info['handle_str']:
+        # To stop an error occurring when the user either types their current
+        # handle, or accidently presses the edit button. Assists with a greater
+        # user experience.
+        return {}
 
     if not helpers.handle_length_check(handle_str):
         raise InputError(
