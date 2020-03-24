@@ -63,7 +63,7 @@ def channel_details():
         raise InputError(description='Channel does not exist.')
 
     # if user asking for details is not in the channel.
-    if helpers.is_user_in_channel(auth_user, c_id) is False:
+    if helpers.is_channel_member(auth_user, c_id) is False:
         raise AccessError(description='Authorized user not in the channel')
 
     # finding the right channel.
@@ -100,7 +100,7 @@ def channel_messages():
         raise InputError(description='Channel does not exist.')
 
     # access error when authorized user not a member of channel.
-    if helpers.is_user_in_channel(token_data['u_id'], c_id) is False:
+    if helpers.is_channel_member(token_data['u_id'], c_id) is False:
         raise AccessError(
             description='authorized user not a member of channel.')
 
@@ -143,17 +143,17 @@ def channel_leave():
     token_data = decode_token(token)
 
     c_id = payload['channel_id']
+    channel = helpers.get_channel(c_id)
 
     # input error if channel doesn't exist.
-    if helpers.get_channel(c_id) is None:
+    if channel is None:
         raise InputError(description='Channel does not exist.')
 
      # access error when authorized user not a member of channel.
-    if helpers.is_user_in_channel(token_data['u_id'], c_id) is False:
+    if helpers.is_channel_member(token_data['u_id'], c_id) is False:
         raise AccessError(
             description='authorized user not a member of channel.')
 
-    channel = helpers.get_channel(c_id)
     channel['all_members'].remove(token_data['u_id'])
 
     if helpers.is_user_admin(token_data['u_id'], c_id):
@@ -162,12 +162,67 @@ def channel_leave():
     return dumps({})
 
 
-def channel_join(token, channel_id):
-    return {}
+@channel.route("/join", methods=['POST'])
+def channel_join():
+    payload = request.get_json()
+
+    token = payload['token']
+    token_data = decode_token(token)
+
+    c_id = payload['channel_id']
+    channel = helpers.get_channel(c_id)
+    user = token_data['u_id']
+
+    # input error if channel doesn't exist.
+    if channel is None:
+        raise InputError(description='Channel does not exist.')
+
+    # access error when channel is private.
+    if channel['is_public'] is False:
+        raise AccessError(description='Channel is private.')
+
+    # appends to channel['all_members'] if user not already a member.
+    if helpers.is_channel_member(user, c_id) is False:
+        channel['all_members'].append(user)
+
+    return dumps({})
 
 
-def channel_addowner(token, channel_id, u_id):
-    return {}
+@channel.route("/addowner", methods=['POST'])
+def channel_addowner():
+    payload = request.get_json()
+
+    token = payload['token']
+    token_data = decode_token(token)
+
+    c_id = payload['channel_id']
+    channel = helpers.get_channel(c_id)
+    user = payload['u_id']
+    auth_user = token_data['u_id']
+
+    # input error if channel doesn't exist.
+    if channel is None:
+        raise InputError(description='Channel does not exist.')
+
+    # input error when user does not exist.
+    if helpers.get_user(user) is None:
+        raise InputError(description='User does not exist.')
+
+    # input error if user already an owner of channel.
+    if helpers.is_user_admin(user, c_id) is True:
+        raise InputError(description='User already owner of channel.')
+
+    # access error when authorized user not owner of channel.
+    if helpers.is_user_admin(auth_user, c_id) is False:
+        raise AccessError(description='Authorized user not owner of channel.')
+
+    # appending user to owner members.
+    if helpers.is_channel_member(user, c_id) is False:
+        channel['all_members'].append(user)
+
+    channel['owner_members'].append(user)
+
+    return dumps({})
 
 
 def channel_removeowner(token, channel_id, u_id):
