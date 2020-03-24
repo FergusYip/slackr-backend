@@ -1,15 +1,8 @@
-import sys
 from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
+from flask import request, Blueprint
 from error import InputError
 from data_store import data_store
 from token_validation import decode_token
-
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 CHANNELS = Blueprint('channels', __name__)
 
@@ -94,5 +87,4 @@ def channels_create():
 
 
 if __name__ == "__main__":
-    APP.run(debug=True,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    pass
