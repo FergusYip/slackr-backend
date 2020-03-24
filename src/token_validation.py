@@ -28,7 +28,7 @@ def decode_token(token):
     except:
         raise AccessError(description='Token is invalid')
 
-    if payload['exp'] > data_store['time_created']:
+    if payload['iat'] < data_store['time_created']:
         raise AccessError(description='Session has expired')
 
     if payload['u_id'] not in get_all_u_id():
