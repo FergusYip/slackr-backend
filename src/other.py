@@ -53,10 +53,10 @@ def search():
     token = request.values.get('token')
     query_str = request.values.get('query_str')
 
-    decode_token(token)
+    token_payload = decode_token(token)
 
     messages = []
-    for channel in user_channels(payload['u_id']):
+    for channel in user_channels(token_payload['u_id']):
         channel_results = channel_search(channel, query_str)
         messages.append(channel_results)
 
