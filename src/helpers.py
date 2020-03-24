@@ -356,5 +356,11 @@ def channel_search(channel, query_str):
     ]
 
 
+def channel_join(channel_id, u_id):
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            channel['all_members'].append(u_id)
+
+
 if __name__ == '__main__':
     pass
