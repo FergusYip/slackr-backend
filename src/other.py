@@ -31,9 +31,7 @@ def channel_search(channel, query_str):
 
 @OTHER.route("/users/all", methods=['GET'])
 def users_all():
-    payload = request.get_json()
-    token = payload['token']
-
+    token = request.values.get('token')
     decode_token(token)
 
     users = []
@@ -52,14 +50,13 @@ def users_all():
 
 @OTHER.route("/search", methods=['GET'])
 def search():
-    payload = request.get_json()
-    token = payload['token']
-    query_str = payload['query_str']
+    token = request.values.get('token')
+    query_str = request.values.get('query_str')
 
-    decode_token(token)
+    token_payload = decode_token(token)
 
     messages = []
-    for channel in user_channels(payload['u_id']):
+    for channel in user_channels(token_payload['u_id']):
         channel_results = channel_search(channel, query_str)
         messages.append(channel_results)
 
