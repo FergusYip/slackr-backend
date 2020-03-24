@@ -1,6 +1,5 @@
 import requests
 import pytest
-from error import InputError, AccessError
 
 BASE_URL = 'http://127.0.0.1:8080'
 
@@ -48,7 +47,8 @@ def test_list_no_channels(reset, new_user):
 
 
 def test_list_invalid_token(reset, invalid_token):
-    '''Test that channels_list raises an AccessError when given invalid token'''
+    '''Test that channels_list raises an HTTPError when given invalid token'''
     list_input = {'token': invalid_token}
-    with pytest.raises(AccessError):
-        requests.get(f'{BASE_URL}/channels/list', json=list_input).json()
+    with pytest.raises(requests.HTTPError):
+        requests.get(f'{BASE_URL}/channels/list',
+                     json=list_input).raise_for_status()
