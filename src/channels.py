@@ -1,15 +1,8 @@
-import sys
 from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
-from error import AccessError, InputError
+from flask import request, Blueprint
+from error import InputError
 from data_store import data_store
 from token_validation import decode_token
-
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 CHANNELS = Blueprint('channels', __name__)
 
@@ -18,14 +11,17 @@ def invalid_channel_name(channel_name):
     return len(channel_name) > 20
 
 
+def generate_channel_id():
+    data_store['max_ids']['channel_id'] += 1
+    return data_store['max_ids']['channel_id']
+
+
 @CHANNELS.route("/list", methods=['GET'])
 def channels_list():
-    payload = request.get_json()
-    token = payload['token']
+    token = request.values.get('token')
+    token_payload = decode_token(token)
 
-    decode_token(token)
-
-    u_id = payload['u_id']
+    u_id = token_payload['u_id']
 
     channels = []
     for channel in data_store['channels']:
@@ -41,9 +37,7 @@ def channels_list():
 
 @CHANNELS.route("/listall", methods=['GET'])
 def channels_listall():
-    payload = request.get_json()
-    token = payload['token']
-
+    token = request.values.get('token')
     decode_token(token)
 
     channels = []
@@ -69,13 +63,7 @@ def channels_create():
     if invalid_channel_name(name):
         raise InputError(description='Name is more than 20 characters long')
 
-    if not data_store['channels']:
-        channel_id = 1
-    else:
-        channel_ids = [
-            channel['channel_id'] for channel in data_store['channels']
-        ]
-        channel_id = max(channel_ids) + 1
+    channel_id = generate_channel_id()
 
     u_id = token_payload['u_id']
 
@@ -95,5 +83,4 @@ def channels_create():
 
 
 if __name__ == "__main__":
-    APP.run(debug=True,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    pass

@@ -5,7 +5,10 @@ from flask import Flask
 from flask_cors import CORS
 from admin import ADMIN
 from auth import AUTH
+from message import MESSAGE
+from user import USER
 from channels import CHANNELS
+from channel import CHANNEL
 from other import OTHER
 from workspace import WORKSPACE
 from data_store import data_store, autosave
@@ -35,6 +38,10 @@ APP.register_error_handler(Exception, defaultHandler)
 APP.register_blueprint(ADMIN, url_prefix='/admin')
 APP.register_blueprint(AUTH, url_prefix='/auth')
 APP.register_blueprint(CHANNELS, url_prefix='/channels')
+APP.register_blueprint(USER, url_prefix='/user')
+APP.register_blueprint(MESSAGE, url_prefix='/message')
+APP.register_blueprint(CHANNEL, url_prefix='/channel')
+
 APP.register_blueprint(OTHER)
 APP.register_blueprint(WORKSPACE)
 
@@ -51,7 +58,7 @@ def data():
     return dumps(data_store)
 
 
-@APP.route("/user/profile", methods=['GET'])
+'''@APP.route("/user/profile", methods=['GET'])
 def user_profile():
     pass
 
@@ -68,7 +75,7 @@ def user_profile_setemail():
 
 @APP.route("/user/profile/sethandle", methods=['PUT'])
 def user_profile_handle():
-    pass
+    pass'''
 
 
 @APP.route("/standup/start", methods=['POST'])

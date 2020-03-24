@@ -1,10 +1,13 @@
-import sys
-import jwt
+'''
+Implementing channel functions -
+invite, details, messages, leave, join, addowner, removeowner
+'''
+
 from json import dumps
 from flask import Flask, request, Blueprint
 from flask_cors import CORS
 from error import AccessError, InputError
-from data_store import data_store, SECRET
+from data_store import data_store
 from token_validation import decode_token
 import helpers
 
@@ -13,11 +16,14 @@ CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
-Channel = Blueprint('channel', __name__)
+CHANNEL = Blueprint('channel', __name__)
 
 
-@Channel.route("/invite", methods=['POST'])
+@CHANNEL.route("/invite", methods=['POST'])
 def channel_invite():
+    '''
+    Implementing invite function by appending user to channel['all_members']
+    '''
     payload = request.get_json()
 
     token = payload['token']
@@ -47,12 +53,14 @@ def add_into_channel(inviter, c_id, invited):
                 channel['all_members'].append(invited)
 
 
-@Channel.route("/details", methods=['GET'])
+@CHANNEL.route("/details", methods=['GET'])
 def channel_details():
-    payload = request.get_json()
-
-    token = payload['token']
-    c_id = payload['channel_id']
+    '''
+    Implementing details function by returning json of dictionary containing
+    relavant information of a channel.
+    '''
+    token = request.values.get('token')
+    c_id = request.values.get('channel_id')
 
     token_data = decode_token(token)
 
@@ -78,8 +86,11 @@ def channel_details():
     return dumps({details})
 
 
-@Channel.route("/messages", methods=['GET'])
+@CHANNEL.route("/messages", methods=['GET'])
 def channel_messages():
+    '''
+    Implementing invite function by appending user to channel['all_members']
+    '''
     payload = request.get_json()
 
     token = payload['token']
@@ -132,11 +143,15 @@ def channel_messages():
         }
         messages['messages'].append(message_info)
 
-    return dumps(messages)  # shouldn't it be return dumps({message_info})?
+    return dumps({'messages': messages})
 
 
-@Channel.route("/leave", methods=['POST'])
+@CHANNEL.route("/leave", methods=['POST'])
 def channel_leave():
+    '''
+    Implementing leave function by removing user from channel['all_members']
+    and channel['owner_members']
+    '''
     payload = request.get_json()
 
     token = payload['token']
@@ -162,8 +177,11 @@ def channel_leave():
     return dumps({})
 
 
-@Channel.route("/join", methods=['POST'])
+@CHANNEL.route("/join", methods=['POST'])
 def channel_join():
+    '''
+    Implementing join function by appending user to channel['all_members']
+    '''
     payload = request.get_json()
 
     token = payload['token']
@@ -188,8 +206,11 @@ def channel_join():
     return dumps({})
 
 
-@Channel.route("/addowner", methods=['POST'])
+@CHANNEL.route("/addowner", methods=['POST'])
 def channel_addowner():
+    '''
+    Implementing addowner function by appending user to channel['owner_members']
+    '''
     payload = request.get_json()
 
     token = payload['token']
@@ -225,8 +246,11 @@ def channel_addowner():
     return dumps({})
 
 
-@Channel.route('/removeowner', methods=['POST'])
+@CHANNEL.route("/removeowner", methods=['POST'])
 def channel_removeowner():
+    '''
+    Implementing removeowner function by removing user from channel['owner_members']
+    '''
     payload = request.get_json()
 
     token = payload['token']
