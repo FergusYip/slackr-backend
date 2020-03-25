@@ -254,6 +254,13 @@ def handle_length_check(handle):
         return False
 
 
+def get_handle(u_id):
+    for user in data_store['users']:
+        if u_id == user['u_id']:
+            return user['handle_str']
+    return None
+
+
 def user_change_handle(u_id, handle):
     for user in data_store['users']:
         if user['u_id'] == u_id:
