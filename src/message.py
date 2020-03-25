@@ -295,58 +295,15 @@ def message_sendlater(token, channel_id, message, time_sent):
 
     return message_info
 
-def message_send_no_id(token, channel_id, message):
-    '''
-    Function that will take in a message as a string
-    and append this message to a channel's list of messages.
-    '''
 
-    token_info = decode_token(token)
-    user_id = int(token_info['u_id'])
-
-    channel_info = helpers.get_channel(channel_id)
-
-    time_now = helpers.utc_now()
-
-    if channel_info is None:
-        raise InputError(description='Channel does not exist.')
-
-    if len(message) > 1000:
-        raise InputError(
-            description='Message is greater than 1,000 characters')
-
-    if len(message) == 0:
-        raise InputError(
-            description='Message needs to be at least 1 characters')
-
-    if user_id not in channel_info['all_members']:
-        raise AccessError(
-            description=
-            'User does not have Access to send messages in the current channel'
-        )
-
-    message_info = {
-        'message_id': None,
-        'u_id': user_id,
-        'message': message,
-        'time_created': time_now,
-        'reacts': [],
-        'is_pinned': False
-    }
-
-    helpers.message_send_message(message_info, channel_id)
-
-
-def send_later(token, channel_id, message, time_sent):
+def send_later(token, channel_id, message, time_sent, message_id):
     time_now = helpers.utc_now()
 
     duration = time_sent - time_now
 
     sleep(duration)
 
-    message_id = message_send(token, channel_id, message)
-
-    return message_id
+    message_send_no_id(token, channel_id, message)
 
 def send_later_thread(token, channel_id, message, time_sent):
     thread = threading.Thread(target=send_later, args=(token, channel_id, message, time_sent))
