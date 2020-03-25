@@ -44,7 +44,7 @@ def standup_send(token, channel_id, message):
     token_info = decode_token(token)
     u_id = token_info['u_id']
 
-    message_dict = {'u_id': u_id, 'message': message}
+    message_dict = {'handle_str': helpers.get_handle(u_id), 'message': message}
 
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
