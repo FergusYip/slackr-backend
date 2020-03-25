@@ -12,8 +12,7 @@ def route_standup_start():
     token = payload['token']
     channel_id = payload['channel_id']
     length = payload['length']
-
-    pass
+    return dumps(standup_start(token, channel_id, length))
 
 
 @STANDUP.route("/standup/active", methods=['GET'])
@@ -21,6 +20,7 @@ def route_standup_active():
     payload = request.get_json()
     token = payload['token']
     channel_id = payload['channel_id']
+    return dumps(standup_active(token, channel_id))
 
 
 @STANDUP.route("/standup/send", methods=['POST'])
@@ -29,4 +29,17 @@ def route_standup_send():
     token = payload['token']
     channel_id = payload['channel_id']
     message = payload['message']
+    return dumps(standup_send(token, channel_id, message))
+
+
+def standup_start(token, channel_id, length):
     pass
+
+
+def standup_active(token, channel_id):
+    pass
+
+
+def standup_send(token, channel_id, message):
+    return {}
+
