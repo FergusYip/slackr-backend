@@ -2,6 +2,8 @@
 
 from datetime import datetime, timezone
 from data_store import data_store
+from message import message_send
+from time import sleep
 
 
 def get_channel(channel_id):
@@ -21,22 +23,21 @@ def get_channel(channel_id):
     return None
 
 
-def get_message(message_id, channel_id):
+def get_message(message_id):
     """ Returns message with id message_id
 
 	Parameters:
 		message_id (int): The id of the message
-		channel_id (int): The id of the channel containing the message
 
 	Returns:
 		message (dict): Dictionary of message details
 		None : If message was not found
 
 	"""
-    channel = get_channel(channel_id)
-    for message in channel['messages']:
-        if message_id == message['message_id']:
-            return message
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return message
     return None
 
 
@@ -327,6 +328,46 @@ def channel_join(channel_id, u_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             channel['all_members'].append(u_id)
+
+def generate_message_id():
+
+    '''
+    Function that will generate a unique message_id within a specific channel.
+    '''
+
+    message_id = data_store['max_ids']['message_id'] + 1
+
+    data_store['max_ids']['message_id'] = message_id
+
+    return message_id
+
+def get_channel_from_message(message_id):
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return channel
+    return None
+
+def get_channel_message(message_id):
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return {
+                    'channel': channel,
+                    'message': message
+                }
+    return None
+
+def send_later(token, channel_id, message, time_sent):
+    time_now = utc_now()
+
+    duration = time_sent - time_now
+
+    sleep(duration)
+    
+    message_id = message_send(token, channel_id, message)
+
+    return message_id
 
 if __name__ == '__main__':
     pass
