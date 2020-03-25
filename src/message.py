@@ -6,19 +6,13 @@ their own messages.
 
 import sys
 from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
+from flask import request, Blueprint
 from error import AccessError, InputError
 from data_store import data_store
 from token_validation import decode_token
 import threading
 import helpers
 from time import sleep
-
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 MESSAGE = Blueprint('message', __name__)
 
@@ -444,5 +438,4 @@ def message_unpin(token, message_id):
 
 
 if __name__ == "__main__":
-    APP.run(debug=True,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    pass
