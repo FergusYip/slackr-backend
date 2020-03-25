@@ -1,32 +1,36 @@
-import sys
 from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
-from error import AccessError, InputError
+from flask import request, Blueprint
+from error import InputError
 from data_store import data_store
 from token_validation import decode_token
-
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 CHANNELS = Blueprint('channels', __name__)
 
 
-def invalid_channel_name(channel_name):
-    return len(channel_name) > 20
-
-
 @CHANNELS.route("/list", methods=['GET'])
-def channels_list():
+def route_channels_list():
+    token = request.values.get('token')
+    return dumps(channels_list(token))
+
+
+@CHANNELS.route("/listall", methods=['GET'])
+def route_channels_listall():
+    token = request.values.get('token')
+    return dumps(channels_listall(token))
+
+
+@CHANNELS.route("/create", methods=['POST'])
+def route_channels_create():
     payload = request.get_json()
     token = payload['token']
+    name = payload['name']
+    is_public = payload['is_public']
+    return dumps(channels_create(token, name, is_public))
 
-    decode_token(token)
 
-    u_id = payload['u_id']
-
+def channels_list(token):
+    token_payload = decode_token(token)
+    u_id = token_payload['u_id']
     channels = []
     for channel in data_store['channels']:
         if u_id in channel['all_members']:
@@ -36,14 +40,10 @@ def channels_list():
             }
             channels.append(channel_dict)
 
-    return dumps({'channels': channels})
+    return {'channels': channels}
 
 
-@CHANNELS.route("/listall", methods=['GET'])
-def channels_listall():
-    payload = request.get_json()
-    token = payload['token']
-
+def channels_listall(token):
     decode_token(token)
 
     channels = []
@@ -54,28 +54,16 @@ def channels_listall():
         }
         channels.append(channel_dict)
 
-    return dumps({'channels': channels})
+    return {'channels': channels}
 
 
-@CHANNELS.route("/create", methods=['POST'])
-def channels_create():
-    payload = request.get_json()
-    token = payload['token']
-    name = payload['name']
-    is_public = payload['is_public']
-
+def channels_create(token, name, is_public):
     token_payload = decode_token(token)
 
     if invalid_channel_name(name):
         raise InputError(description='Name is more than 20 characters long')
 
-    if not data_store['channels']:
-        channel_id = 1
-    else:
-        channel_ids = [
-            channel['channel_id'] for channel in data_store['channels']
-        ]
-        channel_id = max(channel_ids) + 1
+    channel_id = generate_channel_id()
 
     u_id = token_payload['u_id']
 
@@ -90,10 +78,17 @@ def channels_create():
     }
 
     data_store['channels'].append(channel)
+    return {'channel_id': channel_id}
 
-    return dumps({'channel_id': channel_id})
+
+def invalid_channel_name(channel_name):
+    return len(channel_name) > 20
+
+
+def generate_channel_id():
+    data_store['max_ids']['channel_id'] += 1
+    return data_store['max_ids']['channel_id']
 
 
 if __name__ == "__main__":
-    APP.run(debug=True,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    pass
