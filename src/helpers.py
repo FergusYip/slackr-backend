@@ -362,7 +362,6 @@ def channel_join(channel_id, u_id):
         if channel_id == channel['channel_id']:
             channel['all_members'].append(u_id)
 
-<<<<<<< HEAD
 def generate_message_id():
 
     '''
@@ -402,8 +401,6 @@ def send_later(token, channel_id, message, time_sent):
     message_id = message_send(token, channel_id, message)
 
     return message_id
-=======
->>>>>>> iteration2
 
 if __name__ == '__main__':
     pass
