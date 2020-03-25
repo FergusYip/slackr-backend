@@ -18,7 +18,7 @@ def encode_token(u_id):
 def decode_token(token):
     '''Decode a given jwt token and return the payload'''
 
-    if token in data_store['token_blacklist']:
+    if token in data_store.token_blacklist:
         raise AccessError(description='Token is invalid')
 
     try:
@@ -28,10 +28,10 @@ def decode_token(token):
     except:
         raise AccessError(description='Token is invalid')
 
-    if payload['iat'] < int(data_store['time_created']):
+    if payload['iat'] < int(data_store.time_created):
         raise AccessError(description='Session has expired')
 
-    if payload['u_id'] not in get_all_u_id():
+    if payload['u_id'] not in data_store.get_all_u_id():
         raise AccessError(description='u_id does not belong to a user')
 
     return payload

@@ -3,7 +3,6 @@ from flask import request, Blueprint
 from error import AccessError, InputError
 from data_store import data_store
 from token_validation import decode_token
-import helpers
 
 ADMIN = Blueprint('admin', __name__)
 
@@ -20,18 +19,18 @@ def route_admin_userpermission_change():
 def admin_userpermission_change(token, u_id, permission_id):
     token_payload = decode_token(token)
 
-    if u_id not in helpers.get_all_u_id():
+    if u_id not in data_store.get_all_u_id():
         raise InputError(description='u_id does not refer to a valid user')
 
-    if permission_id not in helpers.get_permissions():
+    if permission_id not in data_store.get_permissions():
         raise InputError(
             description='permission_id does not refer to a valid permission')
 
-    if not helpers.is_owner(token_payload['u_id']):
+    if not data_store.is_owner(token_payload['u_id']):
         raise AccessError(description='The authorised user is not an owner')
 
-    user = helpers.get_user(u_id)
-    user['permission_id'] = permission_id
+    user = data_store.get_user(u_id=u_id)
+    user.permission_id = permission_id
 
     return {}
 

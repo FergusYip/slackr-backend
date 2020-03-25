@@ -4,7 +4,7 @@ from json import dumps
 from flask import request, Blueprint
 from error import InputError
 from email_validation import invalid_email
-from data_store import data_store
+from data_store import data_store, User
 from token_validation import decode_token, encode_token
 
 AUTH = Blueprint('auth', __name__)
@@ -59,22 +59,16 @@ def auth_register(email, password, name_first, name_last):
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
 
-    if get_user(email) is not None:
+    if data_store.get_user(email=email) is not None:
         raise InputError(
             description='Email address is already being used by another user')
 
     u_id = generate_u_id()
-    user = {
-        'u_id': u_id,
-        'email': email,
-        'password': hash_pw(password),
-        'name_first': name_first,
-        'name_last': name_last,
-        'handle_str': generate_handle(name_first, name_last),
-        'permission_id': set_default_permission(),
-    }
+    user = User(u_id, email, hash_pw(password), name_first, name_last,
+                generate_handle(name_first, name_last),
+                set_default_permission())
 
-    data_store['users'].append(user)
+    data_store.add_user(user)
 
     return {
         'u_id': u_id,
@@ -88,7 +82,7 @@ def auth_login(email, password):
             description='Insufficient parameters. Requires email and password.'
         )
 
-    user = get_user(email)
+    user = data_store.get_user(email=email)
 
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
@@ -96,10 +90,10 @@ def auth_login(email, password):
     if not user:
         raise InputError(description='Email entered does not belong to a user')
 
-    if user['password'] != hash_pw(password):
+    if user.password != hash_pw(password):
         raise InputError(description='Password is not correct')
 
-    return {'u_id': user['u_id'], 'token': encode_token(user['u_id'])}
+    return {'u_id': user.u_id, 'token': encode_token(user.u_id)}
 
 
 def auth_logout(token):
@@ -108,10 +102,10 @@ def auth_logout(token):
             description='Insufficient parameters. Requires token.')
 
     decode_token(token)
-    data_store['token_blacklist'].append(token)
+    data_store.add_to_blacklist(token)
 
-    if token in data_store['token_blacklist']:
-        is_success = False
+    if token in data_store.token_blacklist:
+        is_success = True
     else:
         is_success = False
 
@@ -130,23 +124,16 @@ def invalid_name(name):
     return True
 
 
-def get_user(email):
-    for user in data_store['users']:
-        if email == user['email']:
-            return user
-    return None
-
-
 def generate_u_id():
-    data_store['max_ids']['u_id'] += 1
-    return data_store['max_ids']['u_id']
+    data_store.max_ids['u_id'] += 1
+    return data_store.max_ids['u_id']
 
 
 def set_default_permission():
-    if not data_store['users']:
-        return data_store['permissions']['owner']
+    if not data_store.users:
+        return data_store.permissions['owner']
     else:
-        return data_store['permissions']['member']
+        return data_store.permissions['member']
 
 
 def hash_pw(password):
@@ -154,8 +141,8 @@ def hash_pw(password):
 
 
 def is_unique_handle(handle_str):
-    for user in data_store['users']:
-        if user['handle_str'] is handle_str:
+    for user in data_store.users:
+        if user.handle_str is handle_str:
             return False
     return True
 

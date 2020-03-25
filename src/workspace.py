@@ -9,15 +9,7 @@ WORKSPACE = Blueprint('workspace', __name__)
 @WORKSPACE.route("/workspace/reset", methods=['POST'])
 def workspace_reset():
     '''Reset the workspace state'''
-    data_store['users'].clear()
-    data_store['channels'].clear()
-    data_store['token_blacklist'].clear()
-
-    data_store['max_ids']['u_id'] = 0
-    data_store['max_ids']['channel_id'] = 0
-    data_store['max_ids']['message_id'] = 0
-
-    data_store['time_created'] = int(datetime.utcnow().timestamp())
+    data_store.reset()
 
     return dumps({})
 

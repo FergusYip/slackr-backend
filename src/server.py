@@ -5,15 +5,15 @@ from flask import Flask
 from flask_cors import CORS
 from admin import ADMIN
 from auth import AUTH
-from message import MESSAGE
-from user import USER
+# from message import MESSAGE
+# from user import USER
 from channels import CHANNELS
-from channel import CHANNEL
-from other import OTHER
+# from channel import CHANNEL
+# from other import OTHER
 from workspace import WORKSPACE
 from data_store import data_store, autosave
 
-AUTOSAVE_ENABLED = True
+AUTOSAVE_ENABLED = False
 DEBUG_MODE = not AUTOSAVE_ENABLED  # Do not change this line
 
 
@@ -38,11 +38,11 @@ APP.register_error_handler(Exception, defaultHandler)
 APP.register_blueprint(ADMIN, url_prefix='/admin')
 APP.register_blueprint(AUTH, url_prefix='/auth')
 APP.register_blueprint(CHANNELS, url_prefix='/channels')
-APP.register_blueprint(USER, url_prefix='/user')
-APP.register_blueprint(MESSAGE, url_prefix='/message')
-APP.register_blueprint(CHANNEL, url_prefix='/channel')
+# APP.register_blueprint(USER, url_prefix='/user')
+# APP.register_blueprint(MESSAGE, url_prefix='/message')
+# APP.register_blueprint(CHANNEL, url_prefix='/channel')
 
-APP.register_blueprint(OTHER)
+# APP.register_blueprint(OTHER)
 APP.register_blueprint(WORKSPACE)
 
 
@@ -55,7 +55,7 @@ def save_state():
 
 @APP.route('/data', methods=['GET'])
 def data():
-    return dumps(data_store)
+    return dumps(data_store.to_dict())
 
 
 '''@APP.route("/user/profile", methods=['GET'])

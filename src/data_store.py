@@ -30,6 +30,17 @@ class User:
     def change_permission(self, permission_id):
         self.permission_id = permission_id
 
+    def to_dict(self):
+        return {
+            'u_id': self.u_id,
+            'email': self.email,
+            'password': self.password,
+            'name_first': self.name_first,
+            'name_last': self.name_last,
+            'handle_str': self.handle_str,
+            'permission_id': self.permission_id
+        }
+
 
 class Channel:
     def __init__(self, creator_id, channel_id, name, is_public):
@@ -66,13 +77,26 @@ class Channel:
                 return message
         return None
 
+    def to_dict(self):
+        messages = []
+        for message in self.messages:
+            messages.append(message.to_dict())
+        return {
+            'channel_id': self.channel_id,
+            'name': self.name,
+            'is_public': self.is_public,
+            'owner_members': self.owner_members,
+            'all_members': self.all_members,
+            'messages': messages
+        }
+
 
 class Message:
     def __init__(self, message_id, u_id, message):
         self.message_id = message_id
         self.u_id = u_id
         self.message = message
-        self.time_created = int(datetime.now(timezone.utc).timestamp())
+        self.time_created = int(datetime.utcnow().timestamp())
         self.reacts = []
         self.is_pinned = False
 
@@ -91,6 +115,19 @@ class Message:
     def unpin(self):
         self.is_pinned = False
 
+    def to_dict(self):
+        reacts = []
+        for react in self.reacts:
+            reacts.append(react.to_dict())
+        return {
+            'message_id': self.message_id,
+            'u_id': self.u_id,
+            'message': self.message,
+            'time_created': self.time_created,
+            'reacts': reacts,
+            'is_pinned': self.is_pinned
+        }
+
 
 class React:
     def __init__(self, react_id):
@@ -107,6 +144,9 @@ class React:
         if u_id in self.u_ids:
             return True
         return False
+
+    def to_dict(self):
+        return {'react_id': self.react_id, 'u_ids': self.u_ids}
 
 
 class DataStore:
@@ -129,11 +169,14 @@ class DataStore:
     def add_channel(self, new_channel):
         self.channels.append(new_channel)
 
-    def get_user(self, u_id):
+    def get_user(self, u_id=None, email=None):
         for user in self.users:
-            if u_id == user.u_id:
+            if u_id == user.u_id or email == user.email:
                 return user
         return None
+
+    def get_all_u_id(self):
+        return [user.u_id for user in data_store.users]
 
     def get_channel(self, channel_id):
         for channel in self.channels:
@@ -141,10 +184,46 @@ class DataStore:
                 return channel
         return None
 
+    def get_permissions(self):
+        return self.permissions.values()
+
+    def is_owner(self, u_id):
+        user = self.get_user(u_id=u_id)
+        if user.permission_id == data_store.permissions['owner']:
+            return True
+        return False
+
+    def add_to_blacklist(self, token):
+        self.token_blacklist.append(token)
+
+    def to_dict(self):
+        users = []
+        for user in self.users:
+            users.append(user.to_dict())
+        channels = []
+        for channel in self.channels:
+            channels.append(channel.to_dict())
+
+        return {
+            'users': users,
+            'channels': channels,
+            'token_blacklist': self.token_blacklist,
+            'permissions': self.permissions,
+            'reactions': self.reactions,
+            'max_ids': self.max_ids,
+            'time_created': self.time_created
+        }
+
     def reset(self):
         self.users.clear()
         self.channels.clear()
         self.token_blacklist.clear()
+
+        self.max_ids['u_id'] = 0
+        self.max_ids['channel_id'] = 0
+        self.max_ids['message_id'] = 0
+
+        self.time_created = int(datetime.utcnow().timestamp())
 
 
 try:
