@@ -1,6 +1,8 @@
 from json import dumps
 from flask import request, Blueprint
 from token_validation import decode_token
+from error import AccessError, InputError
+from data_store import data_store
 import helpers
 
 STANDUP = Blueprint('standup', __name__)
@@ -43,6 +45,25 @@ def standup_active(token, channel_id):
 def standup_send(token, channel_id, message):
     token_info = decode_token(token)
     u_id = token_info['u_id']
+
+    channel = helpers.get_channel(channel_id)
+
+    if channel is None:
+        raise InputError(description="Channel ID is not a valid channel")
+
+    if len(message) > 1000:
+        raise InputError(description='Message is more than 1000 characters')
+
+    if channel['standup']['is_active'] is False:
+        raise InputError(
+            description=
+            'An active standup is not currently running in this channel')
+
+    if u_id not in channel['all_members']:
+        raise AccessError(
+            description=
+            'The authorised user is not a member of the channel that the message is within'
+        )
 
     message_dict = {'handle_str': helpers.get_handle(u_id), 'message': message}
 
