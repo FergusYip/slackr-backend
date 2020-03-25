@@ -41,5 +41,13 @@ def standup_active(token, channel_id):
 
 
 def standup_send(token, channel_id, message):
-    return {}
+    token_info = decode_token(token)
+    u_id = token_info['u_id']
 
+    message_dict = {'u_id': u_id, 'message': message}
+
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            channel['standup']['messages'].append(message_dict)
+
+    return {}
