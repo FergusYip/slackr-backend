@@ -4,15 +4,14 @@ allow users to send messages, react to messages, pin messages, and alter/remove
 their own messages.
 '''
 
-import sys
 from json import dumps
+import threading
+from time import sleep
 from flask import request, Blueprint
 from error import AccessError, InputError
 from data_store import data_store
 from token_validation import decode_token
-import threading
 import helpers
-from time import sleep
 
 MESSAGE = Blueprint('message', __name__)
 
@@ -271,6 +270,13 @@ def message_sendlater(token, channel_id, message, time_sent):
 
 
 def send_later(token, channel_id, message, time_sent, message_id):
+    '''
+    Function that will calculate the duration until the message is sent.
+    It will then call the message_send function to send the message,
+    reserve the next available message_id, but come after any messages
+    sent between the send_later request and the actual posting of the message.
+    '''
+
     time_now = helpers.utc_now()
     duration = time_sent - time_now
     sleep(duration)
@@ -278,6 +284,12 @@ def send_later(token, channel_id, message, time_sent, message_id):
 
 
 def send_later_thread(token, channel_id, message, time_sent, message_id):
+    '''
+    Function that will run the send_later function in the background as to not
+    put the entire application to sleep whilst waiting for the send_later
+    timer to end.
+    '''
+
     thread = threading.Thread(target=send_later,
                               args=(token, channel_id, message, time_sent,
                                     message_id))
