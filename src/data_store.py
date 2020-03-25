@@ -70,6 +70,15 @@ data_store = {
             }],
             'is_pinned': is_pinned
         }]
+        'standup': {
+            'active': (Bool),
+            'starting_user': (u_id),
+            'time_finish': (unix time),
+            'messages': [{
+                'u_id': (int),
+                'message': (string)
+            }]
+        }
     }],
     'tokens': [],
     'permissions': {

@@ -252,7 +252,7 @@ def channel_messages(channel, c_id, token_data, messages, start):
         }
         messages['messages'].append(message_info)
 
-    return {'messages': messages}
+    return messages
 
 
 def channel_join(user, channel, c_id):

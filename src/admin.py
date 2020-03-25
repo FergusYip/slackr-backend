@@ -1,7 +1,5 @@
-import sys
 from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
+from flask import request, Blueprint
 from error import AccessError, InputError
 from data_store import data_store
 from token_validation import decode_token
@@ -11,12 +9,15 @@ ADMIN = Blueprint('admin', __name__)
 
 
 @ADMIN.route('/userpermission/change', methods=['POST'])
-def admin_userpermission_change():
+def route_admin_userpermission_change():
     payload = request.get_json()
     token = payload['token']
     u_id = payload['u_id']
     permission_id = payload['permission_id']
+    return dumps(admin_userpermission_change(token, u_id, permission_id))
 
+
+def admin_userpermission_change(token, u_id, permission_id):
     token_payload = decode_token(token)
 
     if u_id not in helpers.get_all_u_id():
@@ -32,7 +33,7 @@ def admin_userpermission_change():
     user = helpers.get_user(u_id)
     user['permission_id'] = permission_id
 
-    return dumps({})
+    return {}
 
 
 if __name__ == '__main__':

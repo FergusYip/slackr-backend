@@ -11,6 +11,7 @@ from channels import CHANNELS
 from channel import CHANNEL
 from other import OTHER
 from workspace import WORKSPACE
+from standup import STANDUP
 from data_store import data_store, autosave
 
 AUTOSAVE_ENABLED = True
@@ -41,7 +42,7 @@ APP.register_blueprint(CHANNELS, url_prefix='/channels')
 APP.register_blueprint(USER, url_prefix='/user')
 APP.register_blueprint(MESSAGE, url_prefix='/message')
 APP.register_blueprint(CHANNEL, url_prefix='/channel')
-
+APP.register_blueprint(STANDUP, url_prefix='/standup')
 APP.register_blueprint(OTHER)
 APP.register_blueprint(WORKSPACE)
 

@@ -21,22 +21,21 @@ def get_channel(channel_id):
     return None
 
 
-def get_message(message_id, channel_id):
+def get_message(message_id):
     """ Returns message with id message_id
 
 	Parameters:
 		message_id (int): The id of the message
-		channel_id (int): The id of the channel containing the message
 
 	Returns:
 		message (dict): Dictionary of message details
 		None : If message was not found
 
 	"""
-    channel = get_channel(channel_id)
-    for message in channel['messages']:
-        if message_id == message['message_id']:
-            return message
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return message
     return None
 
 
@@ -140,7 +139,7 @@ def get_react(message_id, channel_id, react_id):
 		None: If react doesn't exist
 
 	"""
-    message = get_message(message_id, channel_id)
+    message = get_message(message_id)
     if message == None:
         return None
     for react in message['reacts']:
@@ -160,7 +159,7 @@ def is_pinned(message_id, channel_id):
 		(bool): Whether the message is pinned
 
 	"""
-    message = get_message(message_id, channel_id)
+    message = get_message(message_id)
     return message['is_pinned']
 
 
@@ -178,6 +177,9 @@ def has_user_reacted(u_id, message_id, channel_id, react_id):
 
 	"""
     react = get_react(message_id, channel_id, react_id)
+    if react is None:
+        return False
+
     if u_id in react['u_ids']:
         return True
     return False
@@ -208,6 +210,7 @@ def get_permissions():
 	"""
     return data_store['permissions'].values()
 
+
 def user_change_first_last_name(u_id, first_name, last_name):
     for user in data_store['users']:
         if user['u_id'] == u_id:
@@ -215,17 +218,20 @@ def user_change_first_last_name(u_id, first_name, last_name):
             user['name_last'] = last_name
             break
 
+
 def user_change_email(u_id, email):
     for user in data_store['users']:
         if user['u_id'] == u_id:
             user['email'] = email
             break
 
+
 def user_check_name(name):
     if 1 <= len(name) <= 50:
         return True
-    else: 
+    else:
         return False
+
 
 def is_email_used(email):
     for user in data_store['users']:
@@ -233,11 +239,13 @@ def is_email_used(email):
             return True
     return False
 
+
 def is_handle_used(handle):
     for user in data_store['users']:
         if user['handle_str'] == handle:
             return True
     return False
+
 
 def handle_length_check(handle):
     if 2 <= len(handle) <= 20:
@@ -245,11 +253,20 @@ def handle_length_check(handle):
     else:
         return False
 
+
+def get_handle(u_id):
+    for user in data_store['users']:
+        if u_id == user['u_id']:
+            return user['handle_str']
+    return None
+
+
 def user_change_handle(u_id, handle):
     for user in data_store['users']:
         if user['u_id'] == u_id:
             user['handle_str'] = handle
             break
+
 
 def message_send_message(message_dict, channel_id):
     for channel in data_store['channels']:
@@ -257,11 +274,13 @@ def message_send_message(message_dict, channel_id):
             channel['messages'].append(message_dict)
             break
 
+
 def message_remove_message(message_dict, channel_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             channel['messages'].remove(message_dict)
             break
+
 
 def message_edit_message(new_message, message_id, channel_id):
     for channel in data_store['channels']:
@@ -271,6 +290,7 @@ def message_edit_message(new_message, message_id, channel_id):
                     message['message'] = new_message
                     break
 
+
 def message_add_react(react_dict, message_id, channel_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
@@ -278,6 +298,7 @@ def message_add_react(react_dict, message_id, channel_id):
                 if message_id == message['message_id']:
                     message['reacts'].append(react_dict)
                     break
+
 
 def message_add_react_uid(user_id, message_id, channel_id, react_id):
     for channel in data_store['channels']:
@@ -289,6 +310,7 @@ def message_add_react_uid(user_id, message_id, channel_id, react_id):
                             react['u_ids'].append(user_id)
                             break
 
+
 def message_remove_react_uid(user_id, message_id, channel_id, react_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
@@ -299,6 +321,7 @@ def message_remove_react_uid(user_id, message_id, channel_id, react_id):
                             react['u_ids'].remove(user_id)
                             break
 
+
 def message_remove_reaction(react_dict, message_id, channel_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
@@ -306,6 +329,7 @@ def message_remove_reaction(react_dict, message_id, channel_id):
                 if message_id == message['message_id']:
                     message['reacts'].remove(react_dict)
                     break
+
 
 def message_pin(message_id, channel_id):
     for channel in data_store['channels']:
@@ -315,6 +339,7 @@ def message_pin(message_id, channel_id):
                     message['is_pinned'] = True
                     break
 
+
 def message_unpin(message_id, channel_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
@@ -323,10 +348,56 @@ def message_unpin(message_id, channel_id):
                     message['is_pinned'] = False
                     break
 
+
+def user_channels(u_id):
+    '''Retrieve a list of a user's joined channels'''
+    return [
+        channel for channel in data_store['channels']
+        if u_id in channel['all_members']
+    ]
+
+
+def channel_search(channel, query_str):
+    '''Retrieve all messages in a channel which contain the query string'''
+    return [
+        message for message in channel['messages']
+        if query_str in message['message']
+    ]
+
+
 def channel_join(channel_id, u_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             channel['all_members'].append(u_id)
+
+
+def generate_message_id():
+    '''
+    Function that will generate a unique message_id within a specific channel.
+    '''
+
+    message_id = data_store['max_ids']['message_id'] + 1
+
+    data_store['max_ids']['message_id'] = message_id
+
+    return message_id
+
+
+def get_channel_from_message(message_id):
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return channel
+    return None
+
+
+def get_channel_message(message_id):
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return {'channel': channel, 'message': message}
+    return None
+
 
 if __name__ == '__main__':
     pass
