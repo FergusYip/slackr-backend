@@ -234,7 +234,7 @@ def channel_messages(channel, c_id, token_data, messages, start):
         message_reacts = []
         reacts = message['reacts']
         for react in reacts:
-            is_this_user_reacted = token_data['u_id'] in react['u_id']
+            is_this_user_reacted = token_data['u_id'] in react['u_ids']
             react_info = {
                 'react_id': react['react_id'],
                 'u_ids': react['u_id'],
