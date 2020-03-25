@@ -1,6 +1,5 @@
 import requests
 import pytest
-from error import InputError, AccessError
 
 BASE_URL = 'http://127.0.0.1:8080'
 
@@ -96,8 +95,9 @@ def test_create_private(reset, new_user):
         'channel_id': channel['channel_id']
     }
 
-    with pytest.raises(AccessError):
-        requests.post(f'{BASE_URL}/channel/join', json=join_input)
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/join',
+                      json=join_input).raise_for_status()
 
     details_input = {
         'token': owner['token'],
@@ -121,8 +121,9 @@ def test_create_long_name(reset, new_user):
         'is_public': True
     }
 
-    with pytest.raises(InputError):
-        requests.post(f'{BASE_URL}/channels/create', json=create_input).json()
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channels/create',
+                      json=create_input).raise_for_status()
 
 
 def test_create_invalid_token(reset, invalid_token):
@@ -134,5 +135,6 @@ def test_create_invalid_token(reset, invalid_token):
         'is_public': True
     }
 
-    with pytest.raises(AccessError):
-        requests.post(f'{BASE_URL}/channels/create', json=create_input).json()
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channels/create',
+                      json=create_input).raise_for_status()

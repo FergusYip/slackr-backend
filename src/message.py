@@ -11,6 +11,7 @@ from flask_cors import CORS
 from error import AccessError, InputError
 from data_store import data_store
 from token_validation import decode_token
+import threading
 import helpers
 
 APP = Flask(__name__)
@@ -66,6 +67,7 @@ def route_message_edit():
     message_id = int(payload['message_id'])
     new_message = payload['message']
 
+<<<<<<< HEAD
     return dumps(message_edit(token, message_id, new_message))
 
 @MESSAGE.route("/sendlater", methods=['POST'])
@@ -76,10 +78,15 @@ def route_message_sendlater():
     '''
 
     payload = request.get_json()
+=======
+    channel_id = int(payload['channel_id'])
+    channel_info = helpers.get_channel(channel_id)
+>>>>>>> iteration2
 
     token = payload['token']
     channel_id = int(payload['channel_id'])
     message = payload['message']
+<<<<<<< HEAD
     time_sent = int(payload['time_sent'])
 
     return dumps(message_sendlater(token, channel_id, message, time_sent))
@@ -157,6 +164,8 @@ def message_send(token, channel_id, message):
     user_id = int(token_info['u_id'])
 
     channel_info = helpers.get_channel(channel_id)
+=======
+>>>>>>> iteration2
 
     time_now = helpers.utc_now()
 
@@ -176,7 +185,11 @@ def message_send(token, channel_id, message):
         raise AccessError(
             description='User does not have Access to send messages in the current channel')
 
+<<<<<<< HEAD
     message_id = helpers.generate_message_id()
+=======
+    message_id = generate_message_id()
+>>>>>>> iteration2
 
     message_info = {
         'message_id': message_id,
@@ -290,11 +303,30 @@ def message_sendlater(token, channel_id, message, time_sent):
         raise AccessError(
             description='User does not have Access to send messages in the current channel')
 
+<<<<<<< HEAD
     message_info = helpers.send_later(token, channel_id, message, time_sent)
 
     return message_info
 
 def message_react(token, message_id, react_id):
+=======
+    send_later(time_sent)
+
+    return dumps({
+        'message_id': message_id
+    })
+
+def send_later(time_sent):
+    time_now = helpers.utc_now()
+
+    duration = time_sent - time_now
+
+    timer = threading.Timer(duration, message_send)
+    timer.start() 
+
+@MESSAGE.route("/react", methods=['POST'])
+def message_react():
+>>>>>>> iteration2
 
     '''
     Function that will add a reaction to a specific message in a desired
