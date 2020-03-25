@@ -1,11 +1,32 @@
-def standup_start(token, channel_id, length):
-    # return { time_finish }
+from json import dumps
+from flask import request, Blueprint
+from token_validation import decode_token
+import helpers
+
+STANDUP = Blueprint('standup', __name__)
+
+
+@STANDUP.route("/standup/start", methods=['POST'])
+def route_standup_start():
+    payload = request.get_json()
+    token = payload['token']
+    channel_id = payload['channel_id']
+    length = payload['length']
+
     pass
 
-def standup_active(token, channel_id):
-    # return { is_active, time_finish }
-    pass
 
-def standup_send(token, channel_id, message):
-    # return { }
+@STANDUP.route("/standup/active", methods=['GET'])
+def route_standup_active():
+    payload = request.get_json()
+    token = payload['token']
+    channel_id = payload['channel_id']
+
+
+@STANDUP.route("/standup/send", methods=['POST'])
+def route_standup_send():
+    payload = request.get_json()
+    token = payload['token']
+    channel_id = payload['channel_id']
+    message = payload['message']
     pass
