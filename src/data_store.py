@@ -219,6 +219,10 @@ class DataStore:
     def add_to_blacklist(self, token):
         self.token_blacklist.append(token)
 
+    def generate_id(self, id_type):
+        self.max_ids[id_type] += 1
+        return self.max_ids[id_type]
+
     def to_dict(self):
         users = []
         for user in self.users:
