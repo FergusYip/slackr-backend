@@ -30,6 +30,16 @@ class User:
     def change_permission(self, permission_id):
         self.permission_id = permission_id
 
+    @property
+    def profile_dict(self):
+        return {
+            'u_id': self.u_id,
+            'email': self.email,
+            'name_first': self.name_first,
+            'name_last': self.name_last,
+            'handle_str': self.handle_str,
+        }
+
     def to_dict(self):
         return {
             'u_id': self.u_id,
@@ -76,6 +86,13 @@ class Channel:
             if message_id == message.message_id:
                 return message
         return None
+
+    def message_search(self, query_str):
+        '''Retrieve all messages in a channel which contain the query string'''
+        return [
+            message.to_dict for message in self.messages
+            if query_str in message.message
+        ]
 
     def to_dict(self):
         messages = []
@@ -183,6 +200,12 @@ class DataStore:
             if channel_id == channel.channel_id:
                 return channel
         return None
+
+    def user_channels(self, u_id):
+        '''Retrieve a list of a user's joined channels'''
+        return [
+            channel for channel in self.channels if u_id in channel.all_members
+        ]
 
     def get_permissions(self):
         return self.permissions.values()

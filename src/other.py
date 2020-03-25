@@ -23,18 +23,9 @@ def route_search():
 
 def users_all(token):
     decode_token(token)
-
     users = []
-    for user in data_store['users']:
-        user_dict = {
-            'u_id': user['u_id'],
-            'email': user['email'],
-            'name_first': user['name_first'],
-            'name_last': user['name_last'],
-            'handle_str': user['handle_str'],
-        }
-        users.append(user_dict)
-
+    for user in data_store.users:
+        users.append(user.profile_dict)
     return {'users': users}
 
 
@@ -42,9 +33,9 @@ def search(token, query_str):
     token_payload = decode_token(token)
 
     messages = []
-    for channel in user_channels(token_payload['u_id']):
-        channel_results = channel_search(channel, query_str)
-        messages.append(channel_results)
+    for channel in data_store.user_channels(token_payload['u_id']):
+        search_results = channel.message_search(query_str)
+        messages.append(search_results)
 
     return {'messages': messages}
 

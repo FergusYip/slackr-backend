@@ -9,7 +9,7 @@ from auth import AUTH
 # from user import USER
 from channels import CHANNELS
 # from channel import CHANNEL
-# from other import OTHER
+from other import OTHER
 from workspace import WORKSPACE
 from data_store import data_store, autosave
 
@@ -42,7 +42,7 @@ APP.register_blueprint(CHANNELS, url_prefix='/channels')
 # APP.register_blueprint(MESSAGE, url_prefix='/message')
 # APP.register_blueprint(CHANNEL, url_prefix='/channel')
 
-# APP.register_blueprint(OTHER)
+APP.register_blueprint(OTHER)
 APP.register_blueprint(WORKSPACE)
 
 
