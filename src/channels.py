@@ -74,7 +74,13 @@ def channels_create(token, name, is_public):
         'is_public': is_public,
         'owner_members': [u_id],
         'all_members': [u_id],
-        'messages': []
+        'messages': [],
+        'standup': {
+            'is_active': False,
+            'starting_user': None,
+            'time_finish': None,
+            'messages': []
+        }
     }
 
     data_store['channels'].append(channel)
