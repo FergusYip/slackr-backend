@@ -2,8 +2,6 @@
 
 from datetime import datetime, timezone
 from data_store import data_store
-from message import message_send
-from time import sleep
 
 
 def get_channel(channel_id):
@@ -141,7 +139,7 @@ def get_react(message_id, channel_id, react_id):
 		None: If react doesn't exist
 
 	"""
-    message = get_message(message_id, channel_id)
+    message = get_message(message_id)
     if message == None:
         return None
     for react in message['reacts']:
@@ -161,7 +159,7 @@ def is_pinned(message_id, channel_id):
 		(bool): Whether the message is pinned
 
 	"""
-    message = get_message(message_id, channel_id)
+    message = get_message(message_id)
     return message['is_pinned']
 
 
@@ -362,9 +360,8 @@ def channel_join(channel_id, u_id):
         if channel_id == channel['channel_id']:
             channel['all_members'].append(u_id)
 
-<<<<<<< HEAD
-def generate_message_id():
 
+def generate_message_id():
     '''
     Function that will generate a unique message_id within a specific channel.
     '''
@@ -375,6 +372,7 @@ def generate_message_id():
 
     return message_id
 
+
 def get_channel_from_message(message_id):
     for channel in data_store['channels']:
         for message in channel['messages']:
@@ -382,28 +380,14 @@ def get_channel_from_message(message_id):
                 return channel
     return None
 
+
 def get_channel_message(message_id):
     for channel in data_store['channels']:
         for message in channel['messages']:
             if message_id == message['message_id']:
-                return {
-                    'channel': channel,
-                    'message': message
-                }
+                return {'channel': channel, 'message': message}
     return None
 
-def send_later(token, channel_id, message, time_sent):
-    time_now = utc_now()
-
-    duration = time_sent - time_now
-
-    sleep(duration)
-    
-    message_id = message_send(token, channel_id, message)
-
-    return message_id
-=======
->>>>>>> iteration2
 
 if __name__ == '__main__':
     pass
