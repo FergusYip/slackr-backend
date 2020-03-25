@@ -43,10 +43,14 @@ def standup_start(token, channel_id, length):
     Implementation of standup start function.
     '''
     decode_token(token)
-
     channel = helpers.get_channel(channel_id)
+
     if channel is None:
         raise InputError(description='Channel does not exist.')
+
+    if channel['standup']['is_active'] is True:
+        raise InputError(
+            description='An active standup is currently running on this channel')
 
     channel['standup']['is_active'] = True
 
@@ -72,10 +76,18 @@ def stop_standup(channel_id):
 
 
 def standup_active(token, channel_id):
+    decode_token(token)
+
     # input error if channel does not exist.
     channel = helpers.get_channel(channel_id)
+
     if channel is None:
         raise InputError(description='Channel does not exist.')
+
+    return {
+        'is_active': channel['standup']['is_active'],
+        'time_finish': channel['standup']['time_finish']
+    }
 
 
 def standup_send(token, channel_id, message):
