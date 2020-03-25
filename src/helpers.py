@@ -177,6 +177,9 @@ def has_user_reacted(u_id, message_id, channel_id, react_id):
 
 	"""
     react = get_react(message_id, channel_id, react_id)
+    if react is None:
+        return False
+
     if u_id in react['u_ids']:
         return True
     return False

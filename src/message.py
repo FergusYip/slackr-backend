@@ -363,7 +363,7 @@ def message_unreact(token, message_id, react_id):
     if user_id not in react_removal['u_ids']:
         raise InputError(description='User has not reacted to this message')
 
-    if len(react_removal) == 1:
+    if len(react_removal['u_ids']) == 1:
         # If the current user is the only reaction on the message.
         helpers.message_remove_reaction(react_removal, message_id, channel_id)
     else:
