@@ -1,50 +1,34 @@
-'''Pytest script for testing users_all route'''
-
-import requests
 import pytest
+import other
+import user
+from error import AccessError
 
-BASE_URL = 'http://127.0.0.1:8080'
 
-
-def test_users_all_single_user(reset, new_user, get_user_profile):
+def test_users_all_single_user(test_user):
     '''Test that a single user profile is returned by user_all'''
 
-    user = new_user()
-    user_profile = get_user_profile(user['token'], user['u_id'])['user']
+    test_user_profile = user.user_profile(test_user['token'],
+                                          test_user['u_id'])['user']
+    all_users = other.users_all(test_user['token'])
 
-    users_all_input = {'token': user['token']}
-    users_all = requests.get(f'{BASE_URL}/users/all',
-                             json=users_all_input).json()
-
-    assert user_profile in users_all['users']
+    assert test_user_profile in all_users['users']
 
 
-def test_users_all_multiple_users(reset, new_user):
+def test_users_all_multiple_users(new_user):
     '''Test that user_all returns the number of registered users'''
 
-    user = new_user(email='user_1@email.com')
-    users_all_input = {'token': user['token']}
+    user_1 = new_user('user_1@email.com')
+    assert len(other.users_all(user_1['token'])['users']) == 1
 
-    users_all = requests.get(f'{BASE_URL}/users/all',
-                             json=users_all_input).json()
-    assert len(users_all['users']) == 1
+    user_2 = new_user('user_2@email.com')
+    assert len(other.users_all(user_2['token'])['users']) == 2
 
-    new_user(email='user_2@email.com')
-    users_all = requests.get(f'{BASE_URL}/users/all',
-                             json=users_all_input).json()
-    assert len(users_all['users']) == 2
-
-    new_user(email='user_3@email.com')
-    users_all = requests.get(f'{BASE_URL}/users/all',
-                             json=users_all_input).json()
-    assert len(users_all['users']) == 3
+    user_3 = new_user('user_3@email.com')
+    assert len(other.users_all(user_3['token'])['users']) == 3
 
 
-def test_users_all_invalid_token(reset, invalid_token):
+def test_users_all_invalid_token(invalid_token):
     '''Test user_all with invalid token'''
 
-    users_all_input = {'token': invalid_token}
-    error = requests.get(f'{BASE_URL}/users/all', json=users_all_input)
-
-    with pytest.raises(requests.HTTPError):
-        requests.Response.raise_for_status(error)
+    with pytest.raises(AccessError):
+        other.users_all(invalid_token)

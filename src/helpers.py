@@ -21,22 +21,21 @@ def get_channel(channel_id):
     return None
 
 
-def get_message(message_id, channel_id):
+def get_message(message_id):
     """ Returns message with id message_id
 
 	Parameters:
 		message_id (int): The id of the message
-		channel_id (int): The id of the channel containing the message
 
 	Returns:
 		message (dict): Dictionary of message details
 		None : If message was not found
 
 	"""
-    channel = get_channel(channel_id)
-    for message in channel['messages']:
-        if message_id == message['message_id']:
-            return message
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return message
     return None
 
 
@@ -140,7 +139,7 @@ def get_react(message_id, channel_id, react_id):
 		None: If react doesn't exist
 
 	"""
-    message = get_message(message_id, channel_id)
+    message = get_message(message_id)
     if message == None:
         return None
     for react in message['reacts']:
@@ -160,7 +159,7 @@ def is_pinned(message_id, channel_id):
 		(bool): Whether the message is pinned
 
 	"""
-    message = get_message(message_id, channel_id)
+    message = get_message(message_id)
     return message['is_pinned']
 
 
@@ -178,6 +177,9 @@ def has_user_reacted(u_id, message_id, channel_id, react_id):
 
 	"""
     react = get_react(message_id, channel_id, react_id)
+    if react is None:
+        return False
+
     if u_id in react['u_ids']:
         return True
     return False
@@ -250,6 +252,13 @@ def handle_length_check(handle):
         return True
     else:
         return False
+
+
+def get_handle(u_id):
+    for user in data_store['users']:
+        if u_id == user['u_id']:
+            return user['handle_str']
+    return None
 
 
 def user_change_handle(u_id, handle):
@@ -360,6 +369,34 @@ def channel_join(channel_id, u_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             channel['all_members'].append(u_id)
+
+
+def generate_message_id():
+    '''
+    Function that will generate a unique message_id within a specific channel.
+    '''
+
+    message_id = data_store['max_ids']['message_id'] + 1
+
+    data_store['max_ids']['message_id'] = message_id
+
+    return message_id
+
+
+def get_channel_from_message(message_id):
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return channel
+    return None
+
+
+def get_channel_message(message_id):
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return {'channel': channel, 'message': message}
+    return None
 
 
 if __name__ == '__main__':
