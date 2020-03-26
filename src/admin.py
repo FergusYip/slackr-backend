@@ -41,7 +41,7 @@ def admin_userpermission_change(token, u_id, permission_id):
         raise InputError(
             description='permission_id does not refer to a valid permission')
 
-    if not data_store.is_owner(token_payload['u_id']):
+    if not data_store.is_admin(token_payload['u_id']):
         raise AccessError(description='The authorised user is not an owner')
 
     user = data_store.get_user(u_id)
