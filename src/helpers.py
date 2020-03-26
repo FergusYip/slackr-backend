@@ -378,7 +378,7 @@ def channel_search(channel, query_str):
     '''Retrieve all messages in a channel which contain the query string'''
     return [
         message for message in channel['messages']
-        if query_str in message['message']
+        if query_str.lower() in message['message'].lower()
     ]
 
 
