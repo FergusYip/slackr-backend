@@ -45,6 +45,14 @@ class User:
             'handle_str': self.handle_str,
         }
 
+    @property
+    def id_names(self):
+        return {
+            'u_id': self.u_id,
+            'name_first': self.name_first,
+            'name_last': self.name_last
+        }
+
     def to_dict(self):
         return {
             'u_id': self.u_id,
@@ -85,13 +93,22 @@ class Channel:
         self.all_members.remove(user)
 
     def is_member(self, user):
-        if user in self.all_members:
-            return True
-        return False
+        return user in self.all_members
+
+    @property
+    def id_name(self):
+        return {'channel_id': self.channel_id, 'name': self.name}
 
     @property
     def details(self):
-        return {'channel_id': self.channel_id, 'name': self.name}
+        return {
+            'name': self.name,
+            'owner_members': [user.id_names for user in self.owner_members],
+            'all_members': [user.id_names for user in self.all_members]
+        }
+
+    def is_owner(self, user):
+        return user in self.owner_members
 
     def search(self, query_str):
         return [
@@ -265,8 +282,7 @@ class DataStore:
     def permission_values(self):
         return self.permissions.values()
 
-    def is_owner(self, u_id):
-        user = self.get_user(u_id=u_id)
+    def is_admin(self, user):
         return user.permission_id == data_store.permissions['owner']
 
     def add_to_blacklist(self, token):

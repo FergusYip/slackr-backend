@@ -46,7 +46,7 @@ def channels_list(token):
 	"""
     token_payload = decode_token(token)
     user = data_store.get_user(token_payload['u_id'])
-    channels = [channel.details for channel in user.channels]
+    channels = [channel.id_name for channel in user.channels]
     return {'channels': channels}
 
 
@@ -61,7 +61,7 @@ def channels_listall(token):
 
 	"""
     decode_token(token)
-    channels = [channel.details for channel in data_store.channels]
+    channels = [channel.id_name for channel in data_store.channels]
     return {'channels': channels}
 
 

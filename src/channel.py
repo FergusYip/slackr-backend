@@ -4,350 +4,321 @@ invite, details, messages, leave, join, addowner, removeowner
 '''
 
 from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
+from flask import request, Blueprint
 from error import AccessError, InputError
 from data_store import data_store
 from token_validation import decode_token
-import helpers
-
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 
 CHANNEL = Blueprint('channel', __name__)
 
 
-@CHANNEL.route("/invite", methods=['POST'])
+@CHANNEL.route("/channel/invite", methods=['POST'])
 def route_channel_invite():
     '''
     Flask route to implement channel_invite function.
     '''
     payload = request.get_json()
-
-    token = payload['token']
-    c_id = int(payload['channel_id'])
-    invited = int(payload['u_id'])
-
-    return dumps(channel_invite(token, c_id, invited))
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    u_id = payload.get('u_id')
+    return dumps(channel_invite(token, channel_id, u_id))
 
 
-@CHANNEL.route("/details", methods=['GET'])
+@CHANNEL.route("/channel/details", methods=['GET'])
 def route_channel_details():
     '''
     Flask route to implement channel_invite function.
     '''
     token = request.values.get('token')
-    c_id = int(request.values.get('channel_id'))
+    channel_id = request.values.get('channel_id')
+    return dumps(channel_details(token, channel_id))
 
-    return dumps(channel_details(token, c_id))
 
-
-@CHANNEL.route("/messages", methods=['GET'])
+@CHANNEL.route("/channel/messages", methods=['GET'])
 def route_channel_messages():
     '''
     Flask route for channel_messages function.
     '''
-
     token = request.values.get('token')
-    token_data = decode_token(token)
-
-    c_id = int(request.values.get('channel_id'))
-    start = int(request.values.get('start'))
-    channel = helpers.get_channel(c_id)
-
-    messages = {'messages': [], 'start': start, 'end': start + 50}
-
-    return dumps(channel_messages(channel, c_id, token_data, messages, start))
+    channel_id = request.values.get('channel_id')
+    start = request.values.get('start')
+    return dumps(channel_messages(token, channel_id, start))
 
 
-@CHANNEL.route("/join", methods=['POST'])
-def route_channel_join():
-    '''
-    Flask route for channel_join function.
-    '''
-    payload = request.get_json()
-
-    token = payload['token']
-    token_data = decode_token(token)
-
-    c_id = int(payload['channel_id'])
-    channel = helpers.get_channel(c_id)
-    user = int(token_data['u_id'])
-
-    return dumps(channel_join(user, channel, c_id))
-
-
-@CHANNEL.route("/leave", methods=['POST'])
+@CHANNEL.route("/channel/leave", methods=['POST'])
 def route_channel_leave():
     '''
     Flask route to implement channel_leave function.
     '''
     payload = request.get_json()
-
-    token = payload['token']
-    token_data = decode_token(token)
-
-    c_id = int(payload['channel_id'])
-    channel = helpers.get_channel(c_id)
-
-    return dumps(channel_leave(token_data, channel, c_id))
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    return dumps(channel_leave(token, channel_id))
 
 
-@CHANNEL.route("/addowner", methods=['POST'])
+@CHANNEL.route("/channel/join", methods=['POST'])
+def route_channel_join():
+    '''
+    Flask route for channel_join function.
+    '''
+    payload = request.get_json()
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    return dumps(channel_join(token, channel_id))
+
+
+@CHANNEL.route("/channel/addowner", methods=['POST'])
 def route_channel_addowner():
     '''
     Flask route for channel_addowner function.
     '''
     payload = request.get_json()
-
-    token = payload['token']
-    token_data = decode_token(token)
-
-    c_id = int(payload['channel_id'])
-    channel = helpers.get_channel(c_id)
-    user = int(payload['u_id'])
-    auth_user = int(token_data['u_id'])
-
-    return dumps(channel_addowner(channel, user, auth_user, c_id))
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    u_id = payload.get('u_id')
+    return dumps(channel_addowner(token, channel_id, u_id))
 
 
-@CHANNEL.route("/removeowner", methods=['POST'])
+@CHANNEL.route("/channel/removeowner", methods=['POST'])
 def route_channel_removeowner():
     '''
     Implementing removeowner function by removing user from channel['owner_members']
     '''
     payload = request.get_json()
-
-    token = payload['token']
-    token_data = decode_token(token)
-
-    c_id = int(payload['channel_id'])
-    channel = helpers.get_channel(c_id)
-    user = int(payload['u_id'])
-    auth_user = int(token_data['u_id'])
-
-    return dumps(channel_removeowner(channel, user, auth_user, c_id))
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    u_id = payload.get('u_id')
+    return dumps(channel_removeowner(token, channel_id, u_id))
 
 
-def channel_invite(token, c_id, invited):
+def channel_invite(token, channel_id, u_id):
     '''
-    Implementing invite function by appending user to channel['all_members']
+    Invite a user into a channel with ID channel_id
     '''
-    token_data = decode_token(token)
+    if None in {token, channel_id, u_id}:
+        raise InputError(description='Insufficient parameters')
 
-    if helpers.get_user(invited) is None:
+    channel_id = int(channel_id)
+    u_id = int(u_id)
+
+    decode_token(token)
+
+    if data_store.get_user(u_id) is None:
         raise InputError(description='User does not exist.')
 
-    if not helpers.is_channel_member(invited, c_id):
-        add_into_channel(token_data['u_id'], c_id, invited)
+    channel = data_store.get_channel(channel_id)
+    invitee = data_store.get_user(u_id)
+
+    if invitee not in channel.all_members:
+        channel.add_member(invitee)
 
     return {}
 
 
-def add_into_channel(inviter, c_id, invited):
-    '''
-    Appends a user ID into the channel with ID c_id.
-    '''
-    for channel in data_store['channels']:
-        if channel['channel_id'] == c_id:
-            if inviter not in channel['all_members']:
-                raise AccessError(
-                    description='User does not have permission to invite')
-
-            channel['all_members'].append(invited)
-
-
-def channel_details(token, c_id):
+def channel_details(token, channel_id):
     '''
     Implementing details function by returning json of dictionary containing
     relavant information of a channel.
     '''
-    token_data = decode_token(token)
 
-    auth_user = int(token_data['u_id'])
+    if None in {token, channel_id}:
+        raise InputError(description='Insufficient parameters')
+
+    token_data = decode_token(token)
+    u_id = int(token_data['u_id'])
+    channel_id = int(channel_id)
+
+    user = data_store.get_user(u_id)
+    channel = data_store.get_channel(channel_id)
 
     # if channel doesn't exist.
-    if helpers.get_channel(c_id) is None:
+    if channel is None:
         raise InputError(description='Channel does not exist.')
 
     # if user asking for details is not in the channel.
-    if helpers.is_channel_member(auth_user, c_id) is False:
+    if channel.is_member(user) is False:
         raise AccessError(description='Authorized user not in the channel')
 
-    # finding the right channel.
-    channel = helpers.get_channel(c_id)
-
-    owner_members = []
-    for owner_id in channel['owner_members']:
-        owner = helpers.get_user(owner_id)
-        owner_dict = {
-            'u_id': owner['u_id'],
-            'name_first': owner['name_first'],
-            'name_last': owner['name_last'],
-        }
-        owner_members.append(owner_dict)
-
-    all_members = []
-    for user_id in channel['all_members']:
-        user = helpers.get_user(user_id)
-        user_dict = {
-            'u_id': user['u_id'],
-            'name_first': user['name_first'],
-            'name_last': user['name_last'],
-        }
-        all_members.append(user_dict)
-
-    details = {
-        'name': channel['name'],
-        'owner_members': owner_members,
-        'all_members': all_members
-    }
-
-    return details
+    return channel.details
 
 
-def channel_messages(channel, c_id, token_data, messages, start):
+def channel_messages(token, channel_id, start):
     '''
     Implementing invite function by appending user to channel['all_members']
     '''
+
+    if None in {token, channel_id, start}:
+        raise InputError(description='Insufficient parameters')
+
+    channel_id = int(channel_id)
+    start = int(start)
+
+    token_data = decode_token(token)
+    channel = data_store.get_channel(channel_id)
+    user = data_store.get_user(token_data['u_id'])
+
     # input error when the given start is greater than the id of last message.
     if start > len(channel['messages']):
         raise InputError(description='start is greater than end')
 
     # input error if channel doesn't exist.
-    if helpers.get_channel(c_id) is None:
-        raise InputError(description='Channel does not exist.')
-
-    # access error when authorized user not a member of channel.
-    if helpers.is_channel_member(token_data['u_id'], c_id) is False:
-        raise AccessError(
-            description='authorized user not a member of channel.')
-
-    for i in range(51):
-        try:
-            message = channel['messages'][start + i]
-        except IndexError:
-            messages['end'] = -1
-            break
-
-        message_reacts = []
-        reacts = message['reacts']
-        for react in reacts:
-            is_this_user_reacted = token_data['u_id'] in react['u_ids']
-            react_info = {
-                'react_id': react['react_id'],
-                'u_ids': react['u_ids'],
-                'is_this_user_reacted': is_this_user_reacted
-            }
-            message_reacts.append(react_info)
-
-        message_info = {
-            'message_id': message['message_id'],
-            'u_id': message['u_id'],
-            'message': message['message'],
-            'time_created': message['time_created'],
-            'reacts': message_reacts,
-            'is_pinned': message['is_pinned']
-        }
-        messages['messages'].append(message_info)
-
-    return messages
-
-
-def channel_join(user, channel, c_id):
-    '''
-    Implementing join function by appending user to channel['all_members']
-    '''
-    # input error if channel doesn't exist.
     if channel is None:
         raise InputError(description='Channel does not exist.')
 
-    # access error when channel is private.
-    if channel['is_public'] is False:
-        raise AccessError(description='Channel is private.')
+    # access error when authorized user not a member of channel.
+    if channel.is_member(user) is False:
+        raise AccessError(
+            description='authorized user not a member of channel.')
 
-    # appends to channel['all_members'] if user not already a member.
-    if helpers.is_channel_member(user, c_id) is False:
-        helpers.channel_join(c_id, user)
+    end = start + 50
 
-    return {}
+    messages = []
+    for i in range(50):
+        try:
+            message = channel.messages[start + i]
+            messages.append(message.details(user))
+        except IndexError:
+            end = -1
+            break
+
+    return {'messages': messages, 'start': start, 'end': end}
 
 
-def channel_leave(token_data, channel, c_id):
+def channel_leave(token, channel_id):
     '''
     Implementing leave function by removing user from channel['all_members']
     and channel['owner_members']
     '''
 
+    if None in {token, channel_id}:
+        raise InputError(description='Insufficient parameters')
+
+    token_data = decode_token(token)
+    user = data_store.get_user(token_data['u_id'])
+
+    channel_id = int(channel_id)
+    channel = data_store.get_channel(channel_id)
+
     # input error if channel doesn't exist.
     if channel is None:
         raise InputError(description='Channel does not exist.')
 
     # access error when authorized user not a member of channel.
-    if helpers.is_channel_member(token_data['u_id'], c_id) is False:
+    if channel.is_member is False:
         raise AccessError(
-            description='authorized user not a member of channel.')
+            description='Authorized user not a member of channel.')
 
-    channel['all_members'].remove(token_data['u_id'])
+    if user in channel.all_members:
+        channel.remove_member(user)
 
-    if helpers.is_user_admin(token_data['u_id'], c_id):
-        channel['owner_members'].remove(token_data['u_id'])
+    if user in channel.owner_members:
+        channel.remove_owner(user)
 
     return {}
 
 
-def channel_addowner(channel, user, auth_user, c_id):
+def channel_join(token, channel_id):
+    '''
+    Implementing join function by appending user to channel['all_members']
+    '''
+
+    if None in {token, channel_id}:
+        raise InputError(description='Insufficient parameters')
+
+    token_data = decode_token(token)
+    user = data_store.get_user(token_data['u_id'])
+
+    channel_id = int(channel_id)
+    channel = data_store.get_channel(channel_id)
+
+    # input error if channel doesn't exist.
+    if channel is None:
+        raise InputError(description='Channel does not exist.')
+
+    # access error when channel is private.
+    if channel.is_public is False:
+        raise AccessError(description='Channel is private.')
+
+    # Add user to channel if user is not already a member.
+    if channel.is_member(user) is False:
+        channel.add_member(user)
+
+    return {}
+
+
+def channel_addowner(token, channel_id, u_id):
     '''
     Implementing addowner function by appending user to channel['owner_members']
     '''
+
+    if None in {token, channel_id, u_id}:
+        raise InputError(description='Insufficient parameters')
+
+    token_data = decode_token(token)
+    admin = data_store.get_user(token_data['u_id'])
+
+    channel_id = int(channel_id)
+    channel = data_store.get_channel(channel_id)
+
+    u_id = int(u_id)
+    user = data_store.get_user(u_id)
+
     # input error if channel doesn't exist.
     if channel is None:
         raise InputError(description='Channel does not exist.')
 
     # input error when user does not exist.
-    if helpers.get_user(user) is None:
+    if user is None:
         raise InputError(description='User does not exist.')
 
     # input error if user already an owner of channel.
-    if helpers.is_user_admin(user, c_id) is True:
+    if data_store.is_owner(user) is True:
         raise InputError(description='User already owner of channel.')
 
-    # access error when authorized user not owner of channel.
-    if helpers.is_user_admin(auth_user, c_id) is False:
+    # access error when authorized user not owner of channel or owner of slackr.
+    if False in {data_store.is_admin(admin), channel.is_owner(admin)}:
         raise AccessError(description='Authorized user not owner of channel.')
 
-    # appending user to owner members.
-    if helpers.is_channel_member(user, c_id) is False:
-        channel['all_members'].append(user)
+    if channel.is_member(user) is False:
+        channel.add_member(user)
 
-    channel['owner_members'].append(user)
+    channel.add_owner(user)
 
     return {}
 
 
-def channel_removeowner(channel, user, auth_user, c_id):
+def channel_removeowner(token, channel_id, u_id):
     '''
     Implementing addowner function by appending user to channel['owner_members']
     '''
+    if None in {token, channel_id, u_id}:
+        raise InputError(description='Insufficient parameters')
+
+    token_data = decode_token(token)
+    admin = data_store.get_user(token_data['u_id'])
+
+    channel_id = int(channel_id)
+    channel = data_store.get_channel(channel_id)
+
+    u_id = int(u_id)
+    user = data_store.get_user(u_id)
+
     # input error if channel doesn't exist.
     if channel is None:
         raise InputError(description='Channel does not exist.')
 
     # input error when user does not exist.
-    if helpers.get_user(user) is None:
+    if user is None:
         raise InputError(description='User does not exist.')
 
     # input error when user is not an owner
-    if helpers.is_user_admin(user, c_id) is False:
+    if channel.is_owner(user) is False:
         raise InputError(description='User is not an owner of channel.')
 
-    # access error when authorized user not owner of channel.
-    if helpers.is_user_admin(auth_user, c_id) is False:
+    # access error when authorized user not owner of channel or owner of slackr.
+    if False in {data_store.is_admin(admin), channel.is_owner(admin)}:
         raise AccessError(description='Authorized user not owner of channel.')
 
-    # removing user from channel['owner_members']
-    channel['owner_members'].remove(user)
+    channel.remove_owner(user)
 
     return {}
