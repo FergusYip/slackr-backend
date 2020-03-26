@@ -1,17 +1,20 @@
-import math
-import hashlib
+'''
+Implementation of auth routes for slackr app
+'''
 from json import dumps
 from flask import request, Blueprint
 from error import InputError
 from email_validation import invalid_email
 from data_store import data_store, User
 from token_validation import decode_token, encode_token
+import helpers
 
 AUTH = Blueprint('auth', __name__)
 
 
-@AUTH.route("/register", methods=['POST'])
+@AUTH.route("/auth/register", methods=['POST'])
 def route_auth_register():
+    '''Flask route for /auth/register'''
     payload = request.get_json()
     email = payload['email']
     password = payload['password']
@@ -20,38 +23,53 @@ def route_auth_register():
     return dumps(auth_register(email, password, name_first, name_last))
 
 
-@AUTH.route("/login", methods=['POST'])
+@AUTH.route("/auth/login", methods=['POST'])
 def route_auth_login():
+    '''Flask route for /auth/login'''
     payload = request.get_json()
     email = payload['email']
     password = payload['password']
     return dumps(auth_login(email, password))
 
 
-@AUTH.route("/logout", methods=['POST'])
+@AUTH.route("/auth/logout", methods=['POST'])
 def route_auth_logout():
+    '''Flask route for /auth/logout'''
     payload = request.get_json()
     token = payload['token']
     return dumps(auth_logout(token))
 
 
 def auth_register(email, password, name_first, name_last):
-    if not email or not password or not name_first or not name_last:
+    """ Registers a new user
+
+	Parameters:
+		email (str): Email of new user
+		password (str): Password of new user
+		name_first (str): First name of new user
+		name_last (str): Last name of new user
+
+	Returns (dict):
+		u_id (int): User ID
+		token (str): JWT
+
+	"""
+    if None in {email, password, name_first, name_last}:
         raise InputError(
             description=
             'Insufficient parameters. Requires email, password, name_first, name_last.'
         )
 
-    if invalid_password(password):
+    if helpers.invalid_password(password):
         raise InputError(
             description='Password entered is less than 6 characters long')
 
-    if invalid_name(name_first):
+    if helpers.user_check_name(name_first):
         raise InputError(
             description=
             'First name is not between 1 and 50 characters inclusive')
 
-    if invalid_name(name_last):
+    if helpers.user_check_name(name_last):
         raise InputError(
             description='Last name is not between 1 and 50 characters inclusive'
         )
@@ -63,21 +81,28 @@ def auth_register(email, password, name_first, name_last):
         raise InputError(
             description='Email address is already being used by another user')
 
-    u_id = generate_u_id()
-    user = User(u_id, email, hash_pw(password), name_first, name_last,
-                generate_handle(name_first, name_last),
-                set_default_permission())
-
+    user = User(email, password, name_first, name_last)
     data_store.add_user(user)
 
     return {
-        'u_id': u_id,
-        'token': encode_token(u_id),
+        'u_id': user.u_id,
+        'token': encode_token(user.u_id),
     }
 
 
 def auth_login(email, password):
-    if not email or not password:
+    """ Logs in existing user
+
+	Parameters:
+		email (str): Email of user
+		password (str): Password of user
+
+	Returns (dict):
+		u_id (int): User ID
+		token (str): JWT
+
+	"""
+    if None in {email, password}:
         raise InputError(
             description='Insufficient parameters. Requires email and password.'
         )
@@ -90,82 +115,32 @@ def auth_login(email, password):
     if not user:
         raise InputError(description='Email entered does not belong to a user')
 
-    if user.password != hash_pw(password):
+    if user.password != helpers.hash_pw(password):
         raise InputError(description='Password is not correct')
 
     return {'u_id': user.u_id, 'token': encode_token(user.u_id)}
 
 
 def auth_logout(token):
-    if not token:
+    """ Logs out user
+
+	Parameters:
+		token (str): JWT of session
+
+	Returns (dict):
+		is_success (bool): Whether the user has been logged out
+
+	"""
+    if token is None:
         raise InputError(
             description='Insufficient parameters. Requires token.')
 
     decode_token(token)
     data_store.add_to_blacklist(token)
 
-    if token in data_store.token_blacklist:
-        is_success = True
-    else:
-        is_success = False
+    is_success = token in data_store.token_blacklist
 
     return {'is_success': is_success}
-
-
-def invalid_password(password):
-    if len(password) < 6:
-        return True
-    return False
-
-
-def invalid_name(name):
-    if 1 <= len(name) <= 50:
-        return False
-    return True
-
-
-def generate_u_id():
-    data_store.max_ids['u_id'] += 1
-    return data_store.max_ids['u_id']
-
-
-def set_default_permission():
-    if not data_store.users:
-        return data_store.permissions['owner']
-    else:
-        return data_store.permissions['member']
-
-
-def hash_pw(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-
-def is_unique_handle(handle_str):
-    for user in data_store.users:
-        if user.handle_str is handle_str:
-            return False
-    return True
-
-
-def generate_handle(name_first, name_last):
-    concatentation = name_first.lower() + name_last.lower()
-    handle_str = concatentation[:20]
-
-    unique_modifier = 0
-    while not is_unique_handle(handle_str):
-        split_handle = list(handle_str)
-
-        # Remove n number of characters from split_handle
-        unique_digits = int(math.log10(unique_modifier)) + 1
-        for _ in range(unique_digits):
-            split_handle.pop()
-
-        split_handle.append(str(unique_modifier))
-        handle_str = ''.join(split_handle)
-
-        unique_modifier += 1
-
-    return handle_str
 
 
 if __name__ == "__main__":

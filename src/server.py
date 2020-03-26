@@ -5,12 +5,13 @@ from flask import Flask
 from flask_cors import CORS
 from admin import ADMIN
 from auth import AUTH
-# from message import MESSAGE
-# from user import USER
+from message import MESSAGE
+from user import USER
 from channels import CHANNELS
-# from channel import CHANNEL
+from channel import CHANNEL
 from other import OTHER
 from workspace import WORKSPACE
+from standup import STANDUP
 from data_store import data_store, autosave
 
 AUTOSAVE_ENABLED = False
@@ -35,13 +36,13 @@ CORS(APP)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
-APP.register_blueprint(ADMIN, url_prefix='/admin')
-APP.register_blueprint(AUTH, url_prefix='/auth')
-APP.register_blueprint(CHANNELS, url_prefix='/channels')
-# APP.register_blueprint(USER, url_prefix='/user')
-# APP.register_blueprint(MESSAGE, url_prefix='/message')
-# APP.register_blueprint(CHANNEL, url_prefix='/channel')
-
+APP.register_blueprint(ADMIN)
+APP.register_blueprint(AUTH)
+APP.register_blueprint(CHANNELS)
+APP.register_blueprint(USER, url_prefix='/user')
+APP.register_blueprint(MESSAGE, url_prefix='/message')
+APP.register_blueprint(CHANNEL, url_prefix='/channel')
+APP.register_blueprint(STANDUP, url_prefix='/standup')
 APP.register_blueprint(OTHER)
 APP.register_blueprint(WORKSPACE)
 
@@ -56,41 +57,6 @@ def save_state():
 @APP.route('/data', methods=['GET'])
 def data():
     return dumps(data_store.to_dict())
-
-
-'''@APP.route("/user/profile", methods=['GET'])
-def user_profile():
-    pass
-
-
-@APP.route("/user/profile/setname", methods=['PUT'])
-def user_profile_setname():
-    pass
-
-
-@APP.route("/user/profile/setemail", methods=['PUT'])
-def user_profile_setemail():
-    pass
-
-
-@APP.route("/user/profile/sethandle", methods=['PUT'])
-def user_profile_handle():
-    pass'''
-
-
-@APP.route("/standup/start", methods=['POST'])
-def standup_start():
-    pass
-
-
-@APP.route("/standup/active", methods=['GET'])
-def standup_active():
-    pass
-
-
-@APP.route("/standup/send", methods=['POST'])
-def standup_send():
-    pass
 
 
 if __name__ == "__main__":

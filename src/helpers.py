@@ -1,5 +1,6 @@
 ''' Helper module with functions to access values from data_store'''
-
+import math
+import hashlib
 from datetime import datetime, timezone
 from data_store import data_store
 
@@ -21,30 +22,30 @@ def get_channel(channel_id):
     return None
 
 
-def get_message(message_id, channel_id):
+def get_message(message_id):
     """ Returns message with id message_id
 
 	Parameters:
 		message_id (int): The id of the message
-		channel_id (int): The id of the channel containing the message
 
 	Returns:
 		message (dict): Dictionary of message details
 		None : If message was not found
 
 	"""
-    channel = get_channel(channel_id)
-    for message in channel['messages']:
-        if message_id == message['message_id']:
-            return message
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return message
     return None
 
 
-def get_user(u_id):
+def get_user(u_id=None, email=None):
     """ Returns a user with u_id
 
 	Parameters:
 		u_id (int): The id of the user
+        email (str): The email of the user
 
 	Returns:
 		user (dict): Dictionary of user details
@@ -52,7 +53,7 @@ def get_user(u_id):
 
 	"""
     for user in data_store['users']:
-        if user['u_id'] == u_id:
+        if user['u_id'] == u_id or user['email'] == email:
             return user
     return None
 
@@ -140,7 +141,7 @@ def get_react(message_id, channel_id, react_id):
 		None: If react doesn't exist
 
 	"""
-    message = get_message(message_id, channel_id)
+    message = get_message(message_id)
     if message == None:
         return None
     for react in message['reacts']:
@@ -160,7 +161,7 @@ def is_pinned(message_id, channel_id):
 		(bool): Whether the message is pinned
 
 	"""
-    message = get_message(message_id, channel_id)
+    message = get_message(message_id)
     return message['is_pinned']
 
 
@@ -178,6 +179,9 @@ def has_user_reacted(u_id, message_id, channel_id, react_id):
 
 	"""
     react = get_react(message_id, channel_id, react_id)
+    if react is None:
+        return False
+
     if u_id in react['u_ids']:
         return True
     return False
@@ -225,10 +229,18 @@ def user_change_email(u_id, email):
 
 
 def user_check_name(name):
+    """ Checks whether a name is invalid
+
+	Parameters:
+		name (str): Name
+
+	Returns:
+		(bool): Whether the name is invalid
+
+	"""
     if 1 <= len(name) <= 50:
         return True
-    else:
-        return False
+    return False
 
 
 def is_email_used(email):
@@ -239,6 +251,14 @@ def is_email_used(email):
 
 
 def is_handle_used(handle):
+    """ Checks if a handle is unique
+
+	Parameters:
+		handle_str (str): User handle
+	Returns:
+		(bool): Whether the handle is used by another user
+        
+	"""
     for user in data_store['users']:
         if user['handle_str'] == handle:
             return True
@@ -250,6 +270,13 @@ def handle_length_check(handle):
         return True
     else:
         return False
+
+
+def get_handle(u_id):
+    for user in data_store['users']:
+        if u_id == user['u_id']:
+            return user['handle_str']
+    return None
 
 
 def user_change_handle(u_id, handle):
@@ -352,7 +379,7 @@ def channel_search(channel, query_str):
     '''Retrieve all messages in a channel which contain the query string'''
     return [
         message for message in channel['messages']
-        if query_str in message['message']
+        if query_str.lower() in message['message'].lower()
     ]
 
 
@@ -360,6 +387,128 @@ def channel_join(channel_id, u_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             channel['all_members'].append(u_id)
+
+
+def generate_id(id_type):
+    """ Generates ID of id_type
+
+	Parameters:
+		id_type (str): Type of ID to generate
+
+	Returns:
+		u_id (int): User ID
+
+	"""
+    data_store['max_ids'][id_type] += 1
+    return data_store['max_ids'][id_type]
+
+
+def generate_u_id():
+    """ Generates u_id
+
+	Returns:
+		u_id (int): User ID
+
+	"""
+    data_store['max_ids']['u_id'] += 1
+    return data_store['max_ids']['u_id']
+
+
+def generate_message_id():
+    '''
+    Function that will generate a unique message_id within a specific channel.
+    '''
+
+    message_id = data_store['max_ids']['message_id'] + 1
+
+    data_store['max_ids']['message_id'] = message_id
+
+    return message_id
+
+
+def get_channel_from_message(message_id):
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return channel
+    return None
+
+
+def get_channel_message(message_id):
+    for channel in data_store['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                return {'channel': channel, 'message': message}
+    return None
+
+
+def default_permission():
+    """ Returns permission level depending on whether there are registered users
+
+	Returns:
+		permission_id (int): ID of permission level
+
+	"""
+    if not data_store['users']:
+        return data_store['permissions']['owner']
+    return data_store['permissions']['member']
+
+
+def hash_pw(password):
+    """ Returns a hashed password
+
+	Parameters:
+		password (str): Password
+
+	Returns:
+		hashed password (str): Hashed password
+
+	"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def generate_handle(name_first, name_last):
+    """ Generate a handle best on name_first and name_last
+
+	Parameters:
+		name_first (str): First name
+		name_last (str): Last name
+
+	Returns:
+		handle_str (str): Unique handle
+
+	"""
+    concatentation = name_first.lower() + name_last.lower()
+    handle_str = concatentation[:20]
+
+    unique_modifier = 0
+    while not is_handle_used(handle_str):
+        split_handle = list(handle_str)
+
+        # Remove n number of characters from split_handle
+        unique_digits = int(math.log10(unique_modifier)) + 1
+        for _ in range(unique_digits):
+            split_handle.pop()
+
+        split_handle.append(str(unique_modifier))
+        handle_str = ''.join(split_handle)
+
+        unique_modifier += 1
+
+    return handle_str
+
+
+def invalid_password(password):
+    """ Checks whether a password is invalid
+
+	Parameters:
+		password (str): Password
+
+	Returns:
+		(bool): Whether the password is invalid
+
+	"""
+    return len(password) < 6
 
 
 if __name__ == '__main__':

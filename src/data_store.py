@@ -1,21 +1,23 @@
-import time
 import threading
 import pickle
 from datetime import datetime
+import helpers
 
 SECRET = 'the chunts'
 
 
 class User:
-    def __init__(self, u_id, email, password, name_first, name_last,
-                 handle_str, permission_id):
-        self.u_id = u_id
+    def __init__(self, email, password, name_first, name_last):
+        self.u_id = helpers.generate_u_id()
         self.email = email
-        self.password = password
+        self.password = helpers.hash_pw(password)
         self.name_first = name_first
         self.name_last = name_last
-        self.handle_str = handle_str
-        self.permission_id = permission_id
+        self.handle_str = helpers.generate_handle(name_first, name_last)
+        self.permission_id = helpers.default_permission()
+        self.channels = []
+        self.messages = []
+        self.reacts = []
 
     def set_email(self, email):
         self.email = email
@@ -24,6 +26,9 @@ class User:
         self.name_first = name_first
         self.name_last = name_last
 
+    def change_password(self, password):
+        self.password = helpers.hash_pw(password)
+
     def set_handle(self, handle_str):
         self.handle_str = handle_str
 
@@ -31,7 +36,7 @@ class User:
         self.permission_id = permission_id
 
     @property
-    def profile_dict(self):
+    def profile(self):
         return {
             'u_id': self.u_id,
             'email': self.email,
@@ -53,46 +58,62 @@ class User:
 
 
 class Channel:
-    def __init__(self, creator_id, channel_id, name, is_public):
-        self.channel_id = channel_id
+    def __init__(self, creator, name, is_public):
+        self.channel_id = helpers.generate_id('channel_id')
         self.name = name
         self.is_public = is_public
-        self.owner_members = [creator_id]
-        self.all_members = [creator_id]
+        self.owner_members = [creator]
+        self.all_members = [creator]
         self.messages = []
+        self.standup = {
+            'is_active': False,
+            'starting_user': None,
+            'time_finish': None,
+            'messages': []
+        }
 
-    def add_owner(self, u_id):
-        self.owner_members.append(u_id)
+    def add_owner(self, user):
+        self.owner_members.append(user)
 
-    def remove_owner(self, u_id):
-        self.owner_members.remove(u_id)
+    def remove_owner(self, user):
+        self.owner_members.remove(user)
 
-    def add_member(self, u_id):
-        self.all_members.append(u_id)
+    def add_member(self, user):
+        self.all_members.append(user)
 
-    def remove_member(self, u_id):
-        self.all_members.remove(u_id)
+    def remove_member(self, user):
+        self.all_members.remove(user)
 
-    def is_member(self, u_id):
-        if u_id in self.all_members:
+    def is_member(self, user):
+        if user in self.all_members:
             return True
         return False
 
-    def send_message(self, message_obj):
-        self.messages.append(message_obj)
+    @property
+    def details(self):
+        return {'channel_id': self.channel_id, 'name': self.name}
 
-    def get_message(self, message_id):
-        for message in self.messages:
-            if message_id == message.message_id:
-                return message
-        return None
-
-    def message_search(self, query_str):
-        '''Retrieve all messages in a channel which contain the query string'''
+    def search(self, query_str):
         return [
-            message.to_dict for message in self.messages
+            message for message in self.messages
             if query_str in message.message
         ]
+
+    # def send_message(self, message_obj):
+    #     self.messages.append(message_obj)
+
+    # def get_message(self, message_id):
+    #     for message in self.messages:
+    #         if message_id == message.message_id:
+    #             return message
+    #     return None
+
+    # def message_search(self, query_str):
+    #     '''Retrieve all messages in a channel which contain the query string'''
+    #     return [
+    #         message.to_dict for message in self.messages
+    #         if query_str in message.message
+    #     ]
 
     def to_dict(self):
         messages = []
@@ -109,28 +130,53 @@ class Channel:
 
 
 class Message:
-    def __init__(self, message_id, u_id, message):
-        self.message_id = message_id
-        self.u_id = u_id
+    def __init__(self, sender, channel, message):
+        self.message_id = helpers.generate_id('message_id')
+        self.sender = sender
+        self.channel = channel
         self.message = message
-        self.time_created = int(datetime.utcnow().timestamp())
+        self.time_created = helpers.utc_now()
         self.reacts = []
         self.is_pinned = False
 
-    def add_react(self, react_obj):
-        self.reacts.append(react_obj)
+    @property
+    def u_id(self):
+        return self.sender.u_id
 
-    def get_react(self, react_id):
-        for react in self.reacts:
-            if react_id == react.react_id:
-                return react
-        return None
+    def details(self, user):
+        message_reacts = []
+        reacts = self.reacts
+        for react in reacts:
+            react_info = {
+                'react_id': react.react_id,
+                'u_ids': react.u_ids,
+                'is_this_user_reacted': react in user.reacts
+            }
+            message_reacts.append(react_info)
+
+        return {
+            'message_id': self.message_id,
+            'u_id': self.u_id,
+            'message': self.message,
+            'time_created': self.time_created,
+            'reacts': message_reacts,
+            'is_pinned': self.is_pinned
+        }
 
     def pin(self):
         self.is_pinned = True
 
     def unpin(self):
         self.is_pinned = False
+
+    # def add_react(self, react_obj):
+    #     self.reacts.append(react_obj)
+
+    # def get_react(self, react_id):
+    #     for react in self.reacts:
+    #         if react_id == react.react_id:
+    #             return react
+    #     return None
 
     def to_dict(self):
         reacts = []
@@ -149,18 +195,20 @@ class Message:
 class React:
     def __init__(self, react_id):
         self.react_id = react_id
-        self.u_ids = []
+        self.users = []
 
-    def add_user(self, u_id):
-        self.u_ids.append(u_id)
+    def add_user(self, users):
+        self.users.append(users)
 
-    def remove_user(self, u_id):
-        self.u_ids.remove(u_id)
+    def remove_user(self, users):
+        self.users.remove(users)
+
+    @property
+    def u_ids(self):
+        return [user.u_id for user in self.users]
 
     def is_user_reacted(self, u_id):
-        if u_id in self.u_ids:
-            return True
-        return False
+        return u_id in self.u_ids
 
     def to_dict(self):
         return {'react_id': self.react_id, 'u_ids': self.u_ids}
@@ -170,6 +218,7 @@ class DataStore:
     def __init__(self):
         self.users = []
         self.channels = []
+        self.messages = []
         self.token_blacklist = []
         self.permissions = {'owner': 1, 'member': 2}
         self.reactions = {'thumbs_up': 1}
@@ -178,7 +227,7 @@ class DataStore:
             'channel_id': 0,
             'message_id': 0,
         }
-        self.time_created = int(datetime.utcnow().timestamp())
+        self.time_created = helpers.utc_now()
 
     def add_user(self, new_user):
         self.users.append(new_user)
@@ -192,8 +241,13 @@ class DataStore:
                 return user
         return None
 
-    def get_all_u_id(self):
+    @property
+    def u_ids(self):
         return [user.u_id for user in data_store.users]
+
+    @property
+    def users_all(self):
+        return [user.profile for user in self.users]
 
     def get_channel(self, channel_id):
         for channel in self.channels:
@@ -207,14 +261,13 @@ class DataStore:
             channel for channel in self.channels if u_id in channel.all_members
         ]
 
-    def get_permissions(self):
+    @property
+    def permission_values(self):
         return self.permissions.values()
 
     def is_owner(self, u_id):
         user = self.get_user(u_id=u_id)
-        if user.permission_id == data_store.permissions['owner']:
-            return True
-        return False
+        return user.permission_id == data_store.permissions['owner']
 
     def add_to_blacklist(self, token):
         self.token_blacklist.append(token)
@@ -244,11 +297,11 @@ class DataStore:
     def reset(self):
         self.users.clear()
         self.channels.clear()
+        self.messages.clear()
         self.token_blacklist.clear()
 
-        self.max_ids['u_id'] = 0
-        self.max_ids['channel_id'] = 0
-        self.max_ids['message_id'] = 0
+        for key in self.max_ids:
+            self.max_ids[key] = 0
 
         self.time_created = int(datetime.utcnow().timestamp())
 
