@@ -67,29 +67,29 @@ def search(token, query_str):
 
     messages = []
     for channel in user_channels(token_payload['u_id']):
-        search_result = channel_search(channel, query_str)
+        search_results = channel_search(channel, query_str)
+        for message in search_results:
 
-        message_reacts = []
-        reacts = search_result['reacts']
-        for react in reacts:
-            is_this_user_reacted = token_payload['u_id'] in react['u_ids']
-            react_info = {
-                'react_id': react['react_id'],
-                'u_ids': react['u_ids'],
-                'is_this_user_reacted': is_this_user_reacted
+            message_reacts = []
+            reacts = message['reacts']
+            for react in reacts:
+                is_this_user_reacted = token_payload['u_id'] in react['u_ids']
+                react_info = {
+                    'react_id': react['react_id'],
+                    'u_ids': react['u_ids'],
+                    'is_this_user_reacted': is_this_user_reacted
+                }
+                message_reacts.append(react_info)
+
+            message_info = {
+                'message_id': message['message_id'],
+                'u_id': message['u_id'],
+                'message': message['message'],
+                'time_created': message['time_created'],
+                'reacts': message_reacts,
+                'is_pinned': message['is_pinned']
             }
-            message_reacts.append(react_info)
-
-        message_info = {
-            'message_id': search_result['message_id'],
-            'u_id': search_result['u_id'],
-            'message': search_result['message'],
-            'time_created': search_result['time_created'],
-            'reacts': message_reacts,
-            'is_pinned': search_result['is_pinned']
-        }
-
-        messages.append(message_info)
+            messages.append(message_info)
 
     return {'messages': messages}
 
