@@ -1,18 +1,18 @@
-import channels
-import channel
-import message
-from error import AccessError
-from error import InputError
+import requests
 import pytest
-import auth
+
+BASE_URL = 'http://127.0.0.1:8080'
 
 # =====================================================
 # ========== TESTING MESSAGE SEND FUNCTION ============
 # =====================================================
 
-def test_send(test_channel, test_user):
+def test_send(new_channel, new_user):
 
     ''' Testing an average case where a created user in a channel sends a message '''
+
+    user = new_user()
+    channel = new_channel()
 
     message.message_send(test_user['token'], test_channel['channel_id'], 'Message')
 
