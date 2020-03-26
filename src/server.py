@@ -36,7 +36,7 @@ CORS(APP)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, defaultHandler)
 
-APP.register_blueprint(ADMIN, url_prefix='/admin')
+APP.register_blueprint(ADMIN)
 APP.register_blueprint(AUTH, url_prefix='/auth')
 APP.register_blueprint(CHANNELS, url_prefix='/channels')
 APP.register_blueprint(USER, url_prefix='/user')
