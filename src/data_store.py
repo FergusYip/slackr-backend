@@ -65,6 +65,13 @@ class User:
     def remove_message(self, message):
         self.messages.remove(message)
 
+    @property
+    def viewable_message(self):
+        return [
+            message for message in self.messages
+            if message.channel in self.channels
+        ]
+
     def add_react(self, react):
         self.reacts.append(react)
 
@@ -158,8 +165,11 @@ class Channel:
             if query_str in message.message
         ]
 
-    # def send_message(self, message_obj):
-    #     self.messages.append(message_obj)
+    def send_message(self, message):
+        self.messages.append(message)
+
+    def remove_message(self, message):
+        self.messages.remove(message)
 
     # def get_message(self, message_id):
     #     for message in self.messages:
@@ -189,8 +199,9 @@ class Channel:
 
 
 class Message:
-    def __init__(self, sender, channel, message):
-        self.message_id = helpers.generate_id('message_id')
+    def __init__(self, sender, channel, message, message_id=None):
+        self.message_id = helpers.generate_id(
+            'message_id') if message_id is None else message_id
         self.sender = sender
         self.channel = channel
         self.message = message
@@ -228,6 +239,12 @@ class Message:
     def unpin(self):
         self.is_pinned = False
 
+    def get_react(self, react_id):
+        for react in self.reacts:
+            if react_id == react.react_id:
+                return react
+        return None
+
     # def add_react(self, react_obj):
     #     self.reacts.append(react_obj)
 
@@ -252,9 +269,10 @@ class Message:
 
 
 class React:
-    def __init__(self, react_id):
+    def __init__(self, react_id, message):
         self.react_id = react_id
         self.users = []
+        self.message = message
 
     def add_user(self, users):
         self.users.append(users)
@@ -320,12 +338,22 @@ class DataStore:
             channel for channel in self.channels if u_id in channel.all_members
         ]
 
+    def get_message(self, message_id):
+        for message in self.messages:
+            if message_id == message.message_id:
+                return message
+        return None
+
     @property
     def permission_values(self):
         return self.permissions.values()
 
     def is_admin(self, user):
         return user.permission_id == data_store.permissions['owner']
+
+    def is_admin_or_owner(self, user, channel):
+        return user.permission_id == data_store.permissions[
+            'owner'] or user in channel.owner_members
 
     def add_to_blacklist(self, token):
         self.token_blacklist.append(token)
