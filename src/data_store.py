@@ -83,6 +83,35 @@ class User:
         }
 
 
+class Standup:
+    def __init__(self):
+        self.is_active = False
+        self.starting_user = None
+        self.time_finish = None
+        self.messages = []
+
+    def start(self, user, time_finish):
+        self.is_active = True
+        self.starting_user = user
+        self.time_finish = time_finish
+
+    def stop(self):
+        joined_message = ''
+        for message in self.messages:
+            joined_message += f"{message['handle_str']}: {message['message']}\n"
+
+        self.is_active = False
+        self.starting_user = None
+        self.time_finish = None
+        self.messages = []
+
+        return joined_message
+
+    def send(self, user, message):
+        message_dict = {'handle_str': user.handle, 'message': message}
+        self.messages.append(message_dict)
+
+
 class Channel:
     def __init__(self, creator, name, is_public):
         self.channel_id = helpers.generate_id('channel_id')
@@ -91,12 +120,7 @@ class Channel:
         self.owner_members = [creator]
         self.all_members = [creator]
         self.messages = []
-        self.standup = {
-            'is_active': False,
-            'starting_user': None,
-            'time_finish': None,
-            'messages': []
-        }
+        self.standup = Standup()
 
     def add_owner(self, user):
         self.owner_members.append(user)
