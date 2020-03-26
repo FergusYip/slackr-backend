@@ -15,7 +15,7 @@ STANDUP = Blueprint('standup', __name__)
 def route_standup_start():
     payload = request.get_json()
     token = payload['token']
-    channel_id = payload['channel_id']
+    channel_id = int(payload['channel_id'])
     length = int(payload['length'])
     return dumps(standup_start(token, channel_id, length))
 
@@ -31,7 +31,7 @@ def route_standup_active():
 def route_standup_send():
     payload = request.get_json()
     token = payload['token']
-    channel_id = payload['channel_id']
+    channel_id = int(payload['channel_id'])
     message = payload['message']
     return dumps(standup_send(token, channel_id, message))
 
@@ -45,8 +45,8 @@ def standup_start(token, channel_id, length):
 
     channel = helpers.get_channel(channel_id)
 
-    if channel is None:
-        raise InputError(description='Channel does not exist.')
+    # if channel is None:
+    #     raise InputError(description='Channel does not exist.')
 
     if channel['standup']['is_active'] is True:
         raise InputError(
