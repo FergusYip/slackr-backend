@@ -128,7 +128,7 @@ def route_channel_removeowner():
     user = int(payload['u_id'])
     auth_user = int(token_data['u_id'])
 
-    return dumps({channel_removeowner(channel, user, auth_user, c_id)})
+    return dumps(channel_removeowner(channel, user, auth_user, c_id))
 
 
 def channel_invite(token, c_id, invited):
@@ -140,7 +140,8 @@ def channel_invite(token, c_id, invited):
     if helpers.get_user(invited) is None:
         raise InputError(description='User does not exist.')
 
-    add_into_channel(token_data['u_id'], c_id, invited)
+    if not helpers.is_channel_member(invited, c_id):
+        add_into_channel(token_data['u_id'], c_id, invited)
 
     return {}
 
