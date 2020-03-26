@@ -39,11 +39,12 @@ def get_message(message_id):
     return None
 
 
-def get_user(u_id):
+def get_user(u_id=None, email=None):
     """ Returns a user with u_id
 
 	Parameters:
 		u_id (int): The id of the user
+        email (str): The email of the user
 
 	Returns:
 		user (dict): Dictionary of user details
@@ -51,7 +52,7 @@ def get_user(u_id):
 
 	"""
     for user in data_store['users']:
-        if user['u_id'] == u_id:
+        if user['u_id'] == u_id or user['email'] == email:
             return user
     return None
 
@@ -227,10 +228,18 @@ def user_change_email(u_id, email):
 
 
 def user_check_name(name):
+    """ Checks whether a name is invalid
+
+	Parameters:
+		name (str): Name
+
+	Returns:
+		(bool): Whether the name is invalid
+
+	"""
     if 1 <= len(name) <= 50:
         return True
-    else:
-        return False
+    return False
 
 
 def is_email_used(email):
@@ -241,6 +250,14 @@ def is_email_used(email):
 
 
 def is_handle_used(handle):
+    """ Checks if a handle is unique
+
+	Parameters:
+		handle_str (str): User handle
+	Returns:
+		(bool): Whether the handle is used by another user
+        
+	"""
     for user in data_store['users']:
         if user['handle_str'] == handle:
             return True
@@ -369,6 +386,31 @@ def channel_join(channel_id, u_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             channel['all_members'].append(u_id)
+
+
+def generate_id(id_type):
+    """ Generates ID of id_type
+
+	Parameters:
+		id_type (str): Type of ID to generate
+
+	Returns:
+		u_id (int): User ID
+
+	"""
+    data_store['max_ids'][id_type] += 1
+    return data_store['max_ids'][id_type]
+
+
+def generate_u_id():
+    """ Generates u_id
+
+	Returns:
+		u_id (int): User ID
+
+	"""
+    data_store['max_ids']['u_id'] += 1
+    return data_store['max_ids']['u_id']
 
 
 def generate_message_id():
