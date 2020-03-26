@@ -10,7 +10,7 @@ import helpers
 ADMIN = Blueprint('admin', __name__)
 
 
-@ADMIN.route('admin/userpermission/change', methods=['POST'])
+@ADMIN.route('/admin/userpermission/change', methods=['POST'])
 def route_admin_userpermission_change():
     '''Flask route for /admin/userpermission/change'''
     payload = request.get_json()
