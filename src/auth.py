@@ -1,3 +1,6 @@
+'''
+Implementation of auth routes for slackr app
+'''
 import math
 import hashlib
 from json import dumps
@@ -6,6 +9,7 @@ from error import InputError
 from email_validation import invalid_email
 from data_store import data_store
 from token_validation import decode_token, encode_token
+import helpers
 
 AUTH = Blueprint('auth', __name__)
 
@@ -62,12 +66,12 @@ def auth_register(email, password, name_first, name_last):
         raise InputError(
             description='Password entered is less than 6 characters long')
 
-    if invalid_name(name_first):
+    if helpers.user_check_name(name_first):
         raise InputError(
             description=
             'First name is not between 1 and 50 characters inclusive')
 
-    if invalid_name(name_last):
+    if helpers.user_check_name(name_last):
         raise InputError(
             description='Last name is not between 1 and 50 characters inclusive'
         )
@@ -75,11 +79,11 @@ def auth_register(email, password, name_first, name_last):
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
 
-    if get_user(email) is not None:
+    if helpers.get_user(email=email) is not None:
         raise InputError(
             description='Email address is already being used by another user')
 
-    u_id = generate_u_id()
+    u_id = helpers.generate_u_id()
     user = {
         'u_id': u_id,
         'email': email,
@@ -87,7 +91,7 @@ def auth_register(email, password, name_first, name_last):
         'name_first': name_first,
         'name_last': name_last,
         'handle_str': generate_handle(name_first, name_last),
-        'permission_id': set_default_permission(),
+        'permission_id': default_permission(),
     }
 
     data_store['users'].append(user)
@@ -115,7 +119,7 @@ def auth_login(email, password):
             description='Insufficient parameters. Requires email and password.'
         )
 
-    user = get_user(email)
+    user = helpers.get_user(email=email)
 
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
@@ -149,20 +153,19 @@ def auth_logout(token):
     if token in data_store['token_blacklist']:
         is_success = False
     else:
-        is_success = False
+        is_success = True
 
     return {'is_success': is_success}
 
 
 def invalid_password(password):
-    """ Returns channel with id channel_id
+    """ Checks whether a password is invalid
 
 	Parameters:
-		channel_id (int): The id of the channel
+		password (str): Password
 
 	Returns:
-		channel (dict): Dictionary of channel details
-		None : If no channel with channel_id exists
+		(bool): Whether the password is invalid
 
 	"""
     if len(password) < 6:
@@ -170,118 +173,47 @@ def invalid_password(password):
     return False
 
 
-def invalid_name(name):
-    """ Returns channel with id channel_id
-
-	Parameters:
-		channel_id (int): The id of the channel
+def default_permission():
+    """ Returns permission level depending on whether there are registered users
 
 	Returns:
-		channel (dict): Dictionary of channel details
-		None : If no channel with channel_id exists
-
-	"""
-    if 1 <= len(name) <= 50:
-        return False
-    return True
-
-
-def get_user(email):
-    """ Returns channel with id channel_id
-
-	Parameters:
-		channel_id (int): The id of the channel
-
-	Returns:
-		channel (dict): Dictionary of channel details
-		None : If no channel with channel_id exists
-
-	"""
-    for user in data_store['users']:
-        if email == user['email']:
-            return user
-    return None
-
-
-def generate_u_id():
-    """ Returns channel with id channel_id
-
-	Parameters:
-		channel_id (int): The id of the channel
-
-	Returns:
-		channel (dict): Dictionary of channel details
-		None : If no channel with channel_id exists
-
-	"""
-    data_store['max_ids']['u_id'] += 1
-    return data_store['max_ids']['u_id']
-
-
-def set_default_permission():
-    """ Returns channel with id channel_id
-
-	Parameters:
-		channel_id (int): The id of the channel
-
-	Returns:
-		channel (dict): Dictionary of channel details
-		None : If no channel with channel_id exists
+		permission_id (int): ID of permission level
 
 	"""
     if not data_store['users']:
         return data_store['permissions']['owner']
-    else:
-        return data_store['permissions']['member']
+    return data_store['permissions']['member']
 
 
 def hash_pw(password):
-    """ Returns channel with id channel_id
+    """ Returns a hashed password
 
 	Parameters:
-		channel_id (int): The id of the channel
+		password (str): Password
 
 	Returns:
-		channel (dict): Dictionary of channel details
-		None : If no channel with channel_id exists
+		hashed password (str): Hashed password
 
 	"""
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-def is_unique_handle(handle_str):
-    """ Returns channel with id channel_id
-
-	Parameters:
-		channel_id (int): The id of the channel
-
-	Returns:
-		channel (dict): Dictionary of channel details
-		None : If no channel with channel_id exists
-
-	"""
-    for user in data_store['users']:
-        if user['handle_str'] is handle_str:
-            return False
-    return True
-
-
 def generate_handle(name_first, name_last):
-    """ Returns channel with id channel_id
+    """ Generate a handle best on name_first and name_last
 
 	Parameters:
-		channel_id (int): The id of the channel
+		name_first (str): First name
+		name_last (str): Last name
 
 	Returns:
-		channel (dict): Dictionary of channel details
-		None : If no channel with channel_id exists
+		handle_str (str): Unique handle
 
 	"""
     concatentation = name_first.lower() + name_last.lower()
     handle_str = concatentation[:20]
 
     unique_modifier = 0
-    while not is_unique_handle(handle_str):
+    while not helpers.is_handle_used(handle_str):
         split_handle = list(handle_str)
 
         # Remove n number of characters from split_handle
