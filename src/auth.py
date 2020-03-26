@@ -10,8 +10,9 @@ from token_validation import decode_token, encode_token
 AUTH = Blueprint('auth', __name__)
 
 
-@AUTH.route("/register", methods=['POST'])
+@AUTH.route("/auth/register", methods=['POST'])
 def route_auth_register():
+    '''Flask route for /auth/register'''
     payload = request.get_json()
     email = payload['email']
     password = payload['password']
@@ -20,22 +21,37 @@ def route_auth_register():
     return dumps(auth_register(email, password, name_first, name_last))
 
 
-@AUTH.route("/login", methods=['POST'])
+@AUTH.route("/auth/login", methods=['POST'])
 def route_auth_login():
+    '''Flask route for /auth/login'''
     payload = request.get_json()
     email = payload['email']
     password = payload['password']
     return dumps(auth_login(email, password))
 
 
-@AUTH.route("/logout", methods=['POST'])
+@AUTH.route("/auth/logout", methods=['POST'])
 def route_auth_logout():
+    '''Flask route for /auth/logout'''
     payload = request.get_json()
     token = payload['token']
     return dumps(auth_logout(token))
 
 
 def auth_register(email, password, name_first, name_last):
+    """ Registers a new user
+
+	Parameters:
+		email (str): Email of new user
+		password (str): Password of new user
+		name_first (str): First name of new user
+		name_last (str): Last name of new user
+
+	Returns (dict):
+		u_id (int): User ID
+		token (str): JWT
+
+	"""
     if not email or not password or not name_first or not name_last:
         raise InputError(
             description=
@@ -83,6 +99,17 @@ def auth_register(email, password, name_first, name_last):
 
 
 def auth_login(email, password):
+    """ Logs in existing user
+
+	Parameters:
+		email (str): Email of user
+		password (str): Password of user
+
+	Returns (dict):
+		u_id (int): User ID
+		token (str): JWT
+
+	"""
     if not email or not password:
         raise InputError(
             description='Insufficient parameters. Requires email and password.'
@@ -103,6 +130,15 @@ def auth_login(email, password):
 
 
 def auth_logout(token):
+    """ Logs out user
+
+	Parameters:
+		token (str): JWT of session
+
+	Returns (dict):
+		is_success (bool): Whether the user has been logged out
+
+	"""
     if not token:
         raise InputError(
             description='Insufficient parameters. Requires token.')
@@ -119,18 +155,48 @@ def auth_logout(token):
 
 
 def invalid_password(password):
+    """ Returns channel with id channel_id
+
+	Parameters:
+		channel_id (int): The id of the channel
+
+	Returns:
+		channel (dict): Dictionary of channel details
+		None : If no channel with channel_id exists
+
+	"""
     if len(password) < 6:
         return True
     return False
 
 
 def invalid_name(name):
+    """ Returns channel with id channel_id
+
+	Parameters:
+		channel_id (int): The id of the channel
+
+	Returns:
+		channel (dict): Dictionary of channel details
+		None : If no channel with channel_id exists
+
+	"""
     if 1 <= len(name) <= 50:
         return False
     return True
 
 
 def get_user(email):
+    """ Returns channel with id channel_id
+
+	Parameters:
+		channel_id (int): The id of the channel
+
+	Returns:
+		channel (dict): Dictionary of channel details
+		None : If no channel with channel_id exists
+
+	"""
     for user in data_store['users']:
         if email == user['email']:
             return user
@@ -138,11 +204,31 @@ def get_user(email):
 
 
 def generate_u_id():
+    """ Returns channel with id channel_id
+
+	Parameters:
+		channel_id (int): The id of the channel
+
+	Returns:
+		channel (dict): Dictionary of channel details
+		None : If no channel with channel_id exists
+
+	"""
     data_store['max_ids']['u_id'] += 1
     return data_store['max_ids']['u_id']
 
 
 def set_default_permission():
+    """ Returns channel with id channel_id
+
+	Parameters:
+		channel_id (int): The id of the channel
+
+	Returns:
+		channel (dict): Dictionary of channel details
+		None : If no channel with channel_id exists
+
+	"""
     if not data_store['users']:
         return data_store['permissions']['owner']
     else:
@@ -150,10 +236,30 @@ def set_default_permission():
 
 
 def hash_pw(password):
+    """ Returns channel with id channel_id
+
+	Parameters:
+		channel_id (int): The id of the channel
+
+	Returns:
+		channel (dict): Dictionary of channel details
+		None : If no channel with channel_id exists
+
+	"""
     return hashlib.sha256(password.encode()).hexdigest()
 
 
 def is_unique_handle(handle_str):
+    """ Returns channel with id channel_id
+
+	Parameters:
+		channel_id (int): The id of the channel
+
+	Returns:
+		channel (dict): Dictionary of channel details
+		None : If no channel with channel_id exists
+
+	"""
     for user in data_store['users']:
         if user['handle_str'] is handle_str:
             return False
@@ -161,6 +267,16 @@ def is_unique_handle(handle_str):
 
 
 def generate_handle(name_first, name_last):
+    """ Returns channel with id channel_id
+
+	Parameters:
+		channel_id (int): The id of the channel
+
+	Returns:
+		channel (dict): Dictionary of channel details
+		None : If no channel with channel_id exists
+
+	"""
     concatentation = name_first.lower() + name_last.lower()
     handle_str = concatentation[:20]
 
