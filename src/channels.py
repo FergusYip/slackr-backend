@@ -85,6 +85,7 @@ def channels_create(token, name, is_public):
     user = data_store.get_user(token_payload['u_id'])
     channel = Channel(user, name, is_public)
     data_store.add_channel(channel)
+    user.add_channel(channel)
     return {'channel_id': channel.channel_id}
 
 
