@@ -53,6 +53,24 @@ class User:
             'name_last': self.name_last
         }
 
+    def add_channel(self, channel):
+        self.channels.append(channel)
+
+    def remove_channel(self, channel):
+        self.channels.remove(channel)
+
+    def add_message(self, message):
+        self.messages.append(message)
+
+    def remove_message(self, message):
+        self.messages.remove(message)
+
+    def add_react(self, react):
+        self.reacts.append(react)
+
+    def remove_react(self, react):
+        self.reacts.remove(react)
+
     def to_dict(self):
         return {
             'u_id': self.u_id,

@@ -112,6 +112,9 @@ def channel_invite(token, channel_id, u_id):
     if invitee not in channel.all_members:
         channel.add_member(invitee)
 
+    if channel not in invitee.channels:
+        invitee.add_channel(channel)
+
     return {}
 
 
@@ -214,6 +217,9 @@ def channel_leave(token, channel_id):
     if user in channel.owner_members:
         channel.remove_owner(user)
 
+    if channel in user.channels:
+        user.remove_channel(channel)
+
     return {}
 
 
@@ -242,6 +248,9 @@ def channel_join(token, channel_id):
     # Add user to channel if user is not already a member.
     if channel.is_member(user) is False:
         channel.add_member(user)
+
+    if channel not in user.channels:
+        user.add_channel(channel)
 
     return {}
 
