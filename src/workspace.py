@@ -1,7 +1,6 @@
 from json import dumps
 from flask import Blueprint
 from data_store import data_store
-from datetime import datetime
 
 WORKSPACE = Blueprint('workspace', __name__)
 
@@ -10,7 +9,6 @@ WORKSPACE = Blueprint('workspace', __name__)
 def workspace_reset():
     '''Reset the workspace state'''
     data_store.reset()
-
     return dumps({})
 
 
