@@ -6,7 +6,6 @@ their own messages.
 
 from json import dumps
 import threading
-from time import sleep
 from flask import request, Blueprint
 from error import AccessError, InputError
 from data_store import data_store, Message, React

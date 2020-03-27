@@ -312,7 +312,7 @@ class DataStore:
     def add_channel(self, new_channel):
         self.channels.append(new_channel)
 
-    def get_user(self, u_id=None, email=None):
+    def get_user(self, u_id=None, email=None, handle_str=None):
         for user in self.users:
             if u_id == user.u_id or email == user.email:
                 return user
@@ -408,6 +408,37 @@ def autosave():
     timer = threading.Timer(1.0, autosave)
     timer.start()
     save()
+
+
+def generate_handle(name_first, name_last):
+    """ Generate a handle best on name_first and name_last
+
+	Parameters:
+		name_first (str): First name
+		name_last (str): Last name
+
+	Returns:
+		handle_str (str): Unique handle
+
+	"""
+    concatentation = name_first.lower() + name_last.lower()
+    handle_str = concatentation[:20]
+
+    unique_modifier = 0
+    while data_store.get_user(handle_str=handle_str):
+        split_handle = list(handle_str)
+
+        # Remove n number of characters from split_handle
+        unique_digits = int(math.log10(unique_modifier)) + 1
+        for _ in range(unique_digits):
+            split_handle.pop()
+
+        split_handle.append(str(unique_modifier))
+        handle_str = ''.join(split_handle)
+
+        unique_modifier += 1
+
+    return handle_str
 
 
 if __name__ == "__main__":

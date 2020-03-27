@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 import jwt
 from error import AccessError
 from data_store import data_store, SECRET
-from helpers import get_all_u_id
 
 
 def encode_token(u_id):
@@ -28,7 +27,7 @@ def decode_token(token):
     except:
         raise AccessError(description='Token is invalid')
 
-    if payload['iat'] < int(data_store.time_created):
+    if payload['exp'] > int(data_store.time_created):
         raise AccessError(description='Session has expired')
 
     if payload['u_id'] not in data_store.get_all_u_id():
