@@ -430,7 +430,7 @@ def generate_handle(name_first, name_last):
     concatentation = name_first.lower() + name_last.lower()
     handle_str = concatentation[:20]
 
-    unique_modifier = 0
+    unique_modifier = 1
     while data_store.get_user(handle_str=handle_str):
         split_handle = list(handle_str)
 
