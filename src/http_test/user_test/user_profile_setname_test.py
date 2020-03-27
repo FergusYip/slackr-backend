@@ -1,64 +1,190 @@
-import user
-import auth
+'''
+Testing the functionality of the user_profile_setname function.
+'''
+
+import requests
 import pytest
-from error import AccessError, InputError
+
+BASE_URL = 'http://127.0.0.1:8080'
 
 # =====================================================
-# ====== TESTING USER PROFILE SETNAME FUNCTION ========
+# ========== TESTING USER PROFILE FUNCTION ============
 # =====================================================
 
-def test_profile_setname(test_user):
+def test_profile_setname_return(reset, new_user):
+    '''
+    Testing the return types of the user_profile function.
+    '''
 
-    ''' Testing an average case where a user will change their name to a valid
-    choice. '''
+    user = new_user(name_first='Jim', name_last='Nottest')
 
-    user.user_profile_setname(test_user['token'], 'Ipsum', 'Lorem')
-    profile_info = user.user_profile(test_user['token'], test_user['u_id'])
+    func_input = {
+        'token': user['token'],
+        'name_first': 'John',
+        'name_last': 'Test'
+    }
 
-    assert profile_info['user']['name_first'] == 'Ipsum'
-    assert profile_info['user']['name_last'] == 'Lorem'
+    set_name = requests.get(f'{BASE_URL}/user/profile', json=func_input).json()
 
-
-def test_profile_setname_empty_firstname(test_user):
-
-    ''' Testing that the user_profile_setname function will raise an InputError
-    if the value of the first name contains zero characters. '''
-
-    with pytest.raises(InputError):
-        user.user_profile_setname(test_user['token'], '', 'Lorem')
+    assert isinstance(set_name, dict)
 
 
-def test_profile_setname_firstname_exceed_char_limit(test_user):
+def test_setfirstname(reset, new_user):
+    '''
+    Testing the functionality of updating the user's first name.
+    '''
 
-    ''' Testing that the user_profile_setname function will raise an InputError
-    if the value of the first name is greater than 50 characters (50 uninclusive). '''
+    # ================ SET-UP ===================
 
-    with pytest.raises(InputError):
-        user.user_profile_setname(test_user['token'], 'i' * 51, 'Lorem')
+    user = new_user(name_first='Jim', name_last='Nottest')
+
+    input_for_profile = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_firstname = 'Jim'
+
+    assert user_pre_info['name_first'] == expected_firstname
+
+    # ================ TESTING ==================
+
+    func_input = {
+        'token': user['token'],
+        'name_first': 'John',
+        'name_last': 'Test'
+    }
+
+    requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).json()
+
+    user_post_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_firstname = 'John'
+
+    assert user_post_info['name_last'] == expected_firstname
 
 
-def test_profile_setname_empty_lastname(test_user):
+def test_setlastname(reset, new_user):
+    '''
+    Testing the functionality of updating the user's last name.
+    '''
 
-    ''' Testing that the user_profile_setname function will raise an InputError
-    if the value of the last name contains zero characters. '''
+    # ================ SET-UP ===================
 
-    with pytest.raises(InputError):
-        user.user_profile_setname(test_user['token'], 'Ipsum', '')
+    user = new_user(name_first='Jim', name_last='Nottest')
+
+    input_for_profile = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_lastname = 'Nottest'
+
+    assert user_pre_info['name_last'] == expected_lastname
+
+    # ================ TESTING ==================
+
+    func_input = {
+        'token': user['token'],
+        'name_first': 'John',
+        'name_last': 'Test'
+    }
+
+    requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).json()
+
+    user_post_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_lastname = 'Test'
+
+    assert user_post_info['name_last'] == expected_lastname
 
 
-def test_profile_setname_lastname_exceed_char_limit(test_user):
+def test_setboth(reset, new_user):
+    '''
+    Testing the functionality of updating both the user's first and
+    last name.
+    '''
 
-    ''' Testing that the user_profile_setname function will raise an InputError
-    if the value of the last name is greater than 50 characters (50 uninclusive). '''
+    # ================ SET-UP ===================
 
-    with pytest.raises(InputError):
-        user.user_profile_setname(test_user['token'], 'Ipsum', 'i' * 51)
+    user = new_user(name_first='Jim', name_last='Nottest')
+
+    input_for_profile = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_firstname = 'Jim'
+    expected_lastname = 'Nottest'
+
+    assert user_pre_info['name_first'] == expected_firstname
+    assert user_pre_info['name_last'] == expected_lastname
+
+    # ================ TESTING ==================
+
+    func_input = {
+        'token': user['token'],
+        'name_first': 'John',
+        'name_last': 'Test'
+    }
+
+    requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).json()
+
+    user_post_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_firstname = 'John'
+    expected_lastname = 'Test'
+
+    assert user_post_info['name_first'] == expected_firstname
+    assert user_post_info['name_last'] == expected_lastname
 
 
-def test_profile_setname_invalidtoken(invalid_token):
+def test_invalid_firstname(reset, new_user):
+    '''
+    Testing that trying to change the first name to something greater than
+    50 characters uninclusive, should raise an error.
+    '''
 
-    ''' Testing that an AccessError is raised if the token passed to the
-    user_profile_setname function is invalid. '''
+    user = new_user(name_first='Jim', name_last='Nottest')
 
-    with pytest.raises(AccessError):
-        user.user_profile_setname(invalid_token, 'Johnny', 'McJohnny')
+    func_input = {
+        'token': user['token'],
+        'name_first': 'i' * 51,
+        'name_last': 'Test'
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).raise_for_status()
+
+
+def test_invalid_lastname(reset, new_user):
+    '''
+    Testing that trying to change the last name to something greater than
+    50 characters uninclusive, should raise an error.
+    '''
+
+    user = new_user(name_first='Jim', name_last='Nottest')
+
+    func_input = {
+        'token': user['token'],
+        'name_first': 'John',
+        'name_last': 'i' * 51
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).raise_for_status()
+
+
+def test_invalid_token(reset, invalid_token):
+    '''
+    Testing that an invalid token will raise an error.
+    '''
+
+    func_input = {
+        'token': invalid_token,
+        'name_first': 'John',
+        'name_last': 'Test'
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).raise_for_status()
