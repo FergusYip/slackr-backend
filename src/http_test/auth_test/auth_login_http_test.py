@@ -76,16 +76,26 @@ def test_login_multiple_sessions(new_user):
 
     new_user(email=user_info['email'], password=user_info['password'])
 
-    session_1 = requests.post(f"{BASE_URL}/auth/login", json=user_info).json()
-    session_2 = requests.post(f"{BASE_URL}/auth/login", json=user_info).json()
-    session_3 = requests.post(f"{BASE_URL}/auth/login", json=user_info).json()
+    requests.post(f"{BASE_URL}/auth/login", json=user_info).raise_for_status()
+    requests.post(f"{BASE_URL}/auth/login", json=user_info).raise_for_status()
+    requests.post(f"{BASE_URL}/auth/login", json=user_info).raise_for_status()
 
-    session_tokens = [
-        session_1['token'], session_2['token'], session_3['token']
-    ]
+
+def test_login_unique_token(new_user):
+    '''Test that auth_login tokens are unique to the user'''
+
+    user_1 = {'email': 'user1@email.com', 'password': 'password'}
+    user_2 = {'email': 'user2@email.com', 'password': 'password'}
+    new_user(email=user_1['email'], password=user_1['password'])
+    new_user(email=user_2['email'], password=user_2['password'])
+
+    user_1_login = requests.post(f"{BASE_URL}/auth/login", json=user_1).json()
+    user_2_login = requests.post(f"{BASE_URL}/auth/login", json=user_2).json()
+
+    tokens = [user_1_login['token'], user_2_login['token']]
 
     # Verify that all session_tokens are unique
-    assert len(set(session_tokens)) == len(session_tokens)
+    assert len(set(tokens)) == len(tokens)
 
 
 def test_login_email_valid(valid_emails):
