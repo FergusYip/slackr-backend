@@ -1,84 +1,146 @@
-import user
-import auth
+import helpers
+import requests
 import pytest
-from error import AccessError, InputError
+
+BASE_URL = 'http://127.0.0.1:8080'
 
 # =====================================================
 # ========== TESTING USER PROFILE FUNCTION ============
 # =====================================================
 
-def test_averagecase_uid(test_user):
+def test_profile_return_types(reset, new_user, new_channel):
+    '''
+    Testing the return types of the user_profile function.
+    '''
 
-    ''' Testing an average case where a user will request profile information
-    about themselves. '''
+    user = new_user()
+    channel = new_channel(user)
 
-    profile_information = user.user_profile(test_user['token'], test_user['u_id'])
+    input = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
 
-    assert test_user['u_id'] == profile_information['user']['u_id']
+    user_info = requests.get(f'{BASE_URL}/user/profile', json=input).json()
 
-def test_averagecase_otheruser(test_user, new_user):
+    assert isinstance(user_info, dict)
+    assert isinstance(user_info['u_id'], int)
+    assert isinstance(user_info['email'], str)
+    assert isinstance(user_info['name_first'], str)
+    assert isinstance(user_info['name_last'], str)
+    assert isinstance(user_info['handle_str'], str)
 
-    ''' Testing an average case where a user will request profile information
-    about another user. '''
+def test_profile_u_id(reset, new_user, new_channel):
+    '''
+    Testing that the u_id in the data_store matches what is returned.
+    '''
 
-    user2 = new_user('tester2@test.com')
+    user = new_user()
+    channel = new_channel(user)
 
-    profile_information = user.user_profile(test_user['token'], user2['u_id'])
+    input = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
 
-    assert user2['u_id'] == profile_information['user']['u_id']
+    user_info = requests.get(f'{BASE_URL}/user/profile', json=input).json()
 
-
-def test_averagecase_email(test_user):
-
-    ''' Testing that the user_profile function returns the correct email. '''
-
-    user.user_profile_setemail(test_user['token'], 'test@test.com')
-    profile_information = user.user_profile(test_user['token'], test_user['u_id'])
-
-    assert 'test@test.com' == profile_information['user']['email']
-
-
-def test_averagecase_firstname(test_user):
-
-    ''' Testing that the user_profile function returns the correct first name. '''
-
-    user.user_profile_setname(test_user['token'], 'Lorem', 'Ipsum')
-    profile_information = user.user_profile(test_user['token'], test_user['u_id'])
-
-    assert 'Lorem' == profile_information['user']['name_first']
-
-
-def test_averagecase_lastname(test_user):
-
-    ''' Testing that the user_profile function returns the correct last name. '''
-
-    user.user_profile_setname(test_user['token'], 'Lorem', 'Ipsum')
-    profile_information = user.user_profile(test_user['token'], test_user['u_id'])
-
-    assert 'Ipsum' == profile_information['user']['name_last']
+    assert user_info['u_id'] == user['u_id']
 
 
-def test_averagecase_handle(test_user):
+def test_profile_email(reset, new_user, new_channel):
+    '''
+    Testing that the email in the data_store matches what is returned.
+    '''
 
-    ''' Testing that the user_profile function returns the correct handle. '''
+    email = 'test@test.com'
 
-    user.user_profile_sethandle(test_user['token'], 'testhandle')
-    profile_information = user.user_profile(test_user['token'], test_user['u_id'])
+    user = new_user(email=email)
+    channel = new_channel(user)
 
-    assert 'testhandle' == profile_information['user']['handle_str']
+    input = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_info = requests.get(f'{BASE_URL}/user/profile', json=input).json()
+
+    user_info_from_data = helpers.get_user(u_id=user['u_id'])
+
+    assert user_info['email'] == user_info_from_data['email']
 
 
-def test_invalid_uid(test_user):
+def test_profile_firstname(reset, new_user, new_channel):
+    '''
+    Testing that the first name in the data_store matches what is returned.
+    '''
 
-    ''' Testing the user_profile function if an incorrect u_id is input. '''
+    user = new_user()
+    channel = new_channel(user)
 
-    with pytest.raises(InputError):
-        user.user_profile(test_user['token'], -1)
+    input = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_info = requests.get(f'{BASE_URL}/user/profile', json=input).json()
+
+    user_info_from_data = helpers.get_user(u_id=user['u_id'])
+
+    assert user_info['name_first'] == user_info_from_data['name_first']
 
 
-def invalid_token(test_user, invalid_token):
+def test_profile_lastname(reset, new_user, new_channel):
+    '''
+    Testing that the last name in the data_store matches what is returned.
+    '''
 
-    ''' Testing that the user_profile function if an invalid token is input. '''
+    user = new_user()
+    channel = new_channel(user)
 
-    with pytest.raises(AccessError):
-        user.user_profile(invalid_token, test_user['u_id'])
+    input = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_info = requests.get(f'{BASE_URL}/user/profile', json=input).json()
+
+    user_info_from_data = helpers.get_user(u_id=user['u_id'])
+
+    assert user_info['name_last'] == user_info_from_data['name_last']
+
+
+def test_profile_handle(reset, new_user, new_channel):
+    '''
+    Testing that the handle in the data_store matches what is returned.
+    '''
+
+    user = new_user()
+    channel = new_channel(user)
+
+    input = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_info = requests.get(f'{BASE_URL}/user/profile', json=input).json()
+
+    user_info_from_data = helpers.get_user(u_id=user['u_id'])
+
+    assert user_info['handle_str'] == user_info_from_data['handle_str']
+
+
+def test_profile_no_user(reset, new_user, new_channel):
+    '''
+    Testing that the function raises an error if the u_id does not exist.
+    '''
+
+    user = new_user()
+    channel = new_channel(user)
+
+    input = {
+        'token': user['token'],
+        'u_id': 2
+    }
+    with pytest.raises(requests.HTTPError):
+        user_info = requests.get(f'{BASE_URL}/user/profile', json=input).json()
