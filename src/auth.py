@@ -60,16 +60,16 @@ def auth_register(email, password, name_first, name_last):
             'Insufficient parameters. Requires email, password, name_first, name_last.'
         )
 
-    if helpers.invalid_password(password):
+    if len(password) < 6:
         raise InputError(
             description='Password entered is less than 6 characters long')
 
-    if helpers.user_check_name(name_first):
+    if 1 <= len(name_first) <= 50:
         raise InputError(
             description=
             'First name is not between 1 and 50 characters inclusive')
 
-    if helpers.user_check_name(name_last):
+    if 1 <= len(name_last) <= 50:
         raise InputError(
             description='Last name is not between 1 and 50 characters inclusive'
         )
