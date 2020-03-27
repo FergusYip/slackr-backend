@@ -33,7 +33,7 @@ def test_send_returntype(reset, new_user, new_channel):
 
 def test_send_message(reset, new_user, new_channel):
     '''
-    Testing that the correct message string sent.
+    Testing that the correct message id was allocated.
     '''
 
     user = new_user()
@@ -46,7 +46,7 @@ def test_send_message(reset, new_user, new_channel):
     }
 
     test_message = requests.post(f'{BASE_URL}/message/send',
-                                 json=message_info).json().raise_for_status
+                                 json=message_info).json()
 
     func_input = {
         'token': user['token'],
@@ -56,7 +56,7 @@ def test_send_message(reset, new_user, new_channel):
 
     message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
 
-    assert message_from_data[0]['message_id'] == test_message['message_id']
+    assert message_from_data['messages'][0]['message_id'] == test_message['message_id']
 
 
 def test_message_user(reset, new_user, new_channel):
@@ -74,10 +74,7 @@ def test_message_user(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    test_message = requests.post(f'{BASE_URL}/message/send',
-                                 json=message_info).json().raise_for_status
-
-    assert test_message['message_id'] == 1
+    requests.post(f'{BASE_URL}/message/send', json=message_info)
 
     func_input = {
         'token': user['token'],
@@ -87,7 +84,7 @@ def test_message_user(reset, new_user, new_channel):
 
     message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
 
-    assert message_from_data[0]['u_id'] == user['u_id']
+    assert message_from_data['messages'][0]['u_id'] == user['u_id']
 
 
 def test_send_reacts(reset, new_user, new_channel):
@@ -104,10 +101,7 @@ def test_send_reacts(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    test_message = requests.post(f'{BASE_URL}/message/send',
-                                 json=message_info).json().raise_for_status
-
-    assert test_message['message_id'] == 1
+    requests.post(f'{BASE_URL}/message/send', json=message_info)
 
     func_input = {
         'token': user['token'],
@@ -117,7 +111,7 @@ def test_send_reacts(reset, new_user, new_channel):
 
     message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
 
-    assert len(message_from_data[0]['reacts']) == 0
+    assert len(message_from_data['messages'][0]['reacts']) == 0
 
 
 def test_send_pinned(reset, new_user, new_channel):
@@ -134,10 +128,7 @@ def test_send_pinned(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    test_message = requests.post(f'{BASE_URL}/message/send',
-                                 json=message_info).json().raise_for_status
-
-    assert test_message['message_id'] == 1
+    requests.post(f'{BASE_URL}/message/send', json=message_info)
 
     func_input = {
         'token': user['token'],
@@ -147,7 +138,7 @@ def test_send_pinned(reset, new_user, new_channel):
 
     message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
 
-    assert not message_from_data[0]['is_pinned']
+    assert not message_from_data['messages'][0]['is_pinned']
 
 
 def test_send_long_message(reset, new_user, new_channel):
@@ -229,17 +220,20 @@ def test_send_channel_notmember(reset, new_user, new_channel):
                       json=message_info).raise_for_status()
 
 
-def test_message_invalid_token(reset, new_user, new_channel, invalid_token):
+def test_message_invalid_token(reset, new_user, new_channel):
     '''
     Testing that attempting to send a message with an invalid token will
     raise an error.
     '''
 
-    user = new_user(email='notusedyet@test.com')
+    user = new_user()
     channel = new_channel(user)
 
+    token = user['token']
+    requests.post(f"{BASE_URL}/auth/logout", json={'token': token})
+
     message_info = {
-        'token': invalid_token,
+        'token': token,
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
