@@ -65,12 +65,12 @@ def auth_register(email, password, name_first, name_last):
         raise InputError(
             description='Password entered is less than 6 characters long')
 
-    if 1 <= len(name_first) <= 50:
+    if not 1 <= len(name_first) <= 50:
         raise InputError(
             description=
             'First name is not between 1 and 50 characters inclusive')
 
-    if 1 <= len(name_last) <= 50:
+    if not 1 <= len(name_last) <= 50:
         raise InputError(
             description='Last name is not between 1 and 50 characters inclusive'
         )
