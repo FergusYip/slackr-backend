@@ -65,12 +65,24 @@ def auth_register(email, password, name_first, name_last):
         raise InputError(
             description='Password entered is less than 6 characters long')
 
+<<<<<<< HEAD
     if not 1 <= len(name_first) <= 50:
+||||||| merged common ancestors
+    if helpers.user_check_name(name_first):
+=======
+    if not helpers.user_check_name(name_first):
+>>>>>>> auth
         raise InputError(
             description=
             'First name is not between 1 and 50 characters inclusive')
 
+<<<<<<< HEAD
     if not 1 <= len(name_last) <= 50:
+||||||| merged common ancestors
+    if helpers.user_check_name(name_last):
+=======
+    if not helpers.user_check_name(name_last):
+>>>>>>> auth
         raise InputError(
             description='Last name is not between 1 and 50 characters inclusive'
         )
