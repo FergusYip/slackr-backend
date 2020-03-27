@@ -67,7 +67,7 @@ class User:
         self.messages.remove(message)
 
     @property
-    def viewable_message(self):
+    def viewable_messages(self):
         return [
             message for message in self.messages
             if message.channel in self.channels
@@ -116,7 +116,7 @@ class Standup:
         return joined_message
 
     def send(self, user, message):
-        message_dict = {'handle_str': user.handle, 'message': message}
+        message_dict = {'handle_str': user.handle_str, 'message': message}
         self.messages.append(message_dict)
 
 
@@ -246,8 +246,11 @@ class Message:
                 return react
         return None
 
-    # def add_react(self, react_obj):
-    #     self.reacts.append(react_obj)
+    def add_react(self, react):
+        self.reacts.append(react)
+
+    def remove_react(self, react):
+        self.reacts.remove(react)
 
     # def get_react(self, react_id):
     #     for react in self.reacts:
@@ -312,6 +315,12 @@ class DataStore:
 
     def add_channel(self, new_channel):
         self.channels.append(new_channel)
+
+    def add_message(self, message):
+        self.messages.append(message)
+
+    def remove_message(self, message):
+        self.messages.remove(message)
 
     def get_user(self, u_id=None, email=None, handle_str=None):
         for user in self.users:

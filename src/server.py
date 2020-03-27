@@ -14,7 +14,7 @@ from workspace import WORKSPACE
 from standup import STANDUP
 from data_store import data_store, autosave
 
-AUTOSAVE_ENABLED = False
+AUTOSAVE_ENABLED = True
 DEBUG_MODE = not AUTOSAVE_ENABLED  # Do not change this line
 
 

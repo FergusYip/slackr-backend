@@ -58,7 +58,7 @@ def standup_start(token, channel_id, length):
             description='An active standup is currently running on this channel'
         )
 
-    time_finish = helpers.utc_now + length
+    time_finish = helpers.utc_now() + length
 
     channel.standup.start(user, time_finish)
 

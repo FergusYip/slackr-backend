@@ -27,10 +27,10 @@ def decode_token(token):
     except:
         raise AccessError(description='Token is invalid')
 
-    if payload['exp'] > int(data_store.time_created):
+    if payload['iat'] < int(data_store.time_created):
         raise AccessError(description='Session has expired')
 
-    if payload['u_id'] not in data_store.get_all_u_id():
+    if payload['u_id'] not in data_store.u_ids:
         raise AccessError(description='u_id does not belong to a user')
 
     return payload

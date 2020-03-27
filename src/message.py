@@ -155,6 +155,8 @@ def message_send(token, channel_id, message, message_id=None):
 
     message = Message(user, channel, message)
     channel.send_message(message)
+    data_store.add_message(message)
+    user.add_message(message)
 
     return {'message_id': message.message_id}
 
@@ -187,6 +189,12 @@ def message_remove(token, message_id):
 
     if message in channel.messages:
         channel.remove_message(message)
+
+    if message in data_store.messages:
+        data_store.remove_message(message)
+
+    if message in user.messages:
+        user.remove_message(message)
 
     return {}
 

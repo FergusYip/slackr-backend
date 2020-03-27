@@ -161,7 +161,7 @@ def channel_messages(token, channel_id, start):
     user = data_store.get_user(token_data['u_id'])
 
     # input error when the given start is greater than the id of last message.
-    if start > len(channel['messages']):
+    if start > len(channel.messages):
         raise InputError(description='start is greater than end')
 
     # input error if channel doesn't exist.
