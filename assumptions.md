@@ -36,6 +36,7 @@ ___
 ### channels_create
 * Channel names only contains ASCII printable characters.
 * Channel names do not have to be unique.
+* The user (token provider) who calls this function will join the newly created channel.
 ___
 
 ## message.py
