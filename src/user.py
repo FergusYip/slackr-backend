@@ -18,7 +18,7 @@ USER = Blueprint('user', __name__)
 # ======================================================================
 
 
-@USER.route('/profile', methods=['GET'])
+@USER.route('/user/profile', methods=['GET'])
 def route_user_profile():
     '''
     Flask route to call the user_profile function.
@@ -28,7 +28,7 @@ def route_user_profile():
     return dumps(user_profile(token, u_id))
 
 
-@USER.route('/profile/setname', methods=['PUT'])
+@USER.route('/user/profile/setname', methods=['PUT'])
 def route_user_profile_setname():
     '''
     Flask route to call the user_profile_setname function.
@@ -40,7 +40,7 @@ def route_user_profile_setname():
     return dumps(user_profile_setname(token, name_first, name_last))
 
 
-@USER.route('/profile/setemail', methods=['PUT'])
+@USER.route('/user/profile/setemail', methods=['PUT'])
 def route_user_profile_setemail():
     '''
     Flask route to call the user_profile_setemail function.
@@ -51,7 +51,7 @@ def route_user_profile_setemail():
     return dumps(user_profile_setemail(token, email))
 
 
-@USER.route('/profile/sethandle', methods=['PUT'])
+@USER.route('/user/profile/sethandle', methods=['PUT'])
 def route_user_profile_sethandle():
     '''
     Flask route to call the user_profile_sethandle function.

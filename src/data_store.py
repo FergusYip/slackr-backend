@@ -1,3 +1,4 @@
+import math
 import threading
 import pickle
 from datetime import datetime
@@ -8,13 +9,13 @@ SECRET = 'the chunts'
 
 class User:
     def __init__(self, email, password, name_first, name_last):
-        self.u_id = helpers.generate_u_id()
+        self.u_id = data_store.generate_id('u_id')
         self.email = email
         self.password = helpers.hash_pw(password)
         self.name_first = name_first
         self.name_last = name_last
-        self.handle_str = helpers.generate_handle(name_first, name_last)
-        self.permission_id = helpers.default_permission()
+        self.handle_str = generate_handle(name_first, name_last)
+        self.permission_id = data_store.default_permission
         self.channels = []
         self.messages = []
         self.reacts = []
@@ -121,7 +122,7 @@ class Standup:
 
 class Channel:
     def __init__(self, creator, name, is_public):
-        self.channel_id = helpers.generate_id('channel_id')
+        self.channel_id = data_store.generate_id('channel_id')
         self.name = name
         self.is_public = is_public
         self.owner_members = [creator]
@@ -200,7 +201,7 @@ class Channel:
 
 class Message:
     def __init__(self, sender, channel, message, message_id=None):
-        self.message_id = helpers.generate_id(
+        self.message_id = data_store.generate_id(
             'message_id') if message_id is None else message_id
         self.sender = sender
         self.channel = channel
@@ -314,7 +315,7 @@ class DataStore:
 
     def get_user(self, u_id=None, email=None, handle_str=None):
         for user in self.users:
-            if u_id == user.u_id or email == user.email:
+            if u_id == user.u_id or email == user.email or handle_str == user.handle_str:
                 return user
         return None
 
@@ -347,6 +348,12 @@ class DataStore:
     @property
     def permission_values(self):
         return self.permissions.values()
+
+    @property
+    def default_permission(self):
+        if len(self.users) == 0:
+            return self.permissions['owner']
+        return self.permissions['member']
 
     def is_admin(self, user):
         return user.permission_id == data_store.permissions['owner']

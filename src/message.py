@@ -19,7 +19,7 @@ MESSAGE = Blueprint('message', __name__)
 # ======================================================================
 
 
-@MESSAGE.route("/send", methods=['POST'])
+@MESSAGE.route("/message/send", methods=['POST'])
 def route_message_send():
     '''
 	Flask route to call the message_send function.
@@ -31,7 +31,7 @@ def route_message_send():
     return dumps(message_send(token, channel_id, message))
 
 
-@MESSAGE.route("/remove", methods=['DELETE'])
+@MESSAGE.route("/message/remove", methods=['DELETE'])
 def route_message_remove():
     '''
 	Flask route to call the message_remove function.
@@ -42,7 +42,7 @@ def route_message_remove():
     return dumps(message_remove(token, message_id))
 
 
-@MESSAGE.route("/edit", methods=['PUT'])
+@MESSAGE.route("/message/edit", methods=['PUT'])
 def route_message_edit():
     '''
 	Flask route to call the message_edit function.
@@ -54,7 +54,7 @@ def route_message_edit():
     return dumps(message_edit(token, message_id, message))
 
 
-@MESSAGE.route("/sendlater", methods=['POST'])
+@MESSAGE.route("/message/sendlater", methods=['POST'])
 def route_message_sendlater():
     '''
 	Flask route to call the message_sendlater function.
@@ -67,7 +67,7 @@ def route_message_sendlater():
     return dumps(message_sendlater(token, channel_id, message, time_sent))
 
 
-@MESSAGE.route("/react", methods=['POST'])
+@MESSAGE.route("/message/react", methods=['POST'])
 def route_message_react():
     '''
 	Flask route to call the message_react function.
@@ -79,7 +79,7 @@ def route_message_react():
     return dumps(message_react(token, message_id, react_id))
 
 
-@MESSAGE.route("/unreact", methods=['POST'])
+@MESSAGE.route("/message/unreact", methods=['POST'])
 def route_message_unreact():
     '''
 	Flask route to call the message_unreact function.
@@ -91,7 +91,7 @@ def route_message_unreact():
     return dumps(message_unreact(token, message_id, react_id))
 
 
-@MESSAGE.route("/pin", methods=['POST'])
+@MESSAGE.route("/message/pin", methods=['POST'])
 def route_message_pin():
     '''
 	Flask route to call the message_pin function.
@@ -103,7 +103,7 @@ def route_message_pin():
     return dumps(message_pin(token, message_id))
 
 
-@MESSAGE.route("/unpin", methods=['POST'])
+@MESSAGE.route("/message/unpin", methods=['POST'])
 def route_message_unpin():
     '''
 	Flask route to call the message_unpin function.

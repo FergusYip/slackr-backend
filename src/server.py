@@ -38,12 +38,12 @@ APP.register_error_handler(Exception, defaultHandler)
 
 APP.register_blueprint(ADMIN)
 APP.register_blueprint(AUTH)
-APP.register_blueprint(CHANNELS)
-APP.register_blueprint(USER, url_prefix='/user')
-APP.register_blueprint(MESSAGE, url_prefix='/message')
 APP.register_blueprint(CHANNEL)
-APP.register_blueprint(STANDUP, url_prefix='/standup')
+APP.register_blueprint(CHANNELS)
+APP.register_blueprint(MESSAGE)
 APP.register_blueprint(OTHER)
+APP.register_blueprint(STANDUP)
+APP.register_blueprint(USER)
 APP.register_blueprint(WORKSPACE)
 
 

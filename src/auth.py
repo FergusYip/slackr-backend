@@ -16,10 +16,10 @@ AUTH = Blueprint('auth', __name__)
 def route_auth_register():
     '''Flask route for /auth/register'''
     payload = request.get_json()
-    email = payload['email']
-    password = payload['password']
-    name_first = payload['name_first']
-    name_last = payload['name_last']
+    email = payload.get('email')
+    password = payload.get('password')
+    name_first = payload.get('name_first')
+    name_last = payload.get('name_last')
     return dumps(auth_register(email, password, name_first, name_last))
 
 
@@ -54,6 +54,7 @@ def auth_register(email, password, name_first, name_last):
 		token (str): JWT
 
 	"""
+
     if None in {email, password, name_first, name_last}:
         raise InputError(
             description=
