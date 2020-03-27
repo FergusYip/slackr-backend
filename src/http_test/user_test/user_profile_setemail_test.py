@@ -1,73 +1,180 @@
-import user
-import auth
+'''
+Testing the functionality of the user_profile_setemail function.
+'''
+
+import requests
 import pytest
-from error import AccessError, InputError
+
+BASE_URL = 'http://127.0.0.1:8080'
 
 # =====================================================
-# ===== TESTING USER PROFILE SET EMAIL FUNCTION =======
+# ========== TESTING USER PROFILE FUNCTION ============
 # =====================================================
 
-def test_profile_setemail(test_user):
+def test_profile_setemail_return(reset, new_user):
+    '''
+    Testing the return types of the user_profile_setemail function.
+    '''
 
-    ''' Testing an average case where a user will change their own email to
-    a valid and unique email address. '''
+    user = new_user()
 
-    user.user_profile_setemail(test_user['token'], 'tester2@test.com')
-    profile_info = user.user_profile(test_user['token'], test_user['u_id'])
+    func_input = {
+        'token': user['token'],
+        'email': 'test@test.com'
+    }
 
-    assert profile_info['user']['email'] == 'tester2@test.com'
+    set_email = requests.put(f'{BASE_URL}/user/profile/setemail', json=func_input).json()
 
-
-def test_profile_setemail_used_by_other_user(test_user, new_user):
-
-    ''' Testing a case where a user attempts to change their email address to
-    one that is already in use. '''
-
-    user.user_profile_setemail(test_user['token'], 'test@test.com')
-
-    second_user = new_user('tester@test.com')
-
-    with pytest.raises(InputError):
-        user.user_profile_setemail(second_user['token'], 'test@test.com')
+    assert isinstance(set_email, dict)
 
 
-def test_profile_setemail_no_change(test_user):
+def test_setemail(reset, new_user):
+    '''
+    Testing the functionality of updating the user's email.
+    '''
 
-    ''' Testing a case where the user attempts to change their email address
-    to their current one. '''
+    # ================ SET-UP ===================
 
-    user.user_profile_setemail(test_user['token'], 'test@test.com')
+    user = new_user(email='tester@test.com')
 
-    with pytest.raises(InputError):
-        user.user_profile_setemail(test_user['token'], 'test@test.com')
+    input_for_profile = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_email = 'tester@test.com'
+
+    assert user_pre_info['email'] == expected_email
+
+    # ================ TESTING ==================
+
+    func_input = {
+        'token': user['token'],
+        'email': 'newtest@test.com'
+    }
+
+    requests.put(f'{BASE_URL}/user/profile/setemail', json=func_input).json()
+
+    user_post_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_email = 'newtest@test.com'
+
+    assert user_post_info['email'] == expected_email
 
 
-def test_profile_setemail_invalidtoken(invalid_token):
+def test_changetocurrent(reset, new_user):
+    '''
+    Testing that changing the email to the user's current email will
+    return an empty dictionary and not raise an error.
+    '''
 
-    ''' Testing a case where an invalid token is input into the function. This
-    will result in an AccessError being raised. '''
+    # ================ SET-UP ===================
 
-    with pytest.raises(AccessError):
-        user.user_profile_setemail(invalid_token, 'test@test.com')
+    user = new_user(email='test@test.com')
+
+    input_for_profile = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_email = 'test@test.com'
+
+    assert user_pre_info['email'] == expected_email
+
+    # ================ TESTING ==================
+
+    func_input = {
+        'token': user['token'],
+        'email': 'test@test.com'
+    }
+
+    set_email = requests.put(f'{BASE_URL}/user/profile/setemail', json=func_input).json()
+
+    assert isinstance(set_email, dict)
 
 
-def test_profile_setemail_valid_emails(test_user, valid_emails):
+def test_invalid_emails(reset, new_user, invalid_emails):
+    '''
+    Testing that trying to change the email to one of which is invalid will
+    raise an error.
+    '''
 
-    ''' Testing the user_profile_setemail function against the pytest fixture
-    featuring a tuple of valid emails. '''
-
-    for email in valid_emails:
-        user.user_profile_setemail(test_user['token'], email)
-        profile_info = user.user_profile(test_user['token'], test_user['u_id'])
-
-        assert profile_info['user']['email'] == email
-
-
-def test_profile_setemail_invalid_emails(test_user, invalid_emails):
-
-    ''' Testing the user_profile_setemail function against the pytest fixture
-    featuring a tuple of invalid emails. '''
+    user = new_user(email='test@test.com')
 
     for email in invalid_emails:
-        with pytest.raises(InputError):
-            user.user_profile_setemail(test_user['token'], email)
+        func_input = {
+            'token': user['token'],
+            'email': email
+        }
+        with pytest.raises(requests.HTTPError):
+            requests.put(f'{BASE_URL}/user/profile/setemail', json=func_input).raise_for_status()
+
+def test_valid_emails(reset, new_user, valid_emails):
+    '''
+    Testing that trying to change the email to one of which is valid will
+    not raise an error.
+    '''
+
+    user = new_user(email='test@test.com')
+
+    input_for_profile = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    for email in valid_emails:
+        func_input = {
+            'token': user['token'],
+            'email': email
+        }
+        requests.put(f'{BASE_URL}/user/profile/setemail', json=func_input).raise_for_status()
+        user_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+
+        assert email == user_info['email']
+
+def test_email_used(reset, new_user):
+    '''
+    Testing that trying to change the email to one that is already being
+    used by another user will raise an error.
+    '''
+
+    # ================ SET-UP ===================
+
+    user = new_user(email='test@test.com')
+    second_user = new_user(email='notused@test.com')
+
+    input_for_profile = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_email = 'test@test.com'
+
+    # Assert that string expected_email is being used.
+    assert user_info['email'] == expected_email
+
+    # ================ TESTING ==================
+
+    func_input = {
+        'token': second_user['token'],
+        'email': expected_email
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.put(f'{BASE_URL}/user/profile/setemail', json=func_input).raise_for_status()
+
+
+def test_invalid_token(reset, invalid_token):
+    '''
+    Testing that an invalid token will raise an error.
+    '''
+
+    func_input = {
+        'token': invalid_token,
+        'email': 'tester@test.com'
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.put(f'{BASE_URL}/user/profile/setemail', json=func_input).raise_for_status()
