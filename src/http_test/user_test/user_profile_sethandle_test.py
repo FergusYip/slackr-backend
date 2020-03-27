@@ -1,69 +1,174 @@
-import user
-import auth
+'''
+Testing the functionality of the user_profile_sethandle function.
+'''
+
+import requests
 import pytest
-from error import AccessError, InputError
+
+BASE_URL = 'http://127.0.0.1:8080'
 
 # =====================================================
-# ===== TESTING USER PROFILE SET HANDLE FUNCTION ======
+# ========== TESTING USER PROFILE FUNCTION ============
 # =====================================================
 
-def test_profile_sethandle(test_user):
+def test_profile_sethandle_return(reset, new_user):
+    '''
+    Testing the return types of the user_profile_sethandle function.
+    '''
 
-    ''' Average case test where a user will change their handle to a different
-    valid handle. '''
+    user = new_user()
 
-    user.user_profile_sethandle(test_user['token'], 'knownhandle')
-    profile_info = user.user_profile(test_user['token'], test_user['u_id'])
+    func_input = {
+        'token': user['token'],
+        'handle_str': 'uniquehandle'
+    }
 
-    assert profile_info['user']['handle_str'] == 'knownhandle'
+    set_handle = requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).json()
 
-
-def test_profile_sethandle_below_char_limit(test_user):
-
-    ''' Case where a handle change should result in an InputError if the new
-    handle is fewer than 3 characters (3 not inclusive). '''
-
-    with pytest.raises(InputError):
-        user.user_profile_sethandle(test_user['token'], 'i' * 2)
+    assert isinstance(set_handle, dict)
 
 
-def test_profile_sethandle_above_char_limit(test_user):
+def test_sethandle(reset, new_user):
+    '''
+    Testing the functionality of updating the user's handle.
+    '''
 
-    ''' Case where a handle change should result in an InputError if the new
-    handle is greater than 20 characters (20 not inclusive). '''
+    # ================ SET-UP ===================
 
-    with pytest.raises(InputError):
-        user.user_profile_sethandle(test_user['token'], 'i' * 21)
+    user = new_user(name_first='Jim', name_last='Nottest')
 
+    input_for_profile = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
 
-def test_profile_sethandle_existing_handle(test_user, new_user):
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_handle = 'jimnottest'
 
-    ''' Case where a user attempts to change their handle to an existing handle. '''
+    assert user_pre_info['handle_str'] == expected_handle
 
-    user2 = new_user('tester2@mail.com')
-    user.user_profile_sethandle(user2['token'], 'knownhandle')
+    # ================ TESTING ==================
 
-    ''' With a state set at which we are certain user2 has handle 'knownhandle',
-    an InputError should be raised when test_user attempts to change their handle
-    to 'knownhandle' '''
+    func_input = {
+        'token': user['token'],
+        'handle_str': 'uniquehandle'
+    }
 
-    with pytest.raises(InputError):
-        user.user_profile_sethandle(test_user['token'], 'knownhandle')
+    requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).json()
 
+    user_post_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_handle = 'uniquehandle'
 
-def test_profile_sethandle_no_change(test_user):
-
-    ''' Case where a user attempts to change their handle to their current handle. '''
-
-    user.user_profile_sethandle(test_user['token'], 'knownhandle')
-
-    with pytest.raises(InputError):
-        user.user_profile_sethandle(test_user['token'], 'knownhandle')
+    assert user_post_info['handle_str'] == expected_handle
 
 
-def test_profile_sethandle_invalidtoken(test_user, invalid_token):
+def test_changetocurrent(reset, new_user):
+    '''
+    Testing that changing the handle to the user's current handle will
+    return an empty dictionary and not raise an error.
+    '''
 
-    ''' Case where an invalid token is passed into the function. '''
+    # ================ SET-UP ===================
 
-    with pytest.raises(AccessError):
-        user.user_profile_sethandle(invalid_token, 'knownhandle')
+    user = new_user(name_first='Jim', name_last='Nottest')
+
+    input_for_profile = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_handle = 'jimnottest'
+
+    assert user_pre_info['handle_str'] == expected_handle
+
+    # ================ TESTING ==================
+
+    func_input = {
+        'token': user['token'],
+        'handle_str': 'jimnottest'
+    }
+
+    set_handle = requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).json()
+
+    assert isinstance(set_handle, dict)
+
+
+def test_handle_toolong(reset, new_user):
+    '''
+    Testing that trying to change the handle to a length greater than 20
+    characters will raise an error.
+    '''
+
+    user = new_user(name_first='Jim', name_last='Nottest')
+
+    func_input = {
+        'token': user['token'],
+        'handle_str': 'i' * 21
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).raise_for_status()
+
+def test_handle_tooshort(reset, new_user):
+    '''
+    Testing that trying to change the handle to a length less than 2 characters
+    will raise an error.
+    '''
+
+    user = new_user(name_first='Jim', name_last='Nottest')
+
+    func_input = {
+        'token': user['token'],
+        'handle_str': 'i'
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).raise_for_status()
+
+
+def test_handle_used(reset, new_user):
+    '''
+    Testing that trying to change the handle to one that is already being
+    used by another user will raise an error.
+    '''
+
+    # ================ SET-UP ===================
+
+    user = new_user(name_first='Jim', name_last='Nottest')
+    second_user = new_user(email='notused@test.com', name_first='User', name_last='second')
+
+    input_for_profile = {
+        'token': user['token'],
+        'u_id': user['u_id']
+    }
+
+    user_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    expected_handle = 'jimnottest'
+
+    # Assert that string expected_handle is being used.
+    assert user_info['handle_str'] == expected_handle
+
+    # ================ TESTING ==================
+
+    func_input = {
+        'token': second_user['token'],
+        'handle_str': 'jimnottest'
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).raise_for_status()
+
+
+def test_invalid_token(reset, invalid_token):
+    '''
+    Testing that an invalid token will raise an error.
+    '''
+
+    func_input = {
+        'token': invalid_token,
+        'handle_str': 'uniquehandle',
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).raise_for_status()
