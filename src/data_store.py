@@ -172,19 +172,6 @@ class Channel:
     def remove_message(self, message):
         self.messages.remove(message)
 
-    # def get_message(self, message_id):
-    #     for message in self.messages:
-    #         if message_id == message.message_id:
-    #             return message
-    #     return None
-
-    # def message_search(self, query_str):
-    #     '''Retrieve all messages in a channel which contain the query string'''
-    #     return [
-    #         message.to_dict for message in self.messages
-    #         if query_str in message.message
-    #     ]
-
     def to_dict(self):
         messages = []
         for message in self.messages:
@@ -252,16 +239,11 @@ class Message:
     def remove_react(self, react):
         self.reacts.remove(react)
 
-    # def get_react(self, react_id):
-    #     for react in self.reacts:
-    #         if react_id == react.react_id:
-    #             return react
-    #     return None
-
+    @property
     def to_dict(self):
         reacts = []
         for react in self.reacts:
-            reacts.append(react.to_dict())
+            reacts.append(react.to_dict)
         return {
             'message_id': self.message_id,
             'u_id': self.u_id,
@@ -291,6 +273,7 @@ class React:
     def is_user_reacted(self, u_id):
         return u_id in self.u_ids
 
+    @property
     def to_dict(self):
         return {'react_id': self.react_id, 'u_ids': self.u_ids}
 
@@ -315,6 +298,13 @@ class DataStore:
 
     def add_channel(self, new_channel):
         self.channels.append(new_channel)
+
+    def send_message(self, user, channel, message):
+        self.messages.append(message)
+        user.add_message(message)
+        channel.add_message(message)
+        message.user = user
+        message.channel = channel
 
     def add_message(self, message):
         self.messages.append(message)
