@@ -5,7 +5,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_list_return_type(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_listall_return_type(reset, new_user, new_channel):  # pylint: disable=W0613
     '''Test that the types of return values are as expected'''
     user = new_user()
     new_channel(user, 'Channel')
