@@ -11,6 +11,7 @@ BASE_URL = 'http://127.0.0.1:8080'
 # ========== TESTING MESSAGE REACT FUNCTION ===========
 # =====================================================
 
+
 def test_react_returntype(reset, new_user, new_channel):
     '''
     Testing the return type of the message_react route.
@@ -94,6 +95,30 @@ def test_react_invalid_message(reset, new_user, new_channel):
     requests.post(f'{BASE_URL}/message/send', json=message_input)
 
     # Message ID of 2 does not exist. (only ID #1 exists)
+    react_input = {
+        'token': user['token'],
+        'message_id': 2,
+        'react_id': 1
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/message/react', json=react_input).raise_for_status()
+
+
+def test_react_messagenotinchannel(reset, new_user, new_channel):
+    user = new_user()
+    channel = new_channel(user)
+
+    # Sending the first message in a channel.
+    message_input = {
+        'token': user['token'],
+        'channel_id': channel['channel_id'],
+        'message': 'Message'
+    }
+
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+
+    # Message with ID 2 does not exist.
     react_input = {
         'token': user['token'],
         'message_id': 2,
