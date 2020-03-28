@@ -62,10 +62,22 @@ def get_user_profile():
     def _get_user_profile(token, u_id):
         payload = {'token': token, 'u_id': u_id}
         user_profile = requests.get(f"{BASE_URL}/user/profile",
-                                    param=payload).json()
+                                    params=payload).json()
         return user_profile
 
     return _get_user_profile
+
+
+@pytest.fixture
+def get_channel_details():
+    '''Factory as a fixture for a retrieving channel details'''
+    def _get_channel_details(token, channel_id):
+        payload = {'token': token, 'channel_id': channel_id}
+        details = requests.get(f"{BASE_URL}/channel/details",
+                               params=payload).json()
+        return details
+
+    return _get_channel_details
 
 
 @pytest.fixture
