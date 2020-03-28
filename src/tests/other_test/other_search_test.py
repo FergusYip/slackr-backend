@@ -26,7 +26,11 @@ def test_search_return_type(reset, test_user, new_channel):  # pylint: disable=W
     message.message_send(test_user['token'], test_channel['channel_id'],
                          'Hello world!')
 
-    results = other.search(test_user['token'], 'Hello')['messages'][0]
+    search = other.search(test_user['token'], 'Hello')
+    assert isinstance(search, dict)
+    assert isinstance(search['messages'], list)
+
+    results = search['messages'][0]
     assert isinstance(results, dict)
     assert isinstance(results['message_id'], int)
     assert isinstance(results['u_id'], int)
