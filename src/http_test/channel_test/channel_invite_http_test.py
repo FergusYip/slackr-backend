@@ -1,3 +1,8 @@
+'''
+HTTP Tests for the channel_invite function.
+'''
+
+
 import requests
 import pytest
 
