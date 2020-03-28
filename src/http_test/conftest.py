@@ -1,6 +1,5 @@
-import json
+'''Conftest file for http testing slackr'''
 import requests
-import urllib
 import pytest
 
 BASE_URL = 'http://127.0.0.1:8080'
@@ -61,9 +60,9 @@ def new_channel():
 def get_user_profile():
     '''Factory as a fixture for a retrieving user info'''
     def _get_user_profile(token, u_id):
-        query_string = urllib.parse.urlencode({'token': token, 'u_id': u_id})
-        user_profile = requests.get(
-            f"{BASE_URL}/user/profile?{query_string}").json()
+        payload = {'token': token, 'u_id': u_id}
+        user_profile = requests.get(f"{BASE_URL}/user/profile",
+                                    param=payload).json()
         return user_profile
 
     return _get_user_profile
