@@ -50,8 +50,8 @@ def test_workspace_reset_channels(reset, new_user, new_channel):  # pylint: disa
     assert len(all_channels['channels']) == 0
 
 
-def test_workspace_reset_token_blacklist(reset, new_user):  # pylint: disable=W0613
-    '''Test that the token blacklist is reset'''
+def test_workspace_reset_old_token(reset, new_user):  # pylint: disable=W0613
+    '''Test that the old tokens are invalid is reset'''
     user = new_user()
 
     requests.post(f'{BASE_URL}/workspace/reset')
