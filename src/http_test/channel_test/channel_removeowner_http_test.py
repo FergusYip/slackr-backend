@@ -1,153 +1,142 @@
-import channel
-import channels
+'''
+HTTP Tests for the channel_removeowner function.
+'''
+
+import requests
 import pytest
-import auth
-import message
-from error import InputError
-from error import AccessError
 
-# ================================= MAKING USERS ====================================
-
-# Making a dummy user (dummy_user1) with valid details.
-@pytest.fixture
-def dummy_user1():
-    dummy_user1 = auth.auth_register(
-        'something.else@domain.com', 'GreatPassword04', 'something', 'else')
-    return dummy_user1
+BASE_URL = 'http://127.0.0.1:8080'
 
 
-# Making another dummy user (dummy_user2) with valid details.
-@pytest.fixture
-def dummy_user2():
-    dummy_user2 = auth.auth_register(
-        'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
-    return dummy_user2
-
-# Making another dummy user (dummy_user3) with valid details.
-@pytest.fixture
-def dummy_user3():
-    dummy_user3 = auth.auth_register(
-        'dummy.user3@domain.com', 'ReallCoolPassword9800!', 'dummy', 'three')
-    return dummy_user3
-
-
-# ================================= MAKING CHANNELS ====================================
-
-
-# Making a dummy channel (channel1) with valid details.
-@pytest.fixture
-def channel1(dummy_user1):
-    c_id1 = channels.channels_create(dummy_user1['token'], 'name1', True)
-    return c_id1
-
-
-# Making another dummy channel (channel2) with valid details.
-@pytest.fixture
-def channel2(dummy_user2):
-    c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
-    return c_id2
-
-
-# Making a private dummy channel (channel_priv) with valid details.
-@pytest.fixture
-def channel_priv(dummy_user3):
-    c_priv = channels.channels_create(dummy_user3['token'], 'name3', False)
-    return c_priv
-
-
-# ===================================================================================
-# testing channel_removeowner function.
-# ===================================================================================
-
-
-def test_removeowner(dummy_user1, dummy_user2, dummy_user3, channel1):
+def test_removeowner(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Testing the basic functionality of the channel_removeowner() function.
+    Testing the removeowner function on a public channel.
     '''
 
-    # making dummy_user 2 and 3 members, and then owners of channel1.
-    channel.channel_join(dummy_user2['token'], channel1['channel_id'])
-    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
+    user1 = new_user()
+    user2 = new_user()
+    channel = new_channel(user1)
 
-    channel.channel_addowner(
-        dummy_user1['token'], channel1['channel_id'], dummy_user2['u_id'])
+    input_dict = {
+        'token': user2['token'],
+        'channel_id': channel['channel_id']
+    }
 
-    channel.channel_addowner(
-        dummy_user1['token'], channel1['channel_id'], dummy_user3['u_id'])
+    # user2 joins channel.
+    requests.post(f'{BASE_URL}/channel/join', json=input_dict)
 
-    # checking if channel1 now has 3 owners.
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=input_dict).json()
 
-    assert len(details['owner_members']) == 3
+    assert len(details['owner_members']) == 1
 
-    # testing functionality of the channel_removeowner() function.
-    channel.channel_removeowner(
-        dummy_user1['token'], channel1['channel_id'], dummy_user3['u_id'])
+    add_dict = {
+        'token': user1['token'],
+        'channel_id': channel['channel_id'],
+        'u_id': user2['u_id']
+    }
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    # adding user2 as owner of channel.
+    requests.post(f'{BASE_URL}/channel/addowner', json=add_dict)
+
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=input_dict).json()
 
     assert len(details['owner_members']) == 2
 
-    # removeowner function should only make a user a non-owner. The total number of
-    # users should still be the same.
-    assert len(details['all_members']) == 3
+    # removing user2 as owner of channel.
+    requests.post(f'{BASE_URL}/channel/removeowner', json=add_dict)
 
-
-def test_removeowner_uid(dummy_user1, dummy_user3, channel1):
-    '''
-    Checking for AccessError when a user who is not an owner of a channel 
-    tries to remove another owner.
-    '''
-
-    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
-
-    with pytest.raises(AccessError):
-        channel.channel_removeowner(
-            dummy_user3['token'], channel1['channel_id'], dummy_user1['u_id'])
-
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=input_dict).json()
 
     assert len(details['owner_members']) == 1
 
 
-def test_removeowner_empty(dummy_user1, dummy_user2, channel2):
+def test_empty_owner(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Testing the channel_removeowner() function for a channel with no owners.
+    Testing removeowner when the only owner removes himself as owner.
     '''
 
-    channel.channel_invite(
-        dummy_user2['token'], channel2['channel_id'], dummy_user1['u_id'])
+    user1 = new_user()
+    user2 = new_user()
+    channel = new_channel(user1)
 
-    channel.channel_removeowner(
-        dummy_user2['token'], channel2['channel_id'], dummy_user2['u_id'])
+    input_dict = {
+        'token': user1['token'],
+        'channel_id': channel['channel_id'],
+        'u_id': user1['u_id']
+    }
 
-    details = channel.channel_details(
-        dummy_user2['token'], channel2['channel_id'])
+    requests.post(f'{BASE_URL}/channel/removeowner', json=input_dict)
+
+    details_dict = {
+        'token': user2['token'],
+        'channel_id': channel['channel_id']
+    }
+
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=details_dict).json()
 
     assert len(details['owner_members']) == 0
-
     assert len(details['all_members']) == 2
 
 
-def test_removeowner_cid(dummy_user1, dummy_user2, channel1):
+def test_not_owner(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Testing for InputError when an invalid channel id is passed into the 
-    channel_removeowner() function.
-    '''
-
-    with pytest.raises(InputError):
-        channel.channel_removeowner(
-            dummy_user1['token'], -1, dummy_user2['u_id'])
-
-
-def test_removeowner_invalid_token(dummy_user1, channel1, invalid_token):
-    '''
-    Testing case when the token passed into the channel_removeowner() function is invalid.
+    Testing the removeowner function when authorized user is not an owner of
+    channel
     '''
 
-    with pytest.raises(AccessError):
-        channel.channel_removeowner(
-            invalid_token, channel1['channel_id'], dummy_user1['u_id'])
+    user1 = new_user()
+    user2 = new_user()
+    channel = new_channel(user1)
+
+    input_dict = {
+        'token': user2['token'],
+        'channel_id': channel['channel_id'],
+        'u_id': user1['u_id']
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/removeowner',
+                      json=input_dict).raise_for_status()
+
+
+def test_invalid_ch(reset, new_user, new_channel):  # pylint: disable=W0613
+    '''
+    Testing the removeowner function when an invalid channel id is passed.
+    '''
+
+    user1 = new_user()
+    user2 = new_user()
+    new_channel(user1)
+
+    input_dict = {
+        'token': user1['token'],
+        'channel_id': -1,
+        'u_id': user2['u_id']
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/removeowner',
+                      json=input_dict).raise_for_status()
+
+
+def test_invalid_uid(reset, new_user, new_channel):  # pylint: disable=W0613
+    '''
+    Testing the removeowner function when an invalid user id is passed.
+    '''
+
+    user = new_user()
+    channel = new_channel(user)
+
+    input_dict = {
+        'token': user['token'],
+        'channel_id': channel['channel_id'],
+        'u_id': -1
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/removeowner',
+                      json=input_dict).raise_for_status()
