@@ -260,6 +260,7 @@ def message_sendlater(token, channel_id, message, time_sent):
     time in the future.
     '''
     time_now = helpers.utc_now()
+    decode_token(token)
     if time_now > time_sent:
         raise InputError(description='Time to send is in the past')
 
@@ -315,6 +316,9 @@ def message_react(token, message_id, react_id):
 
     channel_id = channel_info['channel_id']
 
+    if not helpers.is_channel_member(user_id, channel_id):
+        raise InputError(description='User is not in the channel')
+
     if helpers.is_channel_member(user_id, channel_id):
         if message_info is None:
             raise InputError(description='Message does not exist')
@@ -322,11 +326,11 @@ def message_react(token, message_id, react_id):
     if react_id not in data_store['reactions'].values():
         raise InputError(description='Reaction type is invalid')
 
-    if helpers.has_user_reacted(user_id, message_id, channel_id, react_id):
+    if helpers.has_user_reacted(user_id, message_id, react_id):
         raise InputError(
             description='User has already reacted to this message')
 
-    react_info = helpers.get_react(message_id, channel_id, react_id)
+    react_info = helpers.get_react(message_id, react_id)
 
     if react_info is None:
         # If there are no reacts with react_id present yet.
@@ -359,6 +363,9 @@ def message_unreact(token, message_id, react_id):
 
     channel_id = channel_info['channel_id']
 
+    if not helpers.is_channel_member(user_id, channel_id):
+        raise InputError(description='User is not in the channel')
+
     if helpers.is_channel_member(user_id, channel_id):
         if message_info is None:
             raise InputError(description='Message does not exist')
@@ -366,18 +373,18 @@ def message_unreact(token, message_id, react_id):
     if react_id not in data_store['reactions'].values():
         raise InputError(description='react_id is invalid')
 
-    if helpers.get_react(message_id, channel_id, react_id) is None:
+    if helpers.get_react(message_id, react_id) is None:
         raise InputError(
             description='Message does not have this type of reaction')
 
-    react_removal = helpers.get_react(message_id, channel_id, react_id)
+    react_removal = helpers.get_react(message_id, react_id)
 
     if user_id not in react_removal['u_ids']:
         raise InputError(description='User has not reacted to this message')
 
     if len(react_removal['u_ids']) == 1:
         # If the current user is the only reaction on the message.
-        helpers.message_remove_reaction(react_removal, message_id, channel_id)
+        helpers.message_remove_reaction(react_id, message_id, channel_id)
     else:
         # If there are other u_ids reacting with the same react ID.
         helpers.message_remove_react_uid(user_id, message_id, channel_id,
@@ -407,7 +414,7 @@ def message_pin(token, message_id):
     if not helpers.is_user_admin(user_id, channel_id):
         raise InputError(description='User is not an admin')
 
-    if helpers.is_pinned(message_id, channel_id):
+    if helpers.is_pinned(message_id):
         raise InputError(description='Message is already pinned')
 
     if not helpers.is_channel_member(user_id, channel_id):
@@ -438,7 +445,7 @@ def message_unpin(token, message_id):
     if not helpers.is_user_admin(user_id, channel_id):
         raise InputError(description='User is not an admin')
 
-    if not helpers.is_pinned(message_id, channel_id):
+    if not helpers.is_pinned(message_id):
         raise InputError(description='Message is not pinned')
 
     if not helpers.is_channel_member(user_id, channel_id):

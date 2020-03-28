@@ -1,12 +1,20 @@
+'''
+Implementation of workspace routes for slackr app
+'''
 from json import dumps
 from flask import Blueprint
 from data_store import data_store
-from datetime import datetime
+from helpers import utc_now
 
 WORKSPACE = Blueprint('workspace', __name__)
 
 
 @WORKSPACE.route("/workspace/reset", methods=['POST'])
+def route_workspace_reset():
+    ''' Flask route for /workspace/reset in slackr'''
+    return dumps(workspace_reset())
+
+
 def workspace_reset():
     '''Reset the workspace state'''
     data_store['users'].clear()
@@ -17,9 +25,9 @@ def workspace_reset():
     data_store['max_ids']['channel_id'] = 0
     data_store['max_ids']['message_id'] = 0
 
-    data_store['time_created'] = int(datetime.utcnow().timestamp())
+    data_store['time_created'] = utc_now()
 
-    return dumps({})
+    return {}
 
 
 if __name__ == "__main__":

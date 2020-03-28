@@ -67,7 +67,7 @@ def test_edit_message(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # Assert the message sent correctly.
     assert message_from_data['messages'][0]['message'] == 'Message'
@@ -82,7 +82,7 @@ def test_edit_message(reset, new_user, new_channel):
     requests.put(f'{BASE_URL}/message/edit',
                  json=edit_input).json()
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # Assert the message has been updated successfully.
     assert message_from_data['messages'][0]['message'] == 'Edited Message'
@@ -105,25 +105,16 @@ def test_edit_invalid_message(reset, new_user, new_channel):
     requests.post(f'{BASE_URL}/message/send',
                   json=message_info).json()
 
-    # Getting a list of messages.
-    func_input = {
-        'token': user['token'],
-        'channel_id': channel['channel_id'],
-        'start': 0
-    }
-
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
-
     # Message in index position 1 does not exist. (only index 0 does).
     edit_input = {
         'token': user['token'],
-        'message_id': message_from_data['messages'][1]['message_id'],
+        'message_id': 2,
         'message': 'Hello World'
     }
 
     with pytest.raises(requests.HTTPError):
         requests.put(f'{BASE_URL}/message/edit',
-                     json=edit_input).json().raise_for_status
+                     json=edit_input).raise_for_status()
 
 def test_edit_message_length(reset, new_user, new_channel):
     '''
@@ -131,7 +122,7 @@ def test_edit_message_length(reset, new_user, new_channel):
     will raise an error.
     '''
 
-    user = new_user
+    user = new_user()
     channel = new_channel(user)
 
     # Sending a message.
@@ -151,7 +142,7 @@ def test_edit_message_length(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     edit_input = {
         'token': user['token'],
@@ -161,7 +152,7 @@ def test_edit_message_length(reset, new_user, new_channel):
 
     with pytest.raises(requests.HTTPError):
         requests.put(f'{BASE_URL}/message/edit',
-                     json=edit_input).json().raise_for_status
+                     json=edit_input).raise_for_status()
 
 
 def test_edit_privileges(reset, new_user, new_channel):
@@ -199,7 +190,7 @@ def test_edit_privileges(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # Attempting to edit the message as the second user.
     edit_input = {
@@ -210,7 +201,7 @@ def test_edit_privileges(reset, new_user, new_channel):
 
     with pytest.raises(requests.HTTPError):
         requests.put(f'{BASE_URL}/message/edit',
-                     json=edit_input).raise_for_status
+                     json=edit_input).raise_for_status()
 
 def test_edit_admin(reset, new_user, new_channel):
     '''
@@ -247,7 +238,7 @@ def test_edit_admin(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     edit_input = {
         'token': user['token'],
@@ -258,7 +249,7 @@ def test_edit_admin(reset, new_user, new_channel):
     # Admin should be able to successfully edit another user's message.
     requests.put(f'{BASE_URL}/message/edit', json=edit_input)
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     assert message_from_data['messages'][0]['message'] == 'New message'
 
@@ -294,7 +285,7 @@ def test_edit_nolength(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # Editing the message with a string of zero characters.
     edit_input = {
@@ -305,7 +296,7 @@ def test_edit_nolength(reset, new_user, new_channel):
 
     requests.put(f'{BASE_URL}/message/edit', json=edit_input)
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # The edited message should have been deleted, leaving only one message.
     assert len(message_from_data['messages']) == 1
@@ -337,7 +328,7 @@ def test_invalid_token(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # Logging the user out, rendering the token invalid.
     token = user['token']
@@ -351,4 +342,4 @@ def test_invalid_token(reset, new_user, new_channel):
 
     with pytest.raises(requests.HTTPError):
         requests.put(f'{BASE_URL}/message/edit',
-                     json=edit_input).raise_for_status
+                     json=edit_input).raise_for_status()
