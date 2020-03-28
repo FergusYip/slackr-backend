@@ -2,7 +2,6 @@
 Implementation of workspace routes for slackr app
 '''
 from json import dumps
-from datetime import datetime
 from flask import Blueprint
 from data_store import data_store
 from helpers import utc_now
