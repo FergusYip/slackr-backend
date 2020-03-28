@@ -2,6 +2,13 @@ import pytest
 import auth
 import channel
 import channels
+import workspace
+
+
+@pytest.fixture
+def reset():
+    '''Fixture for resetting the workspace'''
+    workspace.workspace_reset()
 
 
 @pytest.fixture
