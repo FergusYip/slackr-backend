@@ -35,7 +35,7 @@ def test_pin_returntype(reset, new_user, new_channel):
 
     pin_return = requests.post(f'{BASE_URL}/message/pin', json=func_input)
 
-    asser isinstance(pin_return, dict)
+    assert isinstance(pin_return, dict)
 
 
 def test_pin_message(reset, new_user, new_channel):
@@ -61,7 +61,7 @@ def test_pin_message(reset, new_user, new_channel):
     }
 
     requests.post(f'{BASE_URL}/message/pin', json=func_input)
-    
+
     # Get a list of all messages in the channel.
     function_input = {
         'token': user['token'],
@@ -73,13 +73,12 @@ def test_pin_message(reset, new_user, new_channel):
     assert message_from_data['messages'][0]['is_pinned']
 
 
-def test_pin_invalid_message(reset, new_user, new_channel):
+def test_pin_invalid_message(reset, new_user):
     '''
     Testing that attempting to pin an invalid message will raise an error.
     '''
 
     user = new_user()
-    channel = new_channel(user)
 
     func_input = {
         'token': user['token'],
