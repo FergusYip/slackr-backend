@@ -52,6 +52,7 @@ def test_profile_setemail_no_change(reset, test_user): # pylint: disable=W0613
     to their current one.
     '''
 
+    user.user_profile_setemail(test_user['token'], 'test@test.com')
     return_type = user.user_profile_setemail(test_user['token'], 'test@test.com')
 
     # Assert the function returns an empty dictionary.

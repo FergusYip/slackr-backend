@@ -59,6 +59,7 @@ def test_profile_sethandle_no_change(reset, test_user): # pylint: disable=W0613
     Case where a user attempts to change their handle to their current handle.
     '''
 
+    user.user_profile_sethandle(test_user['token'], 'knownhandle')
     return_type = user.user_profile_sethandle(test_user['token'], 'knownhandle')
 
     # Assert the function returns an empty dictionary.
