@@ -145,8 +145,8 @@ def channel_details(token, channel_id):
     u_id = int(token_data['u_id'])
     channel_id = int(channel_id)
 
-    user = data_store.get_user(u_id)
-    channel = data_store.get_channel(channel_id)
+    user = helpers.get_user(u_id)
+    channel = helpers.get_channel(channel_id)
 
     # if channel doesn't exist.
     if helpers.get_channel(channel_id) is None:
