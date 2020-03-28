@@ -62,5 +62,5 @@ def test_listall_insufficient_params(reset):  # pylint: disable=W0613
     '''Test input of invalid parameters into channels_listall'''
 
     with pytest.raises(requests.HTTPError):
-        requests.post(f"{BASE_URL}/channels/listall",
-                      params={}).raise_for_status()
+        requests.get(f"{BASE_URL}/channels/listall",
+                     params={}).raise_for_status()

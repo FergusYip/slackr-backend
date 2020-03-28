@@ -61,5 +61,4 @@ def test_list_insufficient_params(reset):  # pylint: disable=W0613
     '''Test input of invalid parameters into channels_list'''
 
     with pytest.raises(requests.HTTPError):
-        requests.post(f"{BASE_URL}/channels/list",
-                      params={}).raise_for_status()
+        requests.get(f"{BASE_URL}/channels/list", params={}).raise_for_status()
