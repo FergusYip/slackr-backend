@@ -14,4 +14,4 @@ def test_logout_invalid_token(reset, invalid_token):  # pylint: disable=W0613
     '''Test that auth_logout raises an AccessError when given invalid token'''
 
     with pytest.raises(AccessError):
-        auth.auth_logout(invalid_token)['is_success']
+        auth.auth_logout(invalid_token)
