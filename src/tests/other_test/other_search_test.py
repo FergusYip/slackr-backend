@@ -15,7 +15,7 @@ def test_search_no_channel(reset, test_user):  # pylint: disable=W0613
 def test_search_empty_channel(reset, test_user, new_channel):  # pylint: disable=W0613
     '''Test search function when channel has no messages'''
 
-    test_channel = new_channel(test_user, 'Channel')
+    new_channel(test_user, 'Channel')
     assert len(other.search(test_user['token'], '')['messages']) == 0
 
 
