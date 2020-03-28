@@ -70,11 +70,12 @@ def test_details_owner(dummy_user1, channel1):
 
     owner = False
 
-    for user in details['owner_members']:
-        if user['u_id'] == dummy_user1['u_id']:
-            owner = True
+    # for user in details['owner_members']:
+    #     if user['u_id'] == dummy_user1['u_id']:
+    if dummy_user1['u_id'] in details['owner_members']:
+        owner = True
 
-    assert owner == True
+    assert owner is True
 
 
 def test_details_added_owner(dummy_user1, dummy_user2, channel1):

@@ -1,126 +1,114 @@
-import channel
-import channels
+'''
+HTTP Tests for the channel_invite function.
+'''
+
+import requests
 import pytest
-import auth
-import message
-from error import InputError
-from error import AccessError
 
-# ================================= MAKING USERS ====================================
-
-# Making a dummy user (dummy_user1) with valid details.
-@pytest.fixture
-def dummy_user1():
-    dummy_user1 = auth.auth_register(
-        'something.else@domain.com', 'GreatPassword04', 'something', 'else')
-    return dummy_user1
+BASE_URL = 'http://127.0.0.1:8080'
 
 
-# Making another dummy user (dummy_user2) with valid details.
-@pytest.fixture
-def dummy_user2():
-    dummy_user2 = auth.auth_register(
-        'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
-    return dummy_user2
-
-# Making another dummy user (dummy_user3) with valid details.
-@pytest.fixture
-def dummy_user3():
-    dummy_user3 = auth.auth_register(
-        'dummy.user3@domain.com', 'ReallCoolPassword9800!', 'dummy', 'three')
-    return dummy_user3
-
-
-# ================================= MAKING CHANNELS ====================================
-
-
-# Making a dummy channel (channel1) with valid details.
-@pytest.fixture
-def channel1(dummy_user1):
-    c_id1 = channels.channels_create(dummy_user1['token'], 'name1', True)
-    return c_id1
-
-
-# Making another dummy channel (channel2) with valid details.
-@pytest.fixture
-def channel2(dummy_user2):
-    c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
-    return c_id2
-
-
-# Making a private dummy channel (channel_priv) with valid details.
-@pytest.fixture
-def channel_priv(dummy_user3):
-    c_priv = channels.channels_create(dummy_user3['token'], 'name3', False)
-    return c_priv
-
-
-# ===================================================================================
-# testing channel_details function.
-# ===================================================================================
-
-
-def test_details_owner(dummy_user1, channel1):
+def test_details_owner(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Checking if channe1 has dummy_user1 in owner_members.
+    Checking if channel has dummy_user1 in owner_members.
     '''
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    user = new_user()
+    channel = new_channel(user)
 
-    owner = False
+    input_dict = {
+        'token': user['token'],
+        'channel_id': channel['channel_id']
+    }
 
-    for user in details['owner_members']:
-        if user['u_id'] == dummy_user1['u_id']:
-            owner = True
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=input_dict).json()
 
-    assert owner == True
+    assert len(details['owner_members']) == 1
 
 
-def test_details_added_owner(dummy_user1, dummy_user2, channel1):
+def test_details_added_owner(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Adding another owner (dummy_user2) to name1 and checking if the channel
-    has 2 owners.
+    Adding owners to a channel and checking if the channel has 2 owners.
     '''
 
-    channel.channel_addowner(
-        dummy_user1['token'], channel1['channel_id'], dummy_user2['u_id'])
+    user1 = new_user()
+    user2 = new_user(email='something@google.com')
+    channel = new_channel(user1)
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    addowner_in = {
+        'token': user1['token'],
+        'channel_id': channel['channel_id'],
+        'u_id': user2['u_id']
+    }
+
+    details_in = {
+        'token': user1['token'],
+        'channel_id': channel['channel_id']
+    }
+
+    requests.post(f'{BASE_URL}/channel/addowner', json=addowner_in)
+
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=details_in).json()
 
     assert len(details['owner_members']) == 2
 
 
-def test_details_all(dummy_user1, channel1):
+def test_details_all(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Checking if channel1 has 1 user in all_members.
+    Checking if channels have 1 user in all_members.
     '''
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    user1 = new_user()
+    user2 = new_user()
+    channel = new_channel(user1)
 
-    assert len(details['all_members']) == 1
+    input_dict = {
+        'token': user2['token'],
+        'channel_id': channel['channel_id']
+    }
+
+    requests.post(f'{BASE_URL}/channel/join', json=input_dict)
+
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=input_dict).json()
+
+    assert len(details['all_members']) == 2
 
 
-def test_details_invalid(dummy_user1, channel2):
+def test_invalid_ch(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
     Testing case when channel ID is invalid.
-    Testing case when user asking for details isn't part of the channel.
     '''
 
-    with pytest.raises(InputError):
-        channel.channel_details(dummy_user1['token'], -1)
+    user = new_user()
+    new_channel(user)
 
-    # Testing case when the user asking for details isn't part of the channel.
-    with pytest.raises(AccessError):
-        channel.channel_details(dummy_user1['token'], channel2['channel_id'])
+    input_dict = {
+        'token': user['token'],
+        'channel_id': -1
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.get(f'{BASE_URL}/channel/details',
+                     params=input_dict).raise_for_status()
 
 
-def test_details_invalid_token(channel1, invalid_token):
+def test_invalid_user(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Testing case when the token passed into the channel_details() function is invalid.
+    Testing case when user not in channel.
     '''
 
-    with pytest.raises(AccessError):
-        channel.channel_details(invalid_token, channel1['channel_id'])
+    user1 = new_user()
+    user2 = new_user()
+    channel = new_channel(user1)
+
+    input_dict = {
+        'token': user2['token'],
+        'channel_id': channel['channel_id']
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.get(f'{BASE_URL}/channel/details',
+                     params=input_dict).raise_for_status()
