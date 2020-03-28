@@ -45,7 +45,7 @@ def test_login_multiple_sessions(reset, new_user):  # pylint: disable=W0613
     auth.auth_login('hello@world.com', 'pythonIsKool')
 
 
-def test_login_unique_token(reset, new_user):
+def test_login_unique_token(reset, new_user):  # pylint: disable=W0613
     '''Test that auth_login tokens are unique to the user'''
     new_user(email='user_1@email.com', password='password')
     new_user(email='user_2@email.com', password='password')
