@@ -85,7 +85,7 @@ def test_create_private(reset, new_user):  # pylint: disable=W0613
     create_input = {
         'token': owner['token'],
         'name': 'Channel Name',
-        'is_public': True
+        'is_public': False
     }
 
     channel = requests.post(f'{BASE_URL}/channels/create',

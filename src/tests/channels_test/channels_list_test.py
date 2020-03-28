@@ -1,28 +1,25 @@
 ''' System tests for channels_list'''
 import pytest
-import channel
 import channels
 from error import AccessError
 
 
-def test_list(reset, test_user):  # pylint: disable=W0613
+def test_list(reset, new_user):  # pylint: disable=W0613
     '''Test that channels_list only returns channels the user is in'''
 
-    joined_1 = channels.channels_create(test_user['token'], 'One', True)
-    joined_2 = channels.channels_create(test_user['token'], 'Two', True)
-    not_joined = channels.channels_create(test_user['token'], 'Three', True)
+    user_1 = new_user(email='user_1@email.com')
+    user_2 = new_user(email='user_2@email.com')
 
-    channel.channel_join(test_user['token'], joined_1['channel_id'])
-    channel.channel_join(test_user['token'], joined_2['channel_id'])
+    user_1_channel = channels.channels_create(user_1['token'], 'User 1', True)
+    user_2_channel = channels.channels_create(user_2['token'], 'User 2', True)
 
-    joined_channel_ids = [joined_1['channel_id'], joined_2['channel_id']]
+    joined_channels = channels.channels_list(user_1['token'])['channels']
+    assert len(joined_channels) == 1
 
-    joined_channels = channels.channels_list(test_user['token'])['channels']
-    assert len(joined_channels) == 2
-
-    for chan in joined_channels:
-        assert chan['channel_id'] in joined_channel_ids
-        assert chan['channel_id'] != not_joined['channel_id']
+    assert user_1_channel['channel_id'] in [
+        channel['channel_id'] for channel in joined_channels
+    ]
+    assert user_2_channel['channel_id'] not in joined_channels
 
 
 def test_list_return_type(reset, test_user, new_channel):  # pylint: disable=W0613
