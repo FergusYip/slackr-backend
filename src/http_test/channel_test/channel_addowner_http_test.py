@@ -1,140 +1,123 @@
-import channel
-import channels
+'''
+HTTP Tests for the channel_addowner function.
+'''
+
+import requests
 import pytest
-import auth
-import message
-from error import InputError
-from error import AccessError
 
-# ================================= MAKING USERS ====================================
-
-# Making a dummy user (dummy_user1) with valid details.
-@pytest.fixture
-def dummy_user1():
-    dummy_user1 = auth.auth_register(
-        'something.else@domain.com', 'GreatPassword04', 'something', 'else')
-    return dummy_user1
+BASE_URL = 'http://127.0.0.1:8080'
 
 
-# Making another dummy user (dummy_user2) with valid details.
-@pytest.fixture
-def dummy_user2():
-    dummy_user2 = auth.auth_register(
-        'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
-    return dummy_user2
-
-# Making another dummy user (dummy_user3) with valid details.
-@pytest.fixture
-def dummy_user3():
-    dummy_user3 = auth.auth_register(
-        'dummy.user3@domain.com', 'ReallCoolPassword9800!', 'dummy', 'three')
-    return dummy_user3
-
-
-# ================================= MAKING CHANNELS ====================================
-
-
-# Making a dummy channel (channel1) with valid details.
-@pytest.fixture
-def channel1(dummy_user1):
-    c_id1 = channels.channels_create(dummy_user1['token'], 'name1', True)
-    return c_id1
-
-
-# Making another dummy channel (channel2) with valid details.
-@pytest.fixture
-def channel2(dummy_user2):
-    c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
-    return c_id2
-
-
-# Making a private dummy channel (channel_priv) with valid details.
-@pytest.fixture
-def channel_priv(dummy_user3):
-    c_priv = channels.channels_create(dummy_user3['token'], 'name3', False)
-    return c_priv
-
-
-# ===================================================================================
-# testing channel_addowner function.
-# ===================================================================================
-
-
-def test_addowner(dummy_user1, dummy_user3, channel1):
+def test_addowner(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Testing basic functionality of the channel_addowner() function.
+    Testing the addowner function on a public channel.
     '''
 
-    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
+    user1 = new_user()
+    user2 = new_user()
+    channel = new_channel(user1)
 
-    channel.channel_addowner(
-        dummy_user1['token'], channel1['channel_id'], dummy_user3['u_id'])
+    input_dict = {
+        'token': user2['token'],
+        'channel_id': channel['channel_id']
+    }
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    requests.post(f'{BASE_URL}/channel/join', json=input_dict)
+
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=input_dict).json()
+
+    assert len(details['owner_members']) == 1
+
+    add_dict = {
+        'token': user1['token'],
+        'channel_id': channel['channel_id'],
+        'u_id': user2['u_id']
+    }
+
+    # adding user2 as owner of channel.
+    requests.post(f'{BASE_URL}/channel/addowner', json=add_dict)
+
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=input_dict).json()
 
     assert len(details['owner_members']) == 2
 
 
-def test_addowner_owner_self(dummy_user1, channel1):
+def test_owner(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Checking for InputError when dummy_user1, who is already an owner of channel1 tries 
-    to call the channel_addowner() function.
-    '''
-
-    with pytest.raises(InputError):
-        channel.channel_addowner(
-            dummy_user1['token'], channel1['channel_id'], dummy_user1['u_id'])
-
-
-def test_addowner_owner(dummy_user1, dummy_user2, dummy_user3, channel1):
-    '''
-    Checking for AccessError when a user that is not an owner of the channel tries to
-    call the channel_addowner() function.
+    Testing the addowner function when a user is already an owner.
     '''
 
-    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
-    channel.channel_join(dummy_user2['token'], channel1['channel_id'])
+    user = new_user()
+    channel = new_channel(user)
 
-    channel.channel_addowner(
-        dummy_user2['token'], channel1['channel_id'], dummy_user3['u_id'])
+    input_dict = {
+        'token': user['token'],
+        'channel_id': channel['channel_id'],
+        'u_id': user['u_id']
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/addowner',
+                      json=input_dict).raise_for_status()
 
 
-def test_addowner_cid(dummy_user1, dummy_user2, channel1):
+def test_not_owner(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Checking for InputError when an invalid channel_id is passed into the 
-    channel_addowner() function.
-    '''
-
-    channel.channel_join(dummy_user2['token'], channel1['channel_id'])
-
-    with pytest.raises(InputError):
-        channel.channel_addowner(
-            dummy_user1['token'], -1, dummy_user2['u_id'])
-
-
-def test_addowner_uid(dummy_user2, dummy_user3, channel2):
-    '''
-    Checking for InputError when an invalid user id is passed into the 
-    channel_addowner() function.
-    Checking for InputError when the user id of a user who is not in 
-    the channel is passed into channel_addowner()
+    Testing the addowner function when authorized user is not an owner of
+    channel
     '''
 
-    with pytest.raises(InputError):
-        channel.channel_addowner(
-            dummy_user2['token'], channel2['channel_id'], -1)
+    user1 = new_user()
+    user2 = new_user()
+    channel = new_channel(user1)
 
-    with pytest.raises(InputError):
-        channel.channel_addowner(
-            dummy_user2['token'], channel2['channel_id'], dummy_user3['u_id'])
+    input_dict = {
+        'token': user2['token'],
+        'channel_id': channel['channel_id'],
+        'u_id': user2['u_id']
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/addowner',
+                      json=input_dict).raise_for_status()
 
 
-def test_addowner_invalid_token(dummy_user1, channel1, invalid_token):
+def test_invalid_ch(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Testing case when the token passed into the channel_addowner() function is invalid.
+    Testing the addowner function when an invalid channel id is passed.
     '''
 
-    with pytest.raises(AccessError):
-        channel.channel_addowner(
-            invalid_token, channel1['channel_id'], dummy_user1['u_id'])
+    user1 = new_user()
+    user2 = new_user()
+    new_channel(user1)
+
+    input_dict = {
+        'token': user1['token'],
+        'channel_id': -1,
+        'u_id': user2['u_id']
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/addowner',
+                      json=input_dict).raise_for_status()
+
+
+def test_invalid_uid(reset, new_user, new_channel):  # pylint: disable=W0613
+    '''
+    Testing the addowner function when an invalid user id is passed.
+    '''
+
+    user = new_user()
+    channel = new_channel(user)
+
+    input_dict = {
+        'token': user['token'],
+        'channel_id': channel['channel_id'],
+        'u_id': -1
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/addowner',
+                      json=input_dict).raise_for_status()
