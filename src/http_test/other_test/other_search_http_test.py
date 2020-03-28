@@ -23,6 +23,7 @@ def test_search_return_type(reset, new_user, new_channel):  # pylint: disable=W0
 
     assert isinstance(search, dict)
     assert isinstance(search['messages'], list)
+    assert isinstance(search['messages'][0], dict)
     assert isinstance(search['messages'][0]['message_id'], int)
     assert isinstance(search['messages'][0]['u_id'], int)
     assert isinstance(search['messages'][0]['message'], str)
