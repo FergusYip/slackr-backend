@@ -1,10 +1,11 @@
+'''Pytest script for testing /auth/logout route'''
 import requests
 import pytest
 
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_admin_invalid_u_id(reset, new_user):
+def test_admin_invalid_u_id(reset, new_user):  # pylint: disable=W0613
     '''Test user_all with invalid token'''
 
     admin = new_user(email='admin@slackr.com')
@@ -20,7 +21,7 @@ def test_admin_invalid_u_id(reset, new_user):
                       json=permission_input).raise_for_status()
 
 
-def test_admin_invalid_permission(reset, new_user):
+def test_admin_invalid_permission(reset, new_user):  # pylint: disable=W0613
     '''Test user_all with invalid token'''
 
     admin = new_user(email='admin@slackr.com')
@@ -37,7 +38,7 @@ def test_admin_invalid_permission(reset, new_user):
                       json=permission_input).raise_for_status()
 
 
-def test_admin_not_owner(reset, new_user):
+def test_admin_not_owner(reset, new_user):  # pylint: disable=W0613
     '''Test user_all with invalid token'''
 
     admin = new_user(email='admin@slackr.com')
@@ -54,7 +55,7 @@ def test_admin_not_owner(reset, new_user):
                       json=permission_input).raise_for_status()
 
 
-def test_admin_invalid_token(reset, new_user, invalid_token):
+def test_admin_invalid_token(reset, new_user, invalid_token):  # pylint: disable=W0613
     '''Test user_all with invalid token'''
 
     member = new_user(email='pleb@slackr.com')
@@ -70,7 +71,7 @@ def test_admin_invalid_token(reset, new_user, invalid_token):
                       json=permission_input).raise_for_status()
 
 
-def test_admin_userpermission_change(reset, new_user):
+def test_admin_userpermission_change(reset, new_user):  # pylint: disable=W0613
     '''Test user_all with invalid token'''
 
     admin = new_user(email='admin@slackr.com')
