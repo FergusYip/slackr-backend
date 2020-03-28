@@ -1,5 +1,5 @@
 '''
-HTTP Tests for the channel_invite function.
+HTTP Tests for the channel_details function.
 '''
 
 import requests

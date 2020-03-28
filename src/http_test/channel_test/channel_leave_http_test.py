@@ -1,145 +1,115 @@
-import channel
-import channels
+'''
+HTTP Tests for the channel_leave function.
+'''
+
+import requests
 import pytest
-import auth
-import message
-from error import InputError
-from error import AccessError
 
-# ================================= MAKING USERS ====================================
-
-# Making a dummy user (dummy_user1) with valid details.
-@pytest.fixture
-def dummy_user1():
-    dummy_user1 = auth.auth_register(
-        'something.else@domain.com', 'GreatPassword04', 'something', 'else')
-    return dummy_user1
+BASE_URL = 'http://127.0.0.1:8080'
 
 
-# Making another dummy user (dummy_user2) with valid details.
-@pytest.fixture
-def dummy_user2():
-    dummy_user2 = auth.auth_register(
-        'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
-    return dummy_user2
-
-# Making another dummy user (dummy_user3) with valid details.
-@pytest.fixture
-def dummy_user3():
-    dummy_user3 = auth.auth_register(
-        'dummy.user3@domain.com', 'ReallCoolPassword9800!', 'dummy', 'three')
-    return dummy_user3
-
-
-# ================================= MAKING CHANNELS ====================================
-
-
-# Making a dummy channel (channel1) with valid details.
-@pytest.fixture
-def channel1(dummy_user1):
-    c_id1 = channels.channels_create(dummy_user1['token'], 'name1', True)
-    return c_id1
-
-
-# Making another dummy channel (channel2) with valid details.
-@pytest.fixture
-def channel2(dummy_user2):
-    c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
-    return c_id2
-
-
-# Making a private dummy channel (channel_priv) with valid details.
-@pytest.fixture
-def channel_priv(dummy_user3):
-    c_priv = channels.channels_create(dummy_user3['token'], 'name3', False)
-    return c_priv
-
-
-# ===================================================================================
-# testing channel_leave function.
-# ===================================================================================
-
-
-def test_leave(dummy_user1, dummy_user2, dummy_user3, channel1):
+def test_leave_new(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Testing basic functionality of the channel_leave() function.
+    Testing channel leave function for a public channel.
     '''
 
-    # adding 2 users into the channel.
-    channel.channel_join(dummy_user2['token'], channel1['channel_id'])
-    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
+    user1 = new_user()
+    user2 = new_user()
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    channel = new_channel(user1)
 
-    assert len(details['all_members']) == 3
+    input_dict = {
+        'token': user2['token'],
+        'channel_id': channel['channel_id']
+    }
 
-    # removing a user and checking if the size decremented.
-    channel.channel_leave(dummy_user2['token'], channel1['channel_id'])
+    requests.post(f'{BASE_URL}/channel/join', json=input_dict)
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=input_dict).json()
 
     assert len(details['all_members']) == 2
 
+    requests.post(f'{BASE_URL}/channel/leave', json=input_dict)
 
-def test_leave_owner(dummy_user1, dummy_user2, channel1):
-    '''
-    Testing case when the only owner of a channel leaves.
-    '''
+    details_in = {
+        'token': user1['token'],
+        'channel_id': channel['channel_id']
+    }
 
-    # adding a user to the channel.
-    channel.channel_join(dummy_user2['token'], channel1['channel_id'])
-
-    channel.channel_leave(dummy_user1['token'], channel1['channel_id'])
-
-    details = channel.channel_details(
-        dummy_user2['token'], channel1['channel_id'])
-
-    assert len(details['owner_members']) == 0
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=details_in).json()
 
     assert len(details['all_members']) == 1
 
 
-def test_leave_member(dummy_user1, channel1):
+def test_leave_ch(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Testing case when the only member of a channel leaves.
+    Testing channel leave function for an invalid channel_id
     '''
 
-    channel.channel_leave(dummy_user1['token'], channel1['channel_id'])
+    user = new_user()
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    new_channel(user)
+
+    input_dict = {
+        'token': user['token'],
+        'channel_id': -1
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/leave',
+                      json=input_dict).raise_for_status()
+
+
+def test_leave_owner(reset, new_user, new_channel):  # pylint: disable=W0613
+    '''
+    Testing channel leave for owner member.
+    '''
+
+    user = new_user()
+    user2 = new_user()
+
+    channel = new_channel(user)
+
+    join_dict = {
+        'token': user2['token'],
+        'channel_id': channel['channel_id']
+    }
+
+    # user2 joins the channel.
+    requests.post(f'{BASE_URL}/channel/join', json=join_dict)
+
+    leave_dict = {
+        'token': user['token'],
+        'channel_id': channel['channel_id']
+    }
+
+    # user leaves the channel.
+    requests.post(f'{BASE_URL}/channel/leave', json=leave_dict)
+
+    # user2 gets details of channel.
+    details = requests.get(
+        f'{BASE_URL}/channel/details', params=join_dict).json()
 
     assert len(details['owner_members']) == 0
 
-    assert len(details['all_members']) == 0
 
-
-def test_leave_uid(dummy_user1, dummy_user2, channel1):
+def test_leave_member(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Testing case when the channel_leave() function is called by a 
-    user that is not a member of the channel.
+    Testing channel leave for non-member.
     '''
 
-    with pytest.raises(AccessError):
-        channel.channel_leave(dummy_user2['token'], channel1['channel_id'])
+    user = new_user()
+    user2 = new_user()
 
+    channel = new_channel(user)
 
-def test_leave_cid(dummy_user1):
-    '''
-    Testing case when an invalid channel_id is passed into the
-    channel_leave() function.
-    '''
+    input_dict = {
+        'token': user2['token'],
+        'channel_id': channel['channel_id']
+    }
 
-    with pytest.raises(InputError):
-        channel.channel_leave(dummy_user1['token'], -1)
-
-
-def test_leave_invalid_token(channel1, invalid_token):
-    '''
-    Testing case when the token passed into the channel_leave() function is invalid.
-    '''
-
-    with pytest.raises(AccessError):
-        channel.channel_leave(invalid_token, channel1['channel_id'])
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/leave',
+                      json=input_dict).raise_for_status()
