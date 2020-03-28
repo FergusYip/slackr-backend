@@ -3,14 +3,13 @@ import requests
 import urllib
 import pytest
 
-BASE_URL = 'http://127.0.0.1'
-PORT = '8080'
+BASE_URL = 'http://127.0.0.1:8080'
 
 
 @pytest.fixture
 def reset():
     '''Fixture for resetting the workspace'''
-    requests.post(f"{BASE_URL}:{PORT}/workspace/reset")
+    requests.post(f"{BASE_URL}/workspace/reset")
 
 
 @pytest.fixture
@@ -26,7 +25,7 @@ def new_user():
             'name_first': name_first,
             'name_last': name_last
         }
-        user = requests.post(f"{BASE_URL}:{PORT}/auth/register",
+        user = requests.post(f"{BASE_URL}/auth/register",
                              json=user_info).json()
         return user
 
@@ -38,7 +37,7 @@ def invalid_token(new_user):
     '''Fixture for a creating an invalid token'''
     user = new_user()
     token = user['token']
-    requests.post(f"{BASE_URL}:{PORT}/auth/logout", json={'token': token})
+    requests.post(f"{BASE_URL}/auth/logout", json={'token': token})
     return token
 
 
@@ -51,7 +50,7 @@ def new_channel():
             'name': name,
             'is_public': is_public
         }
-        channel = requests.post(f"{BASE_URL}:{PORT}/channels/create",
+        channel = requests.post(f"{BASE_URL}/channels/create",
                                 json=channel_info).json()
         return channel
 
@@ -64,7 +63,7 @@ def get_user_profile():
     def _get_user_profile(token, u_id):
         query_string = urllib.parse.urlencode({'token': token, 'u_id': u_id})
         user_profile = requests.get(
-            f"{BASE_URL}:{PORT}/user/profile?{query_string}").json()
+            f"{BASE_URL}/user/profile?{query_string}").json()
         return user_profile
 
     return _get_user_profile
