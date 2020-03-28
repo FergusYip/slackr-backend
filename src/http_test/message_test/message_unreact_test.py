@@ -1,5 +1,5 @@
 '''
-Testing the message_react functionality.
+Testing the message_unreact functionality.
 '''
 
 import requests
