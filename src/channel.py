@@ -268,10 +268,10 @@ def channel_leave(token, channel_id):
         raise AccessError(
             description='authorized user not a member of channel.')
 
-    channel['all_members'].remove(token_data['u_id'])
+    helpers.channel_leave(channel_id, token_data['u_id'])
 
     if helpers.is_user_admin(token_data['u_id'], channel_id):
-        channel['owner_members'].remove(token_data['u_id'])
+        helpers.channel_leave_owner(channel_id, token_data['u_id'])
 
     return {}
 
