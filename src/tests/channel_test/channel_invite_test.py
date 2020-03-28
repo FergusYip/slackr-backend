@@ -62,7 +62,7 @@ def channel_priv(dummy_user3):
 def test_invite_channel(dummy_user1, dummy_user2, channel1):
     '''
     Testing channel invite function with valid and invalid channel details.
-    Inviting dummy_user2 to channel1, and attempting to invite dummy_user2 
+    Inviting dummy_user2 to channel1, and attempting to invite dummy_user2
     to a channel with invalid channel_id.
     '''
 
@@ -90,7 +90,7 @@ def test_invite_user(dummy_user1, dummy_user2, channel1):
     # testing channel invite for non-existent user.
     with pytest.raises(InputError):
         channel.channel_invite(
-            dummy_user1['token'], channel1['channel_id'], 69)
+            dummy_user1['token'], channel1['channel_id'], 79)
 
     # testing if there is only one member in channel1.
     details = channel.channel_details(
@@ -101,9 +101,7 @@ def test_invite_user(dummy_user1, dummy_user2, channel1):
 
 def test_invite_access(dummy_user1, dummy_user2, channel2):
     '''
-    Testing case when inviting user is not a member of a channel.channel_
-    At this point - the channel name1 has both users (dummy_user1 and dummy_user2)
-    but the channel name2 only has dummy_user2.
+    Testing case when inviting user is not a member of a channel
     '''
     with pytest.raises(AccessError):
         channel.channel_invite(
