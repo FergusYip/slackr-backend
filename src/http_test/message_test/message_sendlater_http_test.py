@@ -68,7 +68,7 @@ def test_sendlater_message(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=function_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=function_input).json()
     assert message_from_data['messages'][0]['u_id'] == user['u_id']
     assert message_from_data['messages'][0]['message'] == 'Message'
     assert message_from_data['messages'][0]['message_id'] == message_info['message_id']
@@ -115,7 +115,7 @@ def test_sendlater_orderofmessageids(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=function_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=function_input).json()
     # While the message_send should append to the data_store first, thus having
     # the zero'th index, the earlier message_id should be on the message_sendlater
     # request, as it was sent earlier.
@@ -163,7 +163,7 @@ def test_sendlater_notadmin(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=function_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=function_input).json()
     assert message_from_data['messages'][0]['u_id'] == second_user['u_id']
 
 

@@ -260,6 +260,7 @@ def message_sendlater(token, channel_id, message, time_sent):
     time in the future.
     '''
     time_now = helpers.utc_now()
+    decode_token(token)
     if time_now > time_sent:
         raise InputError(description='Time to send is in the past')
 
@@ -315,6 +316,9 @@ def message_react(token, message_id, react_id):
 
     channel_id = channel_info['channel_id']
 
+    if not helpers.is_channel_member(user_id, channel_id):
+        raise InputError(description='User is not in the channel')
+
     if helpers.is_channel_member(user_id, channel_id):
         if message_info is None:
             raise InputError(description='Message does not exist')
@@ -359,6 +363,9 @@ def message_unreact(token, message_id, react_id):
 
     channel_id = channel_info['channel_id']
 
+    if not helpers.is_channel_member(user_id, channel_id):
+        raise InputError(description='User is not in the channel')
+
     if helpers.is_channel_member(user_id, channel_id):
         if message_info is None:
             raise InputError(description='Message does not exist')
@@ -377,7 +384,7 @@ def message_unreact(token, message_id, react_id):
 
     if len(react_removal['u_ids']) == 1:
         # If the current user is the only reaction on the message.
-        helpers.message_remove_reaction(react_removal, message_id, channel_id)
+        helpers.message_remove_reaction(react_id, message_id, channel_id)
     else:
         # If there are other u_ids reacting with the same react ID.
         helpers.message_remove_react_uid(user_id, message_id, channel_id,

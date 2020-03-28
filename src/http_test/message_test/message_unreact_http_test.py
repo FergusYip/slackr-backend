@@ -11,6 +11,7 @@ BASE_URL = 'http://127.0.0.1:8080'
 # ========= TESTING MESSAGE UNREACT FUNCTION ==========
 # =====================================================
 
+
 def test_unreact_returntype(reset, new_user, new_channel):
     '''
     Testing the return type of the message_unreact route.
@@ -83,7 +84,7 @@ def test_unreact_message(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
     assert message_from_data['messages'][0]['reacts'][0]['u_ids'][0] == user['u_id']
 
     unreact_info = {
@@ -94,7 +95,7 @@ def test_unreact_message(reset, new_user, new_channel):
 
     requests.post(f'{BASE_URL}/message/unreact', json=unreact_info)
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # Assert there are no values in the list of reactions.
     assert len(message_from_data['messages'][0]['reacts']) == 0
@@ -109,6 +110,14 @@ def test_unreact_multiple_users(reset, new_user, new_channel):
     user = new_user()
     second_user = new_user(email='tester@test.com')
     channel = new_channel(user)
+
+    # Have second_user join the channel.
+    function_input = {
+        'token': second_user['token'],
+        'channel_id': channel['channel_id']
+    }
+
+    requests.post(f'{BASE_URL}/channel/join', json=function_input)
 
     # Sending the first message in a channel as user.
     message_input = {
@@ -139,7 +148,7 @@ def test_unreact_multiple_users(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     assert len(message_from_data['messages'][0]['reacts'][0]['u_ids']) == 2
 
@@ -153,7 +162,7 @@ def test_unreact_multiple_users(reset, new_user, new_channel):
     requests.post(f'{BASE_URL}/message/unreact', json=unreact_info)
 
     # Update the list of messages in the channel.
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # Assert there remains only one reaction type.
     assert len(message_from_data['messages'][0]['reacts']) == 1
@@ -165,9 +174,9 @@ def test_unreact_multiple_users(reset, new_user, new_channel):
     requests.post(f'{BASE_URL}/message/unreact', json=unreact_info)
 
     # Updating the list of messages in the channel.
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_hello = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
     # Assert that the reaction was removed as there were no u_ids in the react.
-    assert len(message_from_data['messages'][0]['reacts']) == 0
+    assert len(message_hello['messages'][0]['reacts']) == 0
 
 
 def test_unreact_invalid_message(reset, new_user, new_channel):
@@ -259,7 +268,7 @@ def test_unreact_notchannelmember(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=function_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=function_input).json()
     assert message_from_data['messages'][0]['reacts'][0]['u_ids'][0] == second_user['u_id']
 
     # Attempting to unreact as second_user should raise an error.
@@ -268,6 +277,7 @@ def test_unreact_notchannelmember(reset, new_user, new_channel):
         'message_id': message_info['message_id'],
         'react_id': 1
     }
+
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/message/unreact', json=unreact_info).raise_for_status()
 

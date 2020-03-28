@@ -44,7 +44,7 @@ def test_remove_returntype(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # Now calling the removal function.
     remove_input = {
@@ -72,7 +72,7 @@ def test_remove_message(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    requests.post(f'{BASE_URL}/message/send', json=message_info)
+    test_message = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
 
     assert test_message['message_id'] == 1
 
@@ -92,7 +92,7 @@ def test_remove_message(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # Now calling the removal function.
     remove_input = {
@@ -102,7 +102,7 @@ def test_remove_message(reset, new_user, new_channel):
 
     requests.delete(f'{BASE_URL}/message/remove', json=remove_input)
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # Asser that message with message_id '1' was removed so the 0 index
     # in the channel is message_id '2'. And that only 1 message exists.
@@ -127,23 +127,14 @@ def test_remove_invalid_message(reset, new_user, new_channel):
 
     requests.post(f'{BASE_URL}/message/send', json=message_info)
 
-    # Getting a list of messages in the channel.
-    func_input = {
-        'token': user['token'],
-        'channel_id': channel['channel_id'],
-        'start': 0
-    }
-
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
-
     # Removing an invalid message_id. As index 1 does not exist.
     remove_input = {
         'token': user['token'],
-        'message_id': message_from_data['messages'][1]['message_id']
+        'message_id': 2
     }
 
     with pytest.raises(requests.HTTPError):
-        requests.delete(f'{BASE_URL}/message/remove', json=remove_input).raise_for_status
+        requests.delete(f'{BASE_URL}/message/remove', json=remove_input).raise_for_status()
 
 
 def test_remove_notadmin(reset, new_user, new_channel):
@@ -181,7 +172,7 @@ def test_remove_notadmin(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     # second_user is not admin or server owner.
     remove_input = {
@@ -190,7 +181,7 @@ def test_remove_notadmin(reset, new_user, new_channel):
     }
 
     with pytest.raises(requests.HTTPError):
-        requests.delete(f'{BASE_URL}/message/remove', json=remove_input).raise_for_status
+        requests.delete(f'{BASE_URL}/message/remove', json=remove_input).raise_for_status()
 
 
 def test_remove_invalid_token(reset, new_user, new_channel):
@@ -218,7 +209,7 @@ def test_remove_invalid_token(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     token = user['token']
     requests.post(f"{BASE_URL}/auth/logout", json={'token': token})
