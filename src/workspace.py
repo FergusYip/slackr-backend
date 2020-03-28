@@ -5,6 +5,7 @@ from json import dumps
 from datetime import datetime
 from flask import Blueprint
 from data_store import data_store
+from helpers import utc_now
 
 WORKSPACE = Blueprint('workspace', __name__)
 
@@ -25,7 +26,7 @@ def workspace_reset():
     data_store['max_ids']['channel_id'] = 0
     data_store['max_ids']['message_id'] = 0
 
-    data_store['time_created'] = int(datetime.utcnow().timestamp())
+    data_store['time_created'] = utc_now()
 
     return {}
 
