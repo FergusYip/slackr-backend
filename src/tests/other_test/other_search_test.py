@@ -1,3 +1,4 @@
+'''System tests for search'''
 import pytest
 import channel
 import message

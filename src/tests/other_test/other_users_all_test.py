@@ -1,3 +1,4 @@
+'''System tests for users_all'''
 import pytest
 import other
 import user
