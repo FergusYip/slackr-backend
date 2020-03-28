@@ -12,13 +12,15 @@ def test_workspace_reset_user(reset, new_user):  # pylint: disable=W0613
     all_users = requests.get(f'{BASE_URL}/users/all',
                              params=users_all_input).json()
 
-    assert len(all_users) == 2
+    assert len(all_users['users']) == 2
 
     requests.post(f'{BASE_URL}/workspace/reset')
 
     user_c = new_user(email='user_c@email.com')
 
-    all_users = requests.get(f'{BASE_URL}/users/all').json()
+    users_all_input = {'token': user_a['token']}
+    all_users = requests.get(f'{BASE_URL}/users/all',
+                             params=users_all_input).json()
 
     assert len(all_users['users']) == 1
 
