@@ -24,7 +24,7 @@ def test_profile_setname_return(reset, new_user):
         'name_last': 'Test'
     }
 
-    set_name = requests.get(f'{BASE_URL}/user/profile', json=func_input).json()
+    set_name = requests.get(f'{BASE_URL}/user/profile', params=func_input).json()
 
     assert isinstance(set_name, dict)
 
@@ -43,7 +43,7 @@ def test_setfirstname(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_firstname = 'Jim'
 
     assert user_pre_info['name_first'] == expected_firstname
@@ -58,10 +58,10 @@ def test_setfirstname(reset, new_user):
 
     requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).json()
 
-    user_post_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_post_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_firstname = 'John'
 
-    assert user_post_info['name_last'] == expected_firstname
+    assert user_post_info['name_first'] == expected_firstname
 
 
 def test_setlastname(reset, new_user):
@@ -78,7 +78,7 @@ def test_setlastname(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_lastname = 'Nottest'
 
     assert user_pre_info['name_last'] == expected_lastname
@@ -93,7 +93,7 @@ def test_setlastname(reset, new_user):
 
     requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).json()
 
-    user_post_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_post_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_lastname = 'Test'
 
     assert user_post_info['name_last'] == expected_lastname
@@ -114,7 +114,7 @@ def test_setboth(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_firstname = 'Jim'
     expected_lastname = 'Nottest'
 
@@ -131,7 +131,7 @@ def test_setboth(reset, new_user):
 
     requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).json()
 
-    user_post_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_post_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_firstname = 'John'
     expected_lastname = 'Test'
 

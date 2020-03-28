@@ -42,7 +42,7 @@ def test_setemail(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_email = 'tester@test.com'
 
     assert user_pre_info['email'] == expected_email
@@ -56,7 +56,7 @@ def test_setemail(reset, new_user):
 
     requests.put(f'{BASE_URL}/user/profile/setemail', json=func_input).json()
 
-    user_post_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_post_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_email = 'newtest@test.com'
 
     assert user_post_info['email'] == expected_email
@@ -77,7 +77,7 @@ def test_changetocurrent(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_email = 'test@test.com'
 
     assert user_pre_info['email'] == expected_email
@@ -129,7 +129,7 @@ def test_valid_emails(reset, new_user, valid_emails):
             'email': email
         }
         requests.put(f'{BASE_URL}/user/profile/setemail', json=func_input).raise_for_status()
-        user_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+        user_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
 
         assert email == user_info['email']
 
@@ -149,7 +149,7 @@ def test_email_used(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_email = 'test@test.com'
 
     # Assert that string expected_email is being used.

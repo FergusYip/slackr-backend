@@ -42,7 +42,7 @@ def test_sethandle(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_handle = 'jimnottest'
 
     assert user_pre_info['handle_str'] == expected_handle
@@ -56,7 +56,7 @@ def test_sethandle(reset, new_user):
 
     requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).json()
 
-    user_post_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_post_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_handle = 'uniquehandle'
 
     assert user_post_info['handle_str'] == expected_handle
@@ -77,7 +77,7 @@ def test_changetocurrent(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_pre_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_handle = 'jimnottest'
 
     assert user_pre_info['handle_str'] == expected_handle
@@ -143,7 +143,7 @@ def test_handle_used(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_info = requests.get(f'{BASE_URL}/user/profile', json=input_for_profile).json()
+    user_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_handle = 'jimnottest'
 
     # Assert that string expected_handle is being used.

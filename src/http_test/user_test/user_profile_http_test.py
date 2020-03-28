@@ -135,7 +135,7 @@ def test_profile_no_user(reset, new_user):
         'u_id': 2
     }
     with pytest.raises(requests.HTTPError):
-        requests.get(f'{BASE_URL}/user/profile', params=func_input).json()
+        requests.get(f'{BASE_URL}/user/profile', params=func_input).raise_for_status()
 
 
 def test_invalid_token(reset, invalid_token):
@@ -149,4 +149,4 @@ def test_invalid_token(reset, invalid_token):
     }
 
     with pytest.raises(requests.HTTPError):
-        requests.get(f'{BASE_URL}/user/profile', params=func_input).json()
+        requests.get(f'{BASE_URL}/user/profile', params=func_input).raise_for_status()
