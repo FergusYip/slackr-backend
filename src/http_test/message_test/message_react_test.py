@@ -13,7 +13,7 @@ BASE_URL = 'http://127.0.0.1:8080'
 
 def test_react_returntype(reset, new_user, new_channel):
     '''
-    Testing the return type of the message/remove route.
+    Testing the return type of the message_react route.
     '''
 
     user = new_user()
