@@ -91,7 +91,7 @@ def test_login_unique_token(reset, new_user):  # pylint: disable=W0613
 
     tokens = [user_1_login['token'], user_2_login['token']]
 
-    # Verify that all session_tokens are unique
+    # Verify that all tokens are unique
     assert len(set(tokens)) == len(tokens)
 
 
