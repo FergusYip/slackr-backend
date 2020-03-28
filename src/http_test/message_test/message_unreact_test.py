@@ -20,13 +20,13 @@ def test_unreact_returntype(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     # Reacting to the message with react_id of 1.
     react_input = {
@@ -59,13 +59,13 @@ def test_unreact_message(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     # Adding a reaction to the message.
     react_input = {
@@ -111,13 +111,13 @@ def test_unreact_multiple_users(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel as user.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     # Adding a reaction to the message as user.
     react_input = {
@@ -179,13 +179,13 @@ def test_unreact_invalid_message(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel as user.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     # Add a reaction to the message.
     react_input = {
@@ -227,13 +227,13 @@ def test_unreact_notchannelmember(reset, new_user, new_channel):
     requests.post(f'{BASE_URL}/channel/join', json=func_input)
 
     # Sending the first message in the channel as user.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     # Reacting to the message as second_user.
     react_input = {
@@ -282,13 +282,13 @@ def test_unreact_invalid_reactid(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     # Reacting to the message with react_id of 1.
     react_input = {
@@ -319,13 +319,13 @@ def test_notyetreacted(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     # Attempting to unreact to a message that the user has not yet reacted to.
     unreact_info = {
@@ -358,13 +358,13 @@ def test_uid_not_reacted(reset, new_user, new_channel):
     requests.post(f'{BASE_URL}/channel/join', json=func_input)
 
     # Sending the first message in the channel as user.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     # Reacting to the message as user.
     react_input = {
@@ -395,13 +395,13 @@ def test_unreact_invalid_token(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     func_input = {
         'token': user['token'],

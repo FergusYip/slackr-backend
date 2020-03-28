@@ -20,13 +20,13 @@ def test_react_returntype(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     react_input = {
         'token': user['token'],
@@ -49,13 +49,13 @@ def test_add_react(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     react_input = {
         'token': user['token'],
@@ -85,13 +85,13 @@ def test_react_invalid_message(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    requests.post(f'{BASE_URL}/message/send', json=message_info)
+    requests.post(f'{BASE_URL}/message/send', json=message_input)
 
     # Message ID of 2 does not exist. (only ID #1 exists)
     react_input = {
@@ -114,13 +114,13 @@ def test_invalid_reactid(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     # React ID of 2 does not exist. (only ID #1 exists)
     react_input = {
@@ -143,13 +143,13 @@ def test_react_already_reacted(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     react_input = {
         'token': user['token'],
@@ -185,13 +185,13 @@ def test_react_multiple_users(reset, new_user, new_channel):
     requests.post(f'{BASE_URL}/channel/join', json=func_input)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     # Making user react to the message.
     react_input = {
@@ -233,13 +233,13 @@ def test_react_invalid_token(reset, new_user, new_channel):
     channel = new_channel(user)
 
     # Sending the first message in a channel.
-    message_info = {
+    message_input = {
         'token': user['token'],
         'channel_id': channel['channel_id'],
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
 
     # Logging the user out.
     token = user['token']
