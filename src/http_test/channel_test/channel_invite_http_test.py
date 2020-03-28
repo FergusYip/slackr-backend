@@ -8,7 +8,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_invite_channel(reset, new_user, new_channel):
+def test_invite_channel(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
     Testing channel invite function with valid and invalid channel details.
     Inviting dummy_user2 to channel1, and attempting to invite dummy_user2 
@@ -39,7 +39,7 @@ def test_invite_channel(reset, new_user, new_channel):
     assert len(details['all_members']) == 2
 
 
-def test_invite_user(reset, new_user, new_channel):
+def test_invite_user(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
     Testing channel invite function for a non-existent user.
     Checking if dummy_user2 is in channel1 using a loop.
@@ -60,7 +60,7 @@ def test_invite_user(reset, new_user, new_channel):
                       json=input_dict).raise_for_status()
 
 
-def test_invite_access(reset, new_user, new_channel):
+def test_invite_access(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
     Testing case when inviting user is not a member of a channel
     '''

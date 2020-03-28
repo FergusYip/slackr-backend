@@ -8,7 +8,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_join_new(reset, new_user, new_channel):
+def test_join_new(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
     Testing channel join function for a public channel.
     '''
@@ -31,7 +31,7 @@ def test_join_new(reset, new_user, new_channel):
     assert len(details['all_members']) == 2
 
 
-def test_join_id(reset, new_user, new_channel):
+def test_join_id(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
     Testing channel join function for an invalid channel_id
     '''
@@ -51,7 +51,7 @@ def test_join_id(reset, new_user, new_channel):
                       json=input_dict).raise_for_status()
 
 
-def test_join_private(reset, new_user, new_channel):
+def test_join_private(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
     Testing channel_join function for a private channel.
     '''
@@ -70,7 +70,7 @@ def test_join_private(reset, new_user, new_channel):
                       json=input_dict).raise_for_status()
 
 
-def test_join_member(reset, new_user, new_channel):
+def test_join_member(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
     Testing channel_join function when the user is already a member of the channel.
     '''
