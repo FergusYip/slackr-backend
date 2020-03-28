@@ -56,7 +56,7 @@ def auth_register(email, password, name_first, name_last):
 		token (str): JWT
 
 	"""
-    if not email or not password or not name_first or not name_last:
+    if None in {email, password, name_first, name_last}:
         raise InputError(
             description=
             'Insufficient parameters. Requires email, password, name_first, name_last.'
@@ -114,7 +114,7 @@ def auth_login(email, password):
 		token (str): JWT
 
 	"""
-    if not email or not password:
+    if None in {email, password}:
         raise InputError(
             description='Insufficient parameters. Requires email and password.'
         )
@@ -143,7 +143,7 @@ def auth_logout(token):
 		is_success (bool): Whether the user has been logged out
 
 	"""
-    if not token:
+    if token is None:
         raise InputError(
             description='Insufficient parameters. Requires token.')
 
