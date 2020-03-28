@@ -22,7 +22,7 @@ def decode_token(token):
         raise AccessError(description='Token is invalid')
 
     try:
-        payload = jwt.decode(token.encode('utf-8'), SECRET)
+        payload = jwt.decode(token.encode('utf-8'), SECRET, algorithms='HS256')
     except jwt.ExpiredSignatureError:
         raise AccessError(description='Session has expired')
     except:

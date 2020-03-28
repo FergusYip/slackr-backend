@@ -2,6 +2,13 @@ import pytest
 import auth
 import channel
 import channels
+import workspace
+
+
+@pytest.fixture
+def reset():
+    '''Fixture for resetting the workspace'''
+    workspace.workspace_reset()
 
 
 @pytest.fixture
@@ -30,8 +37,12 @@ def test_channel(test_user):
 @pytest.fixture
 def new_user():
     '''Factory as a fixture for a creating a new user with a specified email'''
-    def _new_user(email):
-        return auth.auth_register(email, 'password', 'First', 'Last')
+    def _new_user(email='valid@email.com',
+                  password='password',
+                  name_first='First',
+                  name_last='Last'):
+
+        return auth.auth_register(email, password, name_first, name_last)
 
     return _new_user
 
