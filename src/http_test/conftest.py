@@ -45,11 +45,11 @@ def invalid_token(new_user):
 @pytest.fixture
 def new_channel():
     '''Factory as a fixture for a test user to create a new channel and joining it'''
-    def _new_channel(target_user, channel_name='Channel Name'):
+    def _new_channel(user, name='Channel Name', is_public=True):
         channel_info = {
-            'token': target_user['token'],
-            'channel_name': channel_name,
-            'is_public': True
+            'token': user['token'],
+            'name': name,
+            'is_public': is_public
         }
         channel = requests.post(f"{BASE_URL}:{PORT}/channels/create",
                                 json=channel_info).json()

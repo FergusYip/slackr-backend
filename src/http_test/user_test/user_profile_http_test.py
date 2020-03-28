@@ -23,7 +23,7 @@ def test_profile_return_types(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_info = requests.get(f'{BASE_URL}/user/profile', json=func_input).json()
+    user_info = requests.get(f'{BASE_URL}/user/profile', params=func_input).json()
 
     assert isinstance(user_info, dict)
     assert isinstance(user_info['u_id'], int)
@@ -44,7 +44,7 @@ def test_profile_u_id(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_info = requests.get(f'{BASE_URL}/user/profile', json=func_input).json()
+    user_info = requests.get(f'{BASE_URL}/user/profile', params=func_input).json()
 
     assert user_info['u_id'] == user['u_id']
 
@@ -62,7 +62,7 @@ def test_profile_email(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_info = requests.get(f'{BASE_URL}/user/profile', json=func_input).json()
+    user_info = requests.get(f'{BASE_URL}/user/profile', params=func_input).json()
 
     assert user_info['email'] == email
 
@@ -80,7 +80,7 @@ def test_profile_firstname(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_info = requests.get(f'{BASE_URL}/user/profile', json=func_input).json()
+    user_info = requests.get(f'{BASE_URL}/user/profile', params=func_input).json()
 
     assert user_info['name_first'] == first_name
 
@@ -98,7 +98,7 @@ def test_profile_lastname(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_info = requests.get(f'{BASE_URL}/user/profile', json=func_input).json()
+    user_info = requests.get(f'{BASE_URL}/user/profile', params=func_input).json()
 
     assert user_info['name_last'] == last_name
 
@@ -115,7 +115,7 @@ def test_profile_handle(reset, new_user):
         'u_id': user['u_id']
     }
 
-    user_info = requests.get(f'{BASE_URL}/user/profile', json=func_input).json()
+    user_info = requests.get(f'{BASE_URL}/user/profile', params=func_input).json()
 
     # Lowercase concatenation of the first and last name of the user.
     handle_expected = 'johntest'
@@ -135,7 +135,7 @@ def test_profile_no_user(reset, new_user):
         'u_id': 2
     }
     with pytest.raises(requests.HTTPError):
-        requests.get(f'{BASE_URL}/user/profile', json=func_input).json()
+        requests.get(f'{BASE_URL}/user/profile', params=func_input).json()
 
 
 def test_invalid_token(reset, invalid_token):
@@ -149,4 +149,4 @@ def test_invalid_token(reset, invalid_token):
     }
 
     with pytest.raises(requests.HTTPError):
-        requests.get(f'{BASE_URL}/user/profile', json=func_input).json()
+        requests.get(f'{BASE_URL}/user/profile', params=func_input).json()
