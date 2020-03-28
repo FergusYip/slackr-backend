@@ -55,3 +55,11 @@ def test_list_invalid_token(reset, invalid_token):  # pylint: disable=W0613
     with pytest.raises(requests.HTTPError):
         requests.get(f'{BASE_URL}/channels/list',
                      params=list_input).raise_for_status()
+
+
+def test_list_insufficient_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into channels_list'''
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f"{BASE_URL}/channels/list",
+                      params={}).raise_for_status()

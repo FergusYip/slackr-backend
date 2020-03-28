@@ -51,3 +51,10 @@ def test_create_invalid_token(reset, invalid_token):  # pylint: disable=W0613
     '''Test that channels_create raises an AccessError when given invalid token'''
     with pytest.raises(AccessError):
         channels.channels_create(invalid_token, 'Channel', True)
+
+
+def test_create_invalid_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into channels_create'''
+
+    with pytest.raises(InputError):
+        channels.channels_create(None, None, None)
