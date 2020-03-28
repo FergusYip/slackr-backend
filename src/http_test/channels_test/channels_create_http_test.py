@@ -22,7 +22,7 @@ def test_create_type(reset, new_user):  # pylint: disable=W0613
     assert isinstance(test_channel['channel_id'], int)
 
 
-def test_create_name(reset, new_user):  # pylint: disable=W0613
+def test_create_name(reset, new_user, get_channel_details):  # pylint: disable=W0613
     '''Test that the channel name matches input'''
     user = new_user()
 
@@ -37,18 +37,11 @@ def test_create_name(reset, new_user):  # pylint: disable=W0613
     channel = requests.post(f'{BASE_URL}/channels/create',
                             json=create_input).json()
 
-    details_input = {
-        'token': user['token'],
-        'channel_id': channel['channel_id']
-    }
-
-    details = requests.get(f'{BASE_URL}/channel/details',
-                           params=details_input).json()
-
+    details = get_channel_details(user['token'], channel['channel_id'])
     assert details['name'] == channel_name
 
 
-def test_create_joined(reset, new_user):  # pylint: disable=W0613
+def test_create_joined(reset, new_user, get_channel_details):  # pylint: disable=W0613
     '''Test the user who created the channel is a member and owner'''
     user = new_user()
 
@@ -61,13 +54,7 @@ def test_create_joined(reset, new_user):  # pylint: disable=W0613
     channel = requests.post(f'{BASE_URL}/channels/create',
                             json=create_input).json()
 
-    details_input = {
-        'token': user['token'],
-        'channel_id': channel['channel_id']
-    }
-
-    details = requests.get(f'{BASE_URL}/channel/details',
-                           params=details_input).json()
+    details = get_channel_details(user['token'], channel['channel_id'])
 
     owner_ids = [owner['u_id'] for owner in details['owner_members']]
     member_ids = [member['u_id'] for member in details['all_members']]
@@ -76,7 +63,7 @@ def test_create_joined(reset, new_user):  # pylint: disable=W0613
     assert user['u_id'] in member_ids
 
 
-def test_create_private(reset, new_user):  # pylint: disable=W0613
+def test_create_private(reset, new_user, get_channel_details):  # pylint: disable=W0613
     '''Test that an unauthorised user cannot join a private channel'''
 
     owner = new_user(email='owner@email.com')
@@ -100,13 +87,7 @@ def test_create_private(reset, new_user):  # pylint: disable=W0613
         requests.post(f'{BASE_URL}/channel/join',
                       json=join_input).raise_for_status()
 
-    details_input = {
-        'token': owner['token'],
-        'channel_id': channel['channel_id']
-    }
-
-    details = requests.get(f'{BASE_URL}/channel/details',
-                           params=details_input).json()
+    details = get_channel_details(owner['token'], channel['channel_id'])
 
     assert len(details['all_members']) == 1
 
