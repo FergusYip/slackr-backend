@@ -1,11 +1,11 @@
+''' System tests for channels_list'''
 import pytest
-import auth
 import channel
 import channels
-from error import InputError, AccessError
+from error import AccessError
 
 
-def test_list(test_user):
+def test_list(reset, test_user):  # pylint: disable=W0613
     '''Test that channels_list only returns channels the user is in'''
 
     joined_1 = channels.channels_create(test_user['token'], 'One', True)
@@ -25,8 +25,9 @@ def test_list(test_user):
         assert chan['channel_id'] != not_joined['channel_id']
 
 
-def test_list_return_type(test_user, make_join_channel):
-    test_channel = make_join_channel(test_user, 'Channel')
+def test_list_return_type(reset, test_user, new_channel):  # pylint: disable=W0613
+    '''Test that the types of the values returned are correct'''
+    new_channel(test_user, 'Channel')
     all_channels = channels.channels_list(test_user['token'])['channels']
     assert isinstance(all_channels, list)
     assert isinstance(all_channels[0], dict)
@@ -34,14 +35,14 @@ def test_list_return_type(test_user, make_join_channel):
     assert isinstance(all_channels[0]['name'], str)
 
 
-def test_list_no_channels(test_user):
+def test_list_no_channels(reset, test_user):  # pylint: disable=W0613
     '''Test that channels_list doesn't return any channels when there aren't any'''
 
     all_channels = channels.channels_list(test_user['token'])['channels']
     assert len(all_channels) == 0
 
 
-def test_list_invalid_token(invalid_token):
+def test_list_invalid_token(reset, invalid_token):  # pylint: disable=W0613
     '''Test that channels_list raises an AccessError when given invalid token'''
     with pytest.raises(AccessError):
         channels.channels_list(invalid_token)
