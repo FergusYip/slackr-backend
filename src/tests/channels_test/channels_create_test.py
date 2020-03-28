@@ -16,16 +16,20 @@ def test_create_public(reset, test_user):  # pylint: disable=W0613
     assert test_user['u_id'] == details['all_members'][0]['u_id']
 
 
-def test_create_private(reset, test_user):  # pylint: disable=W0613
+def test_create_private(reset, new_user):  # pylint: disable=W0613
     '''Test that an unauthorised user cannot join a private channel'''
 
-    test_channel = channels.channels_create(test_user['token'], 'Channel',
-                                            False)
+    owner = new_user(email='owner@slackr.com')
+    stranger = new_user(email='stranger@danger.com')
+
+    test_channel = channels.channels_create(owner['token'], 'Channel', False)
+
     with pytest.raises(AccessError):
-        channel.channel_join(test_user['token'], test_channel['channel_id'])
-    details = channel.channel_details(test_user['token'],
+        channel.channel_join(stranger['token'], test_channel['channel_id'])
+
+    details = channel.channel_details(owner['token'],
                                       test_channel['channel_id'])
-    assert len(details['all_members']) == 0
+    assert len(details['all_members']) == 1
 
 
 def test_create_types(reset, test_user):  # pylint: disable=W0613

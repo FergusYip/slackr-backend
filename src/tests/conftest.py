@@ -48,14 +48,12 @@ def new_user():
 
 
 @pytest.fixture
-def make_join_channel():
+def new_channel():
     '''Factory as a fixture for a test user to create a new channel and joining it'''
-    def _make_join_channel(target_user, channel_name):
-        ch = channels.channels_create(target_user['token'], target_user, True)
-        channel.channel_join(target_user['token'], ch['channel_id'])
-        return ch
+    def _new_channel(target_user, name='Channel', is_public=True):
+        return channels.channels_create(target_user['token'], name, is_public)
 
-    return _make_join_channel
+    return _new_channel
 
 
 @pytest.fixture
