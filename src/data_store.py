@@ -6,8 +6,7 @@ from datetime import datetime
 SECRET = 'the chunts'
 
 try:
-    FILE = open('data_store.p', 'rb')
-    data_store = pickle.load(FILE)
+    data_store = pickle.load(open('data_store.p', 'rb'))
 except FileNotFoundError:
     data_store = {
         'users': [],
@@ -31,8 +30,7 @@ except FileNotFoundError:
 
 def save():
     '''Save the state of the data_store into a pickle'''
-    with open('data_store.p', 'wb') as FILE:
-        pickle.dump(data_store, FILE)
+    pickle.dump(data_store, open('data_store.p', 'wb'))
 
 
 def autosave():
