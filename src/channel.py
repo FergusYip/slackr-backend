@@ -21,13 +21,15 @@ def channel_invite(token, channel_id, u_id):
     token_data = decode_token(token)
     auth_user = token_data['u_id']
 
+    if helpers.get_channel(channel_id) is None:
+        raise InputError(description='Channel does not exist')
+
     if helpers.get_user(u_id) is None:
-        raise InputError(description='User does not exist.')
+        raise InputError(description='User does not exist')
 
     if helpers.is_channel_member(auth_user, channel_id) is False:
         raise AccessError(
-            description=
-            'The authorised user is not already a member of the channel')
+            description='The authorised user is not a member of the channel')
 
     if helpers.is_channel_member(u_id, channel_id) is False:
         add_into_channel(token_data['u_id'], channel_id, u_id)
@@ -248,7 +250,7 @@ def channel_addowner(token, channel_id, u_id):
 
     # appending user to owner members.
     if helpers.is_channel_member(u_id, channel_id) is False:
-        channel['all_members'].append(u_id)
+        raise InputError(description='User not a member of the channel.')
 
     helpers.channel_add_owner(channel_id, u_id)
 

@@ -24,7 +24,8 @@ def test_details_owner(reset, new_user, new_channel):  # pylint: disable=W0613
     assert len(details['owner_members']) == 1
 
 
-def test_details_added_owner(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_details_added_owner(reset, new_user, new_channel,
+                             get_channel_details):  # pylint: disable=W0613
     '''
     Adding owners to a channel and checking if the channel has 2 owners.
     '''
@@ -33,18 +34,19 @@ def test_details_added_owner(reset, new_user, new_channel):  # pylint: disable=W
     user2 = new_user(email='something@google.com')
     channel = new_channel(user1)
 
+    join_input = {'token': user2['token'], 'channel_id': channel['channel_id']}
+
+    requests.post(f'{BASE_URL}/channel/join', json=join_input)
+
     addowner_in = {
         'token': user1['token'],
         'channel_id': channel['channel_id'],
         'u_id': user2['u_id']
     }
 
-    details_in = {'token': user1['token'], 'channel_id': channel['channel_id']}
-
     requests.post(f'{BASE_URL}/channel/addowner', json=addowner_in)
 
-    details = requests.get(f'{BASE_URL}/channel/details',
-                           params=details_in).json()
+    details = get_channel_details(user1['token'], channel['channel_id'])
 
     assert len(details['owner_members']) == 2
 
