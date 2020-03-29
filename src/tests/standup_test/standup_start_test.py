@@ -1,12 +1,22 @@
+'''
+System testing the standup_start function.
+'''
+
+from time import sleep
 import pytest
 from error import InputError, AccessError
 import standup
 import channel
-from time import sleep
+
+# =====================================================
+# ========= TESTING STANDUP START FUNCTION ============
+# =====================================================
 
 def test_standup_start(reset, test_channel, test_user):
     '''
-    Testing the average case use of standup_start in a channel.
+    Testing the average case use of standup_start in a channel. Must ensure
+    the standup starts and stops eventually. At completition, it should send
+    all messsages that have been sent as a singular message in the channel.
     '''
 
     standup.standup_start(test_user['token'], test_channel['channel_id'], 1)
