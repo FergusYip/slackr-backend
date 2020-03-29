@@ -1,18 +1,8 @@
 '''
-Implementation of workspace routes for slackr app
+Implementation of workspace function for slackr app
 '''
-from json import dumps
-from flask import Blueprint
 from data_store import data_store
 from helpers import utc_now
-
-WORKSPACE = Blueprint('workspace', __name__)
-
-
-@WORKSPACE.route("/workspace/reset", methods=['POST'])
-def route_workspace_reset():
-    ''' Flask route for /workspace/reset in slackr'''
-    return dumps(workspace_reset())
 
 
 def workspace_reset():
@@ -30,5 +20,5 @@ def workspace_reset():
     return {}
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     pass

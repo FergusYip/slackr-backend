@@ -4,139 +4,12 @@ allow users to send messages, react to messages, pin messages, and alter/remove
 their own messages.
 '''
 
-from json import dumps
 import threading
 from time import sleep
-from flask import request, Blueprint
 from error import AccessError, InputError
 from data_store import data_store
 from token_validation import decode_token
 import helpers
-
-MESSAGE = Blueprint('message', __name__)
-
-# ======================================================================
-# ======================== FLASK ROUTES ================================
-# ======================================================================
-
-
-@MESSAGE.route("/message/send", methods=['POST'])
-def route_message_send():
-    '''
-    Flask route to call the message_send function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    channel_id = int(payload['channel_id'])
-    message = payload['message']
-
-    return dumps(message_send(token, channel_id, message))
-
-
-@MESSAGE.route("/message/remove", methods=['DELETE'])
-def route_message_remove():
-    '''
-    Flask route to call the message_remove function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    message_id = int(payload['message_id'])
-
-    return dumps(message_remove(token, message_id))
-
-
-@MESSAGE.route("/message/edit", methods=['PUT'])
-def route_message_edit():
-    '''
-    Flask route to call the message_edit function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    message_id = int(payload['message_id'])
-    new_message = payload['message']
-
-    return dumps(message_edit(token, message_id, new_message))
-
-
-@MESSAGE.route("/message/sendlater", methods=['POST'])
-def route_message_sendlater():
-    '''
-    Flask route to call the message_sendlater function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    channel_id = int(payload['channel_id'])
-    message = payload['message']
-    time_sent = int(payload['time_sent'])
-
-    return dumps(message_sendlater(token, channel_id, message, time_sent))
-
-
-@MESSAGE.route("/message/react", methods=['POST'])
-def route_message_react():
-    '''
-    Flask route to call the message_react function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    message_id = int(payload['message_id'])
-    react_id = int(payload['react_id'])
-
-    return dumps(message_react(token, message_id, react_id))
-
-
-@MESSAGE.route("/message/unreact", methods=['POST'])
-def route_message_unreact():
-    '''
-    Flask route to call the message_unreact function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    message_id = int(payload['message_id'])
-    react_id = int(payload['react_id'])
-
-    return dumps(message_unreact(token, message_id, react_id))
-
-
-@MESSAGE.route("/message/pin", methods=['POST'])
-def route_message_pin():
-    '''
-    Flask route to call the message_pin function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    message_id = int(payload['message_id'])
-
-    return dumps(message_pin(token, message_id))
-
-
-@MESSAGE.route("/message/unpin", methods=['POST'])
-def route_message_unpin():
-    '''
-    Flask route to call the message_unpin function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    message_id = int(payload['message_id'])
-
-    return dumps(message_unpin(token, message_id))
-
 
 # ======================================================================
 # =================== FUNCTION IMPLEMENTATION ==========================
@@ -361,10 +234,6 @@ def message_unreact(token, message_id, react_id):
 
     if not helpers.is_channel_member(user_id, channel_id):
         raise InputError(description='User is not in the channel')
-
-    if helpers.is_channel_member(user_id, channel_id):
-        if message_info is None:
-            raise InputError(description='Message does not exist')
 
     if react_id not in data_store['reactions'].values():
         raise InputError(description='react_id is invalid')

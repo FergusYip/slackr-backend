@@ -115,9 +115,7 @@ def is_channel_member(user_id, channel_id):
 	"""
 
     channel = get_channel(channel_id)
-    if user_id in channel['all_members']:
-        return True
-    return False
+    return user_id in channel['all_members']
 
 
 def utc_now():
@@ -731,6 +729,7 @@ def channel_leave(channel_id, u_id):
         if channel_id == channel['channel_id']:
             channel['all_members'].remove(u_id)
 
+
 def channel_leave_owner(channel_id, u_id):
     """
     Loops through the data_store's channels and finds the channel in which
@@ -749,6 +748,27 @@ def channel_leave_owner(channel_id, u_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             channel['owner_members'].remove(u_id)
+
+
+def channel_add_owner(channel_id, u_id):
+    """
+    Loops through the data_store's channels and finds the channel in which
+    the channel_id matches the channel dictionary. It will then remove the
+    u_id to the list of owener_members in that channel.
+
+	Parameters:
+		channel_id (int): The ID of the channel
+		u_id (int): The ID of the user
+
+
+	Returns:
+		None
+	"""
+
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            channel['owner_members'].append(u_id)
+
 
 if __name__ == '__main__':
     pass

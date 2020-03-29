@@ -2,8 +2,10 @@
 from datetime import datetime, timedelta
 import jwt
 from error import AccessError
-from data_store import data_store, SECRET
+from data_store import data_store
 from helpers import get_all_u_id
+
+SECRET = 'the chunts'
 
 
 def encode_token(u_id):
