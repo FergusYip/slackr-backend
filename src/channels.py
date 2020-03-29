@@ -1,38 +1,10 @@
 '''
 Implementation of channels routes for slackr app
 '''
-from json import dumps
-from flask import request, Blueprint
 from error import InputError
 from data_store import data_store
 from token_validation import decode_token
 from helpers import generate_id
-
-CHANNELS = Blueprint('channels', __name__)
-
-
-@CHANNELS.route("/channels/list", methods=['GET'])
-def route_channels_list():
-    '''Flask route for /channels/list'''
-    token = request.values.get('token')
-    return dumps(channels_list(token))
-
-
-@CHANNELS.route("/channels/listall", methods=['GET'])
-def route_channels_listall():
-    '''Flask route for /channels/listall'''
-    token = request.values.get('token')
-    return dumps(channels_listall(token))
-
-
-@CHANNELS.route("/channels/create", methods=['POST'])
-def route_channels_create():
-    '''Flask route for /channels/create'''
-    payload = request.get_json()
-    token = payload.get('token')
-    name = payload.get('name')
-    is_public = payload.get('is_public')
-    return dumps(channels_create(token, name, is_public))
 
 
 def channels_list(token):
