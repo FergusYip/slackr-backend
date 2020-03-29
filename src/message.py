@@ -182,7 +182,6 @@ def message_react(token, message_id, react_id):
     message_channel_info = helpers.get_channel_message(message_id)
 
     if message_channel_info is not None:
-        message_info = message_channel_info['message']
         channel_info = message_channel_info['channel']
     else:
         raise InputError(description='Message does not exist')
@@ -225,7 +224,6 @@ def message_unreact(token, message_id, react_id):
     message_channel_info = helpers.get_channel_message(message_id)
 
     if message_channel_info is not None:
-        message_info = message_channel_info['message']
         channel_info = message_channel_info['channel']
     else:
         raise InputError(description='Message does not exist')

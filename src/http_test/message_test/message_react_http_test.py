@@ -106,6 +106,10 @@ def test_react_invalid_message(reset, new_user, new_channel):
 
 
 def test_react_messagenotinchannel(reset, new_user, new_channel):
+    '''
+    Testing if an error will be raised if the message is invalid.
+    '''
+
     user = new_user()
     channel = new_channel(user)
 
@@ -116,7 +120,7 @@ def test_react_messagenotinchannel(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    requests.post(f'{BASE_URL}/message/send', json=message_input)
 
     # Message with ID 2 does not exist.
     react_input = {
