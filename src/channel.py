@@ -118,21 +118,21 @@ def channel_messages(token, channel_id, start):
     token_data = decode_token(token)
     channel = helpers.get_channel(channel_id)
 
-    if start > len(channel['messages']):
-        raise InputError(description='start is greater than end')
-
     # input error if channel doesn't exist.
-    if helpers.get_channel(channel_id) is None:
+    if channel is None:
         raise InputError(description='Channel does not exist.')
+
+    if start > len(channel['messages']) or start < 0:
+        raise InputError(description='Invalid start value')
 
     # access error when authorized user not a member of channel.
     if helpers.is_channel_member(token_data['u_id'], channel_id) is False:
         raise AccessError(
-            description='authorized user not a member of channel.')
+            description='Authorized user not a member of channel.')
 
     messages = {'messages': [], 'start': start, 'end': start + 50}
 
-    for i in range(51):
+    for i in range(50):
         try:
             message = channel['messages'][start + i]
         except IndexError:
