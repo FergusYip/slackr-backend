@@ -6,7 +6,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_search_return_type(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_search_return_type(reset, new_user, new_channel):
     '''Test the types of values returned by search'''
     user = new_user()
     channel = new_channel(user)
@@ -30,7 +30,7 @@ def test_search_return_type(reset, new_user, new_channel):  # pylint: disable=W0
     assert isinstance(search['messages'][0]['time_created'], int)
 
 
-def test_search_no_channel(reset, new_user):  # pylint: disable=W0613
+def test_search_no_channel(reset, new_user):
     '''Test search function when there is no channel'''
 
     user = new_user()
@@ -40,7 +40,7 @@ def test_search_no_channel(reset, new_user):  # pylint: disable=W0613
     assert len(search['messages']) == 0
 
 
-def test_search_empty_channel(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_search_empty_channel(reset, new_user, new_channel):
     '''Test search function when channel has no messages'''
 
     user = new_user()
@@ -52,7 +52,7 @@ def test_search_empty_channel(reset, new_user, new_channel):  # pylint: disable=
     assert len(search['messages']) == 0
 
 
-def test_search_single_channel(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_search_single_channel(reset, new_user, new_channel):
     '''Test that the sole message is returned by search'''
 
     user = new_user()
@@ -84,7 +84,7 @@ def test_search_single_channel(reset, new_user, new_channel):  # pylint: disable
     assert message_from_search == message_from_channel
 
 
-def test_search_multiple_messages(reset, new_user, new_channel, send_msg):  # pylint: disable=W0613
+def test_search_multiple_messages(reset, new_user, new_channel, send_msg):
     '''Test search with multiple unique messages'''
 
     user = new_user()
@@ -108,7 +108,7 @@ def test_search_multiple_messages(reset, new_user, new_channel, send_msg):  # py
     assert len(search_romeo['messages']) == 0
 
 
-def test_search_multiple_channels(reset, new_user, new_channel, send_msg):  # pylint: disable=W0613
+def test_search_multiple_channels(reset, new_user, new_channel, send_msg):
     '''Test that search works on multiple channels'''
 
     user = new_user()
@@ -128,7 +128,7 @@ def test_search_multiple_channels(reset, new_user, new_channel, send_msg):  # py
     assert len(search['messages']) == 3
 
 
-def test_search_unauthorised_channels(reset, new_user, new_channel, send_msg):  # pylint: disable=W0613
+def test_search_unauthorised_channels(reset, new_user, new_channel, send_msg):
     '''Test that users cannot search unauthorised channels'''
 
     tom = new_user(email='tom@email.com')
@@ -152,7 +152,7 @@ def test_search_unauthorised_channels(reset, new_user, new_channel, send_msg):  
     assert len(search_tom['messages']) == 0
 
 
-def test_search_case_insensitive(reset, new_user, new_channel, send_msg):  # pylint: disable=W0613
+def test_search_case_insensitive(reset, new_user, new_channel, send_msg):
     '''Test that query string is not case sensitive'''
 
     user = new_user()
@@ -176,7 +176,7 @@ def test_search_case_insensitive(reset, new_user, new_channel, send_msg):  # pyl
     assert message_from_search == message_from_channel
 
 
-def test_search_invalid_token(reset, invalid_token):  # pylint: disable=W0613
+def test_search_invalid_token(reset, invalid_token):
     '''Test search function with invalid token'''
 
     search_input = {'token': invalid_token, 'query_str': ''}
