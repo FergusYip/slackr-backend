@@ -362,10 +362,6 @@ def message_unreact(token, message_id, react_id):
     if not helpers.is_channel_member(user_id, channel_id):
         raise InputError(description='User is not in the channel')
 
-    if helpers.is_channel_member(user_id, channel_id):
-        if message_info is None:
-            raise InputError(description='Message does not exist')
-
     if react_id not in data_store['reactions'].values():
         raise InputError(description='react_id is invalid')
 
