@@ -184,3 +184,35 @@ def test_search_invalid_token(reset, invalid_token):
     with pytest.raises(requests.HTTPError):
         requests.get(f'{BASE_URL}/search',
                      params=search_input).raise_for_status()
+
+
+def test_search_react(reset, new_user, new_channel, send_msg):
+    '''Test that search also returns the react'''
+
+    user = new_user()
+    channel = new_channel(user, 'Channel')
+
+    message = send_msg(user['token'], channel['channel_id'], 'Hello world!')
+
+    react_input = {
+        'token': user['token'],
+        'message_id': message['message_id'],
+        'react_id': 1
+    }
+
+    requests.post(f'{BASE_URL}/message/react', json=react_input)
+
+    messages_input = {
+        'token': user['token'],
+        'channel_id': channel['channel_id'],
+        'start': 0
+    }
+    channel_messages = requests.get(f'{BASE_URL}/channel/messages',
+                                    params=messages_input).json()
+    message_from_channel = channel_messages['messages'][0]
+
+    search_input = {'token': user['token'], 'query_str': 'hello'}
+    search = requests.get(f'{BASE_URL}/search', params=search_input).json()
+    message_from_search = search['messages'][0]
+
+    assert message_from_search == message_from_channel
