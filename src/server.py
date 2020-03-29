@@ -44,9 +44,9 @@ APP.register_error_handler(Exception, defaultHandler)
 def route_admin_userpermission_change():
     '''Flask route for /admin/userpermission/change'''
     payload = request.get_json()
-    token = payload['token']
-    u_id = payload['u_id']
-    permission_id = payload['permission_id']
+    token = payload.get('token')
+    u_id = payload.get('u_id')
+    permission_id = payload.get('permission_id')
     return dumps(admin.admin_userpermission_change(token, u_id, permission_id))
 
 
@@ -65,8 +65,8 @@ def route_auth_register():
 def route_auth_login():
     '''Flask route for /auth/login'''
     payload = request.get_json()
-    email = payload['email']
-    password = payload['password']
+    email = payload.get('email')
+    password = payload.get('password')
     return dumps(auth.auth_login(email, password))
 
 
@@ -74,7 +74,7 @@ def route_auth_login():
 def route_auth_logout():
     '''Flask route for /auth/logout'''
     payload = request.get_json()
-    token = payload['token']
+    token = payload.get('token')
     return dumps(auth.auth_logout(token))
 
 
@@ -171,9 +171,9 @@ def route_channels_create():
 def route_message_send():
     '''Flask route for /message/send'''
     payload = request.get_json()
-    token = payload['token']
-    channel_id = int(payload['channel_id'])
-    message = payload['message']
+    token = payload.get('token')
+    channel_id = int(payload.get('channel_id'))
+    message = payload.get('message')
     return dumps(msg.message_send(token, channel_id, message))
 
 
@@ -181,8 +181,8 @@ def route_message_send():
 def route_message_remove():
     '''Flask route for /message/remove'''
     payload = request.get_json()
-    token = payload['token']
-    message_id = int(payload['message_id'])
+    token = payload.get('token')
+    message_id = int(payload.get('message_id'))
     return dumps(msg.message_remove(token, message_id))
 
 
@@ -190,9 +190,9 @@ def route_message_remove():
 def route_message_edit():
     '''Flask route for /message/edit'''
     payload = request.get_json()
-    token = payload['token']
-    message_id = int(payload['message_id'])
-    new_message = payload['message']
+    token = payload.get('token')
+    message_id = int(payload.get('message_id'))
+    new_message = payload.get('message')
     return dumps(msg.message_edit(token, message_id, new_message))
 
 
@@ -200,10 +200,10 @@ def route_message_edit():
 def route_message_sendlater():
     '''Flask route for /message/sendlater'''
     payload = request.get_json()
-    token = payload['token']
-    channel_id = int(payload['channel_id'])
-    message = payload['message']
-    time_sent = int(payload['time_sent'])
+    token = payload.get('token')
+    channel_id = int(payload.get('channel_id'))
+    message = payload.get('message')
+    time_sent = int(payload.get('time_sent'))
     return dumps(msg.message_sendlater(token, channel_id, message, time_sent))
 
 
@@ -211,9 +211,9 @@ def route_message_sendlater():
 def route_message_react():
     '''Flask route for /message/react'''
     payload = request.get_json()
-    token = payload['token']
-    message_id = int(payload['message_id'])
-    react_id = int(payload['react_id'])
+    token = payload.get('token')
+    message_id = int(payload.get('message_id'))
+    react_id = int(payload.get('react_id'))
     return dumps(msg.message_react(token, message_id, react_id))
 
 
@@ -221,9 +221,9 @@ def route_message_react():
 def route_message_unreact():
     '''Flask route for /message/unreact'''
     payload = request.get_json()
-    token = payload['token']
-    message_id = int(payload['message_id'])
-    react_id = int(payload['react_id'])
+    token = payload.get('token')
+    message_id = int(payload.get('message_id'))
+    react_id = int(payload.get('react_id'))
     return dumps(msg.message_unreact(token, message_id, react_id))
 
 
@@ -231,8 +231,8 @@ def route_message_unreact():
 def route_message_pin():
     '''Flask route for /message/pin'''
     payload = request.get_json()
-    token = payload['token']
-    message_id = int(payload['message_id'])
+    token = payload.get('token')
+    message_id = int(payload.get('message_id'))
     return dumps(msg.message_pin(token, message_id))
 
 
@@ -240,8 +240,8 @@ def route_message_pin():
 def route_message_unpin():
     '''Flask route for /message/unpin'''
     payload = request.get_json()
-    token = payload['token']
-    message_id = int(payload['message_id'])
+    token = payload.get('token')
+    message_id = int(payload.get('message_id'))
     return dumps(msg.message_unpin(token, message_id))
 
 
@@ -300,9 +300,9 @@ def route_user_profile():
 def route_user_profile_setname():
     '''Flask route for /user/profile/setname'''
     payload = request.get_json()
-    token = payload['token']
-    first_name = payload['name_first']
-    last_name = payload['name_last']
+    token = payload.get('token')
+    first_name = payload.get('name_first')
+    last_name = payload.get('name_last')
     return dumps(user.user_profile_setname(token, first_name, last_name))
 
 
@@ -310,8 +310,8 @@ def route_user_profile_setname():
 def route_user_profile_setemail():
     '''Flask route for /user/profile/setemail'''
     payload = request.get_json()
-    token = payload['token']
-    desired_email = payload['email']
+    token = payload.get('token')
+    desired_email = payload.get('email')
     return dumps(user.user_profile_setemail(token, desired_email))
 
 
@@ -319,8 +319,8 @@ def route_user_profile_setemail():
 def route_user_profile_sethandle():
     '''Flask route for /user/profile/sethandle'''
     payload = request.get_json()
-    token = payload['token']
-    desired_handle = payload['handle_str']
+    token = payload.get('token')
+    desired_handle = payload.get('handle_str')
     return dumps(user.user_profile_sethandle(token, desired_handle))
 
 
