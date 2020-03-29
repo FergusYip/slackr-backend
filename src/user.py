@@ -23,9 +23,9 @@ USER = Blueprint('user', __name__)
 # ======================== FLASK ROUTES ================================
 # ======================================================================
 
-@USER.route('/profile', methods=['GET'])
-def route_user_profile():
 
+@USER.route('/user/profile', methods=['GET'])
+def route_user_profile():
     '''
     Flask route to call the user_profile function.
     '''
@@ -35,9 +35,9 @@ def route_user_profile():
 
     return dumps(user_profile(token, target_user))
 
-@USER.route('/profile/setname', methods=['PUT'])
-def route_user_profile_setname():
 
+@USER.route('/user/profile/setname', methods=['PUT'])
+def route_user_profile_setname():
     '''
     Flask route to call the user_profile_setname function.
     '''
@@ -50,9 +50,9 @@ def route_user_profile_setname():
 
     return dumps(user_profile_setname(token, first_name, last_name))
 
-@USER.route('/profile/setemail', methods=['PUT'])
-def route_user_profile_setemail():
 
+@USER.route('/user/profile/setemail', methods=['PUT'])
+def route_user_profile_setemail():
     '''
     Flask route to call the user_profile_setemail function.
     '''
@@ -64,9 +64,9 @@ def route_user_profile_setemail():
 
     return dumps(user_profile_setemail(token, desired_email))
 
-@USER.route('/profile/sethandle', methods=['PUT'])
-def route_user_profile_sethandle():
 
+@USER.route('/user/profile/sethandle', methods=['PUT'])
+def route_user_profile_sethandle():
     '''
     Flask route to call the user_profile_sethandle function.
     '''
@@ -78,12 +78,13 @@ def route_user_profile_sethandle():
 
     return dumps(user_profile_sethandle(token, desired_handle))
 
+
 # ======================================================================
 # =================== FUNCTION IMPLEMENTATION ==========================
 # ======================================================================
 
-def user_profile(token, target_uid):
 
+def user_profile(token, target_uid):
     '''
     Function that will return the profile information of a desired
     user on the Slackr platform.
@@ -93,8 +94,7 @@ def user_profile(token, target_uid):
     decode_token(token)
 
     if helpers.get_user(target_uid) is None:
-        raise InputError(
-            description='User ID is not a valid user')
+        raise InputError(description='User ID is not a valid user')
 
     user_info = helpers.get_user(target_uid)
 
@@ -108,8 +108,8 @@ def user_profile(token, target_uid):
 
     return user_return
 
-def user_profile_setname(token, first_name, last_name):
 
+def user_profile_setname(token, first_name, last_name):
     '''
     Function that will take a desired first and last name and will change
     the authorized user's information to be updated with this information.
@@ -130,8 +130,8 @@ def user_profile_setname(token, first_name, last_name):
 
     return {}
 
-def user_profile_setemail(token, email):
 
+def user_profile_setemail(token, email):
     '''
     Function that will take a desired email and will change
     the authorized user's information to be updated with this information.
@@ -149,8 +149,7 @@ def user_profile_setemail(token, email):
         return {}
 
     if invalid_email(email):
-        raise InputError(
-            description='Email address is invalid')
+        raise InputError(description='Email address is invalid')
 
     if helpers.is_email_used(email):
         raise InputError(
@@ -160,8 +159,8 @@ def user_profile_setemail(token, email):
 
     return {}
 
-def user_profile_sethandle(token, handle_str):
 
+def user_profile_sethandle(token, handle_str):
     '''
     Function that will take a desired handle and will change the authorized
     user's information to reflect this new handle.
@@ -190,6 +189,6 @@ def user_profile_sethandle(token, handle_str):
 
     return {}
 
+
 if __name__ == "__main__":
-    APP.run(debug=True,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    pass

@@ -18,10 +18,10 @@ AUTH = Blueprint('auth', __name__)
 def route_auth_register():
     '''Flask route for /auth/register'''
     payload = request.get_json()
-    email = payload['email']
-    password = payload['password']
-    name_first = payload['name_first']
-    name_last = payload['name_last']
+    email = payload.get('email')
+    password = payload.get('password')
+    name_first = payload.get('name_first')
+    name_last = payload.get('name_last')
     return dumps(auth_register(email, password, name_first, name_last))
 
 
@@ -56,7 +56,7 @@ def auth_register(email, password, name_first, name_last):
 		token (str): JWT
 
 	"""
-    if not email or not password or not name_first or not name_last:
+    if None in {email, password, name_first, name_last}:
         raise InputError(
             description=
             'Insufficient parameters. Requires email, password, name_first, name_last.'
@@ -66,12 +66,12 @@ def auth_register(email, password, name_first, name_last):
         raise InputError(
             description='Password entered is less than 6 characters long')
 
-    if helpers.user_check_name(name_first):
+    if not helpers.user_check_name(name_first):
         raise InputError(
             description=
             'First name is not between 1 and 50 characters inclusive')
 
-    if helpers.user_check_name(name_last):
+    if not helpers.user_check_name(name_last):
         raise InputError(
             description='Last name is not between 1 and 50 characters inclusive'
         )
@@ -114,7 +114,7 @@ def auth_login(email, password):
 		token (str): JWT
 
 	"""
-    if not email or not password:
+    if None in {email, password}:
         raise InputError(
             description='Insufficient parameters. Requires email and password.'
         )
@@ -143,16 +143,16 @@ def auth_logout(token):
 		is_success (bool): Whether the user has been logged out
 
 	"""
-    if not token:
+    if token is None:
         raise InputError(
             description='Insufficient parameters. Requires token.')
 
     decode_token(token)
     data_store['token_blacklist'].append(token)
 
+    is_success = False
+
     if token in data_store['token_blacklist']:
-        is_success = False
-    else:
         is_success = True
 
     return {'is_success': is_success}
@@ -212,8 +212,8 @@ def generate_handle(name_first, name_last):
     concatentation = name_first.lower() + name_last.lower()
     handle_str = concatentation[:20]
 
-    unique_modifier = 0
-    while not helpers.is_handle_used(handle_str):
+    unique_modifier = 1
+    while helpers.is_handle_used(handle_str):
         split_handle = list(handle_str)
 
         # Remove n number of characters from split_handle
