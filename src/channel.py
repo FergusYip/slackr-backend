@@ -248,7 +248,7 @@ def channel_addowner(token, channel_id, u_id):
 
     # appending user to owner members.
     if helpers.is_channel_member(u_id, channel_id) is False:
-        channel['all_members'].append(u_id)
+        raise InputError(description='User not a member of the channel.')
 
     helpers.channel_add_owner(channel_id, u_id)
 
