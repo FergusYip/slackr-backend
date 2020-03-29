@@ -33,7 +33,7 @@ def test_pin_returntype(reset, new_user, new_channel):
         'message_id': message_info['message_id']
     }
 
-    pin_return = requests.post(f'{BASE_URL}/message/pin', json=func_input)
+    pin_return = requests.post(f'{BASE_URL}/message/pin', json=func_input).json()
 
     assert isinstance(pin_return, dict)
 
@@ -69,7 +69,7 @@ def test_pin_message(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=function_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=function_input).json()
     assert message_from_data['messages'][0]['is_pinned']
 
 

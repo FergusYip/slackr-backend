@@ -42,7 +42,7 @@ def test_unpin_return(reset, new_user, new_channel):
         'message_id': message_info['message_id']
     }
 
-    unpin_return = requests.post(f'{BASE_URL}/message/unpin', json=unpin_input)
+    unpin_return = requests.post(f'{BASE_URL}/message/unpin', json=unpin_input).json()
 
     assert isinstance(unpin_return, dict)
 
@@ -79,7 +79,7 @@ def test_unpin_message(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=function_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=function_input).json()
     assert message_from_data['messages'][0]['is_pinned']
 
     unpin_input = {
@@ -89,7 +89,7 @@ def test_unpin_message(reset, new_user, new_channel):
     requests.post(f'{BASE_URL}/message/unpin', json=unpin_input)
 
     # Update the list of messages in the channel.
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=function_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=function_input).json()
     assert not message_from_data['messages'][0]['is_pinned']
 
 

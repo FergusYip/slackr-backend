@@ -1,23 +1,9 @@
 '''
 Implementation of admin routes for slackr app
 '''
-from json import dumps
-from flask import request, Blueprint
 from error import AccessError, InputError
 from token_validation import decode_token
 import helpers
-
-ADMIN = Blueprint('admin', __name__)
-
-
-@ADMIN.route('/admin/userpermission/change', methods=['POST'])
-def route_admin_userpermission_change():
-    '''Flask route for /admin/userpermission/change'''
-    payload = request.get_json()
-    token = payload['token']
-    u_id = payload['u_id']
-    permission_id = payload['permission_id']
-    return dumps(admin_userpermission_change(token, u_id, permission_id))
 
 
 def admin_userpermission_change(token, u_id, permission_id):

@@ -3,87 +3,17 @@ Functionality for users of the program to get other user's profile information,
 as well as change their own personal information.
 '''
 
-import sys
-from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
 from error import InputError
 from email_validation import invalid_email
 from token_validation import decode_token
 import helpers
 
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
-
-USER = Blueprint('user', __name__)
-
-# ======================================================================
-# ======================== FLASK ROUTES ================================
-# ======================================================================
-
-@USER.route('/profile', methods=['GET'])
-def route_user_profile():
-
-    '''
-    Flask route to call the user_profile function.
-    '''
-
-    token = request.values.get('token')
-    target_user = int(request.values.get('u_id'))
-
-    return dumps(user_profile(token, target_user))
-
-@USER.route('/profile/setname', methods=['PUT'])
-def route_user_profile_setname():
-
-    '''
-    Flask route to call the user_profile_setname function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    first_name = payload['name_first']
-    last_name = payload['name_last']
-
-    return dumps(user_profile_setname(token, first_name, last_name))
-
-@USER.route('/profile/setemail', methods=['PUT'])
-def route_user_profile_setemail():
-
-    '''
-    Flask route to call the user_profile_setemail function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    desired_email = payload['email']
-
-    return dumps(user_profile_setemail(token, desired_email))
-
-@USER.route('/profile/sethandle', methods=['PUT'])
-def route_user_profile_sethandle():
-
-    '''
-    Flask route to call the user_profile_sethandle function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    desired_handle = payload['handle_str']
-
-    return dumps(user_profile_sethandle(token, desired_handle))
-
 # ======================================================================
 # =================== FUNCTION IMPLEMENTATION ==========================
 # ======================================================================
 
-def user_profile(token, target_uid):
 
+def user_profile(token, target_uid):
     '''
     Function that will return the profile information of a desired
     user on the Slackr platform.
@@ -93,8 +23,7 @@ def user_profile(token, target_uid):
     decode_token(token)
 
     if helpers.get_user(target_uid) is None:
-        raise InputError(
-            description='User ID is not a valid user')
+        raise InputError(description='User ID is not a valid user')
 
     user_info = helpers.get_user(target_uid)
 
@@ -108,8 +37,8 @@ def user_profile(token, target_uid):
 
     return user_return
 
-def user_profile_setname(token, first_name, last_name):
 
+def user_profile_setname(token, first_name, last_name):
     '''
     Function that will take a desired first and last name and will change
     the authorized user's information to be updated with this information.
@@ -130,8 +59,8 @@ def user_profile_setname(token, first_name, last_name):
 
     return {}
 
-def user_profile_setemail(token, email):
 
+def user_profile_setemail(token, email):
     '''
     Function that will take a desired email and will change
     the authorized user's information to be updated with this information.
@@ -149,8 +78,7 @@ def user_profile_setemail(token, email):
         return {}
 
     if invalid_email(email):
-        raise InputError(
-            description='Email address is invalid')
+        raise InputError(description='Email address is invalid')
 
     if helpers.is_email_used(email):
         raise InputError(
@@ -160,8 +88,8 @@ def user_profile_setemail(token, email):
 
     return {}
 
-def user_profile_sethandle(token, handle_str):
 
+def user_profile_sethandle(token, handle_str):
     '''
     Function that will take a desired handle and will change the authorized
     user's information to reflect this new handle.
@@ -190,6 +118,6 @@ def user_profile_sethandle(token, handle_str):
 
     return {}
 
-if __name__ == "__main__":
-    APP.run(debug=True,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+
+if __name__ == '__main__':
+    pass

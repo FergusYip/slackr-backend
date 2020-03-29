@@ -11,6 +11,7 @@ from error import AccessError
 
 # ================================= MAKING USERS ====================================
 
+
 # Making a dummy user (dummy_user1) with valid details.
 @pytest.fixture
 def dummy_user1():
@@ -18,8 +19,8 @@ def dummy_user1():
     Pytest fixture for a dummy user for testing.
     '''
 
-    dummy_user1 = auth.auth_register(
-        'something.else@domain.com', 'GreatPassword04', 'something', 'else')
+    dummy_user1 = auth.auth_register('something.else@domain.com',
+                                     'GreatPassword04', 'something', 'else')
     return dummy_user1
 
 
@@ -30,9 +31,10 @@ def dummy_user2():
     Pytest fixture for a dummy user for testing.
     '''
 
-    dummy_user2 = auth.auth_register(
-        'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
+    dummy_user2 = auth.auth_register('dummy.user@domain.com',
+                                     'BetterPassword09', 'dummy', 'user')
     return dummy_user2
+
 
 # Making another dummy user (dummy_user3) with valid details.
 @pytest.fixture
@@ -40,8 +42,9 @@ def dummy_user3():
     '''
     Pytest fixture for a dummy user for testing.
     '''
-    dummy_user3 = auth.auth_register(
-        'dummy.user3@domain.com', 'ReallCoolPassword9800!', 'dummy', 'three')
+    dummy_user3 = auth.auth_register('dummy.user3@domain.com',
+                                     'ReallCoolPassword9800!', 'dummy',
+                                     'three')
     return dummy_user3
 
 
@@ -86,47 +89,48 @@ def channel_priv(dummy_user3):  # pylint: disable=W0621
 # ===================================================================================
 
 
-def test_addowner(dummy_user1, dummy_user3, channel1):  # pylint: disable=W0621
+def test_addowner(reset, dummy_user1, dummy_user3, channel1):  # pylint: disable=W0621
     '''
     Testing basic functionality of the channel_addowner() function.
     '''
 
     channel.channel_join(dummy_user3['token'], channel1['channel_id'])
 
-    channel.channel_addowner(
-        dummy_user1['token'], channel1['channel_id'], dummy_user3['u_id'])
+    channel.channel_addowner(dummy_user1['token'], channel1['channel_id'],
+                             dummy_user3['u_id'])
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    details = channel.channel_details(dummy_user1['token'],
+                                      channel1['channel_id'])
 
     assert len(details['owner_members']) == 2
 
 
-def test_addowner_owner_self(dummy_user1, channel1):  # pylint: disable=W0621
+def test_addowner_owner_self(reset, dummy_user1, channel1):  # pylint: disable=W0621
     '''
     Checking for InputError when dummy_user1, who is already an owner of channel1 tries
     to call the channel_addowner() function.
     '''
 
     with pytest.raises(InputError):
-        channel.channel_addowner(
-            dummy_user1['token'], channel1['channel_id'], dummy_user1['u_id'])
+        channel.channel_addowner(dummy_user1['token'], channel1['channel_id'],
+                                 dummy_user1['u_id'])
 
 
-def test_addowner_owner(dummy_user2, dummy_user3, channel1):  # pylint: disable=W0621
+def test_addowner_owner(reset, channel1, dummy_user2, dummy_user3):  # pylint: disable=W0621
     '''
     Checking for AccessError when a user that is not an owner of the channel tries to
     call the channel_addowner() function.
     '''
 
-    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
     channel.channel_join(dummy_user2['token'], channel1['channel_id'])
+    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
 
-    channel.channel_addowner(
-        dummy_user2['token'], channel1['channel_id'], dummy_user3['u_id'])
+    with pytest.raises(AccessError):
+        channel.channel_addowner(dummy_user2['token'], channel1['channel_id'],
+                                 dummy_user3['u_id'])
 
 
-def test_addowner_cid(dummy_user1, dummy_user2, channel1):  # pylint: disable=W0621
+def test_addowner_cid(reset, dummy_user1, dummy_user2, channel1):  # pylint: disable=W0621
     '''
     Checking for InputError when an invalid channel_id is passed into the
     channel_addowner() function.
@@ -135,11 +139,10 @@ def test_addowner_cid(dummy_user1, dummy_user2, channel1):  # pylint: disable=W0
     channel.channel_join(dummy_user2['token'], channel1['channel_id'])
 
     with pytest.raises(InputError):
-        channel.channel_addowner(
-            dummy_user1['token'], -1, dummy_user2['u_id'])
+        channel.channel_addowner(dummy_user1['token'], -1, dummy_user2['u_id'])
 
 
-def test_addowner_uid(dummy_user2, dummy_user3, channel2):  # pylint: disable=W0621
+def test_addowner_uid(reset, dummy_user2, dummy_user3, channel2):  # pylint: disable=W0621
     '''
     Checking for InputError when an invalid user id is passed into the
     channel_addowner() function.
@@ -148,19 +151,19 @@ def test_addowner_uid(dummy_user2, dummy_user3, channel2):  # pylint: disable=W0
     '''
 
     with pytest.raises(InputError):
-        channel.channel_addowner(
-            dummy_user2['token'], channel2['channel_id'], -1)
+        channel.channel_addowner(dummy_user2['token'], channel2['channel_id'],
+                                 -1)
 
     with pytest.raises(InputError):
-        channel.channel_addowner(
-            dummy_user2['token'], channel2['channel_id'], dummy_user3['u_id'])
+        channel.channel_addowner(dummy_user2['token'], channel2['channel_id'],
+                                 dummy_user3['u_id'])
 
 
-def test_addowner_invalid_token(dummy_user1, channel1, invalid_token):  # pylint: disable=W0621
+def test_addowner_invalid_token(reset, dummy_user1, channel1, invalid_token):  # pylint: disable=W0621
     '''
     Testing case when the token passed into the channel_addowner() function is invalid.
     '''
 
     with pytest.raises(AccessError):
-        channel.channel_addowner(
-            invalid_token, channel1['channel_id'], dummy_user1['u_id'])
+        channel.channel_addowner(invalid_token, channel1['channel_id'],
+                                 dummy_user1['u_id'])

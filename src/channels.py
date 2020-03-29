@@ -1,38 +1,10 @@
 '''
 Implementation of channels routes for slackr app
 '''
-from json import dumps
-from flask import request, Blueprint
 from error import InputError
 from data_store import data_store
 from token_validation import decode_token
 from helpers import generate_id
-
-CHANNELS = Blueprint('channels', __name__)
-
-
-@CHANNELS.route("/channels/list", methods=['GET'])
-def route_channels_list():
-    '''Flask route for /channels/list'''
-    token = request.values.get('token')
-    return dumps(channels_list(token))
-
-
-@CHANNELS.route("/channels/listall", methods=['GET'])
-def route_channels_listall():
-    '''Flask route for /channels/listall'''
-    token = request.values.get('token')
-    return dumps(channels_listall(token))
-
-
-@CHANNELS.route("/channels/create", methods=['POST'])
-def route_channels_create():
-    '''Flask route for /channels/create'''
-    payload = request.get_json()
-    token = payload['token']
-    name = payload['name']
-    is_public = payload['is_public']
-    return dumps(channels_create(token, name, is_public))
 
 
 def channels_list(token):
@@ -45,6 +17,9 @@ def channels_list(token):
 		channels (list): List of channels
 
 	"""
+    if token is None:
+        raise InputError(description='Insufficient parameters')
+
     token_payload = decode_token(token)
     u_id = token_payload['u_id']
     channels = []
@@ -69,6 +44,10 @@ def channels_listall(token):
 		channels (list): List of channels
 
 	"""
+
+    if token is None:
+        raise InputError(description='Insufficient parameters')
+
     decode_token(token)
 
     channels = []
@@ -94,6 +73,10 @@ def channels_create(token, name, is_public):
 		channel_id  (int): Channel ID
 
 	"""
+
+    if None in {token, name, is_public}:
+        raise InputError(description='Insufficient parameters')
+
     token_payload = decode_token(token)
 
     if invalid_channel_name(name):

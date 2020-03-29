@@ -11,6 +11,7 @@ from error import AccessError
 
 # ================================= MAKING USERS ====================================
 
+
 # Making a dummy user (dummy_user1) with valid details.
 @pytest.fixture
 def dummy_user1():
@@ -18,8 +19,8 @@ def dummy_user1():
     Pytest fixture for a dummy user for testing.
     '''
 
-    dummy_user1 = auth.auth_register(
-        'something.else@domain.com', 'GreatPassword04', 'something', 'else')
+    dummy_user1 = auth.auth_register('something.else@domain.com',
+                                     'GreatPassword04', 'something', 'else')
     return dummy_user1
 
 
@@ -30,9 +31,10 @@ def dummy_user2():
     Pytest fixture for a dummy user for testing.
     '''
 
-    dummy_user2 = auth.auth_register(
-        'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
+    dummy_user2 = auth.auth_register('dummy.user@domain.com',
+                                     'BetterPassword09', 'dummy', 'user')
     return dummy_user2
+
 
 # Making another dummy user (dummy_user3) with valid details.
 @pytest.fixture
@@ -41,8 +43,9 @@ def dummy_user3():
     Pytest fixture for a dummy user for testing.
     '''
 
-    dummy_user3 = auth.auth_register(
-        'dummy.user3@domain.com', 'ReallCoolPassword9800!', 'dummy', 'three')
+    dummy_user3 = auth.auth_register('dummy.user3@domain.com',
+                                     'ReallCoolPassword9800!', 'dummy',
+                                     'three')
     return dummy_user3
 
 
@@ -87,7 +90,7 @@ def channel_priv(dummy_user3):  # pylint: disable=W0621
 # ===================================================================================
 
 
-def test_removeowner(dummy_user1, dummy_user2, dummy_user3, channel1):  # pylint: disable=W0621
+def test_removeowner(reset, dummy_user1, dummy_user2, dummy_user3, channel1):  # pylint: disable=W0621
     '''
     Testing the basic functionality of the channel_removeowner() function.
     '''
@@ -96,24 +99,24 @@ def test_removeowner(dummy_user1, dummy_user2, dummy_user3, channel1):  # pylint
     channel.channel_join(dummy_user2['token'], channel1['channel_id'])
     channel.channel_join(dummy_user3['token'], channel1['channel_id'])
 
-    channel.channel_addowner(
-        dummy_user1['token'], channel1['channel_id'], dummy_user2['u_id'])
+    channel.channel_addowner(dummy_user1['token'], channel1['channel_id'],
+                             dummy_user2['u_id'])
 
-    channel.channel_addowner(
-        dummy_user1['token'], channel1['channel_id'], dummy_user3['u_id'])
+    channel.channel_addowner(dummy_user1['token'], channel1['channel_id'],
+                             dummy_user3['u_id'])
 
     # checking if channel1 now has 3 owners.
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    details = channel.channel_details(dummy_user1['token'],
+                                      channel1['channel_id'])
 
     assert len(details['owner_members']) == 3
 
     # testing functionality of the channel_removeowner() function.
-    channel.channel_removeowner(
-        dummy_user1['token'], channel1['channel_id'], dummy_user3['u_id'])
+    channel.channel_removeowner(dummy_user1['token'], channel1['channel_id'],
+                                dummy_user3['u_id'])
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    details = channel.channel_details(dummy_user1['token'],
+                                      channel1['channel_id'])
 
     assert len(details['owner_members']) == 2
 
@@ -122,7 +125,7 @@ def test_removeowner(dummy_user1, dummy_user2, dummy_user3, channel1):  # pylint
     assert len(details['all_members']) == 3
 
 
-def test_removeowner_uid(dummy_user1, dummy_user3, channel1):  # pylint: disable=W0621
+def test_removeowner_uid(reset, dummy_user1, dummy_user3, channel1):  # pylint: disable=W0621
     '''
     Checking for AccessError when a user who is not an owner of a channel
     tries to remove another owner.
@@ -131,50 +134,52 @@ def test_removeowner_uid(dummy_user1, dummy_user3, channel1):  # pylint: disable
     channel.channel_join(dummy_user3['token'], channel1['channel_id'])
 
     with pytest.raises(AccessError):
-        channel.channel_removeowner(
-            dummy_user3['token'], channel1['channel_id'], dummy_user1['u_id'])
+        channel.channel_removeowner(dummy_user3['token'],
+                                    channel1['channel_id'],
+                                    dummy_user1['u_id'])
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    details = channel.channel_details(dummy_user1['token'],
+                                      channel1['channel_id'])
 
     assert len(details['owner_members']) == 1
 
 
-def test_removeowner_empty(dummy_user1, dummy_user2, channel2):  # pylint: disable=W0621
+def test_removeowner_empty(reset, dummy_user1, dummy_user2, channel2):  # pylint: disable=W0621
     '''
     Testing the channel_removeowner() function for a channel with no owners.
     '''
 
-    channel.channel_invite(
-        dummy_user2['token'], channel2['channel_id'], dummy_user1['u_id'])
+    channel.channel_invite(dummy_user2['token'], channel2['channel_id'],
+                           dummy_user1['u_id'])
 
-    channel.channel_removeowner(
-        dummy_user2['token'], channel2['channel_id'], dummy_user2['u_id'])
+    channel.channel_removeowner(dummy_user2['token'], channel2['channel_id'],
+                                dummy_user2['u_id'])
 
-    details = channel.channel_details(
-        dummy_user2['token'], channel2['channel_id'])
+    details = channel.channel_details(dummy_user2['token'],
+                                      channel2['channel_id'])
 
     assert len(details['owner_members']) == 0
 
     assert len(details['all_members']) == 2
 
 
-def test_removeowner_cid(dummy_user1, dummy_user2):  # pylint: disable=W0621
+def test_removeowner_cid(reset, dummy_user1, dummy_user2):  # pylint: disable=W0621
     '''
     Testing for InputError when an invalid channel id is passed into the
     channel_removeowner() function.
     '''
 
     with pytest.raises(InputError):
-        channel.channel_removeowner(
-            dummy_user1['token'], -1, dummy_user2['u_id'])
+        channel.channel_removeowner(dummy_user1['token'], -1,
+                                    dummy_user2['u_id'])
 
 
-def test_removeowner_invalid_token(dummy_user1, channel1, invalid_token):  # pylint: disable=W0621
+def test_removeowner_invalid_token(reset, dummy_user1, channel1,
+                                   invalid_token):  # pylint: disable=W0621
     '''
     Testing case when the token passed into the channel_removeowner() function is invalid.
     '''
 
     with pytest.raises(AccessError):
-        channel.channel_removeowner(
-            invalid_token, channel1['channel_id'], dummy_user1['u_id'])
+        channel.channel_removeowner(invalid_token, channel1['channel_id'],
+                                    dummy_user1['u_id'])

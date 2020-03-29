@@ -54,7 +54,7 @@ def test_send_message(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     assert message_from_data['messages'][0]['message_id'] == test_message['message_id']
 
@@ -82,7 +82,7 @@ def test_message_user(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     assert message_from_data['messages'][0]['u_id'] == user['u_id']
 
@@ -109,7 +109,7 @@ def test_send_reacts(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     assert len(message_from_data['messages'][0]['reacts']) == 0
 
@@ -136,7 +136,7 @@ def test_send_pinned(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     assert not message_from_data['messages'][0]['is_pinned']
 

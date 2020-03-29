@@ -11,6 +11,7 @@ from error import AccessError
 
 # ================================= MAKING USERS ====================================
 
+
 # Making a dummy user (dummy_user1) with valid details.
 @pytest.fixture
 def dummy_user1():
@@ -18,8 +19,8 @@ def dummy_user1():
     Pytest fixture for a dummy user for testing.
     '''
 
-    dummy_user1 = auth.auth_register(
-        'something.else@domain.com', 'GreatPassword04', 'something', 'else')
+    dummy_user1 = auth.auth_register('something.else@domain.com',
+                                     'GreatPassword04', 'something', 'else')
     return dummy_user1
 
 
@@ -30,9 +31,10 @@ def dummy_user2():
     Pytest fixture for a dummy user for testing.
     '''
 
-    dummy_user2 = auth.auth_register(
-        'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
+    dummy_user2 = auth.auth_register('dummy.user@domain.com',
+                                     'BetterPassword09', 'dummy', 'user')
     return dummy_user2
+
 
 # Making another dummy user (dummy_user3) with valid details.
 @pytest.fixture
@@ -41,8 +43,9 @@ def dummy_user3():
     Pytest fixture for a dummy user for testing.
     '''
 
-    dummy_user3 = auth.auth_register(
-        'dummy.user3@domain.com', 'ReallCoolPassword9800!', 'dummy', 'three')
+    dummy_user3 = auth.auth_register('dummy.user3@domain.com',
+                                     'ReallCoolPassword9800!', 'dummy',
+                                     'three')
     return dummy_user3
 
 
@@ -87,63 +90,62 @@ def channel_priv(dummy_user3):  # pylint: disable=W0621
 # ===================================================================================
 
 
-def test_invite_channel(dummy_user1, dummy_user2, channel1):  # pylint: disable=W0621
+def test_invite_channel(reset, dummy_user1, dummy_user2, channel1):  # pylint: disable=W0621
     '''
     Testing channel invite function with valid details
     '''
 
     # testing channel invite function to valid channel.
-    channel.channel_invite(
-        dummy_user1['token'], channel1['channel_id'], dummy_user2['u_id'])
+    channel.channel_invite(dummy_user1['token'], channel1['channel_id'],
+                           dummy_user2['u_id'])
 
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    details = channel.channel_details(dummy_user1['token'],
+                                      channel1['channel_id'])
 
     assert len(details['all_members']) == 2
 
 
-def test_invalid_channel(dummy_user1, dummy_user2):  # pylint: disable=W0621
+def test_invalid_channel(reset, dummy_user1, dummy_user2):  # pylint: disable=W0621
     '''
     Testing channel invite function with invalid channel id.
     '''
 
     # testing channel invite function to invalid channel.
     with pytest.raises(InputError):
-        channel.channel_invite(
-            dummy_user1['token'], -1, dummy_user2['u_id'])
+        channel.channel_invite(dummy_user1['token'], -1, dummy_user2['u_id'])
 
 
-def test_invalid_user(dummy_user1, channel1):  # pylint: disable=W0621
+def test_invalid_user(reset, dummy_user1, channel1):  # pylint: disable=W0621
     '''
     Testing channel invite function with invalid user.
     '''
 
     # testing channel invite for non-existent user.
     with pytest.raises(InputError):
-        channel.channel_invite(
-            dummy_user1['token'], channel1['channel_id'], -1)
+        channel.channel_invite(dummy_user1['token'], channel1['channel_id'],
+                               -1)
 
     # testing if there is only one member in channel1.
-    details = channel.channel_details(
-        dummy_user1['token'], channel1['channel_id'])
+    details = channel.channel_details(dummy_user1['token'],
+                                      channel1['channel_id'])
 
     assert len(details['all_members']) == 1
 
 
-def test_invite_access(dummy_user1, dummy_user2, channel2):  # pylint: disable=W0621
+def test_invite_access(reset, dummy_user1, dummy_user2, channel2):  # pylint: disable=W0621
     '''
     Testing case when inviting user is not a member of a channel
     '''
     with pytest.raises(AccessError):
-        channel.channel_invite(
-            dummy_user1['token'], channel2, dummy_user2['u_id'])
+        channel.channel_invite(dummy_user1['token'], channel2['channel_id'],
+                               dummy_user2['u_id'])
 
 
-def test_invite_invalid_token(dummy_user1, channel1, invalid_token):  # pylint: disable=W0621
+def test_invite_invalid_token(reset, dummy_user1, channel1, invalid_token):  # pylint: disable=W0621
     '''
     Testing case when the token passed into the channel_invite() function is invalid.
     '''
 
     with pytest.raises(AccessError):
-        channel.channel_invite(
-            invalid_token, channel1['channel_id'], dummy_user1['u_id'])
+        channel.channel_invite(invalid_token, channel1['channel_id'],
+                               dummy_user1['u_id'])

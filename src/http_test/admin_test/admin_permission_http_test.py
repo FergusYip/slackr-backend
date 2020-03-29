@@ -5,7 +5,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_admin_invalid_u_id(reset, new_user):  # pylint: disable=W0613
+def test_admin_invalid_u_id(reset, new_user):
     '''Test function with invalid u_id value'''
 
     admin = new_user(email='admin@slackr.com')
@@ -21,7 +21,7 @@ def test_admin_invalid_u_id(reset, new_user):  # pylint: disable=W0613
                       json=permission_input).raise_for_status()
 
 
-def test_admin_invalid_permission(reset, new_user):  # pylint: disable=W0613
+def test_admin_invalid_permission(reset, new_user):
     '''Test function with invalid permission value'''
 
     admin = new_user(email='admin@slackr.com')
@@ -38,7 +38,7 @@ def test_admin_invalid_permission(reset, new_user):  # pylint: disable=W0613
                       json=permission_input).raise_for_status()
 
 
-def test_admin_not_owner(reset, new_user):  # pylint: disable=W0613
+def test_admin_not_owner(reset, new_user):
     '''Test if function raises InputError if the requesting user is not admin'''
 
     admin = new_user(email='admin@slackr.com')
@@ -55,7 +55,7 @@ def test_admin_not_owner(reset, new_user):  # pylint: disable=W0613
                       json=permission_input).raise_for_status()
 
 
-def test_admin_invalid_token(reset, new_user, invalid_token):  # pylint: disable=W0613
+def test_admin_invalid_token(reset, new_user, invalid_token):
     '''Test admin_userpermission_change with invalid token'''
 
     member = new_user(email='pleb@slackr.com')
@@ -71,7 +71,7 @@ def test_admin_invalid_token(reset, new_user, invalid_token):  # pylint: disable
                       json=permission_input).raise_for_status()
 
 
-def test_admin_userpermission_change(reset, new_user):  # pylint: disable=W0613
+def test_admin_userpermission_change(reset, new_user):
     '''Test that newly assigned admin user can modify other users'''
 
     admin = new_user(email='admin@slackr.com')
@@ -97,7 +97,7 @@ def test_admin_userpermission_change(reset, new_user):  # pylint: disable=W0613
                   json=permission_input_b).raise_for_status()
 
 
-def test_admin_userpermission_change_self(reset, new_user):  # pylint: disable=W0613
+def test_admin_userpermission_change_self(reset, new_user):
     '''Test that admin can change their own permission value'''
 
     admin = new_user(email='admin@slackr.com')

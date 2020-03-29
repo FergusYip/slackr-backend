@@ -5,7 +5,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_listall_return_type(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_listall_return_type(reset, new_user, new_channel):
     '''Test that the types of return values are as expected'''
     user = new_user()
     new_channel(user, 'Channel')
@@ -20,7 +20,7 @@ def test_listall_return_type(reset, new_user, new_channel):  # pylint: disable=W
     assert isinstance(channels_list[0]['name'], str)
 
 
-def test_listall(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_listall(reset, new_user, new_channel):
     '''Test that all created channels are returned by channels_listall'''
     user = new_user()
     channel_1 = new_channel(user, 'Channel One')
@@ -40,7 +40,7 @@ def test_listall(reset, new_user, new_channel):  # pylint: disable=W0613
         assert channel['channel_id'] in channel_ids
 
 
-def test_listall_no_channels(reset, new_user):  # pylint: disable=W0613
+def test_listall_no_channels(reset, new_user):
     '''Test that channels_listall doesn't return any channels when there aren't any'''
 
     user = new_user()
@@ -50,9 +50,17 @@ def test_listall_no_channels(reset, new_user):  # pylint: disable=W0613
     assert len(channels_list) == 0
 
 
-def test_listall_invalid_token(reset, invalid_token):  # pylint: disable=W0613
+def test_listall_invalid_token(reset, invalid_token):
     '''Test that channels_listall raises an HTTPError when given invalid token'''
     listall_input = {'token': invalid_token}
     with pytest.raises(requests.HTTPError):
         requests.get(f'{BASE_URL}/channels/listall',
                      params=listall_input).raise_for_status()
+
+
+def test_listall_insufficient_params(reset):
+    '''Test input of invalid parameters into channels_listall'''
+
+    with pytest.raises(requests.HTTPError):
+        requests.get(f"{BASE_URL}/channels/listall",
+                     params={}).raise_for_status()

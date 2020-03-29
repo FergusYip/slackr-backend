@@ -11,6 +11,7 @@ BASE_URL = 'http://127.0.0.1:8080'
 # ========== TESTING MESSAGE REACT FUNCTION ===========
 # =====================================================
 
+
 def test_react_returntype(reset, new_user, new_channel):
     '''
     Testing the return type of the message_react route.
@@ -71,7 +72,7 @@ def test_add_react(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
 
     assert len(message_from_data['messages'][0]['reacts']) == 1
     assert message_from_data['messages'][0]['reacts'][0]['u_ids'][0] == user['u_id']
@@ -97,6 +98,67 @@ def test_react_invalid_message(reset, new_user, new_channel):
     react_input = {
         'token': user['token'],
         'message_id': 2,
+        'react_id': 1
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/message/react', json=react_input).raise_for_status()
+
+
+def test_react_messagenotinchannel(reset, new_user, new_channel):
+    user = new_user()
+    channel = new_channel(user)
+
+    # Sending the first message in a channel.
+    message_input = {
+        'token': user['token'],
+        'channel_id': channel['channel_id'],
+        'message': 'Message'
+    }
+
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+
+    # Message with ID 2 does not exist.
+    react_input = {
+        'token': user['token'],
+        'message_id': 2,
+        'react_id': 1
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/message/react', json=react_input).raise_for_status()
+
+
+def test_react_notinchannel(reset, new_user, new_channel):
+    '''
+    Testing that if the user is not in the channel, an error will be raised
+    if they attempt to react to a message.
+    '''
+
+    user = new_user()
+    channel = new_channel(user)
+
+    # Sending the first message in a channel.
+    message_input = {
+        'token': user['token'],
+        'channel_id': channel['channel_id'],
+        'message': 'Message'
+    }
+
+    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+
+    # Leave the channel as user.
+    leave_input = {
+        'token': user['token'],
+        'channel_id': channel['channel_id']
+    }
+
+    requests.post(f'{BASE_URL}/channel/leave', json=leave_input)
+
+    # Attempt to react.
+    react_input = {
+        'token': user['token'],
+        'message_id': message_info['message_id'],
         'react_id': 1
     }
 
@@ -214,7 +276,7 @@ def test_react_multiple_users(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', json=function_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=function_input).json()
 
     # Should still only be one reaction, just with multiple IDs.
     assert len(message_from_data['messages'][0]['reacts']) == 1

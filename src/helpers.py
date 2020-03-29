@@ -115,9 +115,7 @@ def is_channel_member(user_id, channel_id):
 	"""
 
     channel = get_channel(channel_id)
-    if user_id in channel['all_members']:
-        return True
-    return False
+    return user_id in channel['all_members']
 
 
 def utc_now():
@@ -141,7 +139,6 @@ def get_react(message_id, react_id):
 	Parameters:
 		react_id (int): The id of the react
 		message_id (int): The id of the message
-		channel_id (int): The id of the channel containing the message
 
 	Returns:
 		react (dict) : Dictionary of react details
@@ -163,7 +160,6 @@ def is_pinned(message_id):
 
 	Parameters:
 		message_id (int): The id of the message
-		channel_id (int): The id of the channel containing the message
 
 	Returns:
 		(bool): Whether the message is pinned
@@ -181,7 +177,6 @@ def has_user_reacted(u_id, message_id, react_id):
 	Parameters:
 		u_id (int): The id of the user
 		message_id (int): The id of the message
-		channel_id (int): The id of the channel containing the message
 		react_id (int): The id of the react
 
 	Returns:
@@ -504,7 +499,7 @@ def message_remove_react_uid(user_id, message_id, channel_id, react_id):
                             break
 
 
-def message_remove_reaction(react_dict, message_id, channel_id):
+def message_remove_reaction(react_id, message_id, channel_id):
     """
     Loops through the data store to find the correct channel. Then, the
     function will loop through that's channel's messages until it finds
@@ -524,8 +519,10 @@ def message_remove_reaction(react_dict, message_id, channel_id):
         if channel_id == channel['channel_id']:
             for message in channel['messages']:
                 if message_id == message['message_id']:
-                    message['reacts'].remove(react_dict)
-                    break
+                    for react in message['reacts']:
+                        if react_id == react['react_id']:
+                            message['reacts'].remove(react)
+                            break
 
 
 def message_pin(message_id, channel_id):
@@ -711,6 +708,66 @@ def get_channel_message(message_id):
             if message_id == message['message_id']:
                 return {'channel': channel, 'message': message}
     return None
+
+
+def channel_leave(channel_id, u_id):
+    """
+    Loops through the data_store's channels and finds the channel in which
+    the channel_id matches the channel dictionary. It will then remove the
+    u_id to the list of all_members in that channel.
+
+	Parameters:
+		channel_id (int): The ID of the channel
+		u_id (int): The ID of the user
+
+
+	Returns:
+		None
+	"""
+
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            channel['all_members'].remove(u_id)
+
+
+def channel_leave_owner(channel_id, u_id):
+    """
+    Loops through the data_store's channels and finds the channel in which
+    the channel_id matches the channel dictionary. It will then remove the
+    u_id to the list of owener_members in that channel.
+
+	Parameters:
+		channel_id (int): The ID of the channel
+		u_id (int): The ID of the user
+
+
+	Returns:
+		None
+	"""
+
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            channel['owner_members'].remove(u_id)
+
+
+def channel_add_owner(channel_id, u_id):
+    """
+    Loops through the data_store's channels and finds the channel in which
+    the channel_id matches the channel dictionary. It will then remove the
+    u_id to the list of owener_members in that channel.
+
+	Parameters:
+		channel_id (int): The ID of the channel
+		u_id (int): The ID of the user
+
+
+	Returns:
+		None
+	"""
+
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            channel['owner_members'].append(u_id)
 
 
 if __name__ == '__main__':
