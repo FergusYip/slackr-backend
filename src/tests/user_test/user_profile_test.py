@@ -87,7 +87,7 @@ def test_invalid_uid(reset, test_user): # pylint: disable=W0613
         user.user_profile(test_user['token'], -1)
 
 
-def invalid_token(reset, test_user): # pylint: disable=W0613
+def test_invalid_token(reset, test_user): # pylint: disable=W0613
     '''
     Testing that the user_profile function if an invalid token is input.
     '''
