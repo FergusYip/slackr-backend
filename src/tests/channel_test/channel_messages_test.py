@@ -88,7 +88,7 @@ def channel_priv(dummy_user3):  # pylint: disable=W0621
 # ===================================================================================
 
 
-def test_messages_sent(dummy_user1, dummy_user2, channel1):  # pylint: disable=W0621  # pylint: disable=W0621
+def test_messages_sent(dummy_user1, dummy_user2, channel1):  # pylint: disable=W0621
     '''
     Testing the message send function in a public channel.
     '''

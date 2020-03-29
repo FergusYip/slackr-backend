@@ -1,5 +1,5 @@
 '''
-System tests for channel_addowner function.
+System tests for channel removeowner function.
 '''
 
 import pytest
