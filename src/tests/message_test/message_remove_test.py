@@ -13,7 +13,7 @@ import auth
 # ========== TESTING MESSAGE REMOVE FUNCTION ==========
 # =====================================================
 
-def test_remove(reset, test_channel, test_user): # pylint: disable=W0613
+def test_remove(reset, test_channel, test_user):
     '''
     Testing an average case where a user will remove their own message.
     '''
@@ -22,7 +22,7 @@ def test_remove(reset, test_channel, test_user): # pylint: disable=W0613
     message.message_remove(test_user['token'], new_message['message_id'])
 
 
-def test_remove_two(reset, test_channel, test_user): # pylint: disable=W0613
+def test_remove_two(reset, test_channel, test_user):
     '''
     Case where a default user will remove multiple messages in a row.
     '''
@@ -35,7 +35,7 @@ def test_remove_two(reset, test_channel, test_user): # pylint: disable=W0613
     message.message_remove(test_user['token'], new_message['message_id'])
 
 
-def test_remove_wrong_id(reset, test_channel, test_user): # pylint: disable=W0613
+def test_remove_wrong_id(reset, test_user):
     '''
     Testing if an InputError is thrown when an invalid message_id is input.
     '''
@@ -44,7 +44,7 @@ def test_remove_wrong_id(reset, test_channel, test_user): # pylint: disable=W061
         message.message_remove(test_user['token'], -1)
 
 
-def test_remove_unauthorized(reset, test_channel, test_user, new_user): # pylint: disable=W0613
+def test_remove_unauthorized(reset, test_channel, test_user, new_user):
     '''
     Testing that an AccessError is thrown when a default user is trying to remove
     another default user's message
@@ -58,7 +58,7 @@ def test_remove_unauthorized(reset, test_channel, test_user, new_user): # pylint
         message.message_remove(second_user['token'], new_message['message_id'])
 
 
-def test_remove_owner(reset, test_channel, test_user, new_user): # pylint: disable=W0613
+def test_remove_owner(reset, test_channel, test_user, new_user):
     '''
     Testing that a channel owner has the ability to remove another user's message.
     '''
@@ -70,7 +70,7 @@ def test_remove_owner(reset, test_channel, test_user, new_user): # pylint: disab
     message.message_remove(test_user['token'], new_message['message_id'])
 
 
-def test_remove_invalidtoken(reset, test_channel, test_user): # pylint: disable=W0613
+def test_remove_invalidtoken(reset, test_channel, test_user):
     '''
     Testing that an invalid token will raise an AccessError.
     '''
