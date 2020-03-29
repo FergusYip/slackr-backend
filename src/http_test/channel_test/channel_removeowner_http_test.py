@@ -13,20 +13,17 @@ def test_removeowner(reset, new_user, new_channel):  # pylint: disable=W0613
     Testing the removeowner function on a public channel.
     '''
 
-    user1 = new_user()
-    user2 = new_user()
+    user1 = new_user(email='user_1@email.com')
+    user2 = new_user(email='user_2@email.com')
     channel = new_channel(user1)
 
-    input_dict = {
-        'token': user2['token'],
-        'channel_id': channel['channel_id']
-    }
+    input_dict = {'token': user2['token'], 'channel_id': channel['channel_id']}
 
     # user2 joins channel.
     requests.post(f'{BASE_URL}/channel/join', json=input_dict)
 
-    details = requests.get(
-        f'{BASE_URL}/channel/details', params=input_dict).json()
+    details = requests.get(f'{BASE_URL}/channel/details',
+                           params=input_dict).json()
 
     assert len(details['owner_members']) == 1
 
@@ -39,27 +36,26 @@ def test_removeowner(reset, new_user, new_channel):  # pylint: disable=W0613
     # adding user2 as owner of channel.
     requests.post(f'{BASE_URL}/channel/addowner', json=add_dict)
 
-    details = requests.get(
-        f'{BASE_URL}/channel/details', params=input_dict).json()
+    details = requests.get(f'{BASE_URL}/channel/details',
+                           params=input_dict).json()
 
     assert len(details['owner_members']) == 2
 
     # removing user2 as owner of channel.
     requests.post(f'{BASE_URL}/channel/removeowner', json=add_dict)
 
-    details = requests.get(
-        f'{BASE_URL}/channel/details', params=input_dict).json()
+    details = requests.get(f'{BASE_URL}/channel/details',
+                           params=input_dict).json()
 
     assert len(details['owner_members']) == 1
 
 
-def test_empty_owner(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_empty_owner(reset, new_user, new_channel, get_channel_details):  # pylint: disable=W0613
     '''
     Testing removeowner when the only owner removes himself as owner.
     '''
 
-    user1 = new_user()
-    user2 = new_user()
+    user1 = new_user(email='user_1@email.com')
     channel = new_channel(user1)
 
     input_dict = {
@@ -70,16 +66,10 @@ def test_empty_owner(reset, new_user, new_channel):  # pylint: disable=W0613
 
     requests.post(f'{BASE_URL}/channel/removeowner', json=input_dict)
 
-    details_dict = {
-        'token': user2['token'],
-        'channel_id': channel['channel_id']
-    }
-
-    details = requests.get(
-        f'{BASE_URL}/channel/details', params=details_dict).json()
+    details = get_channel_details(user1['token'], channel['channel_id'])
 
     assert len(details['owner_members']) == 0
-    assert len(details['all_members']) == 2
+    assert len(details['all_members']) == 1
 
 
 def test_not_owner(reset, new_user, new_channel):  # pylint: disable=W0613
@@ -88,8 +78,8 @@ def test_not_owner(reset, new_user, new_channel):  # pylint: disable=W0613
     channel
     '''
 
-    user1 = new_user()
-    user2 = new_user()
+    user1 = new_user(email='user_1@email.com')
+    user2 = new_user(email='user_2@email.com')
     channel = new_channel(user1)
 
     input_dict = {
@@ -108,8 +98,8 @@ def test_invalid_ch(reset, new_user, new_channel):  # pylint: disable=W0613
     Testing the removeowner function when an invalid channel id is passed.
     '''
 
-    user1 = new_user()
-    user2 = new_user()
+    user1 = new_user(email='user_1@email.com')
+    user2 = new_user(email='user_2@email.com')
     new_channel(user1)
 
     input_dict = {

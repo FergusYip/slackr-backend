@@ -19,11 +19,17 @@ def channel_invite(token, channel_id, u_id):
     u_id = int(u_id)
 
     token_data = decode_token(token)
+    auth_user = token_data['u_id']
 
     if helpers.get_user(u_id) is None:
         raise InputError(description='User does not exist.')
 
-    if not helpers.is_channel_member(u_id, channel_id):
+    if helpers.is_channel_member(auth_user, channel_id) is False:
+        raise AccessError(
+            description=
+            'The authorised user is not already a member of the channel')
+
+    if helpers.is_channel_member(u_id, channel_id) is False:
         add_into_channel(token_data['u_id'], channel_id, u_id)
 
     return {}
@@ -112,21 +118,21 @@ def channel_messages(token, channel_id, start):
     token_data = decode_token(token)
     channel = helpers.get_channel(channel_id)
 
-    if start > len(channel['messages']):
-        raise InputError(description='start is greater than end')
-
     # input error if channel doesn't exist.
-    if helpers.get_channel(channel_id) is None:
+    if channel is None:
         raise InputError(description='Channel does not exist.')
+
+    if start > len(channel['messages']) or start < 0:
+        raise InputError(description='Invalid start value')
 
     # access error when authorized user not a member of channel.
     if helpers.is_channel_member(token_data['u_id'], channel_id) is False:
         raise AccessError(
-            description='authorized user not a member of channel.')
+            description='Authorized user not a member of channel.')
 
     messages = {'messages': [], 'start': start, 'end': start + 50}
 
-    for i in range(51):
+    for i in range(50):
         try:
             message = channel['messages'][start + i]
         except IndexError:
@@ -222,7 +228,7 @@ def channel_addowner(token, channel_id, u_id):
 
     token_data = decode_token(token)
     channel = helpers.get_channel(channel_id)
-    auth_user = token_data['token']
+    auth_user = token_data['u_id']
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -244,7 +250,7 @@ def channel_addowner(token, channel_id, u_id):
     if helpers.is_channel_member(u_id, channel_id) is False:
         channel['all_members'].append(u_id)
 
-    channel['owner_members'].append(u_id)
+    helpers.channel_add_owner(channel_id, u_id)
 
     return {}
 
