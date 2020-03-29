@@ -1,6 +1,6 @@
+'''Conftest file for system testing slackr'''
 import pytest
 import auth
-import channel
 import channels
 import workspace
 

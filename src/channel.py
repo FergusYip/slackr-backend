@@ -3,7 +3,6 @@ Implementing channel functions -
 invite, details, messages, leave, join, addowner, removeowner
 '''
 from error import AccessError, InputError
-from data_store import data_store
 from token_validation import decode_token
 import helpers
 
