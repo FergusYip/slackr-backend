@@ -5,7 +5,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_list_return_type(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_list_return_type(reset, new_user, new_channel):
     '''Test that the types of return values are as expected'''
     user = new_user()
     new_channel(user, 'Channel')
@@ -20,7 +20,7 @@ def test_list_return_type(reset, new_user, new_channel):  # pylint: disable=W061
     assert isinstance(channels_list[0]['name'], str)
 
 
-def test_list(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_list(reset, new_user, new_channel):
     '''Test that channels_list only returns channels the user is in'''
 
     user_1 = new_user(email='user_1@email.com')
@@ -40,7 +40,7 @@ def test_list(reset, new_user, new_channel):  # pylint: disable=W0613
     assert len(user_2_channels['channels']) == 0
 
 
-def test_list_no_channels(reset, new_user):  # pylint: disable=W0613
+def test_list_no_channels(reset, new_user):
     '''Test that channels_list doesn't return any channels when there aren't any'''
     user = new_user()
     list_input = {'token': user['token']}
@@ -49,7 +49,7 @@ def test_list_no_channels(reset, new_user):  # pylint: disable=W0613
     assert len(channels_list) == 0
 
 
-def test_list_invalid_token(reset, invalid_token):  # pylint: disable=W0613
+def test_list_invalid_token(reset, invalid_token):
     '''Test that channels_list raises an HTTPError when given invalid token'''
     list_input = {'token': invalid_token}
     with pytest.raises(requests.HTTPError):
@@ -57,7 +57,7 @@ def test_list_invalid_token(reset, invalid_token):  # pylint: disable=W0613
                      params=list_input).raise_for_status()
 
 
-def test_list_insufficient_params(reset):  # pylint: disable=W0613
+def test_list_insufficient_params(reset):
     '''Test input of invalid parameters into channels_list'''
 
     with pytest.raises(requests.HTTPError):

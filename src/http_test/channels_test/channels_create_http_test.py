@@ -5,7 +5,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_create_type(reset, new_user):  # pylint: disable=W0613
+def test_create_type(reset, new_user):
     '''Test the types of values returned by channels/create'''
     user = new_user()
 
@@ -22,7 +22,7 @@ def test_create_type(reset, new_user):  # pylint: disable=W0613
     assert isinstance(test_channel['channel_id'], int)
 
 
-def test_create_name(reset, new_user, get_channel_details):  # pylint: disable=W0613
+def test_create_name(reset, new_user, get_channel_details):
     '''Test that the channel name matches input'''
     user = new_user()
 
@@ -41,7 +41,7 @@ def test_create_name(reset, new_user, get_channel_details):  # pylint: disable=W
     assert details['name'] == channel_name
 
 
-def test_create_joined(reset, new_user, get_channel_details):  # pylint: disable=W0613
+def test_create_joined(reset, new_user, get_channel_details):
     '''Test the user who created the channel is a member and owner'''
     user = new_user()
 
@@ -63,7 +63,7 @@ def test_create_joined(reset, new_user, get_channel_details):  # pylint: disable
     assert user['u_id'] in member_ids
 
 
-def test_create_private(reset, new_user, get_channel_details):  # pylint: disable=W0613
+def test_create_private(reset, new_user, get_channel_details):
     '''Test that an unauthorised user cannot join a private channel'''
 
     owner = new_user(email='owner@email.com')
@@ -92,7 +92,7 @@ def test_create_private(reset, new_user, get_channel_details):  # pylint: disabl
     assert len(details['all_members']) == 1
 
 
-def test_create_long_name(reset, new_user):  # pylint: disable=W0613
+def test_create_long_name(reset, new_user):
     '''Test creation of channel with name length > 20'''
 
     user = new_user()
@@ -108,7 +108,7 @@ def test_create_long_name(reset, new_user):  # pylint: disable=W0613
                       json=create_input).raise_for_status()
 
 
-def test_create_invalid_token(reset, invalid_token):  # pylint: disable=W0613
+def test_create_invalid_token(reset, invalid_token):
     '''Test that channels_create raises an AccessError when given invalid token'''
 
     create_input = {
@@ -122,7 +122,7 @@ def test_create_invalid_token(reset, invalid_token):  # pylint: disable=W0613
                       json=create_input).raise_for_status()
 
 
-def test_create_insufficient_params(reset):  # pylint: disable=W0613
+def test_create_insufficient_params(reset):
     '''Test input of invalid parameters into channels_create'''
 
     with pytest.raises(requests.HTTPError):
