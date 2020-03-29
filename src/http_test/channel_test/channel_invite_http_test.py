@@ -28,13 +28,10 @@ def test_invite_channel(reset, new_user, new_channel):  # pylint: disable=W0613
 
     requests.post(f'{BASE_URL}/channel/invite', json=input_dict)
 
-    details_in = {
-        'token': user1['token'],
-        'channel_id': channel['channel_id']
-    }
+    details_in = {'token': user1['token'], 'channel_id': channel['channel_id']}
 
-    details = requests.get(
-        f'{BASE_URL}/channel/details', params=details_in).json()
+    details = requests.get(f'{BASE_URL}/channel/details',
+                           params=details_in).json()
 
     assert len(details['all_members']) == 2
 
