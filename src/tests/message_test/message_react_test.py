@@ -3,7 +3,6 @@ System testing the functionality of message_react.
 '''
 
 import pytest
-import channel
 import message
 import auth
 from error import AccessError
@@ -19,10 +18,10 @@ def test_react(reset, test_channel, test_user):
     '''
 
     message_info = message.message_send(test_user['token'], test_channel['channel_id'], 'Message')
-    
+
     message.message_react(test_user['token'], message_info['message_id'], 1)
 
-def test_react_invalid_message(reset, test_channel, test_user):
+def test_react_invalid_message(reset, test_user):
     '''
     Testing that attempting to react to an invalid message will raise an
     InputError.
@@ -38,9 +37,9 @@ def test_react_notinchannel(reset, new_channel, test_user, new_user):
     '''
 
     user = new_user()
-    channel = new_channel(user)
+    first_channel = new_channel(user)
 
-    message_info = message.message_send(user['token'], channel['channel_id'], 'Message')
+    message_info = message.message_send(user['token'], first_channel['channel_id'], 'Message')
 
     with pytest.raises(InputError):
         message.message_react(test_user['token'], message_info['message_id'], 1)
@@ -52,7 +51,7 @@ def test_react_invalid_reactid(reset, test_channel, test_user):
     '''
 
     message_info = message.message_send(test_user['token'], test_channel['channel_id'], 'Message')
-    
+
     with pytest.raises(InputError):
         message.message_react(test_user['token'], message_info['message_id'], 2)
 

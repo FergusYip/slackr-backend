@@ -13,7 +13,7 @@ import auth
 # ========== TESTING MESSAGE EDIT FUNCTION ============
 # =====================================================
 
-def test_edit_average(reset, test_channel, test_user): # pylint: disable=W0613
+def test_edit_average(reset, test_channel, test_user):
     '''
     Average case test where a user edits their own message.
     '''
@@ -22,7 +22,7 @@ def test_edit_average(reset, test_channel, test_user): # pylint: disable=W0613
     message.message_edit(test_user['token'], new_message['message_id'], 'Message')
 
 
-def test_edit_into_empty_string(reset, test_channel, test_user): # pylint: disable=W0613
+def test_edit_into_empty_string(reset, test_channel, test_user):
     '''
     Testing the change from a string to an empty string. Should result in a deleted message.
     '''
@@ -36,7 +36,7 @@ def test_edit_into_empty_string(reset, test_channel, test_user): # pylint: disab
     assert not messages['messages']
 
 
-def test_nomessage(reset, test_user, test_channel): # pylint: disable=W0613
+def test_nomessage(reset, test_user):
     '''
     Testing that attempting to edit an invalid message will raise an error.
     '''
@@ -45,7 +45,7 @@ def test_nomessage(reset, test_user, test_channel): # pylint: disable=W0613
         message.message_edit(test_user['token'], 1, 'New Message')
 
 
-def test_overcharacters(reset, test_user, test_channel): # pylint: disable=W0613
+def test_overcharacters(reset, test_user, test_channel):
     '''
     Testing that attempting to edit a message to over 1,000 characters will
     raise an error.
@@ -57,7 +57,7 @@ def test_overcharacters(reset, test_user, test_channel): # pylint: disable=W0613
         message.message_edit(test_user['token'], new_message['message_id'], 'i' * 1001)
 
 
-def test_edit_owner(reset, test_channel, test_user, new_user): # pylint: disable=W0613
+def test_edit_owner(reset, test_channel, test_user, new_user):
     '''
     Testing the ability for the channel owner to edit a default user's message.
     '''
@@ -69,7 +69,7 @@ def test_edit_owner(reset, test_channel, test_user, new_user): # pylint: disable
     message.message_edit(test_user['token'], new_message['message_id'], 'New Message')
 
 
-def test_edit_unauthorised(reset, test_channel, test_user, new_user): # pylint: disable=W0613
+def test_edit_unauthorised(reset, test_channel, test_user, new_user):
     '''
     Testing an AccessError thrown when a default user tries to edit an owner's message.
     '''
@@ -82,7 +82,7 @@ def test_edit_unauthorised(reset, test_channel, test_user, new_user): # pylint: 
         message.message_edit(second_user['token'], new_message['message_id'], 'New Message')
 
 
-def test_edit_unauthorised_default(reset, test_channel, test_user, new_user): # pylint: disable=W0613
+def test_edit_unauthorised_default(reset, test_channel, test_user, new_user):
     '''
     Testing an AccessError thrown when a default user attempts to edit another
     default user's message.
@@ -98,7 +98,7 @@ def test_edit_unauthorised_default(reset, test_channel, test_user, new_user): # 
         message.message_edit(third_user['token'], new_message['message_id'], 'New Message')
 
 
-def test_edit_invalidtoken(reset, test_channel, test_user): # pylint: disable=W0613
+def test_edit_invalidtoken(reset, test_channel, test_user):
     '''
     Testing that an invalid token will raise an AccessError.
     '''

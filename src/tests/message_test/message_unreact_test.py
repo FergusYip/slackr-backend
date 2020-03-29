@@ -44,7 +44,7 @@ def test_unreact_multiple(reset, new_channel, new_user):
     message.message_unreact(second_user['token'], message_info['message_id'], 1)
 
 
-def test_unreact_invalid_message(reset, test_channel, test_user):
+def test_unreact_invalid_message(reset, test_user):
     '''
     Testing that attempting to unreact to an invalid message will result
     in an InputError being raised.

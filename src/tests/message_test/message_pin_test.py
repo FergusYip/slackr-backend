@@ -22,7 +22,7 @@ def test_pin(reset, test_channel, test_user):
     message.message_pin(test_user['token'], message_info['message_id'])
 
 
-def test_pin_invalid_message(reset, test_channel, test_user):
+def test_pin_invalid_message(reset, test_user):
     '''
     Testing that attempting to pin an invalid message will raise an
     InputError.
