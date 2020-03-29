@@ -46,7 +46,7 @@ def test_standup_start(reset, new_user, new_channel):  # pylint: disable=W0613
     # should be empty before 1s has passed.
     assert not message_hist['messages']
 
-    sleep(1.1)
+    sleep(2)
 
     message_hist = requests.get(
         f'{BASE_URL}/channel/messages', params=history_in).json()
@@ -92,7 +92,7 @@ def test_start_return(reset, new_user, new_channel):  # pylint: disable=W0613
         start_in['length']
     finish = requests.post(f'{BASE_URL}/standup/start', json=start_in).json()
 
-    sleep(1.1)
+    sleep(2)
 
     assert finish_exp == finish['time_finish']
 

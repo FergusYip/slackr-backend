@@ -74,7 +74,7 @@ def test_standup_send(reset, new_user, new_channel):
     # should be empty before 1s has passed.
     assert not message_hist['messages']
 
-    sleep(1.1)
+    sleep(2)
 
     after_sleep = requests.get(
         f'{BASE_URL}/channel/messages', params=history_in).json()

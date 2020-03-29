@@ -54,9 +54,9 @@ def test_return(reset, new_user, new_channel):  # pylint: disable=W0613
 
     assert active_out['is_active']
 
-    sleep(1.1)
+    sleep(2)
 
-    assert active_out['is_active'] is None
+    assert active_out['is_active'] is False
 
 
 def test_insufficient_params(reset):  # pylint: disable=W0613
