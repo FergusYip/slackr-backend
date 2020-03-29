@@ -10,7 +10,7 @@ from error import AccessError, InputError
 # ===== TESTING USER PROFILE SET HANDLE FUNCTION ======
 # =====================================================
 
-def test_profile_sethandle(reset, test_user): # pylint: disable=W0613
+def test_profile_sethandle(reset, test_user):
     '''
     Average case test where a user will change their handle to a different
     valid handle.
@@ -22,7 +22,7 @@ def test_profile_sethandle(reset, test_user): # pylint: disable=W0613
     assert profile_info['handle_str'] == 'knownhandle'
 
 
-def test_profile_sethandle_below_char_limit(reset, test_user): # pylint: disable=W0613
+def test_profile_sethandle_below_char_limit(reset, test_user):
     '''
     Case where a handle change should result in an InputError if the new
     handle is fewer than 2 characters (2 not inclusive).
@@ -32,7 +32,7 @@ def test_profile_sethandle_below_char_limit(reset, test_user): # pylint: disable
         user.user_profile_sethandle(test_user['token'], 'i' * 1)
 
 
-def test_profile_sethandle_above_char_limit(reset, test_user): # pylint: disable=W0613
+def test_profile_sethandle_above_char_limit(reset, test_user):
     '''
     Case where a handle change should result in an InputError if the new
     handle is greater than 20 characters (20 not inclusive).
@@ -42,7 +42,7 @@ def test_profile_sethandle_above_char_limit(reset, test_user): # pylint: disable
         user.user_profile_sethandle(test_user['token'], 'i' * 21)
 
 
-def test_profile_sethandle_existing_handle(reset, test_user, new_user): # pylint: disable=W0613
+def test_profile_sethandle_existing_handle(reset, test_user, new_user):
     '''
     Case where a user attempts to change their handle to an existing handle.
     '''
@@ -54,7 +54,7 @@ def test_profile_sethandle_existing_handle(reset, test_user, new_user): # pylint
         user.user_profile_sethandle(test_user['token'], 'knownhandle')
 
 
-def test_profile_sethandle_no_change(reset, test_user): # pylint: disable=W0613
+def test_profile_sethandle_no_change(reset, test_user):
     '''
     Case where a user attempts to change their handle to their current handle.
     '''
@@ -67,7 +67,7 @@ def test_profile_sethandle_no_change(reset, test_user): # pylint: disable=W0613
     assert isinstance(return_type, dict)
 
 
-def test_profile_sethandle_invalidtoken(reset, invalid_token): # pylint: disable=W0613
+def test_profile_sethandle_invalidtoken(reset, invalid_token):
     '''
     Case where an invalid token is passed into the function.
     '''
