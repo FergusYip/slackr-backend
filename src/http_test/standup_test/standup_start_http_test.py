@@ -24,7 +24,7 @@ def test_standup_start(reset, new_user, new_channel):  # pylint: disable=W0613
         'length': 1
     }
 
-    requests.post(f'{BASE_URL}/standup/start', json=start_in).json()
+    requests.post(f'{BASE_URL}/standup/start', json=start_in)
 
     message_in = {
         'token': user['token'],
