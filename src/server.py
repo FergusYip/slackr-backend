@@ -44,9 +44,9 @@ APP.register_error_handler(Exception, defaultHandler)
 def route_admin_userpermission_change():
     '''Flask route for /admin/userpermission/change'''
     payload = request.get_json()
-    token = payload['token']
-    u_id = payload['u_id']
-    permission_id = payload['permission_id']
+    token = payload.get('token')
+    u_id = payload.get('u_id')
+    permission_id = payload.get('permission_id')
     return dumps(admin.admin_userpermission_change(token, u_id, permission_id))
 
 
@@ -65,8 +65,8 @@ def route_auth_register():
 def route_auth_login():
     '''Flask route for /auth/login'''
     payload = request.get_json()
-    email = payload['email']
-    password = payload['password']
+    email = payload.get('email')
+    password = payload.get('password')
     return dumps(auth.auth_login(email, password))
 
 
@@ -74,7 +74,7 @@ def route_auth_login():
 def route_auth_logout():
     '''Flask route for /auth/logout'''
     payload = request.get_json()
-    token = payload['token']
+    token = payload.get('token')
     return dumps(auth.auth_logout(token))
 
 
