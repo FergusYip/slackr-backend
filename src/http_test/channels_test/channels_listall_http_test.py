@@ -56,3 +56,11 @@ def test_listall_invalid_token(reset, invalid_token):  # pylint: disable=W0613
     with pytest.raises(requests.HTTPError):
         requests.get(f'{BASE_URL}/channels/listall',
                      params=listall_input).raise_for_status()
+
+
+def test_listall_insufficient_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into channels_listall'''
+
+    with pytest.raises(requests.HTTPError):
+        requests.get(f"{BASE_URL}/channels/listall",
+                     params={}).raise_for_status()

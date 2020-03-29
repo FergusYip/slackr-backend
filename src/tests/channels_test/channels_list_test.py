@@ -1,7 +1,7 @@
 ''' System tests for channels_list'''
 import pytest
 import channels
-from error import AccessError
+from error import AccessError, InputError
 
 
 def test_list(reset, new_user):  # pylint: disable=W0613
@@ -43,3 +43,10 @@ def test_list_invalid_token(reset, invalid_token):  # pylint: disable=W0613
     '''Test that channels_list raises an AccessError when given invalid token'''
     with pytest.raises(AccessError):
         channels.channels_list(invalid_token)
+
+
+def test_list_invalid_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into channels_list'''
+
+    with pytest.raises(InputError):
+        channels.channels_list(None)

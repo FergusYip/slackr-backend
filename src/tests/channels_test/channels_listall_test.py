@@ -1,7 +1,7 @@
 ''' System tests for channels_listall'''
 import pytest
 import channels
-from error import AccessError
+from error import AccessError, InputError
 
 
 def test_listall(reset, test_user):  # pylint: disable=W0613
@@ -43,3 +43,10 @@ def test_listall_invalid_token(reset, invalid_token):  # pylint: disable=W0613
     '''Test that channels_create raises an AccessError when given invalid token'''
     with pytest.raises(AccessError):
         channels.channels_listall(invalid_token)
+
+
+def test_listall_invalid_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into channels_listall'''
+
+    with pytest.raises(InputError):
+        channels.channels_listall(None)

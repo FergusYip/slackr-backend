@@ -120,3 +120,11 @@ def test_create_invalid_token(reset, invalid_token):  # pylint: disable=W0613
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/channels/create',
                       json=create_input).raise_for_status()
+
+
+def test_create_insufficient_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into channels_create'''
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f"{BASE_URL}/channels/create",
+                      json={}).raise_for_status()

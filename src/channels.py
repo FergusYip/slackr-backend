@@ -29,9 +29,9 @@ def route_channels_listall():
 def route_channels_create():
     '''Flask route for /channels/create'''
     payload = request.get_json()
-    token = payload['token']
-    name = payload['name']
-    is_public = payload['is_public']
+    token = payload.get('token')
+    name = payload.get('name')
+    is_public = payload.get('is_public')
     return dumps(channels_create(token, name, is_public))
 
 
@@ -45,6 +45,9 @@ def channels_list(token):
 		channels (list): List of channels
 
 	"""
+    if token is None:
+        raise InputError(description='Insufficient parameters')
+
     token_payload = decode_token(token)
     u_id = token_payload['u_id']
     channels = []
@@ -69,6 +72,10 @@ def channels_listall(token):
 		channels (list): List of channels
 
 	"""
+
+    if token is None:
+        raise InputError(description='Insufficient parameters')
+
     decode_token(token)
 
     channels = []
@@ -94,6 +101,10 @@ def channels_create(token, name, is_public):
 		channel_id  (int): Channel ID
 
 	"""
+
+    if None in {token, name, is_public}:
+        raise InputError(description='Insufficient parameters')
+
     token_payload = decode_token(token)
 
     if invalid_channel_name(name):
