@@ -11,7 +11,7 @@ from error import AccessError, InputError
 # ========== TESTING USER PROFILE FUNCTION ============
 # =====================================================
 
-def test_averagecase_uid(reset, test_user): # pylint: disable=W0613
+def test_averagecase_uid(reset, test_user):
     '''
     Testing an average case where a user will request profile information
     about themselves.
@@ -21,7 +21,7 @@ def test_averagecase_uid(reset, test_user): # pylint: disable=W0613
 
     assert test_user['u_id'] == profile_information['u_id']
 
-def test_averagecase_otheruser(reset, test_user, new_user): # pylint: disable=W0613
+def test_averagecase_otheruser(reset, test_user, new_user):
     '''
     Testing an average case where a user will request profile information
     about another user.
@@ -34,7 +34,7 @@ def test_averagecase_otheruser(reset, test_user, new_user): # pylint: disable=W0
     assert user2['u_id'] == profile_information['u_id']
 
 
-def test_averagecase_email(reset, test_user): # pylint: disable=W0613
+def test_averagecase_email(reset, test_user):
     '''
     Testing that the user_profile function returns the correct email.
     '''
@@ -45,7 +45,7 @@ def test_averagecase_email(reset, test_user): # pylint: disable=W0613
     assert  profile_information['email'] == 'test@test.com'
 
 
-def test_averagecase_firstname(reset, test_user): # pylint: disable=W0613
+def test_averagecase_firstname(reset, test_user):
     '''
     Testing that the user_profile function returns the correct first name.
     '''
@@ -56,7 +56,7 @@ def test_averagecase_firstname(reset, test_user): # pylint: disable=W0613
     assert profile_information['name_first'] == 'Lorem'
 
 
-def test_averagecase_lastname(reset, test_user): # pylint: disable=W0613
+def test_averagecase_lastname(reset, test_user):
     '''
     Testing that the user_profile function returns the correct last name.
     '''
@@ -67,7 +67,7 @@ def test_averagecase_lastname(reset, test_user): # pylint: disable=W0613
     assert profile_information['name_last'] == 'Ipsum'
 
 
-def test_averagecase_handle(reset, test_user): # pylint: disable=W0613
+def test_averagecase_handle(reset, test_user):
     '''
     Testing that the user_profile function returns the correct handle.
     '''
@@ -78,7 +78,7 @@ def test_averagecase_handle(reset, test_user): # pylint: disable=W0613
     assert profile_information['handle_str'] == 'testhandle'
 
 
-def test_invalid_uid(reset, test_user): # pylint: disable=W0613
+def test_invalid_uid(reset, test_user):
     '''
     Testing the user_profile function if an incorrect u_id is input.
     '''
@@ -87,7 +87,7 @@ def test_invalid_uid(reset, test_user): # pylint: disable=W0613
         user.user_profile(test_user['token'], -1)
 
 
-def test_invalid_token(reset, test_user): # pylint: disable=W0613
+def test_invalid_token(reset, test_user):
     '''
     Testing that the user_profile function if an invalid token is input.
     '''

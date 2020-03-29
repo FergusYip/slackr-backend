@@ -10,7 +10,7 @@ from error import AccessError, InputError
 # ===== TESTING USER PROFILE SET EMAIL FUNCTION =======
 # =====================================================
 
-def test_setemail_return(reset, test_user): # pylint: disable=W0613
+def test_setemail_return(reset, test_user):
     '''
     Testing the return type of the setemail function.
     '''
@@ -20,7 +20,7 @@ def test_setemail_return(reset, test_user): # pylint: disable=W0613
     assert isinstance(return_type, dict)
 
 
-def test_profile_setemail(reset, test_user): # pylint: disable=W0613
+def test_profile_setemail(reset, test_user):
     '''
     Testing an average case where a user will change their own email to
     a valid and unique email address.
@@ -32,7 +32,7 @@ def test_profile_setemail(reset, test_user): # pylint: disable=W0613
     assert profile_info['email'] == 'tester@test.com'
 
 
-def test_profile_setemail_used_by_other_user(reset, test_user, new_user): # pylint: disable=W0613
+def test_profile_setemail_used_by_other_user(reset, test_user, new_user):
     '''
     Testing a case where a user attempts to change their email address to
     one that is already in use.
@@ -46,7 +46,7 @@ def test_profile_setemail_used_by_other_user(reset, test_user, new_user): # pyli
         user.user_profile_setemail(second_user['token'], 'test@test.com')
 
 
-def test_profile_setemail_no_change(reset, test_user): # pylint: disable=W0613
+def test_profile_setemail_no_change(reset, test_user):
     '''
     Testing a case where the user attempts to change their email address
     to their current one.
@@ -60,7 +60,7 @@ def test_profile_setemail_no_change(reset, test_user): # pylint: disable=W0613
     assert isinstance(return_type, dict)
 
 
-def test_profile_setemail_invalidtoken(reset, invalid_token): # pylint: disable=W0613
+def test_profile_setemail_invalidtoken(reset, invalid_token):
     '''
     Testing a case where an invalid token is input into the function. This
     will result in an AccessError being raised.
@@ -70,7 +70,7 @@ def test_profile_setemail_invalidtoken(reset, invalid_token): # pylint: disable=
         user.user_profile_setemail(invalid_token, 'test@test.com')
 
 
-def test_profile_setemail_valid_emails(reset, test_user, valid_emails): # pylint: disable=W0613
+def test_profile_setemail_valid_emails(reset, test_user, valid_emails):
     '''
     Testing the user_profile_setemail function against the pytest fixture
     featuring a tuple of valid emails.
@@ -83,7 +83,7 @@ def test_profile_setemail_valid_emails(reset, test_user, valid_emails): # pylint
         assert profile_info['email'] == email
 
 
-def test_profile_setemail_invalid_emails(reset, test_user, invalid_emails): # pylint: disable=W0613
+def test_profile_setemail_invalid_emails(reset, test_user, invalid_emails):
     '''
     Testing the user_profile_setemail function against the pytest fixture
     featuring a tuple of invalid emails.
