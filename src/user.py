@@ -191,5 +191,4 @@ def user_profile_sethandle(token, handle_str):
     return {}
 
 if __name__ == "__main__":
-    APP.run(debug=True,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    pass

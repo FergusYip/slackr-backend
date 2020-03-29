@@ -150,10 +150,10 @@ def auth_logout(token):
     decode_token(token)
     data_store['token_blacklist'].append(token)
 
+    is_success = False
+
     if token in data_store['token_blacklist']:
         is_success = True
-    else:
-        is_success = False
 
     return {'is_success': is_success}
 
