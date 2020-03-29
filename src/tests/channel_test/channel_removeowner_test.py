@@ -183,3 +183,10 @@ def test_removeowner_invalid_token(reset, dummy_user1, channel1,
     with pytest.raises(AccessError):
         channel.channel_removeowner(invalid_token, channel1['channel_id'],
                                     dummy_user1['u_id'])
+
+
+def test_removeowner_insufficient_params(reset):
+    '''Test input of invalid parameters into removeowner'''
+
+    with pytest.raises(InputError):
+        channel.channel_removeowner(None, None, None)

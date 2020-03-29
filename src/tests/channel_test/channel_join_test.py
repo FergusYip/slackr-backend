@@ -142,3 +142,10 @@ def test_join_invalid_token(reset, channel1, invalid_token):  # pylint: disable=
 
     with pytest.raises(AccessError):
         channel.channel_join(invalid_token, channel1['channel_id'])
+
+
+def test_join_insufficient_params(reset):
+    '''Test input of invalid parameters into join'''
+
+    with pytest.raises(InputError):
+        channel.channel_join(None, None)

@@ -186,3 +186,10 @@ def test_messages_invalid_token(reset, channel1, invalid_token):  # pylint: disa
 
     with pytest.raises(AccessError):
         channel.channel_messages(invalid_token, channel1['channel_id'], 0)
+
+
+def test_messages_insufficient_params(reset):
+    '''Test input of invalid parameters into messages'''
+
+    with pytest.raises(InputError):
+        channel.channel_messages(None, None, None)
