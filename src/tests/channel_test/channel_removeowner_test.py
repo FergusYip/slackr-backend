@@ -185,6 +185,33 @@ def test_removeowner_invalid_token(reset, dummy_user1, channel1,
                                     dummy_user1['u_id'])
 
 
+def test_removeowner_not_member(reset, new_user, new_channel):
+    '''
+    Test that a error is raised when the authorised user is not a member
+    '''
+
+    owner = new_user(email='owner@email.com')
+    member = new_user(email='member@email.com')
+    test_channel = new_channel(owner)
+
+    with pytest.raises(InputError):
+        channel.channel_removeowner(owner['token'], test_channel['channel_id'],
+                                    member['u_id'])
+
+
+def test_removeowner_invalid_u_id(reset, new_user, new_channel):
+    '''
+    Test that a error is raised when the authorised user is not a owner
+    '''
+
+    owner = new_user(email='owner@email.com')
+    test_channel = new_channel(owner)
+
+    with pytest.raises(InputError):
+        channel.channel_removeowner(owner['token'], test_channel['channel_id'],
+                                    -1)
+
+
 def test_removeowner_insufficient_params(reset):
     '''Test input of invalid parameters into removeowner'''
 
