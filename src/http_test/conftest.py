@@ -8,7 +8,7 @@ BASE_URL = 'http://127.0.0.1:8080'
 @pytest.fixture
 def reset():
     '''Fixture for resetting the workspace'''
-    requests.post(f"{BASE_URL}/workspace/reset")
+    requests.post(f'{BASE_URL}/workspace/reset')
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def new_user():
             'name_first': name_first,
             'name_last': name_last
         }
-        user = requests.post(f"{BASE_URL}/auth/register",
+        user = requests.post(f'{BASE_URL}/auth/register',
                              json=user_info).json()
         return user
 
@@ -36,7 +36,7 @@ def invalid_token(new_user):
     '''Fixture for a creating an invalid token'''
     user = new_user()
     token = user['token']
-    requests.post(f"{BASE_URL}/auth/logout", json={'token': token})
+    requests.post(f'{BASE_URL}/auth/logout', json={'token': token})
     return token
 
 
@@ -49,7 +49,7 @@ def new_channel():
             'name': name,
             'is_public': is_public
         }
-        channel = requests.post(f"{BASE_URL}/channels/create",
+        channel = requests.post(f'{BASE_URL}/channels/create',
                                 json=channel_info).json()
         return channel
 
@@ -61,7 +61,7 @@ def get_user_profile():
     '''Factory as a fixture for a retrieving user info'''
     def _get_user_profile(token, u_id):
         payload = {'token': token, 'u_id': u_id}
-        user_profile = requests.get(f"{BASE_URL}/user/profile",
+        user_profile = requests.get(f'{BASE_URL}/user/profile',
                                     params=payload).json()
         return user_profile
 
@@ -73,7 +73,7 @@ def get_channel_details():
     '''Factory as a fixture for a retrieving channel details'''
     def _get_channel_details(token, channel_id):
         payload = {'token': token, 'channel_id': channel_id}
-        details = requests.get(f"{BASE_URL}/channel/details",
+        details = requests.get(f'{BASE_URL}/channel/details',
                                params=payload).json()
         return details
 
