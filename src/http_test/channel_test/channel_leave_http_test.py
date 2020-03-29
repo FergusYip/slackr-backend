@@ -8,7 +8,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_leave_new(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_leave_new(reset, new_user, new_channel):
     '''
     Testing channel leave function for a public channel.
     '''
@@ -37,7 +37,7 @@ def test_leave_new(reset, new_user, new_channel):  # pylint: disable=W0613
     assert len(details['all_members']) == 1
 
 
-def test_leave_ch(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_leave_ch(reset, new_user, new_channel):
     '''
     Testing channel leave function for an invalid channel_id
     '''
@@ -53,7 +53,7 @@ def test_leave_ch(reset, new_user, new_channel):  # pylint: disable=W0613
                       json=input_dict).raise_for_status()
 
 
-def test_leave_owner(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_leave_owner(reset, new_user, new_channel):
     '''
     Testing channel leave for owner member.
     '''
@@ -80,7 +80,7 @@ def test_leave_owner(reset, new_user, new_channel):  # pylint: disable=W0613
     assert len(details['owner_members']) == 0
 
 
-def test_leave_member(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_leave_member(reset, new_user, new_channel):
     '''
     Testing channel leave for non-member.
     '''
@@ -95,3 +95,10 @@ def test_leave_member(reset, new_user, new_channel):  # pylint: disable=W0613
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/channel/leave',
                       json=input_dict).raise_for_status()
+
+
+def test_leave_insufficient_params(reset):
+    '''Test input of invalid parameters into leave'''
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f"{BASE_URL}/channel/leave", json={}).raise_for_status()

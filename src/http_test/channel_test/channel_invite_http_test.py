@@ -8,7 +8,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_invite_channel(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_invite_channel(reset, new_user, new_channel):
     '''
     Testing channel invite for a public channel.
     '''
@@ -34,7 +34,7 @@ def test_invite_channel(reset, new_user, new_channel):  # pylint: disable=W0613
     assert len(details['all_members']) == 2
 
 
-def test_invalid_user(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_invalid_user(reset, new_user, new_channel):
     '''
     Testing channel invite function for a non-existent user.
     '''
@@ -54,7 +54,7 @@ def test_invalid_user(reset, new_user, new_channel):  # pylint: disable=W0613
                       json=input_dict).raise_for_status()
 
 
-def test_invalid_channel(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_invalid_channel(reset, new_user, new_channel):
     '''
     Testing channel invite for a non-existent channel.
     '''
@@ -74,7 +74,7 @@ def test_invalid_channel(reset, new_user, new_channel):  # pylint: disable=W0613
                       json=input_dict).raise_for_status()
 
 
-def test_invite_access(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_invite_access(reset, new_user, new_channel):
     '''
     Testing case when inviting user is not a member of a channel
     '''
@@ -93,3 +93,10 @@ def test_invite_access(reset, new_user, new_channel):  # pylint: disable=W0613
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/channel/invite',
                       json=input_dict).raise_for_status()
+
+
+def test_invite_insufficient_params(reset):
+    '''Test input of invalid parameters into invite'''
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f"{BASE_URL}/channel/invite", json={}).raise_for_status()

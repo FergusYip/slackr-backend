@@ -8,7 +8,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_messages_send(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_messages_send(reset, new_user, new_channel):
     '''
     Testing message send function.
     '''
@@ -50,7 +50,40 @@ def test_messages_send(reset, new_user, new_channel):  # pylint: disable=W0613
     assert message_history['start'] == 0
 
 
-def test_message_remove(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_messages_react(reset, new_user, new_channel, send_msg):
+    '''
+    Testing message send function.
+    '''
+
+    user = new_user(email='user_1@email.com')
+    channel = new_channel(user)
+
+    msg = send_msg(user['token'], channel['channel_id'], 'hello')
+
+    react_input = {
+        'token': user['token'],
+        'message_id': msg['message_id'],
+        'react_id': 1
+    }
+
+    requests.post(f'{BASE_URL}/message/react', json=react_input)
+
+    messages_input = {
+        'token': user['token'],
+        'channel_id': channel['channel_id'],
+        'start': 0
+    }
+
+    channel_messages = requests.get(f'{BASE_URL}/channel/messages',
+                                    params=messages_input).json()
+
+    assert len(channel_messages['messages']) == 1
+    assert channel_messages['start'] == 0
+
+    assert len(channel_messages['messages'][0]['reacts']) == 1
+
+
+def test_message_remove(reset, new_user, new_channel):
     '''
     Testing message function after removal.
     '''
@@ -82,7 +115,7 @@ def test_message_remove(reset, new_user, new_channel):  # pylint: disable=W0613
     assert len(message_history['messages']) == 0
 
 
-def test_invalid_id(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_invalid_id(reset, new_user, new_channel):
     '''
     Testing channel messages when invalid channel id is passed.
     '''
@@ -97,7 +130,7 @@ def test_invalid_id(reset, new_user, new_channel):  # pylint: disable=W0613
                      params=history_in).raise_for_status()
 
 
-def test_invalid_start(reset, new_user, new_channel, send_msg):  # pylint: disable=W0613
+def test_invalid_start(reset, new_user, new_channel, send_msg):
     '''
     Testing channel messages when invalid start is passed.
     '''
@@ -118,7 +151,7 @@ def test_invalid_start(reset, new_user, new_channel, send_msg):  # pylint: disab
                      params=history_in).raise_for_status()
 
 
-def test_access(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_access(reset, new_user, new_channel):
     '''
     Testing channel messages for non-member user request.
     '''
@@ -145,3 +178,11 @@ def test_access(reset, new_user, new_channel):  # pylint: disable=W0613
     with pytest.raises(requests.HTTPError):
         requests.get(f'{BASE_URL}/channel/messages',
                      params=history_in).raise_for_status()
+
+
+def test_messages_insufficient_params(reset):
+    '''Test input of invalid parameters into messages'''
+
+    with pytest.raises(requests.HTTPError):
+        requests.get(f"{BASE_URL}/channel/messages",
+                     params={}).raise_for_status()
