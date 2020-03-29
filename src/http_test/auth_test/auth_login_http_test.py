@@ -124,3 +124,10 @@ def test_login_email_invalid(reset, invalid_emails):  # pylint: disable=W0613
         with pytest.raises(req.HTTPError):
             req.post(f"{BASE_URL}/auth/login",
                      json=user_info).raise_for_status()
+
+
+def test_login_insufficient_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into auth_login'''
+
+    with pytest.raises(req.HTTPError):
+        req.post(f"{BASE_URL}/auth/login", json={}).raise_for_status()

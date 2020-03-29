@@ -76,3 +76,10 @@ def test_login_email_invalid(reset, invalid_emails):  # pylint: disable=W0613
 
         with pytest.raises(InputError):
             auth.auth_login(email, 'password')
+
+
+def test_login_insufficient_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into auth_login'''
+
+    with pytest.raises(InputError):
+        auth.auth_login(None, None)

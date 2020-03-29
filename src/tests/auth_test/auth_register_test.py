@@ -147,3 +147,10 @@ def test_register_email_invalid(reset, invalid_emails):  # pylint: disable=W0613
     for email in invalid_emails:
         with pytest.raises(InputError):
             auth.auth_register(email, 'password', 'First', 'Last')
+
+
+def test_register_insufficient_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into auth_register'''
+
+    with pytest.raises(InputError):
+        auth.auth_register(None, None, None, None)

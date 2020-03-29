@@ -246,3 +246,10 @@ def test_register_email_invalid(reset, invalid_emails):  # pylint: disable=W0613
         with pytest.raises(req.HTTPError):
             req.post(f"{BASE_URL}/auth/register",
                      json=user_info).raise_for_status()
+
+
+def test_register_insufficient_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into auth_register'''
+
+    with pytest.raises(req.HTTPError):
+        req.post(f"{BASE_URL}/auth/register", json={}).raise_for_status()

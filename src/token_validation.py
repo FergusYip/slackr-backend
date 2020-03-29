@@ -1,3 +1,4 @@
+'''Module to encode and decode JWT'''
 from datetime import datetime, timedelta
 import jwt
 from error import AccessError
@@ -6,6 +7,15 @@ from helpers import get_all_u_id
 
 
 def encode_token(u_id):
+    ''' Encodes a JWT token with user ID, current time, and expiry time
+
+	Parameters:
+		u_id (int): ID of user
+
+	Returns (dict):
+		token (str): JWT
+
+	'''
     payload = {
         'u_id': u_id,
         'iat': datetime.utcnow(),
@@ -16,7 +26,15 @@ def encode_token(u_id):
 
 
 def decode_token(token):
-    '''Decode a given jwt token and return the payload'''
+    ''' Decode a given jwt token
+
+	Parameters:
+		u_id (int): ID of user
+
+	Returns (dict):
+		payload (dict): JWT
+
+	'''
 
     if token in data_store['token_blacklist']:
         raise AccessError(description='Token is invalid')
@@ -28,8 +46,8 @@ def decode_token(token):
     except:
         raise AccessError(description='Token is invalid')
 
-    if payload['iat'] < int(data_store['time_created']):
-        raise AccessError(description='Session has expired')
+    if payload['iat'] < data_store['time_created']:
+        raise AccessError(description='Token no longer valid')
 
     if payload['u_id'] not in get_all_u_id():
         raise AccessError(description='u_id does not belong to a user')

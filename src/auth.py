@@ -3,47 +3,15 @@ Implementation of auth routes for slackr app
 '''
 import math
 import hashlib
-from json import dumps
-from flask import request, Blueprint
 from error import InputError
 from email_validation import invalid_email
 from data_store import data_store
 from token_validation import decode_token, encode_token
 import helpers
 
-AUTH = Blueprint('auth', __name__)
-
-
-@AUTH.route("/auth/register", methods=['POST'])
-def route_auth_register():
-    '''Flask route for /auth/register'''
-    payload = request.get_json()
-    email = payload['email']
-    password = payload['password']
-    name_first = payload['name_first']
-    name_last = payload['name_last']
-    return dumps(auth_register(email, password, name_first, name_last))
-
-
-@AUTH.route("/auth/login", methods=['POST'])
-def route_auth_login():
-    '''Flask route for /auth/login'''
-    payload = request.get_json()
-    email = payload['email']
-    password = payload['password']
-    return dumps(auth_login(email, password))
-
-
-@AUTH.route("/auth/logout", methods=['POST'])
-def route_auth_logout():
-    '''Flask route for /auth/logout'''
-    payload = request.get_json()
-    token = payload['token']
-    return dumps(auth_logout(token))
-
 
 def auth_register(email, password, name_first, name_last):
-    """ Registers a new user
+    ''' Registers a new user
 
 	Parameters:
 		email (str): Email of new user
@@ -55,8 +23,8 @@ def auth_register(email, password, name_first, name_last):
 		u_id (int): User ID
 		token (str): JWT
 
-	"""
-    if not email or not password or not name_first or not name_last:
+	'''
+    if None in {email, password, name_first, name_last}:
         raise InputError(
             description=
             'Insufficient parameters. Requires email, password, name_first, name_last.'
@@ -103,7 +71,7 @@ def auth_register(email, password, name_first, name_last):
 
 
 def auth_login(email, password):
-    """ Logs in existing user
+    ''' Logs in existing user
 
 	Parameters:
 		email (str): Email of user
@@ -113,8 +81,8 @@ def auth_login(email, password):
 		u_id (int): User ID
 		token (str): JWT
 
-	"""
-    if not email or not password:
+	'''
+    if None in {email, password}:
         raise InputError(
             description='Insufficient parameters. Requires email and password.'
         )
@@ -134,7 +102,7 @@ def auth_login(email, password):
 
 
 def auth_logout(token):
-    """ Logs out user
+    ''' Logs out user
 
 	Parameters:
 		token (str): JWT of session
@@ -142,24 +110,24 @@ def auth_logout(token):
 	Returns (dict):
 		is_success (bool): Whether the user has been logged out
 
-	"""
-    if not token:
+	'''
+    if token is None:
         raise InputError(
             description='Insufficient parameters. Requires token.')
 
     decode_token(token)
     data_store['token_blacklist'].append(token)
 
+    is_success = False
+
     if token in data_store['token_blacklist']:
         is_success = True
-    else:
-        is_success = False
 
     return {'is_success': is_success}
 
 
 def invalid_password(password):
-    """ Checks whether a password is invalid
+    ''' Checks whether a password is invalid
 
 	Parameters:
 		password (str): Password
@@ -167,26 +135,26 @@ def invalid_password(password):
 	Returns:
 		(bool): Whether the password is invalid
 
-	"""
+	'''
     if len(password) < 6:
         return True
     return False
 
 
 def default_permission():
-    """ Returns permission level depending on whether there are registered users
+    ''' Returns permission level depending on whether there are registered users
 
 	Returns:
 		permission_id (int): ID of permission level
 
-	"""
+	'''
     if not data_store['users']:
         return data_store['permissions']['owner']
     return data_store['permissions']['member']
 
 
 def hash_pw(password):
-    """ Returns a hashed password
+    ''' Returns a hashed password
 
 	Parameters:
 		password (str): Password
@@ -194,12 +162,12 @@ def hash_pw(password):
 	Returns:
 		hashed password (str): Hashed password
 
-	"""
+	'''
     return hashlib.sha256(password.encode()).hexdigest()
 
 
 def generate_handle(name_first, name_last):
-    """ Generate a handle best on name_first and name_last
+    ''' Generate a handle best on name_first and name_last
 
 	Parameters:
 		name_first (str): First name
@@ -208,7 +176,7 @@ def generate_handle(name_first, name_last):
 	Returns:
 		handle_str (str): Unique handle
 
-	"""
+	'''
     concatentation = name_first.lower() + name_last.lower()
     handle_str = concatentation[:20]
 
@@ -229,5 +197,5 @@ def generate_handle(name_first, name_last):
     return handle_str
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     pass

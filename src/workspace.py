@@ -1,12 +1,10 @@
-from json import dumps
-from flask import Blueprint
+'''
+Implementation of workspace function for slackr app
+'''
 from data_store import data_store
-from datetime import datetime
-
-WORKSPACE = Blueprint('workspace', __name__)
+from helpers import utc_now
 
 
-@WORKSPACE.route("/workspace/reset", methods=['POST'])
 def workspace_reset():
     '''Reset the workspace state'''
     data_store['users'].clear()
@@ -17,10 +15,10 @@ def workspace_reset():
     data_store['max_ids']['channel_id'] = 0
     data_store['max_ids']['message_id'] = 0
 
-    data_store['time_created'] = int(datetime.utcnow().timestamp())
+    data_store['time_created'] = utc_now()
 
-    return dumps({})
+    return {}
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     pass
