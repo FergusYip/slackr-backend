@@ -137,3 +137,13 @@ def test_active_standup(reset, new_user, new_channel):  # pylint: disable=W0613
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/standup/start',
                       json=start_in).raise_for_status()
+
+
+def test_insufficient_params(reset):
+    '''
+    Testing insufficient parameters for standup start
+    '''
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f"{BASE_URL}/standup/start",
+                      json={}).raise_for_status()
