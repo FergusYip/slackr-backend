@@ -55,7 +55,8 @@ def test_empty_owner(reset, new_user, new_channel, get_channel_details):  # pyli
     Testing removeowner when the only owner removes himself as owner.
     '''
 
-    user1 = new_user(email='user_1@email.com')
+    user1 = new_user()
+    user2 = new_user(email='user_2@email.com')
     channel = new_channel(user1)
 
     input_dict = {
