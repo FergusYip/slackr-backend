@@ -80,9 +80,7 @@ def route_auth_logout():
 
 @APP.route("/channel/invite", methods=['POST'])
 def route_channel_invite():
-    '''
-    Flask route to implement channel_invite function.
-    '''
+    '''Flask route for /channel/invite'''
     payload = request.get_json()
     token = payload.get('token')
     channel_id = payload.get('channel_id')
@@ -92,9 +90,7 @@ def route_channel_invite():
 
 @APP.route("/channel/details", methods=['GET'])
 def route_channel_details():
-    '''
-    Flask route to implement channel_invite function.
-    '''
+    '''Flask route for /channel/details'''
     token = request.values.get('token')
     channel_id = request.values.get('channel_id')
     return dumps(channel.channel_details(token, channel_id))
@@ -102,9 +98,7 @@ def route_channel_details():
 
 @APP.route("/channel/messages", methods=['GET'])
 def route_channel_messages():
-    '''
-    Flask route for channel_messages function.
-    '''
+    '''Flask route for /channel/messages'''
     token = request.values.get('token')
     channel_id = request.values.get('channel_id')
     start = request.values.get('start')
@@ -113,9 +107,7 @@ def route_channel_messages():
 
 @APP.route("/channel/leave", methods=['POST'])
 def route_channel_leave():
-    '''
-    Flask route to implement channel_leave function.
-    '''
+    '''Flask route for /channel/leave'''
     payload = request.get_json()
     token = payload.get('token')
     channel_id = payload.get('channel_id')
@@ -124,9 +116,7 @@ def route_channel_leave():
 
 @APP.route("/channel/join", methods=['POST'])
 def route_channel_join():
-    '''
-    Flask route for channel_join function.
-    '''
+    '''Flask route for /channel/join'''
     payload = request.get_json()
     token = payload.get('token')
     channel_id = payload.get('channel_id')
@@ -135,9 +125,7 @@ def route_channel_join():
 
 @APP.route("/channel/addowner", methods=['POST'])
 def route_channel_addowner():
-    '''
-    Flask route for channel_addowner function.
-    '''
+    '''Flask route for /channel/addowner'''
     payload = request.get_json()
     token = payload.get('token')
     channel_id = payload.get('channel_id')
@@ -147,9 +135,7 @@ def route_channel_addowner():
 
 @APP.route("/channel/removeowner", methods=['POST'])
 def route_channel_removeowner():
-    '''
-    Implementing removeowner function by removing user from channel['owner_members']
-    '''
+    '''Flask route for /channel/removeowner'''
     payload = request.get_json()
     token = payload.get('token')
     channel_id = payload.get('channel_id')
@@ -183,119 +169,79 @@ def route_channels_create():
 
 @APP.route("/message/send", methods=['POST'])
 def route_message_send():
-    '''
-    Flask route to call the message_send function.
-    '''
-
+    '''Flask route for /message/send'''
     payload = request.get_json()
-
     token = payload['token']
     channel_id = int(payload['channel_id'])
     message = payload['message']
-
     return dumps(msg.message_send(token, channel_id, message))
 
 
 @APP.route("/message/remove", methods=['DELETE'])
 def route_message_remove():
-    '''
-    Flask route to call the message_remove function.
-    '''
-
+    '''Flask route for /message/remove'''
     payload = request.get_json()
-
     token = payload['token']
     message_id = int(payload['message_id'])
-
     return dumps(msg.message_remove(token, message_id))
 
 
 @APP.route("/message/edit", methods=['PUT'])
 def route_message_edit():
-    '''
-    Flask route to call the message_edit function.
-    '''
-
+    '''Flask route for /message/edit'''
     payload = request.get_json()
-
     token = payload['token']
     message_id = int(payload['message_id'])
     new_message = payload['message']
-
     return dumps(msg.message_edit(token, message_id, new_message))
 
 
 @APP.route("/message/sendlater", methods=['POST'])
 def route_message_sendlater():
-    '''
-    Flask route to call the message_sendlater function.
-    '''
-
+    '''Flask route for /message/sendlater'''
     payload = request.get_json()
-
     token = payload['token']
     channel_id = int(payload['channel_id'])
     message = payload['message']
     time_sent = int(payload['time_sent'])
-
     return dumps(msg.message_sendlater(token, channel_id, message, time_sent))
 
 
 @APP.route("/message/react", methods=['POST'])
 def route_message_react():
-    '''
-    Flask route to call the message_react function.
-    '''
-
+    '''Flask route for /message/react'''
     payload = request.get_json()
-
     token = payload['token']
     message_id = int(payload['message_id'])
     react_id = int(payload['react_id'])
-
     return dumps(msg.message_react(token, message_id, react_id))
 
 
 @APP.route("/message/unreact", methods=['POST'])
 def route_message_unreact():
-    '''
-    Flask route to call the message_unreact function.
-    '''
-
+    '''Flask route for /message/unreact'''
     payload = request.get_json()
-
     token = payload['token']
     message_id = int(payload['message_id'])
     react_id = int(payload['react_id'])
-
     return dumps(msg.message_unreact(token, message_id, react_id))
 
 
 @APP.route("/message/pin", methods=['POST'])
 def route_message_pin():
-    '''
-    Flask route to call the message_pin function.
-    '''
-
+    '''Flask route for /message/pin'''
     payload = request.get_json()
-
     token = payload['token']
     message_id = int(payload['message_id'])
-
     return dumps(msg.message_pin(token, message_id))
 
 
 @APP.route("/message/unpin", methods=['POST'])
 def route_message_unpin():
-    '''
-    Flask route to call the message_unpin function.
-    '''
-
+    '''Flask route for /message/unpin'''
     payload = request.get_json()
-
     token = payload['token']
     message_id = int(payload['message_id'])
-
     return dumps(msg.message_unpin(token, message_id))
 
 
@@ -344,62 +290,43 @@ def route_standup_send():
 
 @APP.route('/user/profile', methods=['GET'])
 def route_user_profile():
-    '''
-    Flask route to call the user_profile function.
-    '''
-
+    '''Flask route for /user/profile'''
     token = request.values.get('token')
     target_user = int(request.values.get('u_id'))
-
     return dumps(user.user_profile(token, target_user))
 
 
 @APP.route('/user/profile/setname', methods=['PUT'])
 def route_user_profile_setname():
-    '''
-    Flask route to call the user_profile_setname function.
-    '''
-
+    '''Flask route for /user/profile/setname'''
     payload = request.get_json()
-
     token = payload['token']
     first_name = payload['name_first']
     last_name = payload['name_last']
-
     return dumps(user.user_profile_setname(token, first_name, last_name))
 
 
 @APP.route('/user/profile/setemail', methods=['PUT'])
 def route_user_profile_setemail():
-    '''
-    Flask route to call the user_profile_setemail function.
-    '''
-
+    '''Flask route for /user/profile/setemail'''
     payload = request.get_json()
-
     token = payload['token']
     desired_email = payload['email']
-
     return dumps(user.user_profile_setemail(token, desired_email))
 
 
 @APP.route('/user/profile/sethandle', methods=['PUT'])
 def route_user_profile_sethandle():
-    '''
-    Flask route to call the user_profile_sethandle function.
-    '''
-
+    '''Flask route for /user/profile/sethandle'''
     payload = request.get_json()
-
     token = payload['token']
     desired_handle = payload['handle_str']
-
     return dumps(user.user_profile_sethandle(token, desired_handle))
 
 
 @APP.route("/workspace/reset", methods=['POST'])
 def route_workspace_reset():
-    ''' Flask route for /workspace/reset in slackr'''
+    ''' Flask route for /workspace/reset'''
     return dumps(workspace.workspace_reset())
 
 
