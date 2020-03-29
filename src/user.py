@@ -1,22 +1,123 @@
-def user_profile(token, u_id):
-    return {
-        'user': {
-        	'u_id': 1,
-        	'email': 'cs1531@cse.unsw.edu.au',
-        	'name_first': 'Hayden',
-        	'name_last': 'Jacobs',
-        	'handle_str': 'hjacobs',
-        },
+'''
+Functionality for users of the program to get other user's profile information,
+as well as change their own personal information.
+'''
+
+from error import InputError
+from email_validation import invalid_email
+from token_validation import decode_token
+import helpers
+
+# ======================================================================
+# =================== FUNCTION IMPLEMENTATION ==========================
+# ======================================================================
+
+
+def user_profile(token, target_uid):
+    '''
+    Function that will return the profile information of a desired
+    user on the Slackr platform.
+    '''
+
+    # By calling the decode function, multiple error checks are performed.
+    decode_token(token)
+
+    if helpers.get_user(target_uid) is None:
+        raise InputError(description='User ID is not a valid user')
+
+    user_info = helpers.get_user(target_uid)
+
+    user_return = {
+        'u_id': user_info['u_id'],
+        'email': user_info['email'],
+        'name_first': user_info['name_first'],
+        'name_last': user_info['name_last'],
+        'handle_str': user_info['handle_str']
     }
 
-def user_profile_setname(token, name_first, name_last):
-    return {
-    }
+    return user_return
+
+
+def user_profile_setname(token, first_name, last_name):
+    '''
+    Function that will take a desired first and last name and will change
+    the authorized user's information to be updated with this information.
+    '''
+
+    token_info = decode_token(token)
+    user_id = token_info['u_id']
+
+    if not helpers.user_check_name(first_name):
+        raise InputError(
+            description='First name is not between 1 and 50 characters')
+
+    if not helpers.user_check_name(last_name):
+        raise InputError(
+            description='Last name is not between 1 and 50 characters')
+
+    helpers.user_change_first_last_name(user_id, first_name, last_name)
+
+    return {}
+
 
 def user_profile_setemail(token, email):
-    return {
-    }
+    '''
+    Function that will take a desired email and will change
+    the authorized user's information to be updated with this information.
+    '''
+
+    token_info = decode_token(token)
+    user_id = token_info['u_id']
+
+    user_info = helpers.get_user(user_id)
+
+    if email == user_info['email']:
+        # To stop an error occurring when the user either types their current
+        # email address, or accidently presses the edit button. Assists with
+        # a greater user experience.
+        return {}
+
+    if invalid_email(email):
+        raise InputError(description='Email address is invalid')
+
+    if helpers.is_email_used(email):
+        raise InputError(
+            description='Email address is already being used by another user')
+
+    helpers.user_change_email(user_id, email)
+
+    return {}
+
 
 def user_profile_sethandle(token, handle_str):
-    return {
-    }
+    '''
+    Function that will take a desired handle and will change the authorized
+    user's information to reflect this new handle.
+    '''
+
+    token_info = decode_token(token)
+    user_id = token_info['u_id']
+
+    user_info = helpers.get_user(user_id)
+
+    if handle_str == user_info['handle_str']:
+        # To stop an error occurring when the user either types their current
+        # handle, or accidently presses the edit button. Assists with a greater
+        # user experience.
+        return {}
+
+    if not helpers.handle_length_check(handle_str):
+        raise InputError(
+            description='Handle is not between 2 and 20 characters')
+
+    if helpers.is_handle_used(handle_str):
+        raise InputError(
+            description='Handle is already being used by another user')
+
+    helpers.user_change_handle(user_id, handle_str)
+
+    return {}
+
+
+if __name__ == '__main__':
+    pass
