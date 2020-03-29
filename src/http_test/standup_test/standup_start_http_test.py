@@ -139,7 +139,7 @@ def test_active_standup(reset, new_user, new_channel):  # pylint: disable=W0613
                       json=start_in).raise_for_status()
 
 
-def test_insufficient_params(reset):
+def test_insufficient_params(reset):  # pylint: disable=W0613
     '''
     Testing insufficient parameters for standup start
     '''
