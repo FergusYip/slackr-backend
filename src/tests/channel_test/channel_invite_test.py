@@ -137,7 +137,7 @@ def test_invite_access(reset, dummy_user1, dummy_user2, channel2):  # pylint: di
     Testing case when inviting user is not a member of a channel
     '''
     with pytest.raises(AccessError):
-        channel.channel_invite(dummy_user1['token'], channel2,
+        channel.channel_invite(dummy_user1['token'], channel2['channel_id'],
                                dummy_user2['u_id'])
 
 
