@@ -222,7 +222,7 @@ def channel_addowner(token, channel_id, u_id):
 
     token_data = decode_token(token)
     channel = helpers.get_channel(channel_id)
-    auth_user = token_data['token']
+    auth_user = token_data['u_id']
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -244,7 +244,7 @@ def channel_addowner(token, channel_id, u_id):
     if helpers.is_channel_member(u_id, channel_id) is False:
         channel['all_members'].append(u_id)
 
-    channel['owner_members'].append(u_id)
+    helpers.channel_add_owner(channel_id, u_id)
 
     return {}
 
