@@ -84,7 +84,7 @@ def test_send_empty(reset, test_channel, test_user, new_user): # pylint: disable
         message.message_send(test_user['token'], test_channel['channel_id'], '')
 
 
-def test_send_invalidtoken(reset, test_channel, test_user, invalid_token): # pylint: disable=W0613
+def test_send_invalidtoken(reset, test_channel, invalid_token): # pylint: disable=W0613
     '''
     Testing that an invalid token will raise an AccessError.
     '''
