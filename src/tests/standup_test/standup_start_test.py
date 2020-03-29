@@ -2,11 +2,11 @@
 System testing the standup_start function.
 '''
 
+from time import sleep
 import pytest
 from error import InputError, AccessError
 import standup
 import channel
-from time import sleep
 
 # =====================================================
 # ========= TESTING STANDUP START FUNCTION ============
