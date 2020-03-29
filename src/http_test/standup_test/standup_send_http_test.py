@@ -9,7 +9,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_invalid_channel(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_invalid_channel(reset, new_user, new_channel):
     '''
     Testing standup send for an invalid channel id.
     '''
@@ -37,7 +37,7 @@ def test_invalid_channel(reset, new_user, new_channel):  # pylint: disable=W0613
                       json=send_in).raise_for_status()
 
 
-def test_standup_send(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_standup_send(reset, new_user, new_channel):
     '''
     Testing the standup send function.
     '''
@@ -76,13 +76,13 @@ def test_standup_send(reset, new_user, new_channel):  # pylint: disable=W0613
 
     sleep(1.1)
 
-    message_hist = requests.get(
+    after_sleep = requests.get(
         f'{BASE_URL}/channel/messages', params=history_in).json()
 
-    assert len(message_hist['messages']) == 1
+    assert len(after_sleep['messages']) == 1
 
 
-def test_too_long(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_too_long(reset, new_user, new_channel):
     '''
     Testing standup send when message is over 1000 characters long.
     '''
@@ -97,7 +97,7 @@ def test_too_long(reset, new_user, new_channel):  # pylint: disable=W0613
     }
 
     # starting standup.
-    requests.post(f'{BASE_URL}/standup/start', json=start_in).json()
+    requests.post(f'{BASE_URL}/standup/start', json=start_in)
 
     send_in = {
         'token': user['token'],
@@ -110,7 +110,35 @@ def test_too_long(reset, new_user, new_channel):  # pylint: disable=W0613
                       json=send_in).raise_for_status()
 
 
-def test_inactive(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_too_short(reset, new_user, new_channel):
+    '''
+    Testing standup send when message is 0 characters long.
+    '''
+
+    user = new_user()
+    channel = new_channel(user)
+
+    start_in = {
+        'token': user['token'],
+        'channel_id': channel['channel_id'],
+        'length': 1
+    }
+
+    # starting standup.
+    requests.post(f'{BASE_URL}/standup/start', json=start_in)
+
+    send_in = {
+        'token': user['token'],
+        'channel_id': channel['channel_id'],
+        'message': ''
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/standup/send',
+                      json=send_in).raise_for_status()
+
+
+def test_inactive(reset, new_user, new_channel):
     '''
     Testing standup send when a standup is not active.
     '''
@@ -130,7 +158,7 @@ def test_inactive(reset, new_user, new_channel):  # pylint: disable=W0613
                       json=send_in).raise_for_status()
 
 
-def test_non_member(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_non_member(reset, new_user, new_channel):
     '''
     Testing standup send when the user is not a member of channel.
     '''
@@ -158,3 +186,13 @@ def test_non_member(reset, new_user, new_channel):  # pylint: disable=W0613
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/standup/send',
                       json=send_in).raise_for_status()
+
+
+def test_insufficient_params(reset):
+    '''
+    Testing insufficient parameters for standup send.
+    '''
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f"{BASE_URL}/standup/send",
+                      json={}).raise_for_status()
