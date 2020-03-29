@@ -14,7 +14,7 @@ def test_removeowner(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
 
     user1 = new_user()
-    user2 = new_user()
+    user2 = new_user(email='user_2@email.com')
     channel = new_channel(user1)
 
     input_dict = {
@@ -59,7 +59,7 @@ def test_empty_owner(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
 
     user1 = new_user()
-    user2 = new_user()
+    user2 = new_user(email='user_2@email.com')
     channel = new_channel(user1)
 
     input_dict = {
@@ -89,7 +89,7 @@ def test_not_owner(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
 
     user1 = new_user()
-    user2 = new_user()
+    user2 = new_user(email='user_2@email.com')
     channel = new_channel(user1)
 
     input_dict = {
@@ -109,7 +109,7 @@ def test_invalid_ch(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
 
     user1 = new_user()
-    user2 = new_user()
+    user2 = new_user(email='user_2@email.com')
     new_channel(user1)
 
     input_dict = {
