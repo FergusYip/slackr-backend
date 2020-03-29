@@ -21,3 +21,10 @@ def test_logout_invalid_token(reset, invalid_token):  # pylint: disable=W0613
     with pytest.raises(req.HTTPError):
         req.post(f"{BASE_URL}/auth/logout",
                  json=logout_input).raise_for_status()
+
+
+def test_logout_insufficient_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into auth_logout'''
+
+    with pytest.raises(req.HTTPError):
+        req.post(f"{BASE_URL}/auth/logout", json={}).raise_for_status()

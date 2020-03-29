@@ -1,7 +1,7 @@
 ''' System tests for auth_logout'''
 import pytest
 import auth
-from error import AccessError
+from error import AccessError, InputError
 
 
 def test_logout(reset, test_user):  # pylint: disable=W0613
@@ -15,3 +15,10 @@ def test_logout_invalid_token(reset, invalid_token):  # pylint: disable=W0613
 
     with pytest.raises(AccessError):
         auth.auth_logout(invalid_token)
+
+
+def test_logout_insufficient_params(reset):  # pylint: disable=W0613
+    '''Test input of invalid parameters into auth_logout'''
+
+    with pytest.raises(InputError):
+        auth.auth_logout(None)
