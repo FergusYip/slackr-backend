@@ -67,6 +67,9 @@ def stop_standup(token, channel_id):
     channel_id = int(channel_id)
     channel = helpers.get_channel(channel_id)
 
+    if channel is None:
+        return  # Unable to raise error in thread
+
     joined_message = ''
     for message in channel['standup']['messages']:
         joined_message += f"{message['handle_str']}: {message['message']}\n"
