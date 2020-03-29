@@ -98,12 +98,9 @@ def test_details_owner(reset, dummy_user1, channel1):  # pylint: disable=W0621
     details = channel.channel_details(dummy_user1['token'],
                                       channel1['channel_id'])
 
-    owner = False
-
-    if dummy_user1['u_id'] in details['owner_members']:
-        owner = True
-
-    assert owner is True
+    assert dummy_user1['u_id'] in [
+        user['u_id'] for user in details['owner_members']
+    ]
 
 
 def test_details_added_owner(reset, dummy_user1, dummy_user2, channel1):  # pylint: disable=W0621
@@ -111,6 +108,8 @@ def test_details_added_owner(reset, dummy_user1, dummy_user2, channel1):  # pyli
     Adding another owner (dummy_user2) to name1 and checking if the channel
     has 2 owners.
     '''
+
+    channel.channel_join(dummy_user2['token'], channel1['channel_id'])
 
     channel.channel_addowner(dummy_user1['token'], channel1['channel_id'],
                              dummy_user2['u_id'])
