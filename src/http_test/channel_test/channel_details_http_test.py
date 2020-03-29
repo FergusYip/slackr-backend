@@ -8,7 +8,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_details_owner(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_details_owner(reset, new_user, new_channel):
     '''
     Checking if channel has dummy_user1 in owner_members.
     '''
@@ -25,7 +25,7 @@ def test_details_owner(reset, new_user, new_channel):  # pylint: disable=W0613
 
 
 def test_details_added_owner(reset, new_user, new_channel,
-                             get_channel_details):  # pylint: disable=W0613
+                             get_channel_details):
     '''
     Adding owners to a channel and checking if the channel has 2 owners.
     '''
@@ -51,7 +51,7 @@ def test_details_added_owner(reset, new_user, new_channel,
     assert len(details['owner_members']) == 2
 
 
-def test_details_all(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_details_all(reset, new_user, new_channel):
     '''
     Checking if channels have 1 user in all_members.
     '''
@@ -70,7 +70,7 @@ def test_details_all(reset, new_user, new_channel):  # pylint: disable=W0613
     assert len(details['all_members']) == 2
 
 
-def test_invalid_ch(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_invalid_ch(reset, new_user, new_channel):
     '''
     Testing case when channel ID is invalid.
     '''
@@ -85,7 +85,7 @@ def test_invalid_ch(reset, new_user, new_channel):  # pylint: disable=W0613
                      params=input_dict).raise_for_status()
 
 
-def test_invalid_user(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_invalid_user(reset, new_user, new_channel):
     '''
     Testing case when user not in channel.
     '''
@@ -99,3 +99,11 @@ def test_invalid_user(reset, new_user, new_channel):  # pylint: disable=W0613
     with pytest.raises(requests.HTTPError):
         requests.get(f'{BASE_URL}/channel/details',
                      params=input_dict).raise_for_status()
+
+
+def test_details_insufficient_params(reset):
+    '''Test input of invalid parameters into details'''
+
+    with pytest.raises(requests.HTTPError):
+        requests.get(f"{BASE_URL}/channel/details",
+                     params={}).raise_for_status()

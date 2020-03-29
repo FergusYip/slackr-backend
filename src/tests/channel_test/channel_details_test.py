@@ -152,3 +152,10 @@ def test_details_invalid_token(reset, channel1, invalid_token):  # pylint: disab
 
     with pytest.raises(AccessError):
         channel.channel_details(invalid_token, channel1['channel_id'])
+
+
+def test_details_insufficient_params(reset):
+    '''Test input of invalid parameters into details'''
+
+    with pytest.raises(InputError):
+        channel.channel_details(None, None)

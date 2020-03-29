@@ -115,6 +115,31 @@ def test_messages_sent(reset, dummy_user1, dummy_user2, channel1):  # pylint: di
     assert history['start'] == 0
 
 
+def test_messages_react(reset, new_user, new_channel):
+    '''
+    Testing message send function.
+    '''
+
+    user = new_user(email='user_1@email.com')
+    test_channel = new_channel(user)
+
+    msg = message.message_send(user['token'], test_channel['channel_id'],
+                               'hello')
+
+    message.message_react(user['token'], msg['message_id'], 1)
+
+    channel_messages = channel.channel_messages(user['token'],
+                                                test_channel['channel_id'], 0)
+
+    assert len(channel_messages['messages']) == 1
+    assert channel_messages['start'] == 0
+
+    assert len(channel_messages['messages'][0]['reacts']) == 1
+
+    react = channel_messages['messages'][0]['reacts'][0]
+    assert react['react_id'] == 1
+
+
 def test_messages_remove(reset, dummy_user1, dummy_user2, channel1):  # pylint: disable=W0621  # pylint: disable=W0621
     '''
     Testing messages function after removal.
@@ -186,3 +211,10 @@ def test_messages_invalid_token(reset, channel1, invalid_token):  # pylint: disa
 
     with pytest.raises(AccessError):
         channel.channel_messages(invalid_token, channel1['channel_id'], 0)
+
+
+def test_messages_insufficient_params(reset):
+    '''Test input of invalid parameters into messages'''
+
+    with pytest.raises(InputError):
+        channel.channel_messages(None, None, None)

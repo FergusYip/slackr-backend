@@ -32,22 +32,9 @@ def channel_invite(token, channel_id, u_id):
             description='The authorised user is not a member of the channel')
 
     if helpers.is_channel_member(u_id, channel_id) is False:
-        add_into_channel(token_data['u_id'], channel_id, u_id)
+        helpers.channel_join(channel_id, u_id)
 
     return {}
-
-
-def add_into_channel(inviter, c_id, invited):
-    '''
-    Appends a user ID into the channel with ID c_id.
-    '''
-    for channel in data_store['channels']:
-        if channel['channel_id'] == c_id:
-            if inviter not in channel['all_members']:
-                raise AccessError(
-                    description='User does not have permission to invite')
-
-            channel['all_members'].append(invited)
 
 
 def channel_details(token, channel_id):

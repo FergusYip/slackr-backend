@@ -149,3 +149,10 @@ def test_invite_invalid_token(reset, dummy_user1, channel1, invalid_token):  # p
     with pytest.raises(AccessError):
         channel.channel_invite(invalid_token, channel1['channel_id'],
                                dummy_user1['u_id'])
+
+
+def test_invite_insufficient_params(reset):
+    '''Test input of invalid parameters into invite'''
+
+    with pytest.raises(InputError):
+        channel.channel_invite(None, None, None)

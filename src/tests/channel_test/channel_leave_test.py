@@ -157,3 +157,10 @@ def test_leave_invalid_token(reset, channel1, invalid_token):  # pylint: disable
 
     with pytest.raises(AccessError):
         channel.channel_leave(invalid_token, channel1['channel_id'])
+
+
+def test_leave_insufficient_params(reset):
+    '''Test input of invalid parameters into leave'''
+
+    with pytest.raises(InputError):
+        channel.channel_leave(None, None)

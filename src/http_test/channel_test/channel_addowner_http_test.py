@@ -8,7 +8,7 @@ import pytest
 BASE_URL = 'http://127.0.0.1:8080'
 
 
-def test_addowner(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_addowner(reset, new_user, new_channel):
     '''
     Testing the addowner function on a public channel.
     '''
@@ -41,7 +41,7 @@ def test_addowner(reset, new_user, new_channel):  # pylint: disable=W0613
     assert len(details['owner_members']) == 2
 
 
-def test_owner(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_owner(reset, new_user, new_channel):
     '''
     Testing the addowner function when a user is already an owner.
     '''
@@ -60,7 +60,7 @@ def test_owner(reset, new_user, new_channel):  # pylint: disable=W0613
                       json=input_dict).raise_for_status()
 
 
-def test_not_owner(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_not_owner(reset, new_user, new_channel):
     '''
     Testing the addowner function when authorized user is not an owner of
     channel
@@ -81,7 +81,7 @@ def test_not_owner(reset, new_user, new_channel):  # pylint: disable=W0613
                       json=input_dict).raise_for_status()
 
 
-def test_invalid_ch(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_invalid_ch(reset, new_user, new_channel):
     '''
     Testing the addowner function when an invalid channel id is passed.
     '''
@@ -101,7 +101,27 @@ def test_invalid_ch(reset, new_user, new_channel):  # pylint: disable=W0613
                       json=input_dict).raise_for_status()
 
 
-def test_invalid_uid(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_not_member(reset, new_user, new_channel):
+    '''
+    Testing the addowner function when an invalid channel id is passed.
+    '''
+
+    owner = new_user(email='owner@email.com')
+    stranger = new_user(email='stranger@email.com')
+    channel = new_channel(owner)
+
+    input_dict = {
+        'token': owner['token'],
+        'channel_id': channel['channel_id'],
+        'u_id': stranger['u_id']
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/addowner',
+                      json=input_dict).raise_for_status()
+
+
+def test_invalid_uid(reset, new_user, new_channel):
     '''
     Testing the addowner function when an invalid user id is passed.
     '''
@@ -118,3 +138,11 @@ def test_invalid_uid(reset, new_user, new_channel):  # pylint: disable=W0613
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/channel/addowner',
                       json=input_dict).raise_for_status()
+
+
+def test_addowner_insufficient_params(reset):
+    '''Test input of invalid parameters into add_owner'''
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f"{BASE_URL}/channel/addowner",
+                      json={}).raise_for_status()
