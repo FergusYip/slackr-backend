@@ -1,10 +1,13 @@
+'''
+System testing the standup_send function.
+'''
+
+from time import sleep
 import pytest
 from error import InputError, AccessError
-from datetime import datetime, timezone
 import standup
 import auth
 import channel
-from time import sleep
 
 # =====================================================
 # ========== TESTING STANDUP SEND FUNCTION ============
@@ -37,7 +40,7 @@ def test_standupsend(reset, test_channel, test_user):
     sleep(1.1)
 
     message_list = channel.channel_messages(test_user['token'], test_channel['channel_id'], 0)
-    
+
     # Assert that there is a message in the zero'th index position.
     assert message_list['messages'][0]['message']
 
@@ -59,7 +62,7 @@ def test_standupsend_invalidchannel(reset, test_user):
     Testing that attempting to send a message in standup mode
     in an invalid channel will raise an error.
     '''
-    
+
     with pytest.raises(InputError):
         standup.standup_send(test_user['token'], 1, 'Message')
 

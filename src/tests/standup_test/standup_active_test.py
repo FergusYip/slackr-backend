@@ -2,12 +2,11 @@
 System testing the standup_active function.
 '''
 
+from datetime import datetime, timezone
+from time import sleep
 import pytest
 from error import InputError, AccessError
-from datetime import datetime, timezone
 import standup
-import channel
-from time import sleep
 
 NoneType = type(None)
 
@@ -22,7 +21,7 @@ def test_active_return(reset, test_channel, test_user):
 
     standup.standup_start(test_user['token'], test_channel['channel_id'], 1)
     standup_return = standup.standup_active(test_user['token'], test_channel['channel_id'])
-    
+
     assert isinstance(standup_return, dict)
     assert isinstance(standup_return['is_active'], bool)
     assert isinstance(standup_return['time_finish'], int)
@@ -30,7 +29,7 @@ def test_active_return(reset, test_channel, test_user):
     sleep(1.1)
 
     standup_return = standup.standup_active(test_user['token'], test_channel['channel_id'])
-    
+
     assert isinstance(standup_return, dict)
     assert isinstance(standup_return['is_active'], bool)
     assert isinstance(standup_return['time_finish'], NoneType)
