@@ -82,6 +82,9 @@ def test_messages_react(reset, new_user, new_channel, send_msg):
 
     assert len(channel_messages['messages'][0]['reacts']) == 1
 
+    react = channel_messages['messages'][0]['reacts'][0]
+    assert react['react_id'] == 1
+
 
 def test_message_remove(reset, new_user, new_channel):
     '''
