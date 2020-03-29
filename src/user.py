@@ -3,81 +3,10 @@ Functionality for users of the program to get other user's profile information,
 as well as change their own personal information.
 '''
 
-import sys
-from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
 from error import InputError
 from email_validation import invalid_email
 from token_validation import decode_token
 import helpers
-
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
-
-USER = Blueprint('user', __name__)
-
-# ======================================================================
-# ======================== FLASK ROUTES ================================
-# ======================================================================
-
-
-@USER.route('/user/profile', methods=['GET'])
-def route_user_profile():
-    '''
-    Flask route to call the user_profile function.
-    '''
-
-    token = request.values.get('token')
-    target_user = int(request.values.get('u_id'))
-
-    return dumps(user_profile(token, target_user))
-
-
-@USER.route('/user/profile/setname', methods=['PUT'])
-def route_user_profile_setname():
-    '''
-    Flask route to call the user_profile_setname function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    first_name = payload['name_first']
-    last_name = payload['name_last']
-
-    return dumps(user_profile_setname(token, first_name, last_name))
-
-
-@USER.route('/user/profile/setemail', methods=['PUT'])
-def route_user_profile_setemail():
-    '''
-    Flask route to call the user_profile_setemail function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    desired_email = payload['email']
-
-    return dumps(user_profile_setemail(token, desired_email))
-
-
-@USER.route('/user/profile/sethandle', methods=['PUT'])
-def route_user_profile_sethandle():
-    '''
-    Flask route to call the user_profile_sethandle function.
-    '''
-
-    payload = request.get_json()
-
-    token = payload['token']
-    desired_handle = payload['handle_str']
-
-    return dumps(user_profile_sethandle(token, desired_handle))
-
 
 # ======================================================================
 # =================== FUNCTION IMPLEMENTATION ==========================
@@ -190,5 +119,5 @@ def user_profile_sethandle(token, handle_str):
     return {}
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     pass

@@ -2,100 +2,10 @@
 Implementing channel functions -
 invite, details, messages, leave, join, addowner, removeowner
 '''
-
-from json import dumps
-from flask import Flask, request, Blueprint
-from flask_cors import CORS
 from error import AccessError, InputError
 from data_store import data_store
 from token_validation import decode_token
 import helpers
-
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
-
-CHANNEL = Blueprint('channel', __name__)
-
-
-@CHANNEL.route("/channel/invite", methods=['POST'])
-def route_channel_invite():
-    '''
-    Flask route to implement channel_invite function.
-    '''
-    payload = request.get_json()
-    token = payload.get('token')
-    channel_id = payload.get('channel_id')
-    u_id = payload.get('u_id')
-    return dumps(channel_invite(token, channel_id, u_id))
-
-
-@CHANNEL.route("/channel/details", methods=['GET'])
-def route_channel_details():
-    '''
-    Flask route to implement channel_invite function.
-    '''
-    token = request.values.get('token')
-    channel_id = request.values.get('channel_id')
-    return dumps(channel_details(token, channel_id))
-
-
-@CHANNEL.route("/channel/messages", methods=['GET'])
-def route_channel_messages():
-    '''
-    Flask route for channel_messages function.
-    '''
-    token = request.values.get('token')
-    channel_id = request.values.get('channel_id')
-    start = request.values.get('start')
-    return dumps(channel_messages(token, channel_id, start))
-
-
-@CHANNEL.route("/channel/leave", methods=['POST'])
-def route_channel_leave():
-    '''
-    Flask route to implement channel_leave function.
-    '''
-    payload = request.get_json()
-    token = payload.get('token')
-    channel_id = payload.get('channel_id')
-    return dumps(channel_leave(token, channel_id))
-
-
-@CHANNEL.route("/channel/join", methods=['POST'])
-def route_channel_join():
-    '''
-    Flask route for channel_join function.
-    '''
-    payload = request.get_json()
-    token = payload.get('token')
-    channel_id = payload.get('channel_id')
-    return dumps(channel_join(token, channel_id))
-
-
-@CHANNEL.route("/channel/addowner", methods=['POST'])
-def route_channel_addowner():
-    '''
-    Flask route for channel_addowner function.
-    '''
-    payload = request.get_json()
-    token = payload.get('token')
-    channel_id = payload.get('channel_id')
-    u_id = payload.get('u_id')
-    return dumps(channel_addowner(token, channel_id, u_id))
-
-
-@CHANNEL.route("/channel/removeowner", methods=['POST'])
-def route_channel_removeowner():
-    '''
-    Implementing removeowner function by removing user from channel['owner_members']
-    '''
-    payload = request.get_json()
-    token = payload.get('token')
-    channel_id = payload.get('channel_id')
-    u_id = payload.get('u_id')
-    return dumps(channel_removeowner(token, channel_id, u_id))
 
 
 def channel_invite(token, channel_id, u_id):
@@ -370,3 +280,7 @@ def channel_removeowner(token, channel_id, u_id):
     channel['owner_members'].remove(u_id)
 
     return {}
+
+
+if __name__ == '__main__':
+    pass
