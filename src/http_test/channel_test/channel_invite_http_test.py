@@ -10,9 +10,7 @@ BASE_URL = 'http://127.0.0.1:8080'
 
 def test_invite_channel(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
-    Testing channel invite function with valid and invalid channel details.
-    Inviting dummy_user2 to channel1, and attempting to invite dummy_user2 
-    to a channel with invalid channel_id.
+    Testing channel invite for a public channel.
     '''
 
     user1 = new_user()
@@ -39,10 +37,9 @@ def test_invite_channel(reset, new_user, new_channel):  # pylint: disable=W0613
     assert len(details['all_members']) == 2
 
 
-def test_invite_user(reset, new_user, new_channel):  # pylint: disable=W0613
+def test_invalid_user(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
     Testing channel invite function for a non-existent user.
-    Checking if dummy_user2 is in channel1 using a loop.
     '''
 
     user1 = new_user()
@@ -53,6 +50,26 @@ def test_invite_user(reset, new_user, new_channel):  # pylint: disable=W0613
         'token': user1['token'],
         'channel_id': channel['channel_id'],
         'u_id': 2
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/channel/invite',
+                      json=input_dict).raise_for_status()
+
+
+def test_invalid_channel(reset, new_user, new_channel):  # pylint: disable=W0613
+    '''
+    Testing channel invite for a non-existent channel.
+    '''
+    user1 = new_user()
+    user2 = new_user(email='something@google.com')
+
+    new_channel(user1)
+
+    input_dict = {
+        'token': user1['token'],
+        'channel_id': -1,
+        'u_id': user2['u_id']
     }
 
     with pytest.raises(requests.HTTPError):
