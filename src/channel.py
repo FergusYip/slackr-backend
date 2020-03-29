@@ -241,7 +241,7 @@ def channel_addowner(token, channel_id, u_id):
         raise InputError(description='User does not exist.')
 
     # input error if user already an owner of channel.
-    if helpers.is_user_admin(u_id, channel_id) is True:
+    if u_id in channel['owner_members']:
         raise InputError(description='User already owner of channel.')
 
     # access error when authorized user not owner of channel.
