@@ -11,7 +11,7 @@ BASE_URL = 'http://127.0.0.1:8080'
 def test_invite_channel(reset, new_user, new_channel):  # pylint: disable=W0613
     '''
     Testing channel invite function with valid and invalid channel details.
-    Inviting dummy_user2 to channel1, and attempting to invite dummy_user2 
+    Inviting dummy_user2 to channel1, and attempting to invite dummy_user2
     to a channel with invalid channel_id.
     '''
 
