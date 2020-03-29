@@ -115,9 +115,7 @@ def is_channel_member(user_id, channel_id):
 	"""
 
     channel = get_channel(channel_id)
-    if user_id in channel['all_members']:
-        return True
-    return False
+    return user_id in channel['all_members']
 
 
 def utc_now():

@@ -19,11 +19,17 @@ def channel_invite(token, channel_id, u_id):
     u_id = int(u_id)
 
     token_data = decode_token(token)
+    auth_user = token_data['u_id']
 
     if helpers.get_user(u_id) is None:
         raise InputError(description='User does not exist.')
 
-    if not helpers.is_channel_member(u_id, channel_id):
+    if helpers.is_channel_member(auth_user, channel_id) is False:
+        raise AccessError(
+            description=
+            'The authorised user is not already a member of the channel')
+
+    if helpers.is_channel_member(u_id, channel_id) is False:
         add_into_channel(token_data['u_id'], channel_id, u_id)
 
     return {}
