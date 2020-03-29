@@ -49,15 +49,21 @@ def test_invalidated_token(reset, new_user):
 
 def test_reset_token(reset, new_user):
     '''Test that an token is no longer valid after a reset raises an AccessError'''
-    user = new_user()
+    user = new_user(email='test_user@email.com')
     token = user['token']
-    workspace_reset()
     sleep(1)
+    workspace_reset()
     with pytest.raises(AccessError):
         decode_token(token)
 
 
 def test_userless_token(reset, new_user):
     '''Test that an token containing a invalid u_id raises an AccessError'''
+    payload = {
+        'u_id': -1,
+        'iat': datetime.utcnow(),
+        'exp': datetime.utcnow() + timedelta(minutes=30)
+    }
+    token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
     with pytest.raises(AccessError):
-        decode_token(None)
+        decode_token(token)
