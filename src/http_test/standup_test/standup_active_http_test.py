@@ -50,11 +50,14 @@ def test_return(reset, new_user, new_channel):  # pylint: disable=W0613
     }
 
     active_out = requests.get(
-        f'{BASE_URL}/standup/active', params=active_in).raise_for_status()
+        f'{BASE_URL}/standup/active', params=active_in).json()
 
-    assert active_out['is_active'] is True
+    assert active_out['is_active']
 
-    sleep(1.1)
+    sleep(2)
+
+    active_out = requests.get(
+        f'{BASE_URL}/standup/active', params=active_in).json()
 
     assert active_out['is_active'] is False
 
