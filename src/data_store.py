@@ -3,8 +3,6 @@ import threading
 import pickle
 from datetime import datetime
 
-SECRET = 'the chunts'
-
 try:
     data_store = pickle.load(open('data_store.p', 'rb'))
 except FileNotFoundError:
