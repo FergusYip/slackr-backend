@@ -4,154 +4,101 @@ System tests for channel details function.
 
 import pytest
 import channel
-import channels
-import auth
 from error import InputError
 from error import AccessError
 
-# ================================= MAKING USERS ====================================
 
-
-# Making a dummy user (dummy_user1) with valid details.
-@pytest.fixture
-def dummy_user1():
+def test_details_owner(reset, new_user, new_channel):
     '''
-    Pytest fixture for a dummy user for testing.
+    Checking if channe1 owner is in owner_members.
     '''
 
-    dummy_user1 = auth.auth_register('something.else@domain.com',
-                                     'GreatPassword04', 'something', 'else')
-    return dummy_user1
+    user = new_user(email='user@email.com')
+    test_channel = new_channel(user)
+
+    details = channel.channel_details(user['token'],
+                                      test_channel['channel_id'])
+
+    assert user['u_id'] in [user['u_id'] for user in details['owner_members']]
 
 
-# Making another dummy user (dummy_user2) with valid details.
-@pytest.fixture
-def dummy_user2():
+def test_details_added_owner(reset, new_user, new_channel):
     '''
-    Pytest fixture for a dummy user for testing.
-    '''
-
-    dummy_user2 = auth.auth_register('dummy.user@domain.com',
-                                     'BetterPassword09', 'dummy', 'user')
-    return dummy_user2
-
-
-# Making another dummy user (dummy_user3) with valid details.
-@pytest.fixture
-def dummy_user3():
-    '''
-    Pytest fixture for a dummy user for testing.
+    Test if details returns an updated number of channel owners
     '''
 
-    dummy_user3 = auth.auth_register('dummy.user3@domain.com',
-                                     'ReallCoolPassword9800!', 'dummy',
-                                     'three')
-    return dummy_user3
+    owner = new_user(email='owner@email.com')
+    member = new_user(email='member@email.com')
+    test_channel = new_channel(owner)
+    channel.channel_join(member['token'], test_channel['channel_id'])
 
+    details = channel.channel_details(owner['token'],
+                                      test_channel['channel_id'])
 
-# ================================= MAKING CHANNELS ====================================
+    assert len(details['owner_members']) == 1
 
+    channel.channel_addowner(owner['token'], test_channel['channel_id'],
+                             member['u_id'])
 
-# Making a dummy channel (channel1) with valid details.
-@pytest.fixture
-def channel1(reset, dummy_user1):  # pylint: disable=W0621
-    '''
-    Pytest fixture for a dummy channel for testing.
-    '''
-
-    c_id1 = channels.channels_create(dummy_user1['token'], 'name1', True)
-    return c_id1
-
-
-# Making another dummy channel (channel2) with valid details.
-@pytest.fixture
-def channel2(reset, dummy_user2):  # pylint: disable=W0621
-    '''
-    Pytest fixture for a dummy channel for testing.
-    '''
-
-    c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
-    return c_id2
-
-
-# Making a private dummy channel (channel_priv) with valid details.
-@pytest.fixture
-def channel_priv(reset, dummy_user3):  # pylint: disable=W0621
-    '''
-    Pytest fixture for a dummy channel for testing.
-    '''
-
-    c_priv = channels.channels_create(dummy_user3['token'], 'name3', False)
-    return c_priv
-
-
-# ===================================================================================
-# testing channel_details function.
-# ===================================================================================
-
-
-def test_details_owner(reset, dummy_user1, channel1):  # pylint: disable=W0621
-    '''
-    Checking if channe1 has dummy_user1 in owner_members.
-    '''
-
-    details = channel.channel_details(dummy_user1['token'],
-                                      channel1['channel_id'])
-
-    assert dummy_user1['u_id'] in [
-        user['u_id'] for user in details['owner_members']
-    ]
-
-
-def test_details_added_owner(reset, dummy_user1, dummy_user2, channel1):  # pylint: disable=W0621
-    '''
-    Adding another owner (dummy_user2) to name1 and checking if the channel
-    has 2 owners.
-    '''
-
-    channel.channel_join(dummy_user2['token'], channel1['channel_id'])
-
-    channel.channel_addowner(dummy_user1['token'], channel1['channel_id'],
-                             dummy_user2['u_id'])
-
-    details = channel.channel_details(dummy_user1['token'],
-                                      channel1['channel_id'])
+    details = channel.channel_details(owner['token'],
+                                      test_channel['channel_id'])
 
     assert len(details['owner_members']) == 2
 
 
-def test_details_all(reset, dummy_user1, channel1):  # pylint: disable=W0621
+def test_details_all(reset, new_user, new_channel):
     '''
-    Checking if channel1 has 1 user in all_members.
+    Check if details contain correct number of members
     '''
 
-    details = channel.channel_details(dummy_user1['token'],
-                                      channel1['channel_id'])
+    owner = new_user(email='owner@email.com')
+    test_channel = new_channel(owner)
+
+    details = channel.channel_details(owner['token'],
+                                      test_channel['channel_id'])
 
     assert len(details['all_members']) == 1
 
+    member = new_user(email='member@email.com')
+    channel.channel_join(member['token'], test_channel['channel_id'])
 
-def test_details_invalid(reset, dummy_user1, channel2):  # pylint: disable=W0621
+    details = channel.channel_details(owner['token'],
+                                      test_channel['channel_id'])
+
+    assert len(details['all_members']) == 2
+
+
+def test_details_invalid_channel_id(reset, new_user):
     '''
     Testing case when channel ID is invalid.
+    '''
+
+    user = new_user(email='user@email.com')
+
+    with pytest.raises(InputError):
+        channel.channel_details(user['token'], -1)
+
+
+def test_details_not_member(reset, new_user, new_channel):
+    '''
     Testing case when user asking for details isn't part of the channel.
     '''
 
-    with pytest.raises(InputError):
-        channel.channel_details(dummy_user1['token'], -1)
+    owner = new_user(email='owner@email.com')
+    stranger = new_user(email='stranger@email.com')
+    test_channel = new_channel(owner)
 
-    # Testing case when the user asking for details isn't part of the channel.
     with pytest.raises(AccessError):
-        channel.channel_details(dummy_user1['token'], channel2['channel_id'])
+        channel.channel_details(stranger['token'], test_channel['channel_id'])
 
 
-def test_details_invalid_token(reset, channel1, invalid_token):  # pylint: disable=W0621
+def test_details_invalid_token(reset, test_channel, invalid_token):
     '''
     Testing case when the token passed into the channel_details() function is invalid.
     '''
 
     with pytest.raises(AccessError):
-        channel.channel_details(invalid_token, channel1['channel_id'])
+        channel.channel_details(invalid_token, test_channel['channel_id'])
 
 
 def test_details_insufficient_params(reset):
