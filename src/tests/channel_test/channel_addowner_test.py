@@ -116,17 +116,18 @@ def test_addowner_owner_self(reset, dummy_user1, channel1):  # pylint: disable=W
                                  dummy_user1['u_id'])
 
 
-def test_addowner_owner(reset, dummy_user2, dummy_user3, channel1):  # pylint: disable=W0621
+def test_addowner_owner(reset, channel1, dummy_user2, dummy_user3):  # pylint: disable=W0621
     '''
     Checking for AccessError when a user that is not an owner of the channel tries to
     call the channel_addowner() function.
     '''
 
-    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
     channel.channel_join(dummy_user2['token'], channel1['channel_id'])
+    channel.channel_join(dummy_user3['token'], channel1['channel_id'])
 
-    channel.channel_addowner(dummy_user2['token'], channel1['channel_id'],
-                             dummy_user3['u_id'])
+    with pytest.raises(AccessError):
+        channel.channel_addowner(dummy_user2['token'], channel1['channel_id'],
+                                 dummy_user3['u_id'])
 
 
 def test_addowner_cid(reset, dummy_user1, dummy_user2, channel1):  # pylint: disable=W0621
