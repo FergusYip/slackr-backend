@@ -11,7 +11,7 @@ from message import message_send
 STANDUP = Blueprint('standup', __name__)
 
 
-@STANDUP.route("/start", methods=['POST'])
+@STANDUP.route("/standup/start", methods=['POST'])
 def route_standup_start():
     payload = request.get_json()
     token = payload['token']
@@ -20,14 +20,14 @@ def route_standup_start():
     return dumps(standup_start(token, channel_id, length))
 
 
-@STANDUP.route("/active", methods=['GET'])
+@STANDUP.route("/standup/active", methods=['GET'])
 def route_standup_active():
     token = request.values.get('token')
     channel_id = int(request.values.get('channel_id'))
     return dumps(standup_active(token, channel_id))
 
 
-@STANDUP.route("/send", methods=['POST'])
+@STANDUP.route("/standup/send", methods=['POST'])
 def route_standup_send():
     payload = request.get_json()
     token = payload['token']
