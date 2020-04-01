@@ -169,13 +169,13 @@ def message_react(token, message_id, react_id):
     message_id = int(message_id)
     message = data_store.get_message(message_id)
 
+    if message is None or message not in user.viewable_messages:
+        raise InputError(description='Message does not exist')
+
     react_id = int(react_id)
     react = message.get_react(react_id)
 
     channel = message.channel
-
-    if message is None or message not in user.viewable_messages:
-        raise InputError(description='Message does not exist')
 
     if channel.is_member(user.u_id):
         raise InputError(description='User is not in the channel')
