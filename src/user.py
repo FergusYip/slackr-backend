@@ -3,68 +3,10 @@ Functionality for users of the program to get other user's profile information,
 as well as change their own personal information.
 '''
 
-from json import dumps
-from flask import request, Blueprint
 from error import InputError
 from email_validation import invalid_email
 from token_validation import decode_token
 from data_store import data_store
-import helpers
-
-USER = Blueprint('user', __name__)
-
-# ======================================================================
-# ======================== FLASK ROUTES ================================
-# ======================================================================
-
-
-@USER.route('/user/profile', methods=['GET'])
-def route_user_profile():
-    '''
-    Flask route to call the user_profile function.
-    '''
-    token = request.values.get('token')
-    u_id = request.values.get('u_id')
-    return dumps(user_profile(token, u_id))
-
-
-@USER.route('/user/profile/setname', methods=['PUT'])
-def route_user_profile_setname():
-    '''
-    Flask route to call the user_profile_setname function.
-    '''
-    payload = request.get_json()
-    token = payload.get('token')
-    name_first = payload.get('name_first')
-    name_last = payload.get('name_last')
-    return dumps(user_profile_setname(token, name_first, name_last))
-
-
-@USER.route('/user/profile/setemail', methods=['PUT'])
-def route_user_profile_setemail():
-    '''
-    Flask route to call the user_profile_setemail function.
-    '''
-    payload = request.get_json()
-    token = payload.get('token')
-    email = payload.get('email')
-    return dumps(user_profile_setemail(token, email))
-
-
-@USER.route('/user/profile/sethandle', methods=['PUT'])
-def route_user_profile_sethandle():
-    '''
-    Flask route to call the user_profile_sethandle function.
-    '''
-    payload = request.get_json()
-    token = payload.get('token')
-    handle_str = payload.get('handle_str')
-    return dumps(user_profile_sethandle(token, handle_str))
-
-
-# ======================================================================
-# =================== FUNCTION IMPLEMENTATION ==========================
-# ======================================================================
 
 
 def user_profile(token, u_id):
@@ -95,11 +37,11 @@ def user_profile_setname(token, name_first, name_last):
     u_id = token_info['u_id']
     user = data_store.get_user(u_id)
 
-    if not helpers.user_check_name(name_first):
+    if not 1 <= len(name_first) <= 50:
         raise InputError(
             description='First name is not between 1 and 50 characters')
 
-    if not helpers.user_check_name(name_last):
+    if not 1 <= len(name_last) <= 50:
         raise InputError(
             description='Last name is not between 1 and 50 characters')
 
@@ -154,7 +96,7 @@ def user_profile_sethandle(token, handle_str):
         # user experience.
         return {}
 
-    if not helpers.handle_length_check(handle_str):
+    if not 2 <= len(handle_str) <= 20:
         raise InputError(
             description='Handle is not between 2 and 20 characters')
 
@@ -167,5 +109,5 @@ def user_profile_sethandle(token, handle_str):
     return {}
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     pass

@@ -1,47 +1,16 @@
 '''
 Implementation of auth routes for slackr app
 '''
-from json import dumps
-from flask import request, Blueprint
+
 from error import InputError
 from email_validation import invalid_email
 from data_store import data_store, User
 from token_validation import decode_token, encode_token
 import helpers
 
-AUTH = Blueprint('auth', __name__)
-
-
-@AUTH.route("/auth/register", methods=['POST'])
-def route_auth_register():
-    '''Flask route for /auth/register'''
-    payload = request.get_json()
-    email = payload.get('email')
-    password = payload.get('password')
-    name_first = payload.get('name_first')
-    name_last = payload.get('name_last')
-    return dumps(auth_register(email, password, name_first, name_last))
-
-
-@AUTH.route("/auth/login", methods=['POST'])
-def route_auth_login():
-    '''Flask route for /auth/login'''
-    payload = request.get_json()
-    email = payload['email']
-    password = payload['password']
-    return dumps(auth_login(email, password))
-
-
-@AUTH.route("/auth/logout", methods=['POST'])
-def route_auth_logout():
-    '''Flask route for /auth/logout'''
-    payload = request.get_json()
-    token = payload['token']
-    return dumps(auth_logout(token))
-
 
 def auth_register(email, password, name_first, name_last):
-    """ Registers a new user
+    ''' Registers a new user
 
 	Parameters:
 		email (str): Email of new user
@@ -53,8 +22,7 @@ def auth_register(email, password, name_first, name_last):
 		u_id (int): User ID
 		token (str): JWT
 
-	"""
-
+	'''
     if None in {email, password, name_first, name_last}:
         raise InputError(
             description=
@@ -92,7 +60,7 @@ def auth_register(email, password, name_first, name_last):
 
 
 def auth_login(email, password):
-    """ Logs in existing user
+    ''' Logs in existing user
 
 	Parameters:
 		email (str): Email of user
@@ -102,7 +70,7 @@ def auth_login(email, password):
 		u_id (int): User ID
 		token (str): JWT
 
-	"""
+	'''
     if None in {email, password}:
         raise InputError(
             description='Insufficient parameters. Requires email and password.'
@@ -123,7 +91,7 @@ def auth_login(email, password):
 
 
 def auth_logout(token):
-    """ Logs out user
+    ''' Logs out user
 
 	Parameters:
 		token (str): JWT of session
@@ -131,7 +99,7 @@ def auth_logout(token):
 	Returns (dict):
 		is_success (bool): Whether the user has been logged out
 
-	"""
+	'''
     if token is None:
         raise InputError(
             description='Insufficient parameters. Requires token.')

@@ -1,44 +1,26 @@
-from json import dumps
+'''
+Implementation of standup routes for slackr app
+'''
 import threading
-from flask import request, Blueprint
 from token_validation import decode_token
 from error import AccessError, InputError
 from data_store import data_store
 import helpers
 from message import message_send
 
-STANDUP = Blueprint('standup', __name__)
-
-
-@STANDUP.route("/standup/start", methods=['POST'])
-def route_standup_start():
-    payload = request.get_json()
-    token = payload.get('token')
-    channel_id = payload.get('channel_id')
-    length = payload.get('length')
-    return dumps(standup_start(token, channel_id, length))
-
-
-@STANDUP.route("/standup/active", methods=['GET'])
-def route_standup_active():
-    token = request.values.get('token')
-    channel_id = request.values.get('channel_id')
-    return dumps(standup_active(token, channel_id))
-
-
-@STANDUP.route("/standup/send", methods=['POST'])
-def route_standup_send():
-    payload = request.get_json()
-    token = payload.get('token')
-    channel_id = payload.get('channel_id')
-    message = payload.get('message')
-    return dumps(standup_send(token, channel_id, message))
-
 
 def standup_start(token, channel_id, length):
-    '''
-    Implementation of standup start function.
-    '''
+    ''' Starts a standup in a specified channel
+
+	Parameters:
+		token (str): JWT
+		channel_id (int): ID of the specified channel
+		length (int): Duration of the standup in seconds
+
+	Returns (dict):
+		time_finish (int): Unix timestamp of when the standup finishes
+
+	'''
 
     if None in {token, channel_id, length}:
         raise InputError(description='Insufficient parameters')
@@ -69,6 +51,13 @@ def standup_start(token, channel_id, length):
 
 
 def stop_standup(token, channel):
+    ''' Stops a standup in a specified channel and sends a message containing
+        all standup messages
+
+	Parameters:
+		token (str): JWT
+		channel_id (int): ID of the specified channel
+    '''
 
     standup_message = channel.standup.stop()
 
@@ -77,14 +66,25 @@ def stop_standup(token, channel):
 
 
 def standup_active(token, channel_id):
+    ''' Checks if a standup is active in a specified channel
+
+	Parameters:
+		token (str): JWT
+		channel_id (int): ID of the specified channel
+
+	Returns (dict):
+		is_active (bool): Whether a standup is active in the channel
+		time_finish (int): Unix timestamp of when the standup finishes
+                           (if there is an active standup)
+
+	'''
 
     if None in {token, channel_id}:
         raise InputError(description='Insufficient parameters')
 
-    channel_id = int(channel_id)
-
     decode_token(token)
 
+    channel_id = int(channel_id)
     channel = data_store.get_channel(channel_id)
 
     # input error if channel does not exist.
@@ -98,6 +98,17 @@ def standup_active(token, channel_id):
 
 
 def standup_send(token, channel_id, message):
+    ''' Send a standup message
+
+	Parameters:
+		token (str): JWT
+		channel_id (int): ID of the specified channel
+		message (str): Message
+
+	Returns:
+        (dict) : Empty dictionary
+
+	'''
 
     if None in {token, channel_id, message}:
         raise InputError(description='Insufficient parameters')
@@ -113,9 +124,13 @@ def standup_send(token, channel_id, message):
         raise InputError(description="Channel ID is not a valid channel")
 
     if len(message) > 1000:
-        raise InputError(description='Message is more than 1000 characters')
+        raise InputError(
+            description='Message cannot be more than 1000 characters')
 
-    if channel.standup.is_active is False:
+    if len(message) == 0:
+        raise InputError(description='Message cannot be zero characters')
+
+    if channel['standup']['is_active'] is False:
         raise InputError(
             description=
             'An active standup is not currently running in this channel')

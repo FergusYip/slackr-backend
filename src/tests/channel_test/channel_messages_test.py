@@ -1,151 +1,141 @@
-import channel
-import channels
+'''
+System tests for channel messages function.
+'''
+
 import pytest
-import auth
+import channel
 import message
 from error import InputError
 from error import AccessError
 
-# ================================= MAKING USERS ====================================
 
-# Making a dummy user (dummy_user1) with valid details.
-@pytest.fixture
-def dummy_user1():
-    dummy_user1 = auth.auth_register(
-        'something.else@domain.com', 'GreatPassword04', 'something', 'else')
-    return dummy_user1
-
-
-# Making another dummy user (dummy_user2) with valid details.
-@pytest.fixture
-def dummy_user2():
-    dummy_user2 = auth.auth_register(
-        'dummy.user@domain.com', 'BetterPassword09', 'dummy', 'user')
-    return dummy_user2
-
-# Making another dummy user (dummy_user3) with valid details.
-@pytest.fixture
-def dummy_user3():
-    dummy_user3 = auth.auth_register(
-        'dummy.user3@domain.com', 'ReallCoolPassword9800!', 'dummy', 'three')
-    return dummy_user3
-
-
-# ================================= MAKING CHANNELS ====================================
-
-
-# Making a dummy channel (channel1) with valid details.
-@pytest.fixture
-def channel1(dummy_user1):
-    c_id1 = channels.channels_create(dummy_user1['token'], 'name1', True)
-    return c_id1
-
-
-# Making another dummy channel (channel2) with valid details.
-@pytest.fixture
-def channel2(dummy_user2):
-    c_id2 = channels.channels_create(dummy_user2['token'], 'name2', True)
-    return c_id2
-
-
-# Making a private dummy channel (channel_priv) with valid details.
-@pytest.fixture
-def channel_priv(dummy_user3):
-    c_priv = channels.channels_create(dummy_user3['token'], 'name3', False)
-    return c_priv
-
-
-# ===================================================================================
-# testing channel_messages function.
-# ===================================================================================
-
-
-def test_messages_sent(dummy_user1, dummy_user2, channel1):
+def test_messages_sent(reset, new_user, new_channel):
     '''
-    dummy_user1 sends a message into channel1 and then dummy_user2 sends a reply.
-    assert that the length of the message history is now 2.
-    assert that the start value is actually 0.
+    Testing the message send function in a public channel.
     '''
+    owner = new_user(email='owner@email.com')
+    test_channel = new_channel(owner)
 
-    channel.channel_invite(
-        dummy_user1['token'], channel1['channel_id'], dummy_user2['u_id'])
+    message.message_send(owner['token'], test_channel['channel_id'],
+                         "Im Batman")
 
-    message.message_send(
-        dummy_user1['token'], channel1['channel_id'], "Im Batman")
+    message.message_send(owner['token'], test_channel['channel_id'],
+                         "yeah right")
 
-    message.message_send(
-        dummy_user2['token'], channel1['channel_id'], "yeah right")
-
-    # Getting the history of messages from 0 to 50 (by default) and checking if the length of the history is 2.
-    history = channel.channel_messages(
-        dummy_user1['token'], channel1['channel_id'], 0)
+    # Getting the history of messages from 0 to 50 (by default) and checking if the
+    # length of the history is 2.
+    history = channel.channel_messages(owner['token'],
+                                       test_channel['channel_id'], 0)
 
     assert len(history['messages']) == 2
 
-    assert(history['start'] == 0)
+    assert history['start'] == 0
 
 
-def test_messages_remove(dummy_user2, channel2):
+def test_messages_react(reset, new_user, new_channel):
     '''
-    dummy_user2 sends another message, then removes it. 
-    assert that the length of the message history is still 2.
+    Testing message send function.
     '''
 
-    message_id = message.message_send(
-        dummy_user2['token'], channel2['channel_id'], "idk why I talk to you.")
+    user = new_user(email='user_1@email.com')
+    test_channel = new_channel(user)
 
-    message.message_remove(dummy_user2['token'], message_id['message_id'])
+    msg = message.message_send(user['token'], test_channel['channel_id'],
+                               'hello')
 
-    history = channel.channel_messages(
-        dummy_user2['token'], channel2['channel_id'], 0)
+    message.message_react(user['token'], msg['message_id'], 1)
 
-    assert len(history['messages']) == 0
+    channel_messages = channel.channel_messages(user['token'],
+                                                test_channel['channel_id'], 0)
+
+    assert len(channel_messages['messages']) == 1
+    assert channel_messages['start'] == 0
+
+    assert len(channel_messages['messages'][0]['reacts']) == 1
+
+    react = channel_messages['messages'][0]['reacts'][0]
+    assert react['react_id'] == 1
 
 
-def test_messages_id(dummy_user1):
+def test_messages_remove(reset, new_user, new_channel):
     '''
-    Checking for an InputError when an invalid channel_id is passed into the 
-    channel_messages function.
+    Testing messages function after removal.
+    '''
+
+    owner = new_user(email='owner@email.com')
+    test_channel = new_channel(owner)
+
+    msg = message.message_send(owner['token'], test_channel['channel_id'],
+                               'hello')
+
+    messages = channel.channel_messages(owner['token'],
+                                        test_channel['channel_id'], 0)
+
+    assert len(messages['messages']) == 1
+
+    message.message_remove(owner['token'], msg['message_id'])
+
+    messages = channel.channel_messages(owner['token'],
+                                        test_channel['channel_id'], 0)
+
+    assert len(messages['messages']) == 0
+
+
+def test_messages_id(reset, test_user):
+    '''
+    Testing channel messages when invalid channel id is passed.
     '''
 
     with pytest.raises(InputError):
-        channel.channel_messages(dummy_user1['token'], -1, 0)
+        channel.channel_messages(test_user['token'], -1, 0)
 
 
-def test_messages_start(dummy_user1, channel1):
+def test_messages_start(reset, test_user, test_channel):
     '''
-    Checking for an InputError when the channel_messages function get a start
-    that is greater than the size of the message history
+    Testing channel messages when invalid start is passed.
     '''
-    message.message_send(dummy_user1['token'],
-                         channel1['channel_id'], "I walk")
-    message.message_send(dummy_user1['token'], channel1['channel_id'], "a")
-    message.message_send(dummy_user1['token'],
-                         channel1['channel_id'], "lonely road")
 
-    history = channel.channel_messages(
-        dummy_user1['token'], channel1['channel_id'], 0)
+    message.message_send(test_user['token'], test_channel['channel_id'],
+                         "I walk")
+
+    message.message_send(test_user['token'], test_channel['channel_id'], "a")
+
+    message.message_send(test_user['token'], test_channel['channel_id'],
+                         "lonely road")
+
+    history = channel.channel_messages(test_user['token'],
+                                       test_channel['channel_id'], 0)
 
     with pytest.raises(InputError):
-        channel.channel_messages(
-            dummy_user1['token'], channel1['channel_id'], len(history['messages']) + 1)
+        channel.channel_messages(test_user['token'],
+                                 test_channel['channel_id'],
+                                 len(history['messages']) + 1)
 
 
-def test_messages_access(dummy_user1, channel2):
+def test_messages_access(reset, new_user, test_channel):
     '''
     Checking for an AccessError when a user asks for message history of a channel
     that he is not a member of.
     '''
 
+    stranger = new_user(email='stranger@email.com')
+
     with pytest.raises(AccessError):
-        channel.channel_messages(
-            dummy_user1['token'], channel2['channel_id'], 0)
+        channel.channel_messages(stranger['token'], test_channel['channel_id'],
+                                 0)
 
 
-def test_messages_invalid_token(dummy_user1, channel1, invalid_token):
+def test_messages_invalid_token(reset, test_channel, invalid_token):
     '''
     Testing case when the token passed into the channel_messages() function is invalid.
     '''
 
     with pytest.raises(AccessError):
-        channel.channel_messages(invalid_token, channel1['channel_id'], 0)
+        channel.channel_messages(invalid_token, test_channel['channel_id'], 0)
+
+
+def test_messages_insufficient_params(reset):
+    '''Test input of invalid parameters into messages'''
+
+    with pytest.raises(InputError):
+        channel.channel_messages(None, None, None)

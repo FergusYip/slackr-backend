@@ -1,7 +1,7 @@
+''' Data Store for the slackr backend'''
 import math
 import threading
 import pickle
-from datetime import datetime
 import helpers
 
 SECRET = 'the chunts'
@@ -312,6 +312,10 @@ class DataStore:
     def remove_message(self, message):
         self.messages.remove(message)
 
+    def join_channel(self, user, channel):
+        user.channels.append(channel)
+        channel.all_members.append(user)
+        
     def get_user(self, u_id=None, email=None, handle_str=None):
         for user in self.users:
             if u_id == user.u_id or email == user.email or handle_str == user.handle_str:
@@ -395,22 +399,22 @@ class DataStore:
         for key in self.max_ids:
             self.max_ids[key] = 0
 
-        self.time_created = int(datetime.utcnow().timestamp())
+        self.time_created = helpers.utc_now()
 
 
 try:
-    FILE = open('data_store.p', 'rb')
-    data_store = pickle.load(FILE)
+    data_store = pickle.load(open('data_store.p', 'rb'))
 except FileNotFoundError:
     data_store = DataStore()
 
 
 def save():
-    with open('data_store.p', 'wb') as FILE:
-        pickle.dump(data_store, FILE)
+    '''Save the state of the data_store into a pickle'''
+    pickle.dump(data_store, open('data_store.p', 'wb'))
 
 
 def autosave():
+    '''Thread to save state every second'''
     timer = threading.Timer(1.0, autosave)
     timer.start()
     save()

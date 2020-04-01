@@ -30,18 +30,5 @@ def hash_pw(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-def invalid_password(password):
-    ''' Checks whether a password is invalid
-
-	Parameters:
-		password (str): Password
-
-	Returns:
-		(bool): Whether the password is invalid
-
-	'''
-    return len(password) < 6
-
-
 if __name__ == '__main__':
     pass

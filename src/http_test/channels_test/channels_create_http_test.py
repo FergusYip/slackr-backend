@@ -1,3 +1,4 @@
+'''Pytest script for testing /channels/create route'''
 import requests
 import pytest
 
@@ -21,7 +22,7 @@ def test_create_type(reset, new_user):
     assert isinstance(test_channel['channel_id'], int)
 
 
-def test_create_name(reset, new_user):
+def test_create_name(reset, new_user, get_channel_details):
     '''Test that the channel name matches input'''
     user = new_user()
 
@@ -36,18 +37,11 @@ def test_create_name(reset, new_user):
     channel = requests.post(f'{BASE_URL}/channels/create',
                             json=create_input).json()
 
-    details_input = {
-        'token': user['token'],
-        'channel_id': channel['channel_id']
-    }
-
-    details = requests.get(f'{BASE_URL}/channel/details',
-                           json=details_input).json()
-
+    details = get_channel_details(user['token'], channel['channel_id'])
     assert details['name'] == channel_name
 
 
-def test_create_joined(reset, new_user):
+def test_create_joined(reset, new_user, get_channel_details):
     '''Test the user who created the channel is a member and owner'''
     user = new_user()
 
@@ -60,22 +54,16 @@ def test_create_joined(reset, new_user):
     channel = requests.post(f'{BASE_URL}/channels/create',
                             json=create_input).json()
 
-    details_input = {
-        'token': user['token'],
-        'channel_id': channel['channel_id']
-    }
-
-    details = requests.get(f'{BASE_URL}/channel/details',
-                           json=details_input).json()
+    details = get_channel_details(user['token'], channel['channel_id'])
 
     owner_ids = [owner['u_id'] for owner in details['owner_members']]
-    member_ids = [member['u_id'] for member in details['all_members ']]
+    member_ids = [member['u_id'] for member in details['all_members']]
 
     assert user['u_id'] in owner_ids
-    assert details['name'] == member_ids
+    assert user['u_id'] in member_ids
 
 
-def test_create_private(reset, new_user):
+def test_create_private(reset, new_user, get_channel_details):
     '''Test that an unauthorised user cannot join a private channel'''
 
     owner = new_user(email='owner@email.com')
@@ -84,7 +72,7 @@ def test_create_private(reset, new_user):
     create_input = {
         'token': owner['token'],
         'name': 'Channel Name',
-        'is_public': True
+        'is_public': False
     }
 
     channel = requests.post(f'{BASE_URL}/channels/create',
@@ -99,13 +87,7 @@ def test_create_private(reset, new_user):
         requests.post(f'{BASE_URL}/channel/join',
                       json=join_input).raise_for_status()
 
-    details_input = {
-        'token': owner['token'],
-        'channel_id': channel['channel_id']
-    }
-
-    details = requests.get(f'{BASE_URL}/channel/details',
-                           json=details_input).json()
+    details = get_channel_details(owner['token'], channel['channel_id'])
 
     assert len(details['all_members']) == 1
 
@@ -138,3 +120,11 @@ def test_create_invalid_token(reset, invalid_token):
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/channels/create',
                       json=create_input).raise_for_status()
+
+
+def test_create_insufficient_params(reset):
+    '''Test input of invalid parameters into channels_create'''
+
+    with pytest.raises(requests.HTTPError):
+        requests.post(f"{BASE_URL}/channels/create",
+                      json={}).raise_for_status()

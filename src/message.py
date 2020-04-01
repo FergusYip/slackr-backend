@@ -4,120 +4,11 @@ allow users to send messages, react to messages, pin messages, and alter/remove
 their own messages.
 '''
 
-from json import dumps
 import threading
-from flask import request, Blueprint
 from error import AccessError, InputError
 from data_store import data_store, Message, React
 from token_validation import decode_token
 import helpers
-
-MESSAGE = Blueprint('message', __name__)
-
-# ======================================================================
-# ======================== FLASK ROUTES ================================
-# ======================================================================
-
-
-@MESSAGE.route("/message/send", methods=['POST'])
-def route_message_send():
-    '''
-	Flask route to call the message_send function.
-	'''
-    payload = request.get_json()
-    token = payload.get('token')
-    channel_id = payload.get('channel_id')
-    message = payload.get('message')
-    return dumps(message_send(token, channel_id, message))
-
-
-@MESSAGE.route("/message/remove", methods=['DELETE'])
-def route_message_remove():
-    '''
-	Flask route to call the message_remove function.
-	'''
-    payload = request.get_json()
-    token = payload.get('token')
-    message_id = payload.get('message_id')
-    return dumps(message_remove(token, message_id))
-
-
-@MESSAGE.route("/message/edit", methods=['PUT'])
-def route_message_edit():
-    '''
-	Flask route to call the message_edit function.
-	'''
-    payload = request.get_json()
-    token = payload.get('token')
-    message_id = payload.get('message_id')
-    message = payload.get('message')
-    return dumps(message_edit(token, message_id, message))
-
-
-@MESSAGE.route("/message/sendlater", methods=['POST'])
-def route_message_sendlater():
-    '''
-	Flask route to call the message_sendlater function.
-	'''
-    payload = request.get_json()
-    token = payload.get('token')
-    channel_id = payload.get('channel_id')
-    message = payload.get('message')
-    time_sent = payload.get('time_sent')
-    return dumps(message_sendlater(token, channel_id, message, time_sent))
-
-
-@MESSAGE.route("/message/react", methods=['POST'])
-def route_message_react():
-    '''
-	Flask route to call the message_react function.
-	'''
-    payload = request.get_json()
-    token = payload.get('token')
-    message_id = payload.get('message_id')
-    react_id = payload.get('react_id')
-    return dumps(message_react(token, message_id, react_id))
-
-
-@MESSAGE.route("/message/unreact", methods=['POST'])
-def route_message_unreact():
-    '''
-	Flask route to call the message_unreact function.
-	'''
-    payload = request.get_json()
-    token = payload.get('token')
-    message_id = payload.get('message_id')
-    react_id = payload.get('react_id')
-    return dumps(message_unreact(token, message_id, react_id))
-
-
-@MESSAGE.route("/message/pin", methods=['POST'])
-def route_message_pin():
-    '''
-	Flask route to call the message_pin function.
-	'''
-
-    payload = request.get_json()
-    token = payload.get('token')
-    message_id = payload.get('message_id')
-    return dumps(message_pin(token, message_id))
-
-
-@MESSAGE.route("/message/unpin", methods=['POST'])
-def route_message_unpin():
-    '''
-	Flask route to call the message_unpin function.
-	'''
-
-    payload = request.get_json()
-    token = payload.get('token')
-    message_id = payload.get('message_id')
-    return dumps(message_unpin(token, message_id))
-
-
-# ======================================================================
-# =================== FUNCTION IMPLEMENTATION ==========================
-# ======================================================================
 
 
 def message_send(token, channel_id, message, message_id=None):
@@ -230,6 +121,7 @@ def message_edit(token, message_id, message):
 
     if len(message) == 0 and message_obj in channel.messages:
         channel.remove_message(message_obj)
+        user.messages.remove(message_obj)
     else:
         message_obj.message = message
 
@@ -238,10 +130,9 @@ def message_edit(token, message_id, message):
 
 def message_sendlater(token, channel_id, message, time_sent):
     '''
-	Function that will send a message in a desired channel at a specified
-	time in the future.
-	'''
-
+    Function that will send a message in a desired channel at a specified
+    time in the future.
+    '''
     if None in {token, channel_id, message, time_sent}:
         raise InputError(description='Insufficient parameters')
 
@@ -249,6 +140,7 @@ def message_sendlater(token, channel_id, message, time_sent):
     time_sent = int(time_sent)
 
     time_now = helpers.utc_now()
+
     if time_now > time_sent:
         raise InputError(description='Time to send is in the past')
 
@@ -272,8 +164,7 @@ def message_react(token, message_id, react_id):
         raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
-    u_id = int(token_info['u_id'])
-    user = data_store.get_user(u_id)
+    user = data_store.get_user(token_info['u_id'])
 
     message_id = int(message_id)
     message = data_store.get_message(message_id)
@@ -281,8 +172,13 @@ def message_react(token, message_id, react_id):
     react_id = int(react_id)
     react = message.get_react(react_id)
 
+    channel = message.channel
+
     if message is None or message not in user.viewable_messages:
         raise InputError(description='Message does not exist')
+
+    if channel.is_member(user.u_id):
+        raise InputError(description='User is not in the channel')
 
     if react_id not in data_store.reactions.values():
         raise InputError(description='Reaction type is invalid')
@@ -311,8 +207,7 @@ def message_unreact(token, message_id, react_id):
         raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
-    u_id = int(token_info['u_id'])
-    user = data_store.get_user(u_id)
+    user = data_store.get_user(token_info['u_id'])
 
     message_id = int(message_id)
     message = data_store.get_message(message_id)
@@ -320,15 +215,27 @@ def message_unreact(token, message_id, react_id):
     react_id = int(react_id)
     react = message.get_react(react_id)
 
+    channel = message.channel
+
     if message is None or message not in user.viewable_messages:
         raise InputError(description='Message does not exist')
+
+    if channel.is_member(user.u_id):
+        raise InputError(description='User is not in the channel')
 
     if react_id not in data_store.reactions.values():
         raise InputError(description='Reaction type is invalid')
 
+    if data_store.get_react(message_id, react_id) is None:
+        raise InputError(
+            description='Message does not have this type of reaction')
+
     if react is None:
         raise InputError(
             description='Message does not have this type of reaction')
+
+    if user.u_id not in react.u_ids:
+        raise InputError(description='User has not reacted to this message')
 
     if user in react.users:
         react.remove_user(user)
