@@ -262,10 +262,10 @@ def message_pin(token, message_id):
     message_id = int(message_id)
     message = data_store.get_message(message_id)
 
-    channel = message.channel
-
     if message is None:
         raise InputError(description='Message does not exist')
+
+    channel = message.channel
 
     if data_store.is_admin_or_owner(user, channel) is False:
         raise InputError(
