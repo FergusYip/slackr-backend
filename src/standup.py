@@ -130,7 +130,7 @@ def standup_send(token, channel_id, message):
     if len(message) == 0:
         raise InputError(description='Message cannot be zero characters')
 
-    if channel['standup']['is_active'] is False:
+    if channel.standup.is_active is False:
         raise InputError(
             description=
             'An active standup is not currently running in this channel')
