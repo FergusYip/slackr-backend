@@ -68,13 +68,13 @@ def message_remove(token, message_id):
     message_id = int(message_id)
     message = data_store.get_message(message_id)
 
-    channel = message.channel
-
     if message is None:
         raise InputError(description='Message does not exist')
 
+    channel = message.channel
+
     if not (message.u_id == u_id
-            and data_store.is_admin_or_owner(user, channel)):
+            or data_store.is_admin_or_owner(user, channel)):
         raise AccessError(
             description='User does not have access to remove this message')
 
@@ -135,6 +135,8 @@ def message_sendlater(token, channel_id, message, time_sent):
     '''
     if None in {token, channel_id, message, time_sent}:
         raise InputError(description='Insufficient parameters')
+
+    decode_token(token)
 
     channel_id = int(channel_id)
     time_sent = int(time_sent)
@@ -212,23 +214,22 @@ def message_unreact(token, message_id, react_id):
     message_id = int(message_id)
     message = data_store.get_message(message_id)
 
+    if message is None:
+        raise InputError(description='Message does not exist')
+
+    if message not in user.viewable_messages:
+        raise InputError(description='User cannot view message')
+
     react_id = int(react_id)
     react = message.get_react(react_id)
 
     channel = message.channel
-
-    if message is None or message not in user.viewable_messages:
-        raise InputError(description='Message does not exist')
 
     if channel.is_member(user.u_id):
         raise InputError(description='User is not in the channel')
 
     if react_id not in data_store.reactions.values():
         raise InputError(description='Reaction type is invalid')
-
-    if data_store.get_react(message_id, react_id) is None:
-        raise InputError(
-            description='Message does not have this type of reaction')
 
     if react is None:
         raise InputError(
@@ -296,10 +297,10 @@ def message_unpin(token, message_id):
     message_id = int(message_id)
     message = data_store.get_message(message_id)
 
-    channel = message.channel
-
     if message is None:
         raise InputError(description='Message does not exist')
+
+    channel = message.channel
 
     if data_store.is_admin_or_owner(user, channel) is False:
         raise InputError(
