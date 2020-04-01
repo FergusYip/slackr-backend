@@ -44,12 +44,12 @@ def message_send(token, channel_id, message, message_id=None):
             'User does not have Access to send messages in the current channel'
         )
 
-    message = Message(user, channel, message)
-    channel.send_message(message)
-    data_store.add_message(message)
-    user.add_message(message)
+    msg = Message(user, channel, message)
+    channel.send_message(msg)
+    data_store.add_message(msg)
+    user.add_message(msg)
 
-    return {'message_id': message.message_id}
+    return {'message_id': msg.message_id}
 
 
 def message_remove(token, message_id):
@@ -106,16 +106,16 @@ def message_edit(token, message_id, message):
     message_id = int(message_id)
     message_obj = data_store.get_message(message_id)
 
-    channel = message_obj.channel
-
     if message_obj is None:
         raise InputError(description='Message does not exist')
+
+    channel = message_obj.channel
 
     if len(message) > 1000:
         raise InputError(description='Message is over 1,000 characters')
 
     if not (message_obj.u_id == u_id
-            and data_store.is_admin_or_owner(user, channel)):
+            or data_store.is_admin_or_owner(user, channel)):
         raise AccessError(
             description='User does not have access to remove this message')
 
