@@ -128,7 +128,7 @@ def channel_leave(token, channel_id):
         raise InputError(description='Channel does not exist.')
 
     # access error when authorized user not a member of channel.
-    if channel.is_member is False:
+    if channel.is_member(user) is False:
         raise AccessError(
             description='Authorized user not a member of channel.')
 
@@ -202,7 +202,7 @@ def channel_addowner(token, channel_id, u_id):
         raise InputError(description='User does not exist.')
 
     # input error if user already an owner of channel.
-    if data_store.is_owner(user) is True:
+    if channel.is_owner(user) is True:
         raise InputError(description='User already owner of channel.')
 
     # access error when authorized user not owner of channel or owner of slackr.
@@ -210,7 +210,7 @@ def channel_addowner(token, channel_id, u_id):
         raise AccessError(description='Authorized user not owner of channel.')
 
     if channel.is_member(user) is False:
-        channel.add_member(user)
+        raise InputError(description='User is not a member of the channel')
 
     channel.add_owner(user)
 
