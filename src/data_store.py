@@ -68,10 +68,11 @@ class User:
 
     @property
     def viewable_messages(self):
-        return [
-            message for message in self.messages
-            if message.channel in self.channels
-        ]
+        msgs = []
+        for channel in self.channels:
+            for message in channel.messages:
+                msgs.append(message)
+        return msgs
 
     def add_react(self, react):
         self.reacts.append(react)
@@ -315,7 +316,7 @@ class DataStore:
     def join_channel(self, user, channel):
         user.channels.append(channel)
         channel.all_members.append(user)
-        
+
     def get_user(self, u_id=None, email=None, handle_str=None):
         for user in self.users:
             if u_id == user.u_id or email == user.email or handle_str == user.handle_str:

@@ -191,7 +191,7 @@ def message_react(token, message_id, react_id):
                 description='User has already reacted to this message')
 
         react.add_user(user)
-        user.add_reacts(react)
+        user.add_react(react)
     else:
         react = React(react_id, message)
         message.add_react(react)
@@ -214,11 +214,8 @@ def message_unreact(token, message_id, react_id):
     message_id = int(message_id)
     message = data_store.get_message(message_id)
 
-    if message is None:
+    if message is None or message not in user.viewable_messages:
         raise InputError(description='Message does not exist')
-
-    if message not in user.viewable_messages:
-        raise InputError(description='User cannot view message')
 
     react_id = int(react_id)
     react = message.get_react(react_id)
