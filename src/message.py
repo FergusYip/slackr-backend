@@ -44,7 +44,7 @@ def message_send(token, channel_id, message, message_id=None):
             'User does not have Access to send messages in the current channel'
         )
 
-    msg = Message(user, channel, message)
+    msg = Message(user, channel, message, message_id)
     channel.send_message(msg)
     data_store.add_message(msg)
     user.add_message(msg)
