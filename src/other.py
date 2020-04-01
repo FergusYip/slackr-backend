@@ -34,8 +34,10 @@ def search(token, query_str):
 	'''
     token_payload = decode_token(token)
     user = data_store.get_user(token_payload['u_id'])
-    messages = [[message.details for message in channel.search(query_str)]
-                for channel in user.channels]
+    messages = [
+        message.details(user) for message in user.viewable_messages
+        if query_str.lower() in message.message.lower()
+    ]
     return {'messages': messages}
 
 
