@@ -162,6 +162,7 @@ def channel_leave(token, channel_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
+    channel_id = int(channel_id)
     channel = helpers.get_channel(channel_id)
 
     # input error if channel doesn't exist.
@@ -190,6 +191,7 @@ def channel_join(token, channel_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
+    channel_id = int(channel_id)
     channel = helpers.get_channel(channel_id)
 
     # input error if channel doesn't exist.
@@ -216,6 +218,7 @@ def channel_addowner(token, channel_id, u_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
+    channel_id = int(channel_id)
     channel = helpers.get_channel(channel_id)
     auth_user = token_data['u_id']
 
@@ -252,6 +255,7 @@ def channel_removeowner(token, channel_id, u_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
+    channel_id = int(channel_id)
     channel = helpers.get_channel(channel_id)
     auth_user = token_data['u_id']
 
