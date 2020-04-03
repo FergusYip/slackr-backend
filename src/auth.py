@@ -126,6 +126,18 @@ def auth_logout(token):
     return {'is_success': is_success}
 
 
+def auth_passwordreset_request(email):
+    user = helpers.get_user(email=email)
+    if user is not None:
+        pass
+    return {}
+
+
+def auth_passwordreset_rest(reset_code, new_password):
+
+    return {}
+
+
 def invalid_password(password):
     ''' Checks whether a password is invalid
 
