@@ -770,5 +770,37 @@ def channel_add_owner(channel_id, u_id):
             channel['owner_members'].append(u_id)
 
 
+def change_permission(u_id, permission_id):
+    ''' Given a u_id change their permission_id
+
+    Parameters:
+        u_id (int): User ID
+        permission_id (int)L: ID of permission level
+    '''
+    for user in data_store['users']:
+        if user['u_id'] == u_id:
+            user['permission_id'] = permission_id
+            break
+
+
+def delete_user(u_id):
+    ''' Given a u_id delete them from the data_store
+
+    Parameters:
+        u_id (int): User ID
+    '''
+    target_user = get_user(u_id)
+    data_store['users'].remove(target_user)
+    for channel in data_store['channels']:
+        for owner in channel['owner_members']:
+            if owner['u_id'] == u_id:
+                channel['owner_members'].remove(owner)
+                break
+        for member in channel['all_members']:
+            if member['u_id'] == u_id:
+                channel['all_members'].remove(member)
+                break
+
+
 if __name__ == '__main__':
     pass
