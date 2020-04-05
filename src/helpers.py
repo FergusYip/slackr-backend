@@ -15,7 +15,7 @@ def get_channel(channel_id):
 		channel (dict): Dictionary of channel details
 		None : If no channel with channel_id exists
 	"""
-
+    channel_id = int(channel_id)
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             return channel
@@ -790,24 +790,17 @@ def delete_user(u_id):
         u_id (int): User ID
     '''
 
-    for user in data_store['users']:
-        if user['u_id'] == u_id:
-            user['name_first'] = 'Deleted'
-            user['name_last'] = 'User'
-            user['handle_str'] = 'deleted'
-            user['email'] = 'deleted'
-            user['password'] = 'deleted'
-            user['permission_id'] = data_store['permissions']['member']
-
     for channel in data_store['channels']:
         for owner in channel['owner_members']:
-            if owner['u_id'] == u_id:
+            if owner == u_id:
                 channel['owner_members'].remove(owner)
                 break
         for member in channel['all_members']:
-            if member['u_id'] == u_id:
+            if member == u_id:
                 channel['all_members'].remove(member)
                 break
+    target_user = get_user(u_id)
+    data_store['users'].remove(target_user)
 
 
 if __name__ == '__main__':
