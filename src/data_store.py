@@ -15,7 +15,7 @@ class User:
         self.name_first = name_first
         self.name_last = name_last
         self.handle_str = generate_handle(name_first, name_last)
-        self.permission_id = data_store.default_permission
+        self.permission_id = data_store.default_permission()
         self.channels = []
         self.messages = []
         self.reacts = []
@@ -353,7 +353,6 @@ class DataStore:
     def permission_values(self):
         return self.permissions.values()
 
-    @property
     def default_permission(self):
         if len(self.users) == 0:
             return self.permissions['owner']
