@@ -50,6 +50,15 @@ def route_admin_userpermission_change():
     return dumps(admin.admin_userpermission_change(token, u_id, permission_id))
 
 
+@APP.route('/admin/user/remove', methods=['DELETE'])
+def route_admin_user_remove():
+    '''Flask route for /admin/userpermission/change'''
+    payload = request.get_json()
+    token = payload.get('token')
+    u_id = payload.get('u_id')
+    return dumps(admin.admin_user_remove(token, u_id))
+
+
 @APP.route("/auth/register", methods=['POST'])
 def route_auth_register():
     '''Flask route for /auth/register'''

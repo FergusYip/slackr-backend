@@ -22,7 +22,14 @@ except FileNotFoundError:
             'channel_id': 0,
             'message_id': 0,
         },
-        'time_created': int(datetime.utcnow().timestamp())
+        'time_created': int(datetime.utcnow().timestamp()),
+        'deleted_user_profile': {
+            'u_id': -99,
+            'email': 'deleted',
+            'name_first': 'Deleted',
+            'name_last': 'User',
+            'handle_str': 'deleted'
+        }
     }
 
 
