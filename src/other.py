@@ -49,7 +49,7 @@ def search(token, query_str):
     messages = []
     for channel in user_channels(token_payload['u_id']):
         search_results = channel_search(channel, query_str)
-        for message in search_results:
+        for message in reversed(search_results):
 
             message_reacts = []
             reacts = message['reacts']
