@@ -24,7 +24,7 @@ def user_profile(token, u_id):
     if target_user is None:
         raise InputError(description='User ID is not a valid user')
 
-    return target_user.profile
+    return {'user': target_user.profile}
 
 
 def user_profile_setname(token, name_first, name_last):
