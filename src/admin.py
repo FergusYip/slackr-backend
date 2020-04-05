@@ -54,7 +54,7 @@ def admin_user_remove(token, u_id):
     if not helpers.is_owner(token_payload['u_id']):
         raise AccessError(description='The authorised user is not an owner')
 
-    helpers.change_permission(u_id, permission_id)
+    helpers.delete_user(u_id)
 
 
 if __name__ == '__main__':

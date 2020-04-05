@@ -789,8 +789,16 @@ def delete_user(u_id):
     Parameters:
         u_id (int): User ID
     '''
-    target_user = get_user(u_id)
-    data_store['users'].remove(target_user)
+
+    for user in data_store['users']:
+        if user['u_id'] == u_id:
+            user['name_first'] = 'Deleted'
+            user['name_last'] = 'User'
+            user['handle_str'] = 'deleted'
+            user['email'] = 'deleted'
+            user['password'] = 'deleted'
+            user['permission_id'] = data_store['permissions']['member']
+
     for channel in data_store['channels']:
         for owner in channel['owner_members']:
             if owner['u_id'] == u_id:
