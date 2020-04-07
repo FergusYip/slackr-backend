@@ -30,10 +30,31 @@ def admin_userpermission_change(token, u_id, permission_id):
     if not helpers.is_owner(token_payload['u_id']):
         raise AccessError(description='The authorised user is not an owner')
 
-    user = helpers.get_user(u_id)
-    user['permission_id'] = permission_id
+    helpers.change_permission(u_id, permission_id)
 
     return {}
+
+
+def admin_user_remove(token, u_id):
+    """ Given a User by their user ID, remove the user
+
+	Parameters:
+		token (str): JWT
+		u_id (int): User ID
+
+	Returns:
+		Empty Dictionary
+
+	"""
+    token_payload = decode_token(token)
+
+    if u_id not in helpers.get_all_u_id():
+        raise InputError(description='u_id does not refer to a valid user')
+
+    if not helpers.is_owner(token_payload['u_id']):
+        raise AccessError(description='The authorised user is not an owner')
+
+    helpers.delete_user(u_id)
 
 
 if __name__ == '__main__':

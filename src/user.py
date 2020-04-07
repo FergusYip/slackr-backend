@@ -6,6 +6,7 @@ as well as change their own personal information.
 from error import InputError
 from email_validation import invalid_email
 from token_validation import decode_token
+from data_store import data_store
 import helpers
 
 # ======================================================================
@@ -22,20 +23,22 @@ def user_profile(token, target_uid):
     # By calling the decode function, multiple error checks are performed.
     decode_token(token)
 
-    if helpers.get_user(target_uid) is None:
-        raise InputError(description='User ID is not a valid user')
-
     user_info = helpers.get_user(target_uid)
 
-    user_return = {
-        'u_id': user_info['u_id'],
-        'email': user_info['email'],
-        'name_first': user_info['name_first'],
-        'name_last': user_info['name_last'],
-        'handle_str': user_info['handle_str']
-    }
+    if target_uid == -99:
+        user_return = data_store['deleted_user_profile']
+    elif user_info is None:
+        raise InputError(description='User ID is not a valid user')
+    else:
+        user_return = {
+            'u_id': user_info['u_id'],
+            'email': user_info['email'],
+            'name_first': user_info['name_first'],
+            'name_last': user_info['name_last'],
+            'handle_str': user_info['handle_str']
+        }
 
-    return user_return
+    return {'user': user_return}
 
 
 def user_profile_setname(token, first_name, last_name):

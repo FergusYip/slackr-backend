@@ -15,7 +15,7 @@ def get_channel(channel_id):
 		channel (dict): Dictionary of channel details
 		None : If no channel with channel_id exists
 	"""
-
+    channel_id = int(channel_id)
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             return channel
@@ -768,6 +768,39 @@ def channel_add_owner(channel_id, u_id):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             channel['owner_members'].append(u_id)
+
+
+def change_permission(u_id, permission_id):
+    ''' Given a u_id change their permission_id
+
+    Parameters:
+        u_id (int): User ID
+        permission_id (int)L: ID of permission level
+    '''
+    for user in data_store['users']:
+        if user['u_id'] == u_id:
+            user['permission_id'] = permission_id
+            break
+
+
+def delete_user(u_id):
+    ''' Given a u_id delete them from the data_store
+
+    Parameters:
+        u_id (int): User ID
+    '''
+
+    for channel in data_store['channels']:
+        for owner in channel['owner_members']:
+            if owner == u_id:
+                channel['owner_members'].remove(owner)
+                break
+        for member in channel['all_members']:
+            if member == u_id:
+                channel['all_members'].remove(member)
+                break
+    target_user = get_user(u_id)
+    data_store['users'].remove(target_user)
 
 
 if __name__ == '__main__':
