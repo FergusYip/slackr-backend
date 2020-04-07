@@ -190,6 +190,7 @@ def auth_passwordreset_reset(reset_code, new_password):
             Empty Dictionary
     '''
 
+    reset_code = int(reset_code)
     reset_request = helpers.get_reset_request(reset_code)
 
     if reset_request is None:
