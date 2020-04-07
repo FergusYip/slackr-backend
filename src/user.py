@@ -3,6 +3,7 @@ Functionality for users of the program to get other user's profile information,
 as well as change their own personal information.
 '''
 
+from io import BytesIO
 from error import InputError
 from email_validation import invalid_email
 from token_validation import decode_token
@@ -137,6 +138,10 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
         raise InputError(
             description='Image does not exist')
 
+    if helpers.get_image_byte_size(img_url) > 10000000:
+        raise InputError(
+            description='Image must not be over 10MB')
+
     url = requests.get(img_url, stream=True)
     img = Image.open(url.raw)
 
@@ -157,6 +162,7 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     area = (x_start, y_start, x_end, y_end)
 
     region = img.crop(area)
+
     region.save(f'src/profile_images/{user_id}.jpg')
 
     return {}
