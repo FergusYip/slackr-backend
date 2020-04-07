@@ -3,13 +3,12 @@ Functionality for users of the program to get other user's profile information,
 as well as change their own personal information.
 '''
 
-from io import BytesIO
+from PIL import Image
+import requests
 from error import InputError
 from email_validation import invalid_email
 from token_validation import decode_token
 from data_store import data_store
-from PIL import Image
-import requests
 import helpers
 
 # ======================================================================
@@ -150,11 +149,11 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
     if x_start > width or x_end > width:
         raise InputError(
             description='Crop constraints are outside of the image')
-    
+
     if y_start > height or y_end > height:
         raise InputError(
             description='Crop constraints are outside of the image')
-    
+
     if not img_url.endswith('.jpg'):
         raise InputError(
             description='Image must be a .jpg file')
