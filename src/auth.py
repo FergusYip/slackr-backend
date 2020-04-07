@@ -3,6 +3,7 @@ Implementation of auth routes for slackr app
 '''
 import math
 import hashlib
+import smtplib
 from error import InputError
 from email_validation import invalid_email
 from data_store import data_store
@@ -127,13 +128,31 @@ def auth_logout(token):
 
 
 def auth_passwordreset_request(email):
+    sender = 'thechunts.slackr@gmail.com'
+    password = 'pTW3w87PVDAscNFX'
+    receivers = [email]
+
+    message = f"""From: From Person <{sender}>
+    To: To Person <{email}>
+    Subject: SMTP e-mail test
+
+    This is a test e-mail message.
+    """
     user = helpers.get_user(email=email)
     if user is not None:
-        pass
+        # try:
+        server = smtplib.SMTP('smtp-relay.sendinblue.com:587')
+        server.login(sender, password)
+        server.ehlo()
+        server.sendmail(sender, receivers, message)
+        server.quit()
+        print("Successfully sent email")
+    # except smtplib.SMTPException:
+    #     print("Error: unable to send email")
     return {}
 
 
-def auth_passwordreset_rest(reset_code, new_password):
+def auth_passwordreset_reset(reset_code, new_password):
 
     return {}
 
