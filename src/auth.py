@@ -266,7 +266,8 @@ def generate_reset_code():
     '''Generate a unique 6 digit reset code'''
     reset_code = random.randint(100000, 999999)
     active_codes = [
-        reset_request['code'] for reset_request in data_store['reset_requests']
+        reset_request['reset_code']
+        for reset_request in data_store['reset_requests']
     ]
     while reset_code in active_codes:
         reset_code = random.randint(100000, 999999)
