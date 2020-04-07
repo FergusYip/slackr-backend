@@ -20,7 +20,7 @@ AUTOSAVE_ENABLED = True
 DEBUG_MODE = not AUTOSAVE_ENABLED  # Do not change this line
 
 
-def defaultHandler(err):
+def default_handler(err):
     '''Default handler for errors'''
     response = err.get_response()
     print('response', err, err.get_response())
@@ -37,7 +37,7 @@ APP = Flask(__name__)
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
-APP.register_error_handler(Exception, defaultHandler)
+APP.register_error_handler(Exception, default_handler)
 
 
 @APP.route('/admin/userpermission/change', methods=['POST'])
@@ -332,6 +332,18 @@ def route_user_profile_sethandle():
     desired_handle = payload.get('handle_str')
     return dumps(user.user_profile_sethandle(token, desired_handle))
 
+@APP.route('/user/profile/uploadphoto', methods=['POST'])
+def route_user_profile_uploadphoto():
+    '''Flask route for /user/profile/uploadphoto'''
+    payload = request.get_json()
+    token = payload.get('token')
+    img_url = payload.get_json('img_url')
+    x_start = int(payload.get_json('y_start'))
+    y_start = int(payload.get_json('x_start'))
+    x_end = int(payload.get_json('x_end'))
+    y_end = int(payload.get_json('y_end'))
+    return dumps(user.user_profile_uploadphoto(token, img_url, x_start,
+                                               y_start, x_end, y_end))
 
 @APP.route("/workspace/reset", methods=['POST'])
 def route_workspace_reset():

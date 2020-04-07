@@ -7,6 +7,7 @@ from error import InputError
 from email_validation import invalid_email
 from token_validation import decode_token
 from data_store import data_store
+from PIL import Image
 import helpers
 
 # ======================================================================
@@ -118,6 +119,11 @@ def user_profile_sethandle(token, handle_str):
             description='Handle is already being used by another user')
 
     helpers.user_change_handle(user_id, handle_str)
+
+    return {}
+
+def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
+    
 
     return {}
 
