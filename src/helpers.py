@@ -1,5 +1,6 @@
 ''' Helper module with functions to access values from data_store'''
 
+import hashlib
 from datetime import datetime, timezone
 from data_store import data_store
 
@@ -801,6 +802,87 @@ def delete_user(u_id):
                 break
     target_user = get_user(u_id)
     data_store['users'].remove(target_user)
+
+
+def hash_pw(password):
+    ''' Returns a hashed password
+
+	Parameters:
+		password (str): Password
+
+	Returns:
+		hashed password (str): Hashed password
+
+	'''
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def change_password(u_id, password):
+    ''' Given a u_id and password, change the password of the user
+
+    Parameters:
+        u_id (int): User ID
+        password(str): Desired password
+    '''
+    for user in data_store['users']:
+        if user['u_id'] == u_id:
+            user['password'] = hash_pw(password)
+            break
+
+
+def make_reset_request(reset_code, u_id):
+    ''' Make a reset_request
+
+    Parameters:
+        reset_code (int): Reset code
+        u_id (int): Requested user
+
+    '''
+
+    reset_request = {'reset_code': reset_code, 'u_id': u_id}
+    data_store['reset_requests'].append(reset_request)
+
+
+def invalidate_reset_request(reset_code):
+    ''' Invalidate a reset_request
+
+    Parameters:
+        reset_code (int): Reset code
+
+    '''
+
+    for request in data_store['reset_requests']:
+        if request['reset_code'] == reset_code:
+            data_store['reset_requests'].remove(request)
+
+
+def invalidate_reset_request_from_user(u_id):
+    ''' Invalidates all reset requests made by a user
+
+    Parameters:
+        u_id (int): User ID
+
+    '''
+
+    for request in data_store['reset_requests']:
+        if request['u_id'] == u_id:
+            data_store['reset_requests'].remove(request)
+
+
+def get_reset_request(reset_code):
+    ''' Given a reset_code, get the associated request
+
+    Parameters:
+        reset_code (int): Reset code
+
+    Returns (dict):
+        reset_code (int): Reset code
+        u_id (int): Requested user
+    '''
+    for request in data_store['reset_requests']:
+        if request['reset_code'] == reset_code:
+            return request
+    return None
 
 
 if __name__ == '__main__':
