@@ -337,11 +337,11 @@ def route_user_profile_uploadphoto():
     '''Flask route for /user/profile/uploadphoto'''
     payload = request.get_json()
     token = payload.get('token')
-    img_url = payload.get_json('img_url')
-    x_start = int(payload.get_json('y_start'))
-    y_start = int(payload.get_json('x_start'))
-    x_end = int(payload.get_json('x_end'))
-    y_end = int(payload.get_json('y_end'))
+    img_url = payload.get('img_url')
+    x_start = int(payload.get('y_start'))
+    y_start = int(payload.get('x_start'))
+    x_end = int(payload.get('x_end'))
+    y_end = int(payload.get('y_end'))
     return dumps(user.user_profile_uploadphoto(token, img_url, x_start,
                                                y_start, x_end, y_end))
 
