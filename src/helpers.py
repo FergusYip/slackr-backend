@@ -2,7 +2,6 @@
 
 import hashlib
 from datetime import datetime, timezone
-import urllib.request
 from data_store import DATA_STORE as data_store
 
 def get_channel(channel_id):
