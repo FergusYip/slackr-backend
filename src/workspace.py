@@ -1,7 +1,7 @@
 '''
 Implementation of workspace function for slackr app
 '''
-from data_store import data_store
+from data_store import DATA_STORE as data_store
 from helpers import utc_now
 
 

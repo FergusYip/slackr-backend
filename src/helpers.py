@@ -1,9 +1,8 @@
 ''' Helper module with functions to access values from data_store'''
 
 from datetime import datetime, timezone
-from data_store import data_store
 import urllib.request
-
+from data_store import DATA_STORE as data_store
 
 def get_channel(channel_id):
     """
@@ -802,20 +801,6 @@ def delete_user(u_id):
                 break
     target_user = get_user(u_id)
     data_store['users'].remove(target_user)
-
-
-def get_image_byte_size(url):
-    ''' Given a url, find the size in bytes of the image.
-
-    Parameters:
-        url: a url as a string
-
-    return:
-        size of image: the size of the image in bytes.
-    '''
-
-    image = urllib.request.urlopen(url)
-    return len(image.read())
 
 if __name__ == '__main__':
     pass

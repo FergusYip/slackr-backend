@@ -342,8 +342,9 @@ def route_user_profile_uploadphoto():
     y_start = int(payload.get('x_start'))
     x_end = int(payload.get('x_end'))
     y_end = int(payload.get('y_end'))
-    return dumps(user.user_profile_uploadphoto(token, img_url, x_start,
-                                               y_start, x_end, y_end))
+
+    area = user.user_profile_uploadphoto_area(x_start, y_start, x_end, y_end)
+    return dumps(user.user_profile_uploadphoto(token, img_url, area))
 
 @APP.route("/workspace/reset", methods=['POST'])
 def route_workspace_reset():

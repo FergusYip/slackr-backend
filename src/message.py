@@ -7,7 +7,7 @@ their own messages.
 import threading
 from time import sleep
 from error import AccessError, InputError
-from data_store import data_store
+from data_store import DATA_STORE as data_store
 from token_validation import decode_token
 import helpers
 

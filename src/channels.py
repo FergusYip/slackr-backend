@@ -2,7 +2,7 @@
 Implementation of channels routes for slackr app
 '''
 from error import InputError
-from data_store import data_store
+from data_store import DATA_STORE as data_store
 from token_validation import decode_token
 from helpers import generate_id
 
