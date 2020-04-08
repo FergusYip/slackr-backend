@@ -8,7 +8,7 @@ import requests
 from error import InputError
 from email_validation import invalid_email
 from token_validation import decode_token
-from data_store import data_store
+from data_store import DATA_STORE as data_store
 import helpers
 
 # ======================================================================
@@ -123,7 +123,16 @@ def user_profile_sethandle(token, handle_str):
 
     return {}
 
-def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
+def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):
+    '''
+    Function that will create and return a tuple of the desired area the user wants to crop to.
+    '''
+
+    area = (x_start, y_start, x_end, y_end)
+    return area
+
+
+def user_profile_uploadphoto(token, img_url, area):
     '''
     Function that will take a desired url and will resize this image to specific constraints,
     and upload this file to a path in the directory.
@@ -137,20 +146,16 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
         raise InputError(
             description='Image does not exist')
 
-    if helpers.get_image_byte_size(img_url) > 10000000:
-        raise InputError(
-            description='Image must not be over 10MB')
-
     url = requests.get(img_url, stream=True)
     img = Image.open(url.raw)
 
     width, height = img.size
 
-    if x_start > width or x_end > width:
+    if area[0] > width or area[2] > width:
         raise InputError(
             description='Crop constraints are outside of the image')
 
-    if y_start > height or y_end > height:
+    if area[1] > height or area[3] > height:
         raise InputError(
             description='Crop constraints are outside of the image')
 
@@ -158,7 +163,6 @@ def user_profile_uploadphoto(token, img_url, x_start, y_start, x_end, y_end):
         raise InputError(
             description='Image must be a .jpg file')
 
-    area = (x_start, y_start, x_end, y_end)
 
     region = img.crop(area)
 

@@ -4,9 +4,9 @@ import pickle
 from datetime import datetime
 
 try:
-    data_store = pickle.load(open('data_store.p', 'rb'))
+    DATA_STORE = pickle.load(open('data_store.p', 'rb'))
 except FileNotFoundError:
-    data_store = {
+    DATA_STORE = {
         'users': [],
         'channels': [],
         'token_blacklist': [],
@@ -36,7 +36,7 @@ except FileNotFoundError:
 
 def save():
     '''Save the state of the data_store into a pickle'''
-    pickle.dump(data_store, open('data_store.p', 'wb'))
+    pickle.dump(DATA_STORE, open('data_store.p', 'wb'))
 
 
 def autosave():

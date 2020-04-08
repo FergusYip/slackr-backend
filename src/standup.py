@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import threading
 from token_validation import decode_token
 from error import AccessError, InputError
-from data_store import data_store
+from data_store import DATA_STORE as data_store
 import helpers
 from message import message_send
 

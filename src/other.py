@@ -1,7 +1,7 @@
 '''
 Implementation of users/all and search routes for slackr app
 '''
-from data_store import data_store
+from data_store import DATA_STORE as data_store
 from token_validation import decode_token
 from helpers import user_channels, channel_search
 

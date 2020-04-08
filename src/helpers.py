@@ -2,9 +2,7 @@
 
 import hashlib
 from datetime import datetime, timezone
-from data_store import data_store
-import urllib.request
-
+from data_store import DATA_STORE as data_store
 
 def get_channel(channel_id):
     """
@@ -884,20 +882,6 @@ def get_reset_request(reset_code):
         if request['reset_code'] == reset_code:
             return request
     return None
-
-
-def get_image_byte_size(url):
-    ''' Given a url, find the size in bytes of the image.
-
-    Parameters:
-        url: a url as a string
-
-    return:
-        size of image: the size of the image in bytes.
-    '''
-
-    image = urllib.request.urlopen(url)
-    return len(image.read())
 
 
 if __name__ == '__main__':

@@ -7,7 +7,7 @@ import random
 from email.message import EmailMessage
 from error import InputError
 from email_validation import invalid_email
-from data_store import data_store
+from data_store import DATA_STORE as data_store
 from token_validation import decode_token, encode_token
 import helpers
 

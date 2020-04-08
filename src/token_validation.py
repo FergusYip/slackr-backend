@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta
 import jwt
 from error import AccessError
-from data_store import data_store
+from data_store import DATA_STORE as data_store
 from helpers import get_all_u_id
 
 SECRET = 'the chunts'
