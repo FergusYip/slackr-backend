@@ -29,7 +29,8 @@ except FileNotFoundError:
             'name_first': 'Deleted',
             'name_last': 'User',
             'handle_str': 'deleted'
-        }
+        },
+        'reset_requests': []
     }
 
 
