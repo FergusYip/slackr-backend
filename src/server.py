@@ -78,6 +78,23 @@ def route_auth_logout():
     return dumps(auth.auth_logout(token))
 
 
+@APP.route("/auth/passwordreset/request", methods=['POST'])
+def route_auth_passwordreset_request():
+    '''Flask route for /auth/passwordreset/request'''
+    payload = request.get_json()
+    email = payload.get('email')
+    return dumps(auth.auth_passwordreset_request(email))
+
+
+@APP.route("/auth/passwordreset/reset", methods=['POST'])
+def route_auth_passwordreset_reset():
+    '''Flask route for /auth/logout'''
+    payload = request.get_json()
+    reset_code = payload.get('reset_code')
+    new_password = payload.get('new_password')
+    return dumps(auth.auth_passwordreset_reset(reset_code, new_password))
+
+
 @APP.route("/channel/invite", methods=['POST'])
 def route_channel_invite():
     '''Flask route for /channel/invite'''
