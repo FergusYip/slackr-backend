@@ -1,7 +1,8 @@
+from string import ascii_lowercase
 from data_store import DATA_STORE as data_store
 import helpers
 from token_validation import decode_token
-from error import AccessError, InputError`
+from error import AccessError, InputError
 import PyLyrics
 import random
 import message
@@ -42,17 +43,22 @@ def guess_hangman(token, channel_id, guess):
                 raise InputError(description='game not active')
             ch['hangman']['word'] = getLine()
 
+    lowercase = [char for char in ascii_lowercase]
+    word_state = ch['hangman']['word']
+    for char in lowercase:
+        if char not in ch['hangman']['guesses']:
+            word_state = word_state.replace(char, '_')
+
 
 def getLine():
     '''
     Function to get random line with PyLyrics
     '''
 
-    lyrics = PyLyrics.getLyrics(
-        'Rick Astley', 'Never Gonna Give You Up'))
+    lyrics = PyLyrics.getLyrics('Rick Astley', 'Never Gonna Give You Up')
 
-    lyrics=lyrics.split('\n')
+    lyrics = lyrics.split('\n')
 
-    filtered=[line for line in lyrics if len(line) > 5]
+    filtered = [line for line in lyrics if len(line) > 5]
 
     return random.choice(filtered)
