@@ -126,9 +126,8 @@ def auth_passwordreset_request(email):
 
     user = data_store.get_user(email=email)
 
-    reset_code = data_store.generate_reset_code()
     data_store.invalidate_reset_request_from_user(user)
-    data_store.make_reset_request(reset_code, user)
+    reset_code = data_store.make_reset_request(user)
 
     sender = 'thechunts.slackr@gmail.com'
     password = 'chuntsslackr'
@@ -179,7 +178,7 @@ def auth_passwordreset_reset(reset_code, new_password):
     if reset_request is None:
         raise InputError(description='Reset code is not valid')
 
-    if new_password < 6:
+    if len(new_password) < 6:
         raise InputError(description='Password is not valid')
 
     user = data_store.get_user(u_id=reset_request['u_id'])
