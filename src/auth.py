@@ -2,6 +2,8 @@
 Implementation of auth routes for slackr app
 '''
 
+import smtplib
+from email.message import EmailMessage
 from error import InputError
 from email_validation import invalid_email
 from data_store import data_store, User
@@ -110,6 +112,80 @@ def auth_logout(token):
     is_success = token in data_store.token_blacklist
 
     return {'is_success': is_success}
+
+
+def auth_passwordreset_request(email):
+    ''' Makes a password reset request and sends a email to the desired email
+
+    Parameters:
+        email (str): Email assocaited to the account the user wants to reset
+
+    Returns:
+        Empty Dictionary
+    '''
+
+    user = data_store.get_user(email=email)
+
+    reset_code = data_store.generate_reset_code()
+    data_store.invalidate_reset_request_from_user(user)
+    data_store.make_reset_request(reset_code, user)
+
+    sender = 'thechunts.slackr@gmail.com'
+    password = 'chuntsslackr'
+
+    message = EmailMessage()
+    message['Subject'] = 'Slackr: Password Reset Code'
+    message['From'] = sender
+    message['To'] = email
+    message.set_content(f'Your reset code is {reset_code}')
+
+    message.add_alternative(\
+    f'''
+    <!DOCTPYE html>
+    <html>
+        <body>
+            <h1 style="color=Black, align=center">Your password reset code is {reset_code}</h1>
+        </body>
+    </html>
+    ''', subtype='html')
+
+    user = data_store.get_user(email=email)
+    if user is not None:
+        try:
+            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+            server.login(sender, password)
+            server.send_message(message)
+            server.quit()
+            print("Successfully sent email")
+        except smtplib.SMTPException:
+            print("Error: unable to send email")
+    return {}
+
+
+def auth_passwordreset_reset(reset_code, new_password):
+    '''Given a reset_code, check that its valid and reset the user's password
+
+        Parameters:
+            reset_node (str): Reset code
+            new_password (str): Desired new passowrd
+
+        Returns:
+            Empty Dictionary
+    '''
+
+    reset_code = int(reset_code)
+    reset_request = data_store.get_reset_request(reset_code)
+
+    if reset_request is None:
+        raise InputError(description='Reset code is not valid')
+
+    if new_password < 6:
+        raise InputError(description='Password is not valid')
+
+    user = data_store.get_user(u_id=reset_request['u_id'])
+    user.change_password(new_password)
+
+    return {}
 
 
 if __name__ == "__main__":

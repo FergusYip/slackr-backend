@@ -1,4 +1,5 @@
 ''' Data Store for the slackr backend'''
+import random
 import math
 import threading
 import pickle
@@ -293,6 +294,7 @@ class DataStore:
             'message_id': 0,
         }
         self.time_created = helpers.utc_now()
+        self.reset_requests = []
 
     def add_user(self, new_user):
         self.users.append(new_user)
@@ -401,6 +403,54 @@ class DataStore:
 
         self.time_created = helpers.utc_now()
 
+    def make_reset_request(self, reset_code, user):
+        ''' Make a reset_request
+
+        Parameters:
+            reset_code (int): Reset code
+            u_id (int): Requested user
+
+        '''
+        reset_request = {'reset_code': reset_code, 'u_id': user.u_id}
+        self.reset_requests.append(reset_request)
+
+    def get_reset_request(self, reset_code):
+        ''' Given a reset_code, get the associated request
+
+        Parameters:
+            reset_code (int): Reset code
+
+        Returns (dict):
+            reset_code (int): Reset code
+            u_id (int): Requested user
+        '''
+        for request in self.reset_requests:
+            if request['reset_code'] == reset_code:
+                return request
+        return None
+
+    def invalidate_reset_request(self, reset_code):
+        ''' Invalidate a reset_request
+
+        Parameters:
+            reset_code (int): Reset code
+
+        '''
+        for request in self.reset_requests:
+            if request['reset_code'] == reset_code:
+                self.reset_requests.remove(request)
+
+    def invalidate_reset_request_from_user(self, user):
+        ''' Invalidates all reset requests made by a user
+
+        Parameters:
+            u_id (int): User ID
+
+        '''
+        for request in self.reset_requests:
+            if request['u_id'] == user.u_id:
+                self.reset_requests.remove(request)
+
 
 try:
     data_store = pickle.load(open('data_store.p', 'rb'))
@@ -449,6 +499,19 @@ def generate_handle(name_first, name_last):
         unique_modifier += 1
 
     return handle_str
+
+
+def generate_reset_code():
+    '''Generate a unique 6 digit reset code'''
+    reset_code = random.randint(100000, 999999)
+    active_codes = [
+        reset_request['reset_code']
+        for reset_request in data_store['reset_requests']
+    ]
+    while reset_code in active_codes:
+        reset_code = random.randint(100000, 999999)
+
+    return reset_code
 
 
 if __name__ == "__main__":
