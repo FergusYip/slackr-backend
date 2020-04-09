@@ -30,6 +30,13 @@ except FileNotFoundError:
             'name_last': 'User',
             'handle_str': 'deleted'
         },
+        'hangman_bot': {
+            'u_id': -95,
+            'email': 'hangmanBot',
+            'name_first': 'Hangman',
+            'name_last': 'Bot',
+            'handle_str': 'Hangman Bot'
+        },
         'reset_requests': []
     }
 
