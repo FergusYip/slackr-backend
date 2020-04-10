@@ -355,8 +355,8 @@ def route_user_profile_uploadphoto():
     payload = request.get_json()
     token = payload.get('token')
     img_url = payload.get('img_url')
-    x_start = int(payload.get('y_start'))
-    y_start = int(payload.get('x_start'))
+    x_start = int(payload.get('x_start'))
+    y_start = int(payload.get('y_start'))
     x_end = int(payload.get('x_end'))
     y_end = int(payload.get('y_end'))
 

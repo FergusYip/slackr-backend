@@ -129,7 +129,7 @@ def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):
     '''
 
     area = (x_start, y_start, x_end, y_end)
-    return area
+    return list(area)
 
 
 def user_profile_uploadphoto(token, img_url, area):
@@ -159,10 +159,17 @@ def user_profile_uploadphoto(token, img_url, area):
         raise InputError(
             description='Crop constraints are outside of the image')
 
+    if area[0] > area[2]:
+        img = img.transpose(Image.FLIP_LEFT_RIGHT)
+        area[0], area[2] = area[2], area[0]
+
+    if area[1] > area[3]:
+        img = img.transpose(Image.FLIP_TOP_BOTTOM)
+        area[1], area[3] = area[3], area[1]
+
     if not img_url.endswith('.jpg'):
         raise InputError(
             description='Image must be a .jpg file')
-
 
     region = img.crop(area)
 
