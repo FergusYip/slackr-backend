@@ -381,7 +381,7 @@ def route_hangman_start():
     return dumps(hangman.start_hangman(token, channel_id))
 
 
-@APP.route("/hangman/guess", method=['POST'])
+@APP.route("/hangman/guess", methods=['POST'])
 def route_hangman_guess():
     '''Flask route for /hangman/start'''
     payload = request.get_json()

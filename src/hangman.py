@@ -1,7 +1,7 @@
 from data_store import DATA_STORE as data_store
 import helpers
 from token_validation import decode_token
-from error import AccessError, InputError`
+from error import AccessError, InputError
 import PyLyrics
 import random
 import message
@@ -49,7 +49,7 @@ def getLine():
     '''
 
     lyrics = PyLyrics.getLyrics(
-        'Rick Astley', 'Never Gonna Give You Up'))
+        'Rick Astley', 'Never Gonna Give You Up')
 
     lyrics=lyrics.split('\n')
 
