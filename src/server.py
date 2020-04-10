@@ -15,6 +15,7 @@ import other
 import standup
 import user
 import workspace
+import hangman
 
 AUTOSAVE_ENABLED = True
 DEBUG_MODE = not AUTOSAVE_ENABLED  # Do not change this line
@@ -349,6 +350,7 @@ def route_user_profile_sethandle():
     desired_handle = payload.get('handle_str')
     return dumps(user.user_profile_sethandle(token, desired_handle))
 
+
 @APP.route('/user/profile/uploadphoto', methods=['POST'])
 def route_user_profile_uploadphoto():
     '''Flask route for /user/profile/uploadphoto'''
@@ -363,10 +365,30 @@ def route_user_profile_uploadphoto():
     area = user.user_profile_uploadphoto_area(x_start, y_start, x_end, y_end)
     return dumps(user.user_profile_uploadphoto(token, img_url, area))
 
+
 @APP.route("/workspace/reset", methods=['POST'])
 def route_workspace_reset():
     ''' Flask route for /workspace/reset'''
     return dumps(workspace.workspace_reset())
+
+
+@APP.route("/hangman/start", methods=['POST'])
+def route_hangman_start():
+    '''Flask route for /hangman/start'''
+    payload = request.get_json()
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    return dumps(hangman.start_hangman(token, channel_id))
+
+
+@APP.route("/hangman/guess", method=['POST'])
+def route_hangman_guess():
+    '''Flask route for /hangman/start'''
+    payload = request.get_json()
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    guess = payload.get('guess')
+    return dumps(hangman.guess_hangman(token, channel_id, guess))
 
 
 if __name__ == "__main__":
