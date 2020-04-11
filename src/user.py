@@ -20,6 +20,15 @@ def user_profile(token, target_uid):
     '''
     Function that will return the profile information of a desired
     user on the Slackr platform.
+
+    Parameters:
+        token (str): The token of the authorized user to be decoded to get the u_id.
+        target_uid (int): The u_id of the target user.
+    
+    Return:
+        Dictionary (dict): A dictionary containing values of the u_id, the
+                           user's email, the user's first and last name, and
+                           the user's handle.
     '''
 
     # By calling the decode function, multiple error checks are performed.
@@ -47,6 +56,14 @@ def user_profile_setname(token, first_name, last_name):
     '''
     Function that will take a desired first and last name and will change
     the authorized user's information to be updated with this information.
+
+    Parameters:
+        token (str): The token of the authorized user to be decoded to get the u_id.
+        first_name (str): The first name that the user wishes to change to.
+        last_name (str): The last name that the user wishes to change to.
+
+    Return:
+        Dictionary (dict): An empty dictionary.
     '''
 
     token_info = decode_token(token)
@@ -69,6 +86,13 @@ def user_profile_setemail(token, email):
     '''
     Function that will take a desired email and will change
     the authorized user's information to be updated with this information.
+
+    Parameters:
+        token (str): The token of the authorized user to be decoded to get the u_id.
+        email (str): The email that the user wishes to change to.
+
+    Return:
+        Dictionary (dict): An empty dictionary.
     '''
 
     token_info = decode_token(token)
@@ -98,6 +122,13 @@ def user_profile_sethandle(token, handle_str):
     '''
     Function that will take a desired handle and will change the authorized
     user's information to reflect this new handle.
+
+    Parameters:
+        token (str): The token of the authorized user to be decoded to get the u_id.
+        handle_str (str): The handle that the user wishes to change to.
+
+    Return:
+        Dictionary (dict): An empty dictionary.
     '''
 
     token_info = decode_token(token)
@@ -126,16 +157,32 @@ def user_profile_sethandle(token, handle_str):
 def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):
     '''
     Function that will create and return a tuple of the desired area the user wants to crop to.
+
+    Parameters:
+        x_start (int): The coordinate of the x starting position.
+        y_start (int): The coordinate of the y starting position.
+        x_end (int): The coordinate of the ending x position.
+        y_end (int): The coordinate of the ending y position.
+
+    Return:
+        List (list): A list containing these values.
     '''
 
-    area = (x_start, y_start, x_end, y_end)
-    return area
+    return [x_start, y_start, x_end, y_end]
 
 
 def user_profile_uploadphoto(token, img_url, area):
     '''
     Function that will take a desired url and will resize this image to specific constraints,
-    and upload this file to a path in the directory.
+    flip the image where necessary, and upload this file to a path in the directory.
+
+    Parameters:
+        token (str): The token of the authorized user to be decoded to get the u_id.
+        img_url (str): A string of the image URL to upload.
+        area (list): A list containing the x_start, y_start, x_end, y_end values in that order.
+    
+    Return:
+        Dictionary (dict): An empty dictionary.
     '''
 
     token_info = decode_token(token)
@@ -151,6 +198,10 @@ def user_profile_uploadphoto(token, img_url, area):
 
     width, height = img.size
 
+    if len(area) != 4:
+        raise InputError(
+            description='Must provide 4 integers for the cropping')
+
     if area[0] > width or area[2] > width:
         raise InputError(
             description='Crop constraints are outside of the image')
@@ -159,10 +210,21 @@ def user_profile_uploadphoto(token, img_url, area):
         raise InputError(
             description='Crop constraints are outside of the image')
 
+    if area[0] > area[2]:
+        img = img.transpose(Image.FLIP_LEFT_RIGHT)
+        area[0], area[2] = area[2], area[0]
+
+    if area[1] > area[3]:
+        img = img.transpose(Image.FLIP_TOP_BOTTOM)
+        area[1], area[3] = area[3], area[1]
+
+    if any(x < 0 for x in area):
+        raise InputError(
+            description='Cannot crop out of the bounds of the image')
+
     if not img_url.endswith('.jpg'):
         raise InputError(
             description='Image must be a .jpg file')
-
 
     region = img.crop(area)
 
