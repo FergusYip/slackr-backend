@@ -138,6 +138,9 @@ def auth_passwordreset_request(email):
         Empty Dictionary
     '''
 
+    if email is None:
+        raise InputError(description='Insufficient parameters')
+
     user = helpers.get_user(email=email)
     u_id = user['u_id']
 
@@ -189,6 +192,8 @@ def auth_passwordreset_reset(reset_code, new_password):
         Returns:
             Empty Dictionary
     '''
+    if None in {reset_code, new_password}:
+        raise InputError(description='Insufficient parameters')
 
     reset_code = int(reset_code)
     reset_request = helpers.get_reset_request(reset_code)

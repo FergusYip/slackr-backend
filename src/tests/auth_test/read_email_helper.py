@@ -2,6 +2,7 @@
 https://www.geeksforgeeks.org/python-fetch-your-gmail-emails-from-a-particular-user/'''
 
 import imaplib
+import email
 
 USER = 'thechunts.slackr@gmail.com'
 PASSWORD = 'chuntsslackr'
@@ -27,12 +28,13 @@ def get_emails(result_bytes, connection):
     messages = []  # all the email data are pushed inside an array
     for num in result_bytes[0].split():
         data = connection.fetch(num, '(RFC822)')[1]
-        messages.append(data)
+        msg = email.message_from_bytes(data[0][1])
+        messages.append(msg)
 
     return messages
 
 
-def get_num_emails_from_chunts():
+def get_msg_from_chunts():
     '''Get the number of email recieved that are from thechunts.slackr@gmail.com'''
 
     # this is done to make SSL connnection with GMAIL
@@ -47,7 +49,10 @@ def get_num_emails_from_chunts():
     # fetching emails from same email as user
     msgs = get_emails(search('FROM', USER, connection), connection)
 
-    return len(msgs)
+    connection.close()
+    connection.logout()
+
+    return msgs
 
 
 def delete_all_emails():
@@ -64,6 +69,9 @@ def delete_all_emails():
 
     connection.store('1', '+X-GM-LABELS', '\\Trash')
 
+    connection.close()
+    connection.logout()
+
 
 if __name__ == '__main__':
-    pass
+    get_msg_from_chunts()
