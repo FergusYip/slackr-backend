@@ -18,7 +18,13 @@ def admin_userpermission_change(token, u_id, permission_id):
 		Empty Dictionary
 
 	"""
+
+    if None in {token, u_id, permission_id}:
+        raise InputError(description='Insufficient parameters')
+
     token_payload = decode_token(token)
+    u_id = int(u_id)
+    permission_id = int(permission_id)
 
     if u_id not in helpers.get_all_u_id():
         raise InputError(description='u_id does not refer to a valid user')
@@ -46,6 +52,10 @@ def admin_user_remove(token, u_id):
 		Empty Dictionary
 
 	"""
+
+    if None in {token, u_id}:
+        raise InputError(description='Insufficient parameters')
+
     token_payload = decode_token(token)
 
     if u_id not in helpers.get_all_u_id():
