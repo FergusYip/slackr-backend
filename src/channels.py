@@ -104,7 +104,8 @@ def channels_create(token, name, is_public):
             'is_active': False,
             'word': None,
             'guesses': [],
-            'correct': []
+            'correct': [],
+            'stage': 0
         }
     }
 
