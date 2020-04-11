@@ -357,8 +357,8 @@ def route_user_profile_uploadphoto():
     payload = request.get_json()
     token = payload.get('token')
     img_url = payload.get('img_url')
-    x_start = int(payload.get('y_start'))
-    y_start = int(payload.get('x_start'))
+    x_start = int(payload.get('x_start'))
+    y_start = int(payload.get('y_start'))
     x_end = int(payload.get('x_end'))
     y_end = int(payload.get('y_end'))
 
@@ -381,7 +381,7 @@ def route_hangman_start():
     return dumps(hangman.start_hangman(token, channel_id))
 
 
-@APP.route("/hangman/guess", method=['POST'])
+@APP.route("/hangman/guess", methods=['POST'])
 def route_hangman_guess():
     '''Flask route for /hangman/start'''
     payload = request.get_json()
