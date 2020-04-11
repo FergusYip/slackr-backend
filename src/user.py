@@ -151,6 +151,10 @@ def user_profile_uploadphoto(token, img_url, area):
 
     width, height = img.size
 
+    if len(area) != 4:
+        raise InputError(
+            description='Must provide 4 integers for the cropping')
+
     if area[0] > width or area[2] > width:
         raise InputError(
             description='Crop constraints are outside of the image')
@@ -166,6 +170,10 @@ def user_profile_uploadphoto(token, img_url, area):
     if area[1] > area[3]:
         img = img.transpose(Image.FLIP_TOP_BOTTOM)
         area[1], area[3] = area[3], area[1]
+
+    if any(x < 0 for x in area):
+        raise InputError(
+            description='Cannot crop out of the bounds of the image')
 
     if not img_url.endswith('.jpg'):
         raise InputError(
