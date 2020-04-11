@@ -64,6 +64,12 @@ def admin_user_remove(token, u_id):
     if not helpers.is_owner(token_payload['u_id']):
         raise AccessError(description='The authorised user is not an owner')
 
+    if token_payload['u_id'] == u_id and len(helpers.get_owners()) == 1:
+        raise InputError(
+            description=
+            'You must assign another user to be an admin before removing yourself'
+        )
+
     helpers.delete_user(u_id)
 
 
