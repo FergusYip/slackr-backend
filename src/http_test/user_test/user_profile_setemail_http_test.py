@@ -1,5 +1,16 @@
 '''
 Testing the functionality of the user_profile_setemail function.
+
+Parameters used:
+    reset: Reset is a function defined in conftest.py that restores all values
+           in the data_store back to being empty.
+    new_user: A function defined in conftest.py that will create a new user based on
+              default values that can be specified. Returns the u_id and token.
+    invalid_emails: A fixture in conftest.py that returns a tuple of invalid emails for test
+                    purposes.
+    valid_emails: A fixture in conftest.py that returns a tuple of valid emails.
+    invalid_token: A function defined in conftest.py that creates a new user, stores the
+                   token, and logs the user out. It will then return this invalid token.
 '''
 
 import requests
