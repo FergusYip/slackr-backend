@@ -2,7 +2,6 @@
 import sys
 from json import dumps
 from flask import Flask, request, send_file
-from flask_cors import CORS
 from data_store import autosave
 
 # Route implementations
@@ -368,7 +367,7 @@ def route_user_profile_uploadphoto():
 
 @APP.route('/imgurl/<imgsrc>', methods=['GET'])
 def route_img_display(imgsrc):
-    return send_file(f'./profile_images/{imgsrc}', mimetype='image/jpg')
+    return send_file(f'./profile_images/{imgsrc}')
 
 
 @APP.route("/workspace/reset", methods=['POST'])
