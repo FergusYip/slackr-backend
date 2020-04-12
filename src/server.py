@@ -2,6 +2,7 @@
 import sys
 from json import dumps
 from flask import Flask, request, send_file
+from flask_cors import CORS
 from data_store import autosave
 
 # Route implementations
