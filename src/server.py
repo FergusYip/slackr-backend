@@ -365,6 +365,10 @@ def route_user_profile_uploadphoto():
     area = user.user_profile_uploadphoto_area(x_start, y_start, x_end, y_end)
     return dumps(user.user_profile_uploadphoto(token, img_url, area))
 
+@APP.route('/imgurl/<imgsrc>', methods=['GET'])
+def route_img_display(imgsrc):
+    return send_file(f'./profile_images/{imgsrc}', mimetype='image/jpg')
+
 
 @APP.route("/workspace/reset", methods=['POST'])
 def route_workspace_reset():
