@@ -1,7 +1,7 @@
 '''Backend server file for slackr'''
 import sys
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, send_file
 from flask_cors import CORS
 from data_store import autosave
 
@@ -364,6 +364,11 @@ def route_user_profile_uploadphoto():
 
     area = user.user_profile_uploadphoto_area(x_start, y_start, x_end, y_end)
     return dumps(user.user_profile_uploadphoto(token, img_url, area))
+
+
+@APP.route('/imgurl/<imgsrc>', methods=['GET'])
+def route_img_display(imgsrc):
+    return send_file(f'./profile_images/{imgsrc}')
 
 
 @APP.route("/workspace/reset", methods=['POST'])

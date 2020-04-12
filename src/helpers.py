@@ -898,5 +898,12 @@ def get_owners():
     ]
 
 
+def change_profile_image_url(u_id, profile_img_url):
+
+    for user in data_store['users']:
+        if user['u_id'] == u_id:
+            user['profile_img_url'] = profile_img_url
+
+
 if __name__ == '__main__':
     pass

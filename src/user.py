@@ -46,7 +46,8 @@ def user_profile(token, target_uid):
             'email': user_info['email'],
             'name_first': user_info['name_first'],
             'name_last': user_info['name_last'],
-            'handle_str': user_info['handle_str']
+            'handle_str': user_info['handle_str'],
+            'profile_img_url': user_info['profile_img_url']
         }
 
     return {'user': user_return}
@@ -154,6 +155,7 @@ def user_profile_sethandle(token, handle_str):
 
     return {}
 
+
 def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):
     '''
     Function that will create and return a tuple of the desired area the user wants to crop to.
@@ -190,8 +192,7 @@ def user_profile_uploadphoto(token, img_url, area):
 
     req = requests.get(f'{img_url}')
     if req.status_code != 200:
-        raise InputError(
-            description='Image does not exist')
+        raise InputError(description='Image does not exist')
 
     url = requests.get(img_url, stream=True)
     img = Image.open(url.raw)
@@ -223,12 +224,15 @@ def user_profile_uploadphoto(token, img_url, area):
             description='Cannot crop out of the bounds of the image')
 
     if not img_url.endswith('.jpg'):
-        raise InputError(
-            description='Image must be a .jpg file')
+        raise InputError(description='Image must be a .jpg file')
 
     region = img.crop(area)
 
     region.save(f'src/profile_images/{user_id}.jpg')
+
+    base_url = 'http://127.0.0.1:8080'
+    helpers.change_profile_image_url(user_id,
+                                     f'{base_url}/imgurl/{user_id}.jpg')
 
     return {}
 
