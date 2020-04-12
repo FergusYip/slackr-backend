@@ -5,6 +5,7 @@ Implementation of hangman game in a channel.
 from string import ascii_lowercase
 import random
 from PyLyrics import PyLyrics
+import wikiquote
 from data_store import DATA_STORE as data_store
 import helpers
 from token_validation import decode_token
@@ -72,8 +73,8 @@ def guess_hangman(token, channel_id, guess):
             channel['hangman']['guesses'].append(guess)
 
             # printing dashes.
-            dashed = get_dashed(
-                channel['hangman']['word'], channel['hangman']['guesses'])
+            dashed = get_dashed(channel['hangman']['word'],
+                                channel['hangman']['guesses'])
             message.message_send(token, channel_id, dashed)
 
             # incorrect guess.
@@ -81,8 +82,7 @@ def guess_hangman(token, channel_id, guess):
                 # printing the stage of game.
                 wrong_guesses = len(channel['hangman']['guesses']) - \
                     len(channel['hangman']['correct'])
-                message.message_send(
-                    token, channel_id, stages[wrong_guesses])
+                message.message_send(token, channel_id, stages[wrong_guesses])
 
             # if more than 10 incorrect guesses.
             elif wrong_guesses > 10:
@@ -116,13 +116,19 @@ def get_dashed(word, guesses):
 def get_line():
     '''
     Function to get random line with PyLyrics.
+    Note: PyLrics raises an error about the default htmlparser
     '''
-
-    lyrics = PyLyrics.getLyrics(
-        'Rick Astley', 'Never Gonna Give You Up')
+    lyrics = PyLyrics.getLyrics('Rick Astley', 'Never Gonna Give You Up')
 
     lyrics = lyrics.split('\n')
 
     filtered = [line for line in lyrics if len(line) > 5]
 
     return random.choice(filtered)
+
+
+def get_quote():
+    '''
+    Function to get a random word from wikiquote
+    '''
+    return random.choice(wikiquote.random_titles(lang='en'))
