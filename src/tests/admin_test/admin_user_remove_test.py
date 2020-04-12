@@ -8,7 +8,7 @@ import message as msg
 from error import InputError, AccessError
 
 
-def test_admin_user_remove_insufficient_params(reset, new_user):
+def test_admin_user_remove_insufficient_params(reset):
     '''Test function with insufficient parameters'''
 
     with pytest.raises(InputError):
@@ -85,8 +85,7 @@ def test_admin_user_remove_after_removal_channel(reset, new_user, new_channel):
     admin_user = new_user(email='admin@slackr.com')
     member_user = new_user(email='pleb@slackr.com')
 
-    test_channel = channels.channels_create(admin_user['token'], 'Channel',
-                                            True)
+    test_channel = new_channel(admin_user)
     channel.channel_join(member_user['token'], test_channel['channel_id'])
 
     channel_members = channel.channel_details(
@@ -106,8 +105,7 @@ def test_admin_user_remove_after_removal_msgs(reset, new_user, new_channel):
     admin_user = new_user(email='admin@slackr.com')
     member_user = new_user(email='pleb@slackr.com')
 
-    test_channel = channels.channels_create(admin_user['token'], 'Channel',
-                                            True)
+    test_channel = new_channel(admin_user)
     channel.channel_join(member_user['token'], test_channel['channel_id'])
 
     channel_members = channel.channel_details(
@@ -136,8 +134,7 @@ def test_admin_user_remove_after_removal_reacts(reset, new_user, new_channel):
     admin_user = new_user(email='admin@slackr.com')
     member_user = new_user(email='pleb@slackr.com')
 
-    test_channel = channels.channels_create(admin_user['token'], 'Channel',
-                                            True)
+    test_channel = new_channel(admin_user)
     channel.channel_join(member_user['token'], test_channel['channel_id'])
 
     channel_members = channel.channel_details(
@@ -164,7 +161,7 @@ def test_admin_user_remove_after_removal_reacts(reset, new_user, new_channel):
     assert len(channel_msgs[0]['reacts']) == 1
 
 
-def test_admin_user_remove_after_removal_token(reset, new_user, new_channel):
+def test_admin_user_remove_after_removal_token(reset, new_user):
     '''Test that the results of removing a user in regards to the user token'''
 
     admin_user = new_user(email='admin@slackr.com')
