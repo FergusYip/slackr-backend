@@ -9,7 +9,7 @@ def test_users_all_single_user(reset, test_user):
     '''Test that a single user profile is returned by user_all'''
 
     test_user_profile = user.user_profile(test_user['token'],
-                                          test_user['u_id'])
+                                          test_user['u_id'])['user']
     all_users = other.users_all(test_user['token'])
 
     assert test_user_profile in all_users['users']
