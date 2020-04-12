@@ -108,7 +108,7 @@ def get_dashed(word, guesses):
     # getting list of all lowercase letters.
     dashed = word
     for char in dashed:
-        if char.lower() not in guesses:
+        if char.lower() not in guesses and char.isalpha():
             dashed = dashed.replace(char, '_')
     return dashed
 
