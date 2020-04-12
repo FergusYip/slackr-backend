@@ -230,6 +230,10 @@ def user_profile_uploadphoto(token, img_url, area):
 
     region.save(f'src/profile_images/{user_id}.jpg')
 
+    base_url = 'localhost:8080'
+    helpers.change_profile_image_url(user_id,
+                                     f'{base_url}/imgurl/{user_id}.jpg')
+
     return {}
 
 
