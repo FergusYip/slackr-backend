@@ -12,7 +12,7 @@ def test_users_all_single_user(reset, new_user, get_user_profile):
     user = new_user(email='user_1@email.com')
     users_all_input = {'token': user['token']}
 
-    user_profile = get_user_profile(user['token'], user['u_id'])
+    user_profile = get_user_profile(user['token'], user['u_id'])['user']
 
     users_all = requests.get(f'{BASE_URL}/users/all',
                              params=users_all_input).json()

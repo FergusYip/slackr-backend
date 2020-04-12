@@ -175,7 +175,7 @@ def test_register_handle(reset, get_user_profile):
     }
 
     user = req.post(f"{BASE_URL}/auth/register", json=user_info).json()
-    user_profile = get_user_profile(user['token'], user['u_id'])
+    user_profile = get_user_profile(user['token'], user['u_id'])['user']
 
     assert user_profile['handle_str'] == 'firstlast'
 
@@ -195,8 +195,8 @@ def test_register_unique_handle(reset, get_user_profile):
     user_info['email'] = 'user2@email.com'
     user_2 = req.post(f"{BASE_URL}/auth/register", json=user_info).json()
 
-    user_profile_1 = get_user_profile(user_1['token'], user_1['u_id'])
-    user_profile_2 = get_user_profile(user_2['token'], user_2['u_id'])
+    user_profile_1 = get_user_profile(user_1['token'], user_1['u_id'])['user']
+    user_profile_2 = get_user_profile(user_2['token'], user_2['u_id'])['user']
 
     assert user_profile_1['handle_str'] != user_profile_2['handle_str']
 
@@ -212,7 +212,7 @@ def test_register_long_handle(reset, get_user_profile):
     }
 
     user = req.post(f"{BASE_URL}/auth/register", json=user_info).json()
-    user_profile = get_user_profile(user['token'], user['u_id'])
+    user_profile = get_user_profile(user['token'], user['u_id'])['user']
 
     assert user_profile['handle_str'] == '123456789testing1234'
 

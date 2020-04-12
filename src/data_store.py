@@ -28,7 +28,8 @@ except FileNotFoundError:
             'email': 'deleted',
             'name_first': 'Deleted',
             'name_last': 'User',
-            'handle_str': 'deleted'
+            'handle_str': 'deleted',
+            'profile_img_url': 'https://i.imgur.com/nsoGP2n.jpg'
         },
         'hangman_bot': {
             'u_id': -95,

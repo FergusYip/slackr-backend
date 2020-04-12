@@ -4,6 +4,7 @@ import hashlib
 from datetime import datetime, timezone
 from data_store import DATA_STORE as data_store
 
+
 def get_channel(channel_id):
     """
     Returns channel with id channel_id.
@@ -882,6 +883,26 @@ def get_reset_request(reset_code):
         if request['reset_code'] == reset_code:
             return request
     return None
+
+
+def get_owners():
+    ''' Returns a list of owners
+
+    Returns:
+        u_ids (list): List of user IDs
+    '''
+
+    return [
+        user['u_id'] for user in data_store['users']
+        if user['permission_id'] == data_store['permissions']['owner']
+    ]
+
+
+def change_profile_image_url(u_id, profile_img_url):
+
+    for user in data_store['users']:
+        if user['u_id'] == u_id:
+            user['profile_img_url'] = profile_img_url
 
 
 if __name__ == '__main__':

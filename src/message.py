@@ -20,6 +20,16 @@ def message_send(token, channel_id, message, message_id=None):
     '''
     Function that will take in a message as a string
     and append this message to a channel's list of messages.
+
+    Parameters:
+        token (str): The user's token to be decoded to get the user's u_id.
+        channel_id (int): The channel identification number.
+        message (str): The message to be sent in the channel.
+        message_id=None: An optional message_id tag default to None for standard messages
+                         and given a message_id for the sendlater function.
+    
+    Return:
+        Dictionary (dict): A dictionary containing one key and value pair of the message_id.
     '''
 
     token_info = decode_token(token)
@@ -67,6 +77,13 @@ def message_remove(token, message_id):
     '''
     Function that will take in a message ID and remove this
     message from the list of messages in a specific channel.
+
+    Parameters:
+        token (str): The user's token to be decoded to get the user's u_id.
+        message_id (int): The message_id of the message that will be removed.
+    
+    Return:
+        Dictionary (dict): An empty dictionary
     '''
 
     token_info = decode_token(token)
@@ -96,6 +113,14 @@ def message_edit(token, message_id, message):
     '''
     Function that will take in a new message that will overwrite
     an existing message in a desired channel.
+
+    Parameters:
+        token (str): The user's token to be decoded to get the user's u_id.
+        message_id (int): The message_id of the message.
+        message (str): The message the user will update the current message to.
+    
+    Return:
+        Dictionary (dict): An empty dictionary
     '''
 
     token_info = decode_token(token)
@@ -131,7 +156,17 @@ def message_sendlater(token, channel_id, message, time_sent):
     '''
     Function that will send a message in a desired channel at a specified
     time in the future.
+
+    Parameters:
+        token (str): The user's token to be decoded to get the user's u_id.
+        channel_id (int): The channel identification number.
+        message (str): The message to be sent in the channel.
+        time_sent (int): The unix timestamp as an integer of when the message will be sent.
+    
+    Return:
+        Dictionary (dict): A dictionary containing one key and value pair of the message_id.
     '''
+
     time_now = helpers.utc_now()
     decode_token(token)
     if time_now > time_sent:
@@ -149,6 +184,17 @@ def send_later(token, channel_id, message, time_sent, message_id):
     It will then call the message_send function to send the message,
     reserve the next available message_id, but come after any messages
     sent between the send_later request and the actual posting of the message.
+
+    Parameters:
+        token (str): The user's token to be decoded to get the user's u_id.
+        channel_id (int): The channel identification number.
+        message (str): The message to be sent in the channel.
+        time_sent (int): The unix timestamp as an integer of when the message will be sent.
+        message_id (int): The message_id that will be assigned to this message that has
+                          been created.
+    
+    Return:
+        None
     '''
 
     time_now = helpers.utc_now()
@@ -162,6 +208,17 @@ def send_later_thread(token, channel_id, message, time_sent, message_id):
     Function that will run the send_later function in the background as to not
     put the entire application to sleep whilst waiting for the send_later
     timer to end.
+
+    Parameters:
+        token (str): The user's token to be decoded to get the user's u_id.
+        channel_id (int): The channel identification number.
+        message (str): The message to be sent in the channel.
+        time_sent (int): The unix timestamp as an integer of when the message will be sent.
+        message_id (int): The message_id that will be assigned to this message that has
+                          been created.
+    
+    Return:
+        None
     '''
 
     thread = threading.Thread(target=send_later,
@@ -174,6 +231,14 @@ def message_react(token, message_id, react_id):
     '''
     Function that will add a reaction to a specific message in a desired
     channel.
+
+    Parameters:
+        token (str): The user's token to be decoded to get the user's u_id.
+        message_id (int): The message_id of the message.
+        react_id (int): The type of reaction that will be added to the message.
+    
+    Return:
+        Dictionary (dict): An empty dictionary
     '''
 
     token_info = decode_token(token)
@@ -216,6 +281,14 @@ def message_react(token, message_id, react_id):
 def message_unreact(token, message_id, react_id):
     '''
     Function that will remove a specific reaction from a message in a desired channel.
+
+    Parameters:
+        token (str): The user's token to be decoded to get the user's u_id.
+        message_id (int): The message_id of the message.
+        react_id (int): The type of reaction that will be unreacted from the message.
+    
+    Return:
+        Dictionary (dict): An empty dictionary
     '''
 
     token_info = decode_token(token)
@@ -260,6 +333,13 @@ def message_pin(token, message_id):
     '''
     Function that will mark a message as 'pinned' to be given special
     display treatment by the frontend.
+
+    Parameters:
+        token (str): The user's token to be decoded to get the user's u_id.
+        message_id (int): The message_id of the message.
+    
+    Return:
+        Dictionary (dict): An empty dictionary
     '''
 
     token_info = decode_token(token)
@@ -291,6 +371,13 @@ def message_pin(token, message_id):
 def message_unpin(token, message_id):
     '''
     Function that will remove the 'pinned' status of a message.
+
+    Parameters:
+        token (str): The user's token to be decoded to get the user's u_id.
+        message_id (int): The message_id of the message.
+    
+    Return:
+        Dictionary (dict): An empty dictionary
     '''
 
     token_info = decode_token(token)

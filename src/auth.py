@@ -62,6 +62,7 @@ def auth_register(email, password, name_first, name_last):
         'name_last': name_last,
         'handle_str': generate_handle(name_first, name_last),
         'permission_id': default_permission(),
+        'profile_img_url': 'https://i.imgur.com/Mw7Z32g.jpg'
     }
 
     data_store['users'].append(user)
@@ -138,6 +139,9 @@ def auth_passwordreset_request(email):
         Empty Dictionary
     '''
 
+    if email is None:
+        raise InputError(description='Insufficient parameters')
+
     user = helpers.get_user(email=email)
     u_id = user['u_id']
 
@@ -189,6 +193,8 @@ def auth_passwordreset_reset(reset_code, new_password):
         Returns:
             Empty Dictionary
     '''
+    if None in {reset_code, new_password}:
+        raise InputError(description='Insufficient parameters')
 
     reset_code = int(reset_code)
     reset_request = helpers.get_reset_request(reset_code)
