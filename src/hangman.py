@@ -2,7 +2,6 @@
 Implementation of hangman game in a channel.
 '''
 
-from string import ascii_lowercase
 import random
 from PyLyrics import PyLyrics
 import wikiquote
@@ -98,6 +97,8 @@ def guess_hangman(token, channel_id, guess):
         message.message_send(token, channel_id, dashed)
         message.message_send(token, channel_id, 'Congratulations!')
 
+    return {}
+
 
 def get_dashed(word, guesses):
     '''
@@ -105,10 +106,9 @@ def get_dashed(word, guesses):
     '''
 
     # getting list of all lowercase letters.
-    lowercase = [char for char in ascii_lowercase]
     dashed = word
-    for char in lowercase:
-        if char not in guesses:
+    for char in dashed:
+        if char.lower() not in guesses:
             dashed = dashed.replace(char, '_')
     return dashed
 
