@@ -62,6 +62,7 @@ def auth_register(email, password, name_first, name_last):
         'name_last': name_last,
         'handle_str': generate_handle(name_first, name_last),
         'permission_id': default_permission(),
+        'profile_img_url': 'https://imgur.com/o6OHqnt'
     }
 
     data_store['users'].append(user)
