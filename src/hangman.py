@@ -76,18 +76,18 @@ def guess_hangman(token, channel_id, guess):
                 channel['hangman']['word'], channel['hangman']['guesses'])
             message.message_send(token, channel_id, dashed)
 
-            # if more than 10 guesses.
-            if len(channel['hangman']['guesses']) > 10:
-                message.message_send(token, channel_id, 'Game Over')
-                channel['hangman']['is_active'] = False
-
             # incorrect guess.
-            elif guess not in channel['hangman']['word']:
+            if guess not in channel['hangman']['word']:
                 # printing the stage of game.
                 wrong_guesses = len(channel['hangman']['guesses']) - \
                     len(channel['hangman']['correct'])
                 message.message_send(
                     token, channel_id, stages[wrong_guesses])
+
+            # if more than 10 incorrect guesses.
+            elif wrong_guesses > 10:
+                message.message_send(token, channel_id, 'Game Over')
+                channel['hangman']['is_active'] = False
 
             # correct guess.
             else:
