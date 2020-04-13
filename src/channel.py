@@ -141,7 +141,7 @@ def channel_messages(token, channel_id, start):
             message_reacts.append(react_info)
 
         u_id = message['u_id']
-        if helpers.get_user(message['u_id']) is None:
+        if helpers.get_user(message['u_id']) is None and not -95:
             u_id = -99  # ID for a deleted user
 
         message_info = {
