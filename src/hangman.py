@@ -3,7 +3,6 @@ Implementation of hangman game in a channel.
 '''
 
 import random
-from PyLyrics import PyLyrics
 import wikiquote
 from data_store import DATA_STORE as data_store
 import helpers
@@ -111,20 +110,6 @@ def get_dashed(word, guesses):
         if char.lower() not in guesses and char.isalpha():
             dashed = dashed.replace(char, '_')
     return dashed
-
-
-def get_line():
-    '''
-    Function to get random line with PyLyrics.
-    Note: PyLrics raises an error about the default htmlparser
-    '''
-    lyrics = PyLyrics.getLyrics('Rick Astley', 'Never Gonna Give You Up')
-
-    lyrics = lyrics.split('\n')
-
-    filtered = [line for line in lyrics if len(line) > 5]
-
-    return random.choice(filtered)
 
 
 def get_quote():
