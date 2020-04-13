@@ -38,6 +38,8 @@ def user_profile(token, target_uid):
 
     if target_uid == -99:
         user_return = data_store['deleted_user_profile']
+    elif target_uid == -95:
+        user_return = data_store['hangman_bot']
     elif user_info is None:
         raise InputError(description='User ID is not a valid user')
     else:
