@@ -33,8 +33,8 @@ def start_hangman(token, channel_id):
         if channel_id == channel['channel_id']:
             channel['hangman']['is_active'] = True
             channel['hangman']['word'] = get_quote()
-            dashes = get_dashed(
-                channel['hangman']['word'], channel['hangman']['guesses'])
+            dashes = get_dashed(channel['hangman']['word'],
+                                channel['hangman']['guesses'])
             message.message_send(bot_token, channel_id, dashes)
 
     return {}
@@ -104,8 +104,8 @@ def guess_hangman(token, channel_id, guess):
                     # printing the stage of game.
                     message.message_send(bot_token, channel_id,
                                          stages[wrong_guesses])
-                    message.message_send(bot_token, channel_id, str(
-                        channel['hangman']['guesses']))
+                    message.message_send(bot_token, channel_id,
+                                         str(channel['hangman']['guesses']))
 
                 # correct guess.
                 else:
@@ -138,10 +138,6 @@ def get_quote():
     Function to get a random word from wikiquote
     '''
     word = random.choice(wikiquote.random_titles(lang='en'))
-    brackets = {'{', '[', '(', '<'}
-    for char in brackets:
-        index = word.find(char)
-        if index != -1:
-            word = word[:index]
-    word = word.strip()
+    while not word.isalpha():
+        word = random.choice(wikiquote.random_titles(lang='en'))
     return word
