@@ -16,23 +16,28 @@ def start_hangman(token, channel_id):
     '''
     Initializes the hangman game.
     '''
-
+    decode_token(token)
     bot_token = token_validation.encode_token(-95)
     data_store['hangman_bot']['token'] = bot_token
-
+    channel_id = int(channel_id)
     channel = helpers.get_channel(channel_id)
 
     if channel is None:
         raise InputError(description='Channel does not exist.')
 
+    if channel['hangman']['is_active'] is True:
+        raise InputError(description='game already in progress.')
+
     # setting hangman is_active to true.
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             channel['hangman']['is_active'] = True
-            channel['hangman']['word'] = get_line().lower()
-            dashes = '_' * len(channel['hangman']['word'])
+            channel['hangman']['word'] = get_quote()
+            dashes = get_dashed(
+                channel['hangman']['word'], channel['hangman']['guesses'])
+            message.message_send(bot_token, channel_id, dashes)
 
-    message.message_send(bot_token, channel_id, dashes)
+    return {}
 
 
 def guess_hangman(token, channel_id, guess):
@@ -41,7 +46,10 @@ def guess_hangman(token, channel_id, guess):
     '''
 
     decode_token(token)
+    channel_id = int(channel_id)
     channel = helpers.get_channel(channel_id)
+    bot_token = data_store['hangman_bot']['token']
+    dashed = 'hello'
 
     stages = {
         0: '',
@@ -68,34 +76,45 @@ def guess_hangman(token, channel_id, guess):
                 raise InputError(description='game not active')
 
             # appending to list of guesses.
-            channel['hangman']['guesses'].append(guess)
+            channel['hangman']['guesses'].append(guess.lower())
 
             # printing dashes.
             dashed = get_dashed(channel['hangman']['word'],
                                 channel['hangman']['guesses'])
-            message.message_send(token, channel_id, dashed)
 
-            # incorrect guess.
-            if guess not in channel['hangman']['word']:
-                # printing the stage of game.
-                wrong_guesses = len(channel['hangman']['guesses']) - \
-                    len(channel['hangman']['correct'])
-                message.message_send(token, channel_id, stages[wrong_guesses])
+            wrong_guesses = len(channel['hangman']['guesses']) - \
+                len(channel['hangman']['correct'])
 
             # if more than 10 incorrect guesses.
-            elif wrong_guesses > 10:
-                message.message_send(token, channel_id, 'Game Over')
-                channel['hangman']['is_active'] = False
+            if wrong_guesses > 10:
+                message.message_send(bot_token, channel_id, 'Game Over')
+                message.message_send(bot_token, channel_id,
+                                     channel['hangman']['word'])
 
-            # correct guess.
+                # reset game.
+                channel['hangman']['is_active'] = False
+                channel['hangman']['word'] = None
+                channel['hangman']['guesses'] = []
+                channel['hangman']['correct'] = []
+
             else:
-                channel['hangman']['correct'].append(guess)
+                message.message_send(bot_token, channel_id, dashed)
+                # incorrect guess.
+                if guess.lower() not in channel['hangman']['word'].lower():
+                    # printing the stage of game.
+                    message.message_send(bot_token, channel_id,
+                                         stages[wrong_guesses])
+                    message.message_send(bot_token, channel_id, str(
+                        channel['hangman']['guesses']))
+
+                # correct guess.
+                else:
+                    channel['hangman']['correct'].append(guess)
 
     # full word is guessed.
     if '_' not in dashed and len(channel['hangman']['guesses']) <= 10:
-        message.message_send(token, channel_id, dashed)
-        message.message_send(token, channel_id, 'Congratulations!')
-
+        message.message_send(bot_token, channel_id, dashed)
+        message.message_send(bot_token, channel_id, 'Congratulations!')
     return {}
 
 
@@ -108,7 +127,9 @@ def get_dashed(word, guesses):
     dashed = word
     for char in dashed:
         if char.lower() not in guesses and char.isalpha():
-            dashed = dashed.replace(char, '_')
+            dashed = dashed.replace(char, '_ ')
+        elif char == ' ':
+            dashed = dashed.replace(char, '   ')
     return dashed
 
 
