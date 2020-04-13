@@ -33,6 +33,7 @@ except FileNotFoundError:
         },
         'hangman_bot': {
             'u_id': -95,
+            'token': '',
             'email': 'hangmanBot',
             'name_first': 'Hangman',
             'name_last': 'Bot',
