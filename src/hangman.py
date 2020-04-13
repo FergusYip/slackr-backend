@@ -116,4 +116,11 @@ def get_quote():
     '''
     Function to get a random word from wikiquote
     '''
-    return random.choice(wikiquote.random_titles(lang='en'))
+    word = random.choice(wikiquote.random_titles(lang='en'))
+    brackets = {'{', '[', '(', '<'}
+    for char in brackets:
+        index = word.find(char)
+        if index != -1:
+            word = word[:index]
+    word = word.strip()
+    return word
