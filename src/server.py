@@ -368,6 +368,7 @@ def route_user_profile_uploadphoto():
 
 @APP.route('/imgurl/<imgsrc>', methods=['GET'])
 def route_img_display(imgsrc):
+    '''Flask route for /imgurl'''
     return send_file(f'./profile_images/{imgsrc}')
 
 
