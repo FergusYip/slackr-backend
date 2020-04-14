@@ -306,6 +306,27 @@ class DeletedUser:
             'profile_img_url': self.profile_img_url
         }
 
+class HangmanBot:
+    def __init__(self):
+        self.u_id = -95
+        self.email = 'hangmanbot'
+        self.name_first = 'Hangman'
+        self.name_last = 'Bot'
+        self.handle_str = 'hangman_bot'
+        self.profile_img_url = 'https://i.imgur.com/olQfW6w.jpg'
+        self.messages = []
+        
+    @property
+    def profile(self):
+        return {
+            'u_id': self.u_id,
+            'email': self.email,
+            'name_first': self.name_first,
+            'name_last': self.name_last,
+            'handle_str': self.handle_str,
+            'profile_img_url': self.profile_img_url
+        }
+
 class DataStore:
     def __init__(self):
         self.users = []
@@ -322,14 +343,7 @@ class DataStore:
         self.time_created = helpers.utc_now()
         self.preset_profiles = {
             'deleted_user': DeletedUser(),
-            'hangman_bot': {
-                'u_id': -95,
-                'email': 'hangmanBot',
-                'name_first': 'Hangman',
-                'name_last': 'Bot',
-                'handle_str': 'Hangman Bot',
-                'profile_img_url': 'https://i.imgur.com/olQfW6w.jpg'
-            }
+            'hangman_bot': HangmanBot()
         }
         self.reset_requests = []
 
