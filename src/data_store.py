@@ -24,29 +24,65 @@ class User:
         self.profile_img_url = default_profile_img()
 
     def set_email(self, email):
-        '''Set the user's email'''
+        '''Set the user's email
+
+        Parameters:
+            email (str): email
+
+        '''
         self.email = email
 
     def set_name(self, name_first, name_last):
-        '''Set the user's firt and last name'''
+        '''Set the user's firt and last name
+
+        Parameters:
+            name_first (str): First name
+            name_last (str): Last name
+
+        '''
         self.name_first = name_first
         self.name_last = name_last
 
     def change_password(self, password):
-        '''Change the user's password'''
+        '''Change the user's password
+
+        Parameters:
+            password (str): Password
+
+        '''
         self.password = helpers.hash_pw(password)
 
     def set_handle(self, handle_str):
-        '''Set the user's handle'''
+        '''Set the user's handle
+
+        Parameters:
+            handle_str (str): Handle String
+
+        '''
         self.handle_str = handle_str
 
     def change_permission(self, permission_id):
-        '''Change the user's permission ID'''
+        '''Change the user's permission ID
+
+        Parameters:
+            permission_id (int): Permission ID
+
+        '''
         self.permission_id = permission_id
 
     @property
     def profile(self):
-        '''Get a dictionary of the user's profile'''
+        '''Get a dictionary of the user's profile
+
+        Returns (dict):
+            u_id (int): User ID
+            email (str): Email
+            name_first (str): First name
+            name_last (str): Last name
+            handle_strd (str): Handle
+            profile_img_url (str): Url of profile image
+
+        '''
         return {
             'u_id': self.u_id,
             'email': self.email,
@@ -58,7 +94,15 @@ class User:
 
     @property
     def details(self):
-        '''Get a dictionary of the user's details'''
+        '''Get a dictionary of the user's details
+
+        Returns (dict):
+            name_first (str): First name
+            name_last (str): Last name
+            handle_strd (str): Handle
+            profile_img_url (str): Url of profile image
+
+        '''
         return {
             'u_id': self.u_id,
             'name_first': self.name_first,
@@ -67,24 +111,49 @@ class User:
         }
 
     def add_channel(self, channel):
-        '''Add the user to a channel'''
+        '''Add the user to a channel
+
+        Parameters:
+            channel (obj): Channel object
+
+        '''
         self.channels.append(channel)
 
     def remove_channel(self, channel):
-        '''Remove the user to a channel'''
+        '''Remove the user to a channel
+
+        Parameters:
+            channel (obj): Channel object
+
+        '''
         self.channels.remove(channel)
 
     def add_message(self, message):
-        '''Add a message associated to the user'''
+        '''Add a message associated to the user
+
+        Parameters:
+            message (obj): Message object
+
+        '''
         self.messages.append(message)
 
     def remove_message(self, message):
-        '''Remove a message associated to the user'''
+        '''Remove a message associated to the user
+
+        Parameters:
+            message (obj): Message object
+
+        '''
         self.messages.remove(message)
 
     @property
     def viewable_messages(self):
-        '''Get a list of all messages viewable to the user'''
+        '''Get a list of all messages viewable to the user
+
+        Returns (list):
+            message (obj): Message object
+
+        '''
         msgs = []
         for channel in self.channels:
             for message in channel.messages:
@@ -92,15 +161,30 @@ class User:
         return msgs
 
     def add_react(self, react):
-        '''Add a react associated to the user'''
+        '''Add a react associated to the user
+
+        Parameters:
+            react (obj): React object
+
+        '''
         self.reacts.append(react)
 
     def remove_react(self, react):
-        '''Remove a react associated to the user'''
+        '''Remove a react associated to the user
+
+        Parameters:
+            react (obj): React object
+
+        '''
         self.reacts.remove(react)
 
     def change_profile_img_url(self, profile_img_url):
-        '''Change the user's profile image url'''
+        '''Change the user's profile image url
+
+        Parameters:
+            profile_img_url (str): Url of profile image
+
+        '''
         self.profile_img_url = profile_img_url
 
 
