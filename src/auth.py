@@ -54,21 +54,7 @@ def auth_register(email, password, name_first, name_last):
 
     user = User(email, password, name_first, name_last)
     DATA_STORE.add_user(user)
-    """
-    u_id = helpers.generate_u_id()
-    user = {
-        'u_id': u_id,
-        'email': email,
-        'password': helpers.hash_pw(password),
-        'name_first': name_first,
-        'name_last': name_last,
-        'handle_str': generate_handle(name_first, name_last),
-        'permission_id': default_permission(),
-        'profile_img_url': 'https://i.imgur.com/Mw7Z32g.jpg'
-    }
-
-    data_store['users'].append(user)
-    """
+    
     return {
         'u_id': user.u_id,
         'token': encode_token(user.u_id),
@@ -128,7 +114,7 @@ def auth_logout(token):
     return {'is_success': is_success}
 
 
-"""
+
 def auth_passwordreset_request(email):
     ''' Makes a password reset request and sends a email to the desired email
 
@@ -142,14 +128,11 @@ def auth_passwordreset_request(email):
     if email is None:
         raise InputError(description='Insufficient parameters')
 
-    user = helpers.get_user(email=email)
-    u_id = user['u_id']
+    user = DATA_STORE.get_user(email=email)
 
-    reset_code = generate_reset_code()
+    DATA_STORE.invalidate_reset_request_from_user(user)
 
-    helpers.invalidate_reset_request_from_user(u_id)
-
-    helpers.make_reset_request(reset_code, u_id)
+    reset_code = DATA_STORE.make_reset_request(user)
 
     sender = 'thechunts.slackr@gmail.com'
     password = 'chuntsslackr'
@@ -170,7 +153,6 @@ def auth_passwordreset_request(email):
     </html>
     ''', subtype='html')
 
-    user = helpers.get_user(email=email)
     if user is not None:
         try:
             server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
@@ -180,52 +162,7 @@ def auth_passwordreset_request(email):
             print("Successfully sent email")
         except smtplib.SMTPException:
             print("Error: unable to send email")
-    return {}
 
-def auth_passwordreset_request(email):
-    ''' Makes a password reset request and sends a email to the desired email
-
-    Parameters:
-        email (str): Email assocaited to the account the user wants to reset
-
-    Returns:
-        Empty Dictionary
-    '''
-
-    user = data_store.get_user(email=email)
-
-    data_store.invalidate_reset_request_from_user(user)
-    reset_code = data_store.make_reset_request(user)
-
-    sender = 'thechunts.slackr@gmail.com'
-    password = 'chuntsslackr'
-
-    message = EmailMessage()
-    message['Subject'] = 'Slackr: Password Reset Code'
-    message['From'] = sender
-    message['To'] = email
-    message.set_content(f'Your reset code is {reset_code}')
-
-    message.add_alternative(\
-    f'''
-    <!DOCTPYE html>
-    <html>
-        <body>
-            <h1 style="color=Black, align=center">Your password reset code is {reset_code}</h1>
-        </body>
-    </html>
-    ''', subtype='html')
-
-    user = data_store.get_user(email=email)
-    if user is not None:
-        try:
-            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            server.login(sender, password)
-            server.send_message(message)
-            server.quit()
-            print("Successfully sent email")
-        except smtplib.SMTPException:
-            print("Error: unable to send email")
     return {}
 
 
@@ -241,7 +178,7 @@ def auth_passwordreset_reset(reset_code, new_password):
     '''
 
     reset_code = int(reset_code)
-    reset_request = data_store.get_reset_request(reset_code)
+    reset_request = DATA_STORE.get_reset_request(reset_code)
 
     if reset_request is None:
         raise InputError(description='Reset code is not valid')
@@ -249,11 +186,10 @@ def auth_passwordreset_reset(reset_code, new_password):
     if len(new_password) < 6:
         raise InputError(description='Password is not valid')
 
-    user = data_store.get_user(u_id=reset_request['u_id'])
+    user = DATA_STORE.get_user(u_id=reset_request['u_id'])
     user.change_password(new_password)
 
     return {}
-"""
 
 if __name__ == '__main__':
     pass
