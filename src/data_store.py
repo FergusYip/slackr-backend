@@ -38,7 +38,6 @@ class User:
     def change_permission(self, permission_id):
         self.permission_id = permission_id
 
-
     @property
     def profile(self):
         return {
@@ -87,17 +86,6 @@ class User:
 
     def change_profile_img_url(self, profile_img_url):
         self.profile_img_url = profile_img_url
-
-    def to_dict(self):
-        return {
-            'u_id': self.u_id,
-            'email': self.email,
-            'password': self.password,
-            'name_first': self.name_first,
-            'name_last': self.name_last,
-            'handle_str': self.handle_str,
-            'permission_id': self.permission_id
-        }
 
 
 class Standup:
@@ -181,19 +169,6 @@ class Channel:
     def remove_message(self, message):
         self.messages.remove(message)
 
-    def to_dict(self):
-        messages = []
-        for message in self.messages:
-            messages.append(message.to_dict())
-        return {
-            'channel_id': self.channel_id,
-            'name': self.name,
-            'is_public': self.is_public,
-            'owner_members': self.owner_members,
-            'all_members': self.all_members,
-            'messages': messages
-        }
-
 
 class Message:
     def __init__(self, sender, channel, message, message_id=None):
@@ -248,20 +223,6 @@ class Message:
     def remove_react(self, react):
         self.reacts.remove(react)
 
-    @property
-    def to_dict(self):
-        reacts = []
-        for react in self.reacts:
-            reacts.append(react.to_dict)
-        return {
-            'message_id': self.message_id,
-            'u_id': self.u_id,
-            'message': self.message,
-            'time_created': self.time_created,
-            'reacts': reacts,
-            'is_pinned': self.is_pinned
-        }
-
 
 class React:
     def __init__(self, react_id, message):
@@ -282,9 +243,6 @@ class React:
     def is_user_reacted(self, u_id):
         return u_id in self.u_ids
 
-    @property
-    def to_dict(self):
-        return {'react_id': self.react_id, 'u_ids': self.u_ids}
 
 class DeletedUser:
     def __init__(self):
@@ -294,7 +252,7 @@ class DeletedUser:
         self.name_last = 'User'
         self.handle_str = 'deleted'
         self.profile_img_url = 'https://i.imgur.com/nsoGP2n.jpg'
-        
+
     @property
     def profile(self):
         return {
@@ -305,6 +263,7 @@ class DeletedUser:
             'handle_str': self.handle_str,
             'profile_img_url': self.profile_img_url
         }
+
 
 class HangmanBot:
     def __init__(self):
@@ -315,7 +274,7 @@ class HangmanBot:
         self.handle_str = 'hangman_bot'
         self.profile_img_url = 'https://i.imgur.com/olQfW6w.jpg'
         self.messages = []
-        
+
     @property
     def profile(self):
         return {
@@ -326,6 +285,7 @@ class HangmanBot:
             'handle_str': self.handle_str,
             'profile_img_url': self.profile_img_url
         }
+
 
 class DataStore:
     def __init__(self):
@@ -451,24 +411,6 @@ class DataStore:
         self.max_ids[id_type] += 1
         return self.max_ids[id_type]
 
-    def to_dict(self):
-        users = []
-        for user in self.users:
-            users.append(user.to_dict())
-        channels = []
-        for channel in self.channels:
-            channels.append(channel.to_dict())
-
-        return {
-            'users': users,
-            'channels': channels,
-            'token_blacklist': self.token_blacklist,
-            'permissions': self.permissions,
-            'reactions': self.reactions,
-            'max_ids': self.max_ids,
-            'time_created': self.time_created
-        }
-
     def reset(self):
         self.users.clear()
         self.channels.clear()
@@ -562,7 +504,7 @@ def autosave():
 
 
 def generate_handle(name_first, name_last):
-    """ Generate a handle best on name_first and name_last
+    """ Generate a handle based on name_first and name_last
 
     Parameters:
         name_first (str): First name
@@ -591,12 +533,13 @@ def generate_handle(name_first, name_last):
 
     return handle_str
 
-def default_profile_img():
-    colors = {
-        'blue' :'https://i.imgur.com/HrDzaJo.jpg',
-        'green' : 'https://i.imgur.com/jETb01M.jpg',
-        'purple' : 'https://i.imgur.com/qmX0dIZ.jpg',
-        'red' : 'https://i.imgur.com/FTKy1XA.jpg'
-    }
 
+def default_profile_img():
+    ''' Return a link to a randomised default image'''
+    colors = {
+        'blue': 'https://i.imgur.com/HrDzaJo.jpg',
+        'green': 'https://i.imgur.com/jETb01M.jpg',
+        'purple': 'https://i.imgur.com/qmX0dIZ.jpg',
+        'red': 'https://i.imgur.com/FTKy1XA.jpg'
+    }
     return random.choice(list(colors.values()))
