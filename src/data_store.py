@@ -9,6 +9,7 @@ SECRET = 'the chunts'
 
 
 class User:
+    '''User Object'''
     def __init__(self, email, password, name_first, name_last):
         self.u_id = DATA_STORE.generate_id('u_id')
         self.email = email
@@ -23,23 +24,29 @@ class User:
         self.profile_img_url = default_profile_img()
 
     def set_email(self, email):
+        '''Set the user's email'''
         self.email = email
 
     def set_name(self, name_first, name_last):
+        '''Set the user's firt and last name'''
         self.name_first = name_first
         self.name_last = name_last
 
     def change_password(self, password):
+        '''Change the user's password'''
         self.password = helpers.hash_pw(password)
 
     def set_handle(self, handle_str):
+        '''Set the user's handle'''
         self.handle_str = handle_str
 
     def change_permission(self, permission_id):
+        '''Change the user's permission ID'''
         self.permission_id = permission_id
 
     @property
     def profile(self):
+        '''Get a dictionary of the user's profile'''
         return {
             'u_id': self.u_id,
             'email': self.email,
@@ -51,6 +58,7 @@ class User:
 
     @property
     def details(self):
+        '''Get a dictionary of the user's details'''
         return {
             'u_id': self.u_id,
             'name_first': self.name_first,
@@ -59,19 +67,24 @@ class User:
         }
 
     def add_channel(self, channel):
+        '''Add the user to a channel'''
         self.channels.append(channel)
 
     def remove_channel(self, channel):
+        '''Remove the user to a channel'''
         self.channels.remove(channel)
 
     def add_message(self, message):
+        '''Add a message associated to the user'''
         self.messages.append(message)
 
     def remove_message(self, message):
+        '''Remove a message associated to the user'''
         self.messages.remove(message)
 
     @property
     def viewable_messages(self):
+        '''Get a list of all messages viewable to the user'''
         msgs = []
         for channel in self.channels:
             for message in channel.messages:
@@ -79,12 +92,15 @@ class User:
         return msgs
 
     def add_react(self, react):
+        '''Add a react associated to the user'''
         self.reacts.append(react)
 
     def remove_react(self, react):
+        '''Remove a react associated to the user'''
         self.reacts.remove(react)
 
     def change_profile_img_url(self, profile_img_url):
+        '''Change the user's profile image url'''
         self.profile_img_url = profile_img_url
 
 
@@ -245,6 +261,7 @@ class React:
 
 
 class DeletedUser:
+    '''Deleted user object'''
     def __init__(self):
         self.u_id = -99
         self.email = 'deleted'
@@ -255,6 +272,7 @@ class DeletedUser:
 
     @property
     def profile(self):
+        '''Return the profile of a deleted user'''
         return {
             'u_id': self.u_id,
             'email': self.email,
@@ -266,6 +284,7 @@ class DeletedUser:
 
 
 class HangmanBot:
+    '''Hangman bot user object'''
     def __init__(self):
         self.u_id = -95
         self.email = 'hangmanbot'
@@ -277,6 +296,7 @@ class HangmanBot:
 
     @property
     def profile(self):
+        '''Return the profile of a hangman bot'''
         return {
             'u_id': self.u_id,
             'email': self.email,
@@ -288,6 +308,7 @@ class HangmanBot:
 
 
 class DataStore:
+    '''Data Store object for storing slackr related information'''
     def __init__(self):
         self.users = []
         self.channels = []
@@ -308,9 +329,11 @@ class DataStore:
         self.reset_requests = []
 
     def add_user(self, new_user):
+        '''Add a user to the data store'''
         self.users.append(new_user)
 
     def delete_user(self, user):
+        '''Delete a user from the data store'''
         for channel in self.channels:
             for owner in channel.owner_members:
                 if owner == user:
@@ -327,9 +350,11 @@ class DataStore:
         self.users.remove(target_user)
 
     def add_channel(self, new_channel):
+        '''Add a channel to the data store'''
         self.channels.append(new_channel)
 
     def send_message(self, user, channel, message):
+        '''Send a message in the data store'''
         self.messages.append(message)
         user.add_message(message)
         channel.add_message(message)
@@ -337,16 +362,20 @@ class DataStore:
         message.channel = channel
 
     def add_message(self, message):
+        '''Add a message in the data store'''
         self.messages.append(message)
 
     def remove_message(self, message):
+        '''Remove a message in the data store'''
         self.messages.remove(message)
 
     def join_channel(self, user, channel):
+        '''Make a user join a channel in the data store'''
         user.channels.append(channel)
         channel.all_members.append(user)
 
     def get_user(self, u_id=None, email=None, handle_str=None):
+        '''Get a user from the data store'''
         if u_id == self.preset_profiles['deleted_user'].u_id:
             return self.preset_profiles['deleted_user']
 
@@ -357,13 +386,16 @@ class DataStore:
 
     @property
     def u_ids(self):
+        '''Get a list of all u_ids in the data store'''
         return [user.u_id for user in self.users]
 
     @property
     def users_all(self):
+        '''Get a list of all user profiles in the data store'''
         return [user.profile for user in self.users]
 
     def get_channel(self, channel_id):
+        '''Get a channel from the data store'''
         for channel in self.channels:
             if channel_id == channel.channel_id:
                 return channel
@@ -376,6 +408,7 @@ class DataStore:
         ]
 
     def get_message(self, message_id):
+        '''Get a message from the data store'''
         for message in self.messages:
             if message_id == message.message_id:
                 return message
@@ -383,39 +416,48 @@ class DataStore:
 
     @property
     def permission_values(self):
+        '''Get a list of permission values from the data store'''
         return self.permissions.values()
 
     def default_permission(self):
+        '''Get a default permission_id from data store depending on the number of users'''
         if len(self.users) == 0:
             return self.permissions['owner']
         return self.permissions['member']
 
     def is_admin(self, user):
+        '''Check if a user is an admin'''
         return user.permission_id == DATA_STORE.permissions['owner']
 
     @property
     def all_admins(self):
+        '''Get a list of all admins'''
         return [
             user for user in self.users
             if user.permission_id == DATA_STORE.permissions['owner']
         ]
 
     def is_admin_or_owner(self, user, channel):
+        '''Check if a user is an admin or the owner of the channel'''
         return user.permission_id == DATA_STORE.permissions[
             'owner'] or user in channel.owner_members
 
     def add_to_blacklist(self, token):
+        '''Add a token to the data store blacklist'''
         self.token_blacklist.append(token)
 
     def generate_id(self, id_type):
+        '''Generate an id of id_type'''
         self.max_ids[id_type] += 1
         return self.max_ids[id_type]
 
     def reset(self):
+        '''Reset the data store'''
         self.users.clear()
         self.channels.clear()
         self.messages.clear()
         self.token_blacklist.clear()
+        self.reset_requests.clear()
 
         for key in self.max_ids:
             self.max_ids[key] = 0
