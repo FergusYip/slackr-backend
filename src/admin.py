@@ -38,6 +38,12 @@ def admin_userpermission_change(token, u_id, permission_id):
     if DATA_STORE.is_admin(admin) is False:
         raise AccessError(description='The authorised user is not an owner')
 
+    if admin.u_id == u_id and len(DATA_STORE.all_admins) == 1:
+        raise InputError(
+            description=
+            'You must assign another user to be an admin before removing yourself'
+        )
+
     user = DATA_STORE.get_user(u_id)
     user.permission_id = permission_id
 
