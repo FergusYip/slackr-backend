@@ -65,40 +65,6 @@ def channel_details(token, channel_id):
         raise AccessError(description='Authorized user not in the channel')
 
     return channel.details
-    """
-    # finding the right channel.
-    channel = helpers.get_channel(channel_id)
-
-    owner_members = []
-    for owner_id in channel['owner_members']:
-        owner = helpers.get_user(owner_id)
-        owner_dict = {
-            'u_id': owner['u_id'],
-            'name_first': owner['name_first'],
-            'name_last': owner['name_last'],
-            'profile_img_url': owner['profile_img_url']
-        }
-        owner_members.append(owner_dict)
-
-    all_members = []
-    for user_id in channel['all_members']:
-        user = helpers.get_user(user_id)
-        user_dict = {
-            'u_id': user['u_id'],
-            'name_first': user['name_first'],
-            'name_last': user['name_last'],
-            'profile_img_url': user['profile_img_url']
-        }
-        all_members.append(user_dict)
-
-    details = {
-        'name': channel['name'],
-        'owner_members': owner_members,
-        'all_members': all_members
-    }
-
-    return details
-    """
 
 
 def channel_messages(token, channel_id, start):
@@ -140,34 +106,6 @@ def channel_messages(token, channel_id, start):
             break
 
     return {'messages': messages, 'start': start, 'end': end}
-    """
-        message_reacts = []
-        reacts = message['reacts']
-        for react in reacts:
-            is_this_user_reacted = token_data['u_id'] in react['u_ids']
-            react_info = {
-                'react_id': react['react_id'],
-                'u_ids': react['u_ids'],
-                'is_this_user_reacted': is_this_user_reacted
-            }
-            message_reacts.append(react_info)
-
-        u_id = message['u_id']
-        if helpers.get_user(message['u_id']) is None:
-            u_id = -99  # ID for a deleted user
-
-        message_info = {
-            'message_id': message['message_id'],
-            'u_id': u_id,
-            'message': message['message'],
-            'time_created': message['time_created'],
-            'reacts': message_reacts,
-            'is_pinned': message['is_pinned']
-        }
-        messages['messages'].append(message_info)
-
-    return messages
-    """
 
 
 def channel_leave(token, channel_id):
