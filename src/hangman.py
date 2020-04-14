@@ -10,6 +10,7 @@ from token_validation import decode_token
 from error import InputError
 import message
 import token_validation
+import string
 
 
 def start_hangman(token, channel_id):
@@ -19,6 +20,8 @@ def start_hangman(token, channel_id):
     decode_token(token)
     bot_token = token_validation.encode_token(-95)
     data_store['hangman_bot']['token'] = bot_token
+
+    # getting channel.
     channel_id = int(channel_id)
     channel = helpers.get_channel(channel_id)
 
@@ -26,23 +29,26 @@ def start_hangman(token, channel_id):
         raise InputError(description='Channel does not exist.')
 
     if channel['hangman']['is_active'] is True:
-        raise InputError(description='game already in progress.')
+        raise InputError(description='Game already in progress.')
 
-    # setting hangman is_active to true.
+    # initializing the game.
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
             channel['hangman']['is_active'] = True
             channel['hangman']['word'] = get_quote()
             dashes = get_dashed(channel['hangman']['word'],
                                 channel['hangman']['guesses'])
-            message.message_send(bot_token, channel_id, dashes)
+
+            # sending the welcome message.
+            welcome = f"Welcome to Hangman!\nWord:\t{dashes}"
+            message.message_send(bot_token, channel_id, welcome)
 
     return {}
 
 
 def guess_hangman(token, channel_id, guess):
     '''
-    Main logic for hangman game.
+    Main logic for hangman guesses.
     '''
 
     decode_token(token)
@@ -56,13 +62,13 @@ def guess_hangman(token, channel_id, guess):
         1: '=========',
         2: '|\n|\n|\n|\n=========',
         3: '+----------\n|\n|\n|\n|\n=========',
-        4: '+----------\n|    |\n|\n|\n|\n=========',
-        5: '+----------\n|    |\n|    O\n|\n|\n=========',
-        6: '+----------\n|    |\n|    O\n|    |\n|\n=========',
-        7: '+----------\n|    |\n|    O\n|   /|\n|\n=========',
-        8: '+----------\n|    |\n|    O\n|   /|\\\n|\n=========',
-        9: '+----------\n|    |\n|    O\n|   /|\\\n|   /\n=========',
-        10: '+----------\n|    |\n|    O\n|   /|\\\n|   /\\\n=========',
+        4: '+----------\n|\t|\n|\n|\n|\n=========',
+        5: '+----------\n|\t|\n|\tO\n|\n|\n=========',
+        6: '+----------\n|\t|\n|\tO\n|      |\n|\n=========',
+        7: '+----------\n|\t|\n|\tO\n|     /|\n|\n=========',
+        8: '+----------\n|\t|\n|\tO\n|     /|\\\n|\n=========',
+        9: '+----------\n|\t|\n|\tO\n|     /|\\\n|     /\n=========',
+        10: '+----------\n|\t|\n|\tO\n|     /|\\\n|     /\\\n=========',
     }
 
     if channel is None:
@@ -71,7 +77,7 @@ def guess_hangman(token, channel_id, guess):
     for channel in data_store['channels']:
         if channel_id == channel['channel_id']:
 
-            # checking if hangman is_active is true.
+            # checking if game is already active.
             if channel['hangman']['is_active'] is False:
                 raise InputError(description='game not active')
 
@@ -82,39 +88,34 @@ def guess_hangman(token, channel_id, guess):
             dashed = get_dashed(channel['hangman']['word'],
                                 channel['hangman']['guesses'])
 
-            wrong_guesses = len(channel['hangman']['guesses']) - \
-                len(channel['hangman']['correct'])
+            wrong_guesses = [char for char in channel['hangman']
+                             ['guesses'] if char not in channel['hangman']['correct']]
 
             # if more than 10 incorrect guesses.
-            if wrong_guesses > 10:
-                message.message_send(bot_token, channel_id, 'Game Over')
-                message.message_send(bot_token, channel_id,
-                                     channel['hangman']['word'])
+            if len(wrong_guesses) >= 10:
+                mess = f"Game Over.\nThe word was:\t{channel['hangman']['word']}"
+                message.message_send(bot_token, channel_id, mess)
 
                 # reset game.
-                channel['hangman']['is_active'] = False
-                channel['hangman']['word'] = None
-                channel['hangman']['guesses'] = []
-                channel['hangman']['correct'] = []
+                reset_hangman(channel_id)
 
             else:
                 message.message_send(bot_token, channel_id, dashed)
                 # incorrect guess.
                 if guess.lower() not in channel['hangman']['word'].lower():
                     # printing the stage of game.
-                    message.message_send(bot_token, channel_id,
-                                         stages[wrong_guesses])
-                    message.message_send(bot_token, channel_id,
-                                         str(channel['hangman']['guesses']))
+                    stage_mess = f"{stages[len(wrong_guesses)]}\nYou have guessed:\t{', '.join(wrong_guesses)}"
+                    message.message_send(bot_token, channel_id, stage_mess)
 
                 # correct guess.
                 else:
                     channel['hangman']['correct'].append(guess)
 
     # full word is guessed.
-    if '_' not in dashed and len(channel['hangman']['guesses']) <= 10:
-        message.message_send(bot_token, channel_id, dashed)
-        message.message_send(bot_token, channel_id, 'Congratulations!')
+    if '_' not in dashed:
+        message.message_send(bot_token, channel_id,
+                             'Congratulations! You win!')
+        reset_hangman(channel_id)
     return {}
 
 
@@ -138,6 +139,31 @@ def get_quote():
     Function to get a random word from wikiquote
     '''
     word = random.choice(wikiquote.random_titles(lang='en'))
-    while not word.isalpha():
+    while not word.isalpha() and not check_ascii(word):
         word = random.choice(wikiquote.random_titles(lang='en'))
     return word
+
+
+def check_ascii(word):
+    '''
+    Function to check if word is valid.
+    '''
+    for char in word:
+        if char not in string.ascii_letters:
+            return False
+
+    return True
+
+
+def reset_hangman(channel_id):
+    '''
+    Function to reset the hangman game.
+    '''
+
+    for channel in data_store['channels']:
+        if channel_id == channel['channel_id']:
+            channel['hangman']['is_active'] = False
+            channel['hangman']['word'] = None
+            channel['hangman']['guesses'] = []
+            channel['hangman']['correct'] = []
+            channel['hangman']['stage'] = 0
