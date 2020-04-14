@@ -1,7 +1,7 @@
 '''
 Implementation of users/all and search routes for slackr app
 '''
-from data_store import DATA_STORE as data_store
+from data_store import DATA_STORE
 from token_validation import decode_token
 
 
@@ -16,7 +16,7 @@ def users_all(token):
 
 	'''
     decode_token(token)
-    users = data_store.users_all
+    users = DATA_STORE.users_all
     """
     users = []
     for user in data_store['users']:
@@ -46,7 +46,7 @@ def search(token, query_str):
 
 	'''
     token_payload = decode_token(token)
-    user = data_store.get_user(token_payload['u_id'])
+    user = DATA_STORE.get_user(token_payload['u_id'])
     messages = [
         message.details(user) for message in user.viewable_messages
         if query_str.lower() in message.message.lower()

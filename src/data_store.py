@@ -348,6 +348,7 @@ class DataStore:
     def u_ids(self):
         return [user.u_id for user in self.users]
 
+    @property
     def users_all(self):
         return [user.profile for user in self.users]
 
