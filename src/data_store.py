@@ -1,5 +1,6 @@
 ''' Data Store for the slackr backend'''
 import random
+import math
 import threading
 import pickle
 import helpers
@@ -14,7 +15,7 @@ class User:
         self.password = helpers.hash_pw(password)
         self.name_first = name_first
         self.name_last = name_last
-        self.handle_str = DATA_STORE.generate_handle(name_first, name_last)
+        self.handle_str = generate_handle(name_first, name_last)
         self.permission_id = DATA_STORE.default_permission()
         self.channels = []
         self.messages = []
@@ -343,6 +344,10 @@ class DataStore:
                 return user
         return None
 
+    @property
+    def u_ids(self):
+        return [user.u_id for user in self.users]
+
     def users_all(self):
         return [user.profile for user in self.users]
 
@@ -495,3 +500,34 @@ def autosave():
     timer = threading.Timer(1.0, autosave)
     timer.start()
     save()
+
+
+def generate_handle(name_first, name_last):
+    """ Generate a handle best on name_first and name_last
+
+	Parameters:
+		name_first (str): First name
+		name_last (str): Last name
+
+	Returns:
+		handle_str (str): Unique handle
+
+	"""
+    concatentation = name_first.lower() + name_last.lower()
+    handle_str = concatentation[:20]
+
+    unique_modifier = 1
+    while DATA_STORE.get_user(handle_str=handle_str):
+        split_handle = list(handle_str)
+
+        # Remove n number of characters from split_handle
+        unique_digits = int(math.log10(unique_modifier)) + 1
+        for _ in range(unique_digits):
+            split_handle.pop()
+
+        split_handle.append(str(unique_modifier))
+        handle_str = ''.join(split_handle)
+
+        unique_modifier += 1
+
+    return handle_str
