@@ -44,7 +44,6 @@ def admin_userpermission_change(token, u_id, permission_id):
     return {}
 
 
-"""
 def admin_user_remove(token, u_id):
     ''' Given a User by their user ID, remove the user
 
@@ -61,23 +60,27 @@ def admin_user_remove(token, u_id):
         raise InputError(description='Insufficient parameters')
 
     token_payload = decode_token(token)
+    admin = DATA_STORE.get_user(token_payload['u_id'])
 
-    if u_id not in helpers.get_all_u_id():
+    u_id = int(u_id)
+    target_user = DATA_STORE.get_user(u_id)
+
+    if target_user is None:
         raise InputError(description='u_id does not refer to a valid user')
 
-    if not helpers.is_owner(token_payload['u_id']):
+    if not DATA_STORE.is_admin(admin):
         raise AccessError(description='The authorised user is not an owner')
 
-    if token_payload['u_id'] == u_id and len(helpers.get_owners()) == 1:
+    if admin.u_id == u_id and len(DATA_STORE.all_admins) == 1:
         raise InputError(
             description=
             'You must assign another user to be an admin before removing yourself'
         )
 
-    helpers.delete_user(u_id)
+    DATA_STORE.delete_user(target_user)
 
     return {}
-"""
+
 
 if __name__ == '__main__':
     pass

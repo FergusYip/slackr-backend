@@ -20,7 +20,7 @@ class User:
         self.channels = []
         self.messages = []
         self.reacts = []
-        self.profile_img_url: 'https://i.imgur.com/Mw7Z32g.jpg'
+        self.profile_img_url = 'https://i.imgur.com/Mw7Z32g.jpg'
 
     def set_email(self, email):
         self.email = email
@@ -38,6 +38,7 @@ class User:
     def change_permission(self, permission_id):
         self.permission_id = permission_id
 
+
     @property
     def profile(self):
         return {
@@ -46,14 +47,16 @@ class User:
             'name_first': self.name_first,
             'name_last': self.name_last,
             'handle_str': self.handle_str,
+            'profile_img_url': self.profile_img_url
         }
 
     @property
-    def id_names(self):
+    def details(self):
         return {
             'u_id': self.u_id,
             'name_first': self.name_first,
-            'name_last': self.name_last
+            'name_last': self.name_last,
+            'profile_img_url': self.profile_img_url
         }
 
     def add_channel(self, channel):
@@ -81,6 +84,9 @@ class User:
 
     def remove_react(self, react):
         self.reacts.remove(react)
+
+    def change_profile_img_url(self, profile_img_url):
+        self.profile_img_url = profile_img_url
 
     def to_dict(self):
         return {
@@ -156,8 +162,8 @@ class Channel:
     def details(self):
         return {
             'name': self.name,
-            'owner_members': [user.id_names for user in self.owner_members],
-            'all_members': [user.id_names for user in self.all_members]
+            'owner_members': [user.details for user in self.owner_members],
+            'all_members': [user.details for user in self.all_members]
         }
 
     def is_owner(self, user):
@@ -280,6 +286,25 @@ class React:
     def to_dict(self):
         return {'react_id': self.react_id, 'u_ids': self.u_ids}
 
+class DeletedUser:
+    def __init__(self):
+        self.u_id = -99
+        self.email = 'deleted'
+        self.name_first = 'Deleted'
+        self.name_last = 'User'
+        self.handle_str = 'deleted'
+        self.profile_img_url = 'https://i.imgur.com/nsoGP2n.jpg'
+        
+    @property
+    def profile(self):
+        return {
+            'u_id': self.u_id,
+            'email': self.email,
+            'name_first': self.name_first,
+            'name_last': self.name_last,
+            'handle_str': self.handle_str,
+            'profile_img_url': self.profile_img_url
+        }
 
 class DataStore:
     def __init__(self):
@@ -295,28 +320,37 @@ class DataStore:
             'message_id': 0,
         }
         self.time_created = helpers.utc_now()
-        self.preset_profiles: [{
-            'deleted_user_profile': {
-                'u_id': -99,
-                'email': 'deleted',
-                'name_first': 'Deleted',
-                'name_last': 'User',
-                'handle_str': 'deleted',
-                'profile_img_url': 'https://i.imgur.com/nsoGP2n.jpg'
-            }
-        }, {
+        self.preset_profiles = {
+            'deleted_user': DeletedUser(),
             'hangman_bot': {
                 'u_id': -95,
                 'email': 'hangmanBot',
                 'name_first': 'Hangman',
                 'name_last': 'Bot',
-                'handle_str': 'Hangman Bot'
+                'handle_str': 'Hangman Bot',
+                'profile_img_url': 'https://i.imgur.com/olQfW6w.jpg'
             }
-        }]
+        }
         self.reset_requests = []
 
     def add_user(self, new_user):
         self.users.append(new_user)
+
+    def delete_user(self, user):
+        for channel in self.channels:
+            for owner in channel.owner_members:
+                if owner == user:
+                    channel.all_members.remove(owner)
+                    break
+            for member in channel.all_members:
+                if member == user:
+                    channel.all_members.remove(member)
+                    break
+        for message in self.messages:
+            if message.sender == user:
+                message.sender = self.preset_profiles['deleted_user']
+        target_user = self.get_user(user.u_id)
+        self.users.remove(target_user)
 
     def add_channel(self, new_channel):
         self.channels.append(new_channel)
@@ -339,6 +373,9 @@ class DataStore:
         channel.all_members.append(user)
 
     def get_user(self, u_id=None, email=None, handle_str=None):
+        if u_id == self.preset_profiles['deleted_user'].u_id:
+            return self.preset_profiles['deleted_user']
+
         for user in self.users:
             if u_id == user.u_id or email == user.email or handle_str == user.handle_str:
                 return user
@@ -381,6 +418,13 @@ class DataStore:
 
     def is_admin(self, user):
         return user.permission_id == DATA_STORE.permissions['owner']
+
+    @property
+    def all_admins(self):
+        return [
+            user for user in self.users
+            if user.permission_id == DATA_STORE.permissions['owner']
+        ]
 
     def is_admin_or_owner(self, user, channel):
         return user.permission_id == DATA_STORE.permissions[
@@ -506,14 +550,14 @@ def autosave():
 def generate_handle(name_first, name_last):
     """ Generate a handle best on name_first and name_last
 
-	Parameters:
-		name_first (str): First name
-		name_last (str): Last name
+    Parameters:
+        name_first (str): First name
+        name_last (str): Last name
 
-	Returns:
-		handle_str (str): Unique handle
+    Returns:
+        handle_str (str): Unique handle
 
-	"""
+    """
     concatentation = name_first.lower() + name_last.lower()
     handle_str = concatentation[:20]
 

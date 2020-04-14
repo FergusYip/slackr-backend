@@ -157,7 +157,7 @@ def user_profile_sethandle(token, handle_str):
     return {}
 
 
-"""
+
 def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):
     '''
     Function that will create and return a tuple of the desired area the user wants to crop to.
@@ -191,6 +191,7 @@ def user_profile_uploadphoto(token, img_url, area):
 
     token_info = decode_token(token)
     user_id = token_info['u_id']
+    user = DATA_STORE.get_user(user_id)
 
     req = requests.get(f'{img_url}')
     if req.status_code != 200:
@@ -233,11 +234,11 @@ def user_profile_uploadphoto(token, img_url, area):
     region.save(f'src/profile_images/{user_id}.jpg')
 
     base_url = 'http://127.0.0.1:8080'
-    helpers.change_profile_image_url(user_id,
-                                     f'{base_url}/imgurl/{user_id}.jpg')
+    user.profile_image_url = f'{base_url}/imgurl/{user_id}.jpg'
+    # user.change_profile_image_url(f'{base_url}/imgurl/{user_id}.jpg')
 
     return {}
-"""
+
 
 if __name__ == '__main__':
     pass
