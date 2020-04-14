@@ -34,6 +34,7 @@ def test_profile_sethandle_return(reset, new_user):
     set_handle = requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).json()
 
     assert isinstance(set_handle, dict)
+    assert not set_handle
 
 
 def test_sethandle(reset, new_user):
@@ -53,7 +54,7 @@ def test_sethandle(reset, new_user):
     user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_handle = 'jimnottest'
 
-    assert user_pre_info['handle_str'] == expected_handle
+    assert user_pre_info['user']['handle_str'] == expected_handle
 
     # ================ TESTING ==================
 
@@ -62,12 +63,12 @@ def test_sethandle(reset, new_user):
         'handle_str': 'uniquehandle'
     }
 
-    requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).json()
+    requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input)
 
     user_post_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_handle = 'uniquehandle'
 
-    assert user_post_info['handle_str'] == expected_handle
+    assert user_post_info['user']['handle_str'] == expected_handle
 
 
 def test_changetocurrent(reset, new_user):
@@ -88,7 +89,7 @@ def test_changetocurrent(reset, new_user):
     user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_handle = 'jimnottest'
 
-    assert user_pre_info['handle_str'] == expected_handle
+    assert user_pre_info['user']['handle_str'] == expected_handle
 
     # ================ TESTING ==================
 
@@ -100,6 +101,7 @@ def test_changetocurrent(reset, new_user):
     set_handle = requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).json()
 
     assert isinstance(set_handle, dict)
+    assert not set_handle
 
 
 def test_handle_toolong(reset, new_user):
@@ -155,7 +157,7 @@ def test_handle_used(reset, new_user):
     expected_handle = 'jimnottest'
 
     # Assert that string expected_handle is being used.
-    assert user_info['handle_str'] == expected_handle
+    assert user_info['user']['handle_str'] == expected_handle
 
     # ================ TESTING ==================
 
