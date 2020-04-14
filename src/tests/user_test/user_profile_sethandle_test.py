@@ -19,7 +19,7 @@ def test_profile_sethandle(reset, test_user):
     user.user_profile_sethandle(test_user['token'], 'knownhandle')
     profile_info = user.user_profile(test_user['token'], test_user['u_id'])
 
-    assert profile_info['handle_str'] == 'knownhandle'
+    assert profile_info['user']['handle_str'] == 'knownhandle'
 
 
 def test_profile_sethandle_below_char_limit(reset, test_user):

@@ -4,7 +4,6 @@ import auth
 import user
 from error import InputError
 
-
 def test_register_return_type(reset):  # pylint: disable=W0613
     '''Test the types of values returned by auth_register'''
 
@@ -99,7 +98,7 @@ def test_register_handle(reset):  # pylint: disable=W0613
     test_user = auth.auth_register('valid@email.com', 'password', 'First',
                                    'Last')
     test_profile = user.user_profile(test_user['token'], test_user['u_id'])
-    assert test_profile['handle_str'] == 'firstlast'
+    assert test_profile['user']['handle_str'] == 'firstlast'
 
 
 def test_register_unique_handle(reset):  # pylint: disable=W0613
@@ -112,7 +111,7 @@ def test_register_unique_handle(reset):  # pylint: disable=W0613
                                 'Last')
     user_profile_2 = user.user_profile(user_2['token'], user_2['u_id'])
 
-    assert user_profile_1['handle_str'] != user_profile_2['handle_str']
+    assert user_profile_1['user']['handle_str'] != user_profile_2['user']['handle_str']
 
 
 def test_register_long_handle(reset):  # pylint: disable=W0613
@@ -121,7 +120,7 @@ def test_register_long_handle(reset):  # pylint: disable=W0613
     test_user = auth.auth_register('valid@email.com', 'password',
                                    '123456789testing', '123456789testing')
     test_profile = user.user_profile(test_user['token'], test_user['u_id'])
-    assert test_profile['handle_str'] == '123456789testing1234'
+    assert test_profile['user']['handle_str'] == '123456789testing1234'
 
 
 def test_register_unique_token(reset):  # pylint: disable=W0613
