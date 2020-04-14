@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta
 import jwt
 from error import AccessError
-from data_store import data_store
+from data_store import DATA_STORE
 
 SECRET = 'the chunts'
 
@@ -37,7 +37,7 @@ def decode_token(token):
 
 	'''
 
-    if token in data_store.token_blacklist:
+    if token in DATA_STORE.token_blacklist:
         raise AccessError(description='Token is invalid')
 
     try:
@@ -47,10 +47,10 @@ def decode_token(token):
     except:
         raise AccessError(description='Token is invalid')
 
-    if payload['iat'] < data_store.time_created:
+    if payload['iat'] < DATA_STORE.time_created:
         raise AccessError(description='Session has expired')
 
-    if payload['u_id'] not in data_store.u_ids:
+    if payload['u_id'] not in DATA_STORE.u_ids:
         raise AccessError(description='u_id does not belong to a user')
 
     return payload

@@ -6,7 +6,7 @@ import smtplib
 from email.message import EmailMessage
 from error import InputError
 from email_validation import invalid_email
-from data_store import data_store, User
+from data_store import DATA_STORE, User
 from token_validation import decode_token, encode_token
 import helpers
 
@@ -48,13 +48,27 @@ def auth_register(email, password, name_first, name_last):
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
 
-    if data_store.get_user(email=email) is not None:
+    if DATA_STORE.get_user(email=email) is not None:
         raise InputError(
             description='Email address is already being used by another user')
 
     user = User(email, password, name_first, name_last)
-    data_store.add_user(user)
+    DATA_STORE.add_user(user)
+    """
+    u_id = helpers.generate_u_id()
+    user = {
+        'u_id': u_id,
+        'email': email,
+        'password': helpers.hash_pw(password),
+        'name_first': name_first,
+        'name_last': name_last,
+        'handle_str': generate_handle(name_first, name_last),
+        'permission_id': default_permission(),
+        'profile_img_url': 'https://i.imgur.com/Mw7Z32g.jpg'
+    }
 
+    data_store['users'].append(user)
+    """
     return {
         'u_id': user.u_id,
         'token': encode_token(user.u_id),
@@ -78,7 +92,7 @@ def auth_login(email, password):
             description='Insufficient parameters. Requires email and password.'
         )
 
-    user = data_store.get_user(email=email)
+    user = DATA_STORE.get_user(email=email)
 
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
@@ -107,12 +121,66 @@ def auth_logout(token):
             description='Insufficient parameters. Requires token.')
 
     decode_token(token)
-    data_store.add_to_blacklist(token)
+    DATA_STORE.add_to_blacklist(token)
 
-    is_success = token in data_store.token_blacklist
+    is_success = token in DATA_STORE.token_blacklist
 
     return {'is_success': is_success}
 
+
+"""
+def auth_passwordreset_request(email):
+    ''' Makes a password reset request and sends a email to the desired email
+
+    Parameters:
+        email (str): Email assocaited to the account the user wants to reset
+
+    Returns:
+        Empty Dictionary
+    '''
+
+    if email is None:
+        raise InputError(description='Insufficient parameters')
+
+    user = helpers.get_user(email=email)
+    u_id = user['u_id']
+
+    reset_code = generate_reset_code()
+
+    helpers.invalidate_reset_request_from_user(u_id)
+
+    helpers.make_reset_request(reset_code, u_id)
+
+    sender = 'thechunts.slackr@gmail.com'
+    password = 'chuntsslackr'
+
+    message = EmailMessage()
+    message['Subject'] = 'Slackr: Password Reset Code'
+    message['From'] = sender
+    message['To'] = email
+    message.set_content(f'Your reset code is {reset_code}')
+
+    message.add_alternative(\
+    f'''
+    <!DOCTPYE html>
+    <html>
+        <body>
+            <h1 style="color=Black, align=center">Your password reset code is {reset_code}</h1>
+        </body>
+    </html>
+    ''', subtype='html')
+
+    user = helpers.get_user(email=email)
+    if user is not None:
+        try:
+            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+            server.login(sender, password)
+            server.send_message(message)
+            server.quit()
+            print("Successfully sent email")
+        except smtplib.SMTPException:
+            print("Error: unable to send email")
+    return {}
 
 def auth_passwordreset_request(email):
     ''' Makes a password reset request and sends a email to the desired email
@@ -185,7 +253,7 @@ def auth_passwordreset_reset(reset_code, new_password):
     user.change_password(new_password)
 
     return {}
+"""
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     pass

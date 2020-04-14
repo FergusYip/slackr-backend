@@ -66,3 +66,7 @@ ___
 * Handle consists of only lowercase characters.
 * knownhandle is a unique handle that is not existing already prior to testing.
 * Attempting to change the user's handle to the user's current handle will result in an **InputError**.
+
+### user_profile_uploadphoto
+* Minimum pixel area is 30p to avoid the userhvaing a 1 pixel image
+* Upper file size limit of 10MB

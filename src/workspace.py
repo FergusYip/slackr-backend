@@ -1,12 +1,12 @@
 '''
 Implementation of workspace function for slackr app
 '''
-from data_store import data_store
+from data_store import DATA_STORE
 
 
 def workspace_reset():
     '''Reset the workspace state'''
-    data_store.reset()
+    DATA_STORE.reset()
     return {}
 
 

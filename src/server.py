@@ -1,7 +1,7 @@
 '''Backend server file for slackr'''
 import sys
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, send_file
 from flask_cors import CORS
 from data_store import autosave
 
@@ -15,12 +15,13 @@ import other
 import standup
 import user
 import workspace
+import hangman
 
 AUTOSAVE_ENABLED = True
 DEBUG_MODE = not AUTOSAVE_ENABLED  # Do not change this line
 
 
-def defaultHandler(err):
+def default_handler(err):
     '''Default handler for errors'''
     response = err.get_response()
     print('response', err, err.get_response())
@@ -37,7 +38,7 @@ APP = Flask(__name__)
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
-APP.register_error_handler(Exception, defaultHandler)
+APP.register_error_handler(Exception, default_handler)
 
 
 @APP.route('/admin/userpermission/change', methods=['POST'])
@@ -48,6 +49,15 @@ def route_admin_userpermission_change():
     u_id = payload.get('u_id')
     permission_id = payload.get('permission_id')
     return dumps(admin.admin_userpermission_change(token, u_id, permission_id))
+
+
+@APP.route('/admin/user/remove', methods=['DELETE'])
+def route_admin_user_remove():
+    '''Flask route for /admin/userpermission/change'''
+    payload = request.get_json()
+    token = payload.get('token')
+    u_id = payload.get('u_id')
+    return dumps(admin.admin_user_remove(token, u_id))
 
 
 @APP.route("/auth/register", methods=['POST'])
@@ -341,10 +351,50 @@ def route_user_profile_sethandle():
     return dumps(user.user_profile_sethandle(token, desired_handle))
 
 
+@APP.route('/user/profile/uploadphoto', methods=['POST'])
+def route_user_profile_uploadphoto():
+    '''Flask route for /user/profile/uploadphoto'''
+    payload = request.get_json()
+    token = payload.get('token')
+    img_url = payload.get('img_url')
+    x_start = int(payload.get('x_start'))
+    y_start = int(payload.get('y_start'))
+    x_end = int(payload.get('x_end'))
+    y_end = int(payload.get('y_end'))
+
+    area = user.user_profile_uploadphoto_area(x_start, y_start, x_end, y_end)
+    return dumps(user.user_profile_uploadphoto(token, img_url, area))
+
+
+@APP.route('/imgurl/<imgsrc>', methods=['GET'])
+def route_img_display(imgsrc):
+    '''Flask route for /imgurl'''
+    return send_file(f'./profile_images/{imgsrc}')
+
+
 @APP.route("/workspace/reset", methods=['POST'])
 def route_workspace_reset():
     ''' Flask route for /workspace/reset'''
     return dumps(workspace.workspace_reset())
+
+
+@APP.route("/hangman/start", methods=['POST'])
+def route_hangman_start():
+    '''Flask route for /hangman/start'''
+    payload = request.get_json()
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    return dumps(hangman.start_hangman(token, channel_id))
+
+
+@APP.route("/hangman/guess", methods=['POST'])
+def route_hangman_guess():
+    '''Flask route for /hangman/start'''
+    payload = request.get_json()
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    guess = payload.get('guess')
+    return dumps(hangman.guess_hangman(token, channel_id, guess))
 
 
 if __name__ == "__main__":

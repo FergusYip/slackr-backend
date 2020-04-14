@@ -2,6 +2,14 @@
 Testing the message_sendlater functionality. Majority of error tests
 are performed within the message_send function, which is called within
 the mesage_sendlater function.
+
+Parameters:
+    reset: Reset is a function defined in conftest.py that restores all values
+           in the data_store back to being empty.
+    new_user: A function defined in conftest.py that will create a new user based on
+              default values that can be specified. Returns the u_id and token.
+    new_channel: A function defined in conftest.py that will create a new channel based on
+              default values that can be specified. Returns the channel_id.
 '''
 
 from time import sleep

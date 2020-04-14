@@ -1,4 +1,4 @@
-'''Pytest script for testing /auth/logout route'''
+'''Pytest script for testing /admin/permission/change route'''
 import requests
 import pytest
 

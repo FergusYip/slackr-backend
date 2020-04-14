@@ -4,7 +4,7 @@ invite, details, messages, leave, join, addowner, removeowner
 '''
 from error import AccessError, InputError
 from token_validation import decode_token
-from data_store import data_store
+from data_store import DATA_STORE
 
 
 def channel_invite(token, channel_id, u_id):
@@ -16,13 +16,13 @@ def channel_invite(token, channel_id, u_id):
         raise InputError(description='Insufficient parameters')
 
     channel_id = int(channel_id)
-    channel = data_store.get_channel(channel_id)
+    channel = DATA_STORE.get_channel(channel_id)
 
     u_id = int(u_id)
-    invitee = data_store.get_user(u_id)
+    invitee = DATA_STORE.get_user(u_id)
 
     token_data = decode_token(token)
-    inviter = data_store.get_user(token_data['u_id'])
+    inviter = DATA_STORE.get_user(token_data['u_id'])
 
     if channel is None:
         raise InputError(description='Channel does not exist')
@@ -35,7 +35,7 @@ def channel_invite(token, channel_id, u_id):
             description='The authorised user is not a member of the channel')
 
     if channel.is_member(invitee) is False:
-        data_store.join_channel(invitee, channel)
+        DATA_STORE.join_channel(invitee, channel)
 
     return {}
 
@@ -53,8 +53,8 @@ def channel_details(token, channel_id):
     u_id = int(token_data['u_id'])
     channel_id = int(channel_id)
 
-    user = data_store.get_user(u_id)
-    channel = data_store.get_channel(channel_id)
+    user = DATA_STORE.get_user(u_id)
+    channel = DATA_STORE.get_channel(channel_id)
 
     # if channel doesn't exist.
     if channel is None:
@@ -65,6 +65,40 @@ def channel_details(token, channel_id):
         raise AccessError(description='Authorized user not in the channel')
 
     return channel.details
+    """
+    # finding the right channel.
+    channel = helpers.get_channel(channel_id)
+
+    owner_members = []
+    for owner_id in channel['owner_members']:
+        owner = helpers.get_user(owner_id)
+        owner_dict = {
+            'u_id': owner['u_id'],
+            'name_first': owner['name_first'],
+            'name_last': owner['name_last'],
+            'profile_img_url': owner['profile_img_url']
+        }
+        owner_members.append(owner_dict)
+
+    all_members = []
+    for user_id in channel['all_members']:
+        user = helpers.get_user(user_id)
+        user_dict = {
+            'u_id': user['u_id'],
+            'name_first': user['name_first'],
+            'name_last': user['name_last'],
+            'profile_img_url': user['profile_img_url']
+        }
+        all_members.append(user_dict)
+
+    details = {
+        'name': channel['name'],
+        'owner_members': owner_members,
+        'all_members': all_members
+    }
+
+    return details
+    """
 
 
 def channel_messages(token, channel_id, start):
@@ -79,8 +113,8 @@ def channel_messages(token, channel_id, start):
     start = int(start)
 
     token_data = decode_token(token)
-    channel = data_store.get_channel(channel_id)
-    user = data_store.get_user(token_data['u_id'])
+    channel = DATA_STORE.get_channel(channel_id)
+    user = DATA_STORE.get_user(token_data['u_id'])
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -106,6 +140,34 @@ def channel_messages(token, channel_id, start):
             break
 
     return {'messages': messages, 'start': start, 'end': end}
+    """
+        message_reacts = []
+        reacts = message['reacts']
+        for react in reacts:
+            is_this_user_reacted = token_data['u_id'] in react['u_ids']
+            react_info = {
+                'react_id': react['react_id'],
+                'u_ids': react['u_ids'],
+                'is_this_user_reacted': is_this_user_reacted
+            }
+            message_reacts.append(react_info)
+
+        u_id = message['u_id']
+        if helpers.get_user(message['u_id']) is None:
+            u_id = -99  # ID for a deleted user
+
+        message_info = {
+            'message_id': message['message_id'],
+            'u_id': u_id,
+            'message': message['message'],
+            'time_created': message['time_created'],
+            'reacts': message_reacts,
+            'is_pinned': message['is_pinned']
+        }
+        messages['messages'].append(message_info)
+
+    return messages
+    """
 
 
 def channel_leave(token, channel_id):
@@ -118,10 +180,14 @@ def channel_leave(token, channel_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
-    user = data_store.get_user(token_data['u_id'])
+    user = DATA_STORE.get_user(token_data['u_id'])
 
     channel_id = int(channel_id)
-    channel = data_store.get_channel(channel_id)
+    channel = DATA_STORE.get_channel(channel_id)
+    """
+    channel_id = int(channel_id)
+    channel = helpers.get_channel(channel_id)
+    """
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -153,10 +219,14 @@ def channel_join(token, channel_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
-    user = data_store.get_user(token_data['u_id'])
+    user = DATA_STORE.get_user(token_data['u_id'])
 
     channel_id = int(channel_id)
-    channel = data_store.get_channel(channel_id)
+    channel = DATA_STORE.get_channel(channel_id)
+    """
+    channel_id = int(channel_id)
+    channel = helpers.get_channel(channel_id)
+    """
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -185,13 +255,18 @@ def channel_addowner(token, channel_id, u_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
-    admin = data_store.get_user(token_data['u_id'])
+    admin = DATA_STORE.get_user(token_data['u_id'])
 
     channel_id = int(channel_id)
-    channel = data_store.get_channel(channel_id)
+    channel = DATA_STORE.get_channel(channel_id)
 
     u_id = int(u_id)
-    user = data_store.get_user(u_id)
+    user = DATA_STORE.get_user(u_id)
+    """
+    channel_id = int(channel_id)
+    channel = helpers.get_channel(channel_id)
+    auth_user = token_data['u_id']
+    """
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -206,7 +281,7 @@ def channel_addowner(token, channel_id, u_id):
         raise InputError(description='User already owner of channel.')
 
     # access error when authorized user not owner of channel or owner of slackr.
-    if False in {data_store.is_admin(admin), channel.is_owner(admin)}:
+    if False in {DATA_STORE.is_admin(admin), channel.is_owner(admin)}:
         raise AccessError(description='Authorized user not owner of channel.')
 
     if channel.is_member(user) is False:
@@ -225,13 +300,18 @@ def channel_removeowner(token, channel_id, u_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
-    admin = data_store.get_user(token_data['u_id'])
+    admin = DATA_STORE.get_user(token_data['u_id'])
 
     channel_id = int(channel_id)
-    channel = data_store.get_channel(channel_id)
+    channel = DATA_STORE.get_channel(channel_id)
 
     u_id = int(u_id)
-    user = data_store.get_user(u_id)
+    user = DATA_STORE.get_user(u_id)
+    """
+    channel_id = int(channel_id)
+    channel = helpers.get_channel(channel_id)
+    auth_user = token_data['u_id']
+    """
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -246,7 +326,7 @@ def channel_removeowner(token, channel_id, u_id):
         raise InputError(description='User is not an owner of channel.')
 
     # access error when authorized user not owner of channel or owner of slackr.
-    if False in {data_store.is_admin(admin), channel.is_owner(admin)}:
+    if False in {DATA_STORE.is_admin(admin), channel.is_owner(admin)}:
         raise AccessError(description='Authorized user not owner of channel.')
 
     channel.remove_owner(user)

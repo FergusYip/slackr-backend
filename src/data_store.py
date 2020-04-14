@@ -1,6 +1,5 @@
 ''' Data Store for the slackr backend'''
 import random
-import math
 import threading
 import pickle
 import helpers
@@ -10,16 +9,17 @@ SECRET = 'the chunts'
 
 class User:
     def __init__(self, email, password, name_first, name_last):
-        self.u_id = data_store.generate_id('u_id')
+        self.u_id = DATA_STORE.generate_id('u_id')
         self.email = email
         self.password = helpers.hash_pw(password)
         self.name_first = name_first
         self.name_last = name_last
-        self.handle_str = generate_handle(name_first, name_last)
-        self.permission_id = data_store.default_permission()
+        self.handle_str = DATA_STORE.generate_handle(name_first, name_last)
+        self.permission_id = DATA_STORE.default_permission()
         self.channels = []
         self.messages = []
         self.reacts = []
+        self.profile_img_url: 'https://i.imgur.com/Mw7Z32g.jpg'
 
     def set_email(self, email):
         self.email = email
@@ -124,7 +124,7 @@ class Standup:
 
 class Channel:
     def __init__(self, creator, name, is_public):
-        self.channel_id = data_store.generate_id('channel_id')
+        self.channel_id = DATA_STORE.generate_id('channel_id')
         self.name = name
         self.is_public = is_public
         self.owner_members = [creator]
@@ -190,7 +190,7 @@ class Channel:
 
 class Message:
     def __init__(self, sender, channel, message, message_id=None):
-        self.message_id = data_store.generate_id(
+        self.message_id = DATA_STORE.generate_id(
             'message_id') if message_id is None else message_id
         self.sender = sender
         self.channel = channel
@@ -294,6 +294,24 @@ class DataStore:
             'message_id': 0,
         }
         self.time_created = helpers.utc_now()
+        self.preset_profiles: [{
+            'deleted_user_profile': {
+                'u_id': -99,
+                'email': 'deleted',
+                'name_first': 'Deleted',
+                'name_last': 'User',
+                'handle_str': 'deleted',
+                'profile_img_url': 'https://i.imgur.com/nsoGP2n.jpg'
+            }
+        }, {
+            'hangman_bot': {
+                'u_id': -95,
+                'email': 'hangmanBot',
+                'name_first': 'Hangman',
+                'name_last': 'Bot',
+                'handle_str': 'Hangman Bot'
+            }
+        }]
         self.reset_requests = []
 
     def add_user(self, new_user):
@@ -325,11 +343,6 @@ class DataStore:
                 return user
         return None
 
-    @property
-    def u_ids(self):
-        return [user.u_id for user in data_store.users]
-
-    @property
     def users_all(self):
         return [user.profile for user in self.users]
 
@@ -361,10 +374,10 @@ class DataStore:
         return self.permissions['member']
 
     def is_admin(self, user):
-        return user.permission_id == data_store.permissions['owner']
+        return user.permission_id == DATA_STORE.permissions['owner']
 
     def is_admin_or_owner(self, user, channel):
-        return user.permission_id == data_store.permissions[
+        return user.permission_id == DATA_STORE.permissions[
             'owner'] or user in channel.owner_members
 
     def add_to_blacklist(self, token):
@@ -467,14 +480,14 @@ class DataStore:
 
 
 try:
-    data_store = pickle.load(open('data_store.p', 'rb'))
+    DATA_STORE = pickle.load(open('data_store.p', 'rb'))
 except FileNotFoundError:
-    data_store = DataStore()
+    DATA_STORE = DataStore()
 
 
 def save():
     '''Save the state of the data_store into a pickle'''
-    pickle.dump(data_store, open('data_store.p', 'wb'))
+    pickle.dump(DATA_STORE, open('data_store.p', 'wb'))
 
 
 def autosave():
@@ -482,38 +495,3 @@ def autosave():
     timer = threading.Timer(1.0, autosave)
     timer.start()
     save()
-
-
-def generate_handle(name_first, name_last):
-    """ Generate a handle best on name_first and name_last
-
-	Parameters:
-		name_first (str): First name
-		name_last (str): Last name
-
-	Returns:
-		handle_str (str): Unique handle
-
-	"""
-    concatentation = name_first.lower() + name_last.lower()
-    handle_str = concatentation[:20]
-
-    unique_modifier = 1
-    while data_store.get_user(handle_str=handle_str):
-        split_handle = list(handle_str)
-
-        # Remove n number of characters from split_handle
-        unique_digits = int(math.log10(unique_modifier)) + 1
-        for _ in range(unique_digits):
-            split_handle.pop()
-
-        split_handle.append(str(unique_modifier))
-        handle_str = ''.join(split_handle)
-
-        unique_modifier += 1
-
-    return handle_str
-
-
-if __name__ == "__main__":
-    pass
