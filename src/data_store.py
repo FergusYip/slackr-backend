@@ -20,7 +20,7 @@ class User:
         self.channels = []
         self.messages = []
         self.reacts = []
-        self.profile_img_url = 'https://i.imgur.com/Mw7Z32g.jpg'
+        self.profile_img_url = default_profile_img()
 
     def set_email(self, email):
         self.email = email
@@ -590,3 +590,13 @@ def generate_handle(name_first, name_last):
         unique_modifier += 1
 
     return handle_str
+
+def default_profile_img():
+    colors = {
+        'blue' :'https://i.imgur.com/HrDzaJo.jpg',
+        'green' : 'https://i.imgur.com/jETb01M.jpg',
+        'purple' : 'https://i.imgur.com/qmX0dIZ.jpg',
+        'red' : 'https://i.imgur.com/FTKy1XA.jpg'
+    }
+
+    return random.choice(list(colors.values()))
