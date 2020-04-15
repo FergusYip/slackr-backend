@@ -2,7 +2,9 @@
 import random
 import math
 import threading
+import string
 import pickle
+import wikiquote
 import helpers
 
 SECRET = 'the chunts'
@@ -217,6 +219,40 @@ class Standup:
         self.messages.append(message_dict)
 
 
+class Hangman:
+    def __init__(self):
+        self.is_active = False
+        self.word = None
+        self.guesses = set()
+        self.incorrect = set()
+        self.stage = 0
+        self.prev_msg = None
+
+    def start(self):
+        self.is_active = True
+        self.word = get_word()
+        return self.word
+
+    def stop(self):
+        self.is_active = False
+        self.word = None
+        self.guesses = set()
+        self.incorrect = set()
+        self.stage = 0
+        self.prev_msg = None
+
+    def guess(self, letter):
+        self.guesses.add(letter)
+
+        # incorrect guess
+        if letter.lower() not in self.word.lower():
+            self.incorrect.add(letter)
+            self.stage += 1
+            return False
+
+        return True
+
+
 class Channel:
     def __init__(self, creator, name, is_public):
         self.channel_id = DATA_STORE.generate_id('channel_id')
@@ -226,6 +262,7 @@ class Channel:
         self.all_members = [creator]
         self.messages = []
         self.standup = Standup()
+        self.hangman = Hangman()
 
     def add_owner(self, user):
         self.owner_members.append(user)
@@ -377,6 +414,7 @@ class HangmanBot:
         self.handle_str = 'hangman_bot'
         self.profile_img_url = 'https://i.imgur.com/olQfW6w.jpg'
         self.messages = []
+        self.token = None
 
     @property
     def profile(self):
@@ -462,6 +500,9 @@ class DataStore:
         '''Get a user from the data store'''
         if u_id == self.preset_profiles['deleted_user'].u_id:
             return self.preset_profiles['deleted_user']
+
+        if u_id == self.preset_profiles['hangman_bot'].u_id:
+            return self.preset_profiles['hangman_bot']
 
         for user in self.users:
             if u_id == user.u_id or email == user.email or handle_str == user.handle_str:
@@ -669,3 +710,24 @@ def default_profile_img():
         'red': 'https://i.imgur.com/FTKy1XA.jpg'
     }
     return random.choice(list(colors.values()))
+
+
+def get_word():
+    '''
+    Function to get a random word from wikiquote
+    '''
+    word = random.choice(wikiquote.random_titles(lang='en'))
+    while not word.isalpha() and not check_ascii(word):
+        word = random.choice(wikiquote.random_titles(lang='en'))
+    return word
+
+
+def check_ascii(word):
+    '''
+    Function to check if word is valid.
+    '''
+    for char in word:
+        if char not in string.ascii_letters:
+            return False
+
+    return True

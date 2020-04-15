@@ -50,7 +50,10 @@ def decode_token(token):
     if payload['iat'] < DATA_STORE.time_created:
         raise AccessError(description='Session has expired')
 
-    if payload['u_id'] not in DATA_STORE.u_ids:
+    u_id = payload['u_id']
+    hangman_bot_u_id = DATA_STORE.preset_profiles['hangman_bot'].u_id
+
+    if u_id not in DATA_STORE.u_ids and u_id != hangman_bot_u_id:
         raise AccessError(description='u_id does not belong to a user')
 
     return payload

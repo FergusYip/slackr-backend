@@ -34,21 +34,6 @@ def user_profile(token, u_id):
 
     if target_user is None:
         raise InputError(description='User ID is not a valid user')
-    """
-    if target_uid == -99:
-        user_return = data_store['deleted_user_profile']
-    elif user_info is None:
-        raise InputError(description='User ID is not a valid user')
-    else:
-        user_return = {
-            'u_id': user_info['u_id'],
-            'email': user_info['email'],
-            'name_first': user_info['name_first'],
-            'name_last': user_info['name_last'],
-            'handle_str': user_info['handle_str'],
-            'profile_img_url': user_info['profile_img_url']
-        }
-    """
 
     return {'user': target_user.profile}
 
@@ -155,7 +140,6 @@ def user_profile_sethandle(token, handle_str):
     user.set_handle(handle_str)
 
     return {}
-
 
 
 def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):

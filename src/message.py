@@ -48,7 +48,8 @@ def message_send(token, channel_id, message, message_id=None):
         raise InputError(
             description='Message needs to be at least 1 characters')
 
-    if user not in channel.all_members:
+    hangman_bot_u_id = DATA_STORE.preset_profiles['hangman_bot'].u_id
+    if user not in channel.all_members and u_id != hangman_bot_u_id:
         raise AccessError(
             description=
             'User does not have Access to send messages in the current channel'
@@ -57,7 +58,8 @@ def message_send(token, channel_id, message, message_id=None):
     msg = Message(user, channel, message, message_id)
     channel.send_message(msg)
     DATA_STORE.add_message(msg)
-    user.add_message(msg)
+    if user.u_id != hangman_bot_u_id:
+        user.add_message(msg)
 
     return {'message_id': msg.message_id}
 
