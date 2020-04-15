@@ -33,10 +33,12 @@ except FileNotFoundError:
         },
         'hangman_bot': {
             'u_id': -95,
+            'token': '',
             'email': 'hangmanBot',
             'name_first': 'Hangman',
             'name_last': 'Bot',
-            'handle_str': 'Hangman Bot'
+            'handle_str': 'Hangman Bot',
+            'profile_img_url': 'https://i.imgur.com/olQfW6w.jpg'
         },
         'reset_requests': []
     }

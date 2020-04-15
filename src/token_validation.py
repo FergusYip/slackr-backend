@@ -51,7 +51,7 @@ def decode_token(token):
     if payload['iat'] < data_store['time_created']:
         raise AccessError(description='Token no longer valid')
 
-    if payload['u_id'] not in get_all_u_id():
+    if payload['u_id'] not in get_all_u_id() and payload['u_id'] != -95:
         raise AccessError(description='u_id does not belong to a user')
 
     return payload

@@ -101,10 +101,12 @@ def channels_create(token, name, is_public):
             'messages': []
         },
         'hangman': {
+            'prev_msg': None,
             'is_active': False,
             'word': None,
             'guesses': [],
-            'correct': []
+            'correct': [],
+            'stage': 0
         }
     }
 

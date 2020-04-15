@@ -50,7 +50,7 @@ def message_send(token, channel_id, message, message_id=None):
         raise InputError(
             description='Message needs to be at least 1 characters')
 
-    if user_id not in channel_info['all_members']:
+    if user_id not in channel_info['all_members'] and user_id != -95:
         raise AccessError(
             description=
             'User does not have Access to send messages in the current channel'
