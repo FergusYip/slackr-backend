@@ -85,8 +85,7 @@ def guess_hangman(token, channel_id, guess):
         message.message_send(bot_token, channel_id,
                              'Congratulations! You win!')
         channel.hangman.stop()
-    elif stage > 9:
-        print(stage)
+    elif stage > 10:
         lose = (f"Game Over.\n"
                 f"{stages[stage]}\n"
                 f"The word was:\t{channel['hangman']['word']}\n")
