@@ -254,6 +254,7 @@ class Hangman:
 
 
 class Channel:
+    ''' Channel object '''
     def __init__(self, creator, name, is_public):
         self.channel_id = DATA_STORE.generate_id('channel_id')
         self.name = name
@@ -265,26 +266,69 @@ class Channel:
         self.hangman = Hangman()
 
     def add_owner(self, user):
+        ''' Add a user to the list of owner members.
+
+        Parameters:
+            user (obj): A user object.
+        '''
         self.owner_members.append(user)
 
     def remove_owner(self, user):
+        ''' Removes a user from the list of owner members.
+
+        Parameters:
+            user (obj): A user object.
+        '''
         self.owner_members.remove(user)
 
     def add_member(self, user):
+        ''' Add a user to the list of members.
+
+        Parameters:
+            user (obj): A user object.
+        '''
         self.all_members.append(user)
 
     def remove_member(self, user):
+        ''' Removes a user from the list of members.
+
+        Parameters:
+            user (obj): A user object.
+        '''
         self.all_members.remove(user)
 
     def is_member(self, user):
+        ''' Determines if a given user is a member of the channel.
+
+        Parameters:
+            user (obj): A user object.
+        
+        Return:
+            Bool: Whether the user is a member of the channel (True) or not (False).
+        '''
         return user in self.all_members
 
     @property
     def id_name(self):
+        ''' Get a dictionary containing channel information.
+
+        Return (dict):
+            channel_id (int): The unique identification code of the channel.
+            name (str): The name of the channel.
+        '''
         return {'channel_id': self.channel_id, 'name': self.name}
 
     @property
     def details(self):
+        ''' Get a dictionary containing information within the channel.
+
+        Return (dict):
+            name (str): The name of the channel.
+            owner_members (list):
+                u_id (int): The user's ID.
+            all_members (list):
+                u_id (int): The user's ID.
+        '''
         return {
             'name': self.name,
             'owner_members': [user.details for user in self.owner_members],
@@ -292,6 +336,14 @@ class Channel:
         }
 
     def is_owner(self, user):
+        ''' Determines whether a user is an owner member.
+
+        Parameters:
+            user (obj): A user object.
+        
+        Return:
+            Bool: Whether the user is an owner (True) or not (False).
+        '''
         return user in self.owner_members
 
     def search(self, query_str):
@@ -308,6 +360,7 @@ class Channel:
 
 
 class Message:
+    ''' Message object '''
     def __init__(self, sender, channel, message, message_id=None):
         self.message_id = DATA_STORE.generate_id(
             'message_id') if message_id is None else message_id
@@ -320,9 +373,32 @@ class Message:
 
     @property
     def u_id(self):
+        ''' Get a dictionary containing who sent the message.
+
+        Return (dict):
+            u_id (int): The sender's u_id
+        '''
         return self.sender.u_id
 
     def details(self, user):
+        '''Get a dictionary of the message's information.
+
+        Parameters:
+            user (obj): An object of a user.
+
+        Returns (dict):
+            message_id (int): The message's unqiue identification number.
+            u_id (int): The user who sent the message's u_id.
+            message (str): The contents of the message to be sent.
+            time_created (int): A unix timestamp of when the message was sent.
+            reacts (list):
+                react_id (int): The ID of the reaction denoting which type of reaction it is.
+                u_ids (list):
+                    u_id (int): The u_id of the users who have made this specific reaction.
+                is_this_user_reacted (bool): Whether the user has reacted to the message.
+            is_pinned (bool):  Whether the message has been pinned.
+
+        '''
         message_reacts = []
         reacts = self.reacts
         for react in reacts:
@@ -343,41 +419,85 @@ class Message:
         }
 
     def pin(self):
+        ''' Set a message to be pinned. '''
         self.is_pinned = True
 
     def unpin(self):
+        ''' Set a message to be unpinned. '''
         self.is_pinned = False
 
     def get_react(self, react_id):
+        ''' Function that will return a react object attached to a message.
+
+        Parameters:
+            react_id (int): React ID as an integer.
+
+        Returns:
+            react (obj): A react object.
+        '''
         for react in self.reacts:
             if react_id == react.react_id:
                 return react
         return None
 
     def add_react(self, react):
+        ''' Function that will append a reaction to a message.
+
+        Parameters:
+            react (obj): A react object to append to the message.
+        '''
         self.reacts.append(react)
 
     def remove_react(self, react):
+        ''' Function that will remove a reaction from a message.
+
+        Parameters:
+            react (obj): A react object to remove from the message.
+        '''
         self.reacts.remove(react)
 
 
 class React:
+    ''' React object '''
     def __init__(self, react_id, message):
         self.react_id = react_id
         self.users = []
         self.message = message
 
-    def add_user(self, users):
-        self.users.append(users)
+    def add_user(self, user):
+        ''' Adds the user to the list of users who have reacted.
 
-    def remove_user(self, users):
-        self.users.remove(users)
+        Parameters:
+            user (obj): The object of a user.
+        '''
+        self.users.append(user)
+
+    def remove_user(self, user):
+        ''' Removes the user from the list of users whom have reacted.
+
+        Parameters:
+            user (obj): The object of a user.
+        '''
+        self.users.remove(user)
 
     @property
     def u_ids(self):
+        ''' Gets a list of the u_ids that have reacted.
+
+        Return (list):
+            u_id (int): The u_id of a user who has reacted to the message.
+        '''
         return [user.u_id for user in self.users]
 
     def is_user_reacted(self, u_id):
+        ''' Checks if a u_id is in the list of u_ids that have reacted.
+
+        Parameters:
+            u_id (int): The u_id of the user.
+        
+        Return:
+            Bool: Whether the user has reacted (True) or not (False).
+        '''
         return u_id in self.u_ids
 
 
