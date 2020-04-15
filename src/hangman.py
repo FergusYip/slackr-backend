@@ -3,6 +3,7 @@ Implementation of hangman game in a channel.
 '''
 
 import random
+import string
 import wikiquote
 from data_store import DATA_STORE as data_store
 import helpers
@@ -10,7 +11,6 @@ from token_validation import decode_token
 from error import InputError
 import message
 import token_validation
-import string
 
 
 def start_hangman(token, channel_id):
@@ -81,6 +81,10 @@ def guess_hangman(token, channel_id, guess):
             if channel['hangman']['is_active'] is False:
                 raise InputError(description='game not active')
 
+            if channel['hangman']['prev_msg'] is not None:
+                prev = int(channel['hangman']['prev_msg'])
+                message.message_remove(bot_token, prev)
+
             # appending to list of guesses.
             channel['hangman']['guesses'].append(guess.lower())
 
@@ -93,29 +97,49 @@ def guess_hangman(token, channel_id, guess):
 
             # if more than 10 incorrect guesses.
             if len(wrong_guesses) >= 10:
-                mess = f"Game Over.\nThe word was:\t{channel['hangman']['word']}"
-                message.message_send(bot_token, channel_id, mess)
+                lose = (
+                    f"Game Over.\n"
+                    f"{stages[len(wrong_guesses)]}\n"
+                    f"The word was:\t{channel['hangman']['word']}\n"
+                )
+                prev = message.message_send(bot_token, channel_id, lose)
+                channel['hangman']['prev_msg'] = int(prev['message_id'])
 
                 # reset game.
                 reset_hangman(channel_id)
 
             else:
-                message.message_send(bot_token, channel_id, dashed)
                 # incorrect guess.
                 if guess.lower() not in channel['hangman']['word'].lower():
                     # printing the stage of game.
-                    stage_mess = f"{stages[len(wrong_guesses)]}\nYou have guessed:\t{', '.join(wrong_guesses)}"
-                    message.message_send(bot_token, channel_id, stage_mess)
+                    incorrect = (
+                        f"Incorrect Guess.\n"
+                        f"{stages[len(wrong_guesses)]}\n"
+                        f"{dashed}\n"
+                        f"You have guessed:\t[{', '.join(wrong_guesses)}]\n"
+                    )
+                    prev = message.message_send(
+                        bot_token, channel_id, incorrect)
+                    channel['hangman']['prev_msg'] = int(prev['message_id'])
 
                 # correct guess.
                 else:
                     channel['hangman']['correct'].append(guess)
+                    # full word is guessed.
+                    if '_' not in dashed:
+                        message.message_send(bot_token, channel_id,
+                                             'Congratulations! You win!')
+                        reset_hangman(channel_id)
 
-    # full word is guessed.
-    if '_' not in dashed:
-        message.message_send(bot_token, channel_id,
-                             'Congratulations! You win!')
-        reset_hangman(channel_id)
+                    else:
+                        correct = (
+                            f"That was right!\n"
+                            f"{dashed}\n"
+                        )
+                        prev = message.message_send(
+                            bot_token, channel_id, correct)
+                        channel['hangman']['prev_msg'] = int(
+                            prev['message_id'])
     return {}
 
 
