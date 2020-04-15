@@ -58,8 +58,7 @@ def message_send(token, channel_id, message, message_id=None):
     msg = Message(user, channel, message, message_id)
     channel.send_message(msg)
     DATA_STORE.add_message(msg)
-    if user.u_id != hangman_bot_u_id:
-        user.add_message(msg)
+    user.add_message(msg)
 
     return {'message_id': msg.message_id}
 
