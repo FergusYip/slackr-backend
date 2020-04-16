@@ -2,9 +2,7 @@
 import random
 import math
 import threading
-import string
 import pickle
-import wikiquote
 import helpers
 
 SECRET = 'the chunts'
@@ -23,7 +21,7 @@ class User:
         self._channels = []
         self._messages = []
         self._reacts = []
-        self._profile_img_url = default_profile_img()
+        self._profile_img_url = helpers.default_profile_img()
 
     @property
     def u_id(self):
@@ -310,7 +308,7 @@ class Hangman:
 
     def start(self):
         self.is_active = True
-        self.word = get_word()
+        self.word = helpers.get_word()
         return self.word
 
     def stop(self):
@@ -977,35 +975,3 @@ def generate_handle(name_first, name_last):
         unique_modifier += 1
 
     return handle_str
-
-
-def default_profile_img():
-    ''' Return a link to a randomised default image'''
-    colors = {
-        'blue': 'https://i.imgur.com/HrDzaJo.jpg',
-        'green': 'https://i.imgur.com/jETb01M.jpg',
-        'purple': 'https://i.imgur.com/qmX0dIZ.jpg',
-        'red': 'https://i.imgur.com/FTKy1XA.jpg'
-    }
-    return random.choice(list(colors.values()))
-
-
-def get_word():
-    '''
-    Function to get a random word from wikiquote
-    '''
-    word = random.choice(wikiquote.random_titles(lang='en'))
-    while not word.isalpha() and not check_ascii(word):
-        word = random.choice(wikiquote.random_titles(lang='en'))
-    return word.strip()
-
-
-def check_ascii(word):
-    '''
-    Function to check if word is valid.
-    '''
-    for char in word:
-        if char not in string.ascii_letters:
-            return False
-
-    return True
