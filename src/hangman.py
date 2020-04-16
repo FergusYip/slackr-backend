@@ -31,8 +31,8 @@ def start_hangman(token, channel_id):
     dashes = get_dashed(word, [])
 
     # sending the welcome message.
-    welcome = f"Welcome to Hangman!\nWord:\t{dashes}"
-    message.message_send(bot_token, channel_id, welcome)
+    welcome_msg = (f'Welcome to Hangman!\nWord:\t{dashes}')
+    message.message_send(bot_token, channel_id, welcome_msg)
 
     return {}
 
@@ -82,16 +82,17 @@ def guess_hangman(token, channel_id, guess):
     dashed = get_dashed(channel.hangman.word, channel.hangman.guesses)
 
     if dashed == channel.hangman.word:
-        message.message_send(
-            bot_token, channel_id,
-            f'Congratulations!\nYou win!\nThe word was {dashed}')
+        win_msg = (f'Congratulations!\n'
+                   f'You win!\n'
+                   f'The word was {dashed}')
+        message.message_send(bot_token, channel_id, win_msg)
         channel.hangman.stop()
     elif stage >= 10:
         lose = (f"Game Over.\n"
                 f"{stages[stage]}\n"
                 f"The word was:\t{channel.hangman.word}\n")
         prev = message.message_send(bot_token, channel_id, lose)
-        channel.hangman.prev_msg = int(prev['message_id'])
+        channel.hangman.prev_msg = prev['message_id']
 
         # End and reset game.
         channel.hangman.stop()
@@ -109,7 +110,7 @@ def guess_hangman(token, channel_id, guess):
                      f"{dashed}\n"
                      f"You have guessed:\t[ {', '.join(wrong_guesses)} ]\n")
         prev = message.message_send(bot_token, channel_id, incorrect)
-        channel.hangman.prev_msg = int(prev['message_id'])
+        channel.hangman.prev_msg = prev['message_id']
 
     return {}
 
