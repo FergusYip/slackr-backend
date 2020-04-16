@@ -58,11 +58,11 @@ def guess_hangman(token, channel_id, guess):
         3: '+----------\n|\n|\n|\n|\n=========',
         4: '+----------\n|\t|\n|\n|\n|\n=========',
         5: '+----------\n|\t|\n|\tO\n|\n|\n=========',
-        6: '+----------\n|\t|\n|\tO\n|      |\n|\n=========',
-        7: '+----------\n|\t|\n|\tO\n|     /|\n|\n=========',
-        8: '+----------\n|\t|\n|\tO\n|     /|\\\n|\n=========',
-        9: '+----------\n|\t|\n|\tO\n|     /|\\\n|     /\n=========',
-        10: '+----------\n|\t|\n|\tO\n|     /|\\\n|     /\\\n=========',
+        6: '+----------\n|\t|\n|\tO\n|       |\n|\n=========',
+        7: '+----------\n|\t|\n|\tO\n|      /|\n|\n=========',
+        8: '+----------\n|\t|\n|\tO\n|      /|\\\n|\n=========',
+        9: '+----------\n|\t|\n|\tO\n|      /|\\\n|     /\n=========',
+        10: '+----------\n|\t|\n|\tO\n|      /|\\\n|     /\\\n=========',
     }
 
     # Check if game is already active.
@@ -90,7 +90,7 @@ def guess_hangman(token, channel_id, guess):
     elif stage >= 10:
         lose = (f"Game Over.\n"
                 f"{stages[stage]}\n"
-                f"The word was:\t{channel.hangman.word}\n")
+                f"The word was:  {channel.hangman.word}\n")
         prev = message.message_send(bot_token, channel_id, lose)
         channel.hangman.prev_msg = prev['message_id']
 
