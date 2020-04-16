@@ -70,49 +70,6 @@ def channels_create(token, name, is_public):
     DATA_STORE.add_channel(channel)
     user.add_channel(channel)
     return {'channel_id': channel.channel_id}
-    """
-    channel_id = generate_id('channel_id')
-
-    u_id = token_payload['u_id']
-
-    # Assuming that the user creating the channel automatically joins the channel
-    channel = {
-        'channel_id': channel_id,
-        'name': name,
-        'is_public': is_public,
-        'owner_members': [u_id],
-        'all_members': [u_id],
-        'messages': [],
-        'standup': {
-            'is_active': False,
-            'starting_user': None,
-            'time_finish': None,
-            'messages': []
-        },
-        'hangman': {
-            'is_active': False,
-            'word': None,
-            'guesses': [],
-            'correct': []
-        }
-    }
-
-    data_store['channels'].append(channel)
-    return {'channel_id': channel_id}
-
-
-def invalid_channel_name(channel_name):
-    ''' Checks if a channel name is invalid
-
-        Parameters:
-                channel_name (str): Channel name
-
-        Returns:
-                (bool): Whether the channel name is invalid
-
-        '''
-    return len(channel_name) > 20
-    """
 
 
 if __name__ == "__main__":
