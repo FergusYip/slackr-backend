@@ -13,17 +13,47 @@ SECRET = 'the chunts'
 class User:
     '''User Object'''
     def __init__(self, email, password, name_first, name_last):
-        self.u_id = DATA_STORE.generate_id('u_id')
-        self.email = email
-        self.password = helpers.hash_pw(password)
-        self.name_first = name_first
-        self.name_last = name_last
-        self.handle_str = generate_handle(name_first, name_last)
-        self.permission_id = DATA_STORE.default_permission()
-        self.channels = []
-        self.messages = []
-        self.reacts = []
-        self.profile_img_url = default_profile_img()
+        self._u_id = DATA_STORE.generate_id('u_id')
+        self._email = email
+        self._password = helpers.hash_pw(password)
+        self._name_first = name_first
+        self._name_last = name_last
+        self._handle_str = generate_handle(name_first, name_last)
+        self._permission_id = DATA_STORE.default_permission()
+        self._channels = []
+        self._messages = []
+        self._reacts = []
+        self._profile_img_url = default_profile_img()
+
+    @property
+    def u_id(self):
+        '''User ID (int)'''
+        return self._u_id
+
+    @property
+    def email(self):
+        '''User email (str)'''
+        return self._email
+
+    @property
+    def password(self):
+        '''User password (str)'''
+        return self._password
+
+    @property
+    def name_first(self):
+        '''User's first name (str)'''
+        return self._name_first
+
+    @property
+    def name_last(self):
+        '''User's last name (str)'''
+        return self._name_last
+
+    @property
+    def handle_str(self):
+        '''User's handle (str)'''
+        return self._handle_str
 
     def set_email(self, email):
         '''Set the user's email
@@ -32,7 +62,7 @@ class User:
             email (str): email
 
         '''
-        self.email = email
+        self._email = email
 
     def set_name(self, name_first, name_last):
         '''Set the user's firt and last name
@@ -45,32 +75,52 @@ class User:
         self.name_first = name_first
         self.name_last = name_last
 
-    def change_password(self, password):
+    def set_password(self, password):
         '''Change the user's password
 
         Parameters:
             password (str): Password
 
         '''
-        self.password = helpers.hash_pw(password)
+        self._password = helpers.hash_pw(password)
 
-    def set_handle(self, handle_str):
+    def set_handle_str(self, handle_str):
         '''Set the user's handle
 
         Parameters:
             handle_str (str): Handle String
 
         '''
-        self.handle_str = handle_str
+        self._handle_str = handle_str
 
-    def change_permission(self, permission_id):
+    @property
+    def permission_id(self):
+        ''' User's permission ID'''
+        return self._permission_id
+
+    def set_permission_id(self, permission_id):
         '''Change the user's permission ID
 
         Parameters:
             permission_id (int): Permission ID
 
         '''
-        self.permission_id = permission_id
+        self._permission_id = permission_id
+
+    @property
+    def channels(self):
+        ''' User's channels'''
+        return list(self._channels)
+
+    @property
+    def messages(self):
+        ''' User's messages'''
+        return list(self._messages)
+
+    @property
+    def reacts(self):
+        ''' User's reacts'''
+        return list(self._reacts)
 
     @property
     def profile(self):
@@ -86,12 +136,12 @@ class User:
 
         '''
         return {
-            'u_id': self.u_id,
-            'email': self.email,
-            'name_first': self.name_first,
-            'name_last': self.name_last,
-            'handle_str': self.handle_str,
-            'profile_img_url': self.profile_img_url
+            'u_id': self._u_id,
+            'email': self._email,
+            'name_first': self._name_first,
+            'name_last': self._name_last,
+            'handle_str': self._handle_str,
+            'profile_img_url': self._profile_img_url
         }
 
     @property
@@ -106,10 +156,10 @@ class User:
 
         '''
         return {
-            'u_id': self.u_id,
-            'name_first': self.name_first,
-            'name_last': self.name_last,
-            'profile_img_url': self.profile_img_url
+            'u_id': self._u_id,
+            'name_first': self._name_first,
+            'name_last': self._name_last,
+            'profile_img_url': self._profile_img_url
         }
 
     def add_channel(self, channel):
@@ -119,7 +169,7 @@ class User:
             channel (obj): Channel object
 
         '''
-        self.channels.append(channel)
+        self._channels.append(channel)
 
     def remove_channel(self, channel):
         '''Remove the user to a channel
@@ -128,7 +178,7 @@ class User:
             channel (obj): Channel object
 
         '''
-        self.channels.remove(channel)
+        self._channels.remove(channel)
 
     def add_message(self, message):
         '''Add a message associated to the user
@@ -137,7 +187,7 @@ class User:
             message (obj): Message object
 
         '''
-        self.messages.append(message)
+        self._messages.append(message)
 
     def remove_message(self, message):
         '''Remove a message associated to the user
@@ -146,7 +196,7 @@ class User:
             message (obj): Message object
 
         '''
-        self.messages.remove(message)
+        self._messages.remove(message)
 
     @property
     def viewable_messages(self):
@@ -157,10 +207,10 @@ class User:
 
         '''
         msgs = []
-        for channel in self.channels:
+        for channel in self._channels:
             for message in channel.messages:
                 msgs.append(message)
-        return msgs
+        return list(msgs)
 
     def add_react(self, react):
         '''Add a react associated to the user
@@ -169,7 +219,7 @@ class User:
             react (obj): React object
 
         '''
-        self.reacts.append(react)
+        self._reacts.append(react)
 
     def remove_react(self, react):
         '''Remove a react associated to the user
@@ -178,16 +228,26 @@ class User:
             react (obj): React object
 
         '''
-        self.reacts.remove(react)
+        self._reacts.remove(react)
 
-    def change_profile_img_url(self, profile_img_url):
+    @property
+    def profile_img_url(self):
         '''Change the user's profile image url
 
         Parameters:
             profile_img_url (str): Url of profile image
 
         '''
-        self.profile_img_url = profile_img_url
+        return self._profile_img_url
+
+    def set_profile_img_url(self, profile_img_url):
+        '''Change the user's profile image url
+
+        Parameters:
+            profile_img_url (str): Url of profile image
+
+        '''
+        self._profile_img_url = profile_img_url
 
 
 class Standup:
@@ -304,7 +364,7 @@ class Channel:
 
         Parameters:
             user (obj): A user object.
-        
+
         Return:
             Bool: Whether the user is a member of the channel (True) or not (False).
         '''
