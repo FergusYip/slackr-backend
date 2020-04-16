@@ -252,25 +252,45 @@ class User:
 
 class Standup:
     def __init__(self):
-        self.is_active = False
-        self.starting_user = None
-        self.time_finish = None
-        self.messages = []
+        self._is_active = False
+        self._starting_user = None
+        self._time_finish = None
+        self._messages = []
+
+    @property
+    def is_active(self):
+        '''Whether the standup is active (bool)'''
+        return self._is_active
+
+    @property
+    def starting_user(self):
+        '''The user who started the standup (user_obj)'''
+        return self._starting_user
+
+    @property
+    def time_finish(self):
+        '''Standup end time (int)'''
+        return self._time_finish
+
+    @property
+    def messages(self):
+        '''Standup messages (list[message_obj])'''
+        return self._messages
 
     def start(self, user, time_finish):
-        self.is_active = True
-        self.starting_user = user
-        self.time_finish = time_finish
+        self._is_active = True
+        self._starting_user = user
+        self._time_finish = time_finish
 
     def stop(self):
         joined_message = ''
-        for message in self.messages:
+        for message in self._messages:
             joined_message += f"{message['handle_str']}: {message['message']}\n"
 
-        self.is_active = False
-        self.starting_user = None
-        self.time_finish = None
-        self.messages = []
+        self._is_active = False
+        self._starting_user = None
+        self._time_finish = None
+        self._messages.clear()
 
         return joined_message
 
