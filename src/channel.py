@@ -122,10 +122,6 @@ def channel_leave(token, channel_id):
 
     channel_id = int(channel_id)
     channel = DATA_STORE.get_channel(channel_id)
-    """
-    channel_id = int(channel_id)
-    channel = helpers.get_channel(channel_id)
-    """
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -161,10 +157,6 @@ def channel_join(token, channel_id):
 
     channel_id = int(channel_id)
     channel = DATA_STORE.get_channel(channel_id)
-    """
-    channel_id = int(channel_id)
-    channel = helpers.get_channel(channel_id)
-    """
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -200,11 +192,6 @@ def channel_addowner(token, channel_id, u_id):
 
     u_id = int(u_id)
     user = DATA_STORE.get_user(u_id)
-    """
-    channel_id = int(channel_id)
-    channel = helpers.get_channel(channel_id)
-    auth_user = token_data['u_id']
-    """
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -245,11 +232,6 @@ def channel_removeowner(token, channel_id, u_id):
 
     u_id = int(u_id)
     user = DATA_STORE.get_user(u_id)
-    """
-    channel_id = int(channel_id)
-    channel = helpers.get_channel(channel_id)
-    auth_user = token_data['u_id']
-    """
 
     # input error if channel doesn't exist.
     if channel is None:

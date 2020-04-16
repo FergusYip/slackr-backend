@@ -54,7 +54,7 @@ def auth_register(email, password, name_first, name_last):
 
     user = User(email, password, name_first, name_last)
     DATA_STORE.add_user(user)
-    
+
     return {
         'u_id': user.u_id,
         'token': encode_token(user.u_id),
@@ -112,7 +112,6 @@ def auth_logout(token):
     is_success = token in DATA_STORE.token_blacklist
 
     return {'is_success': is_success}
-
 
 
 def auth_passwordreset_request(email):
@@ -190,6 +189,7 @@ def auth_passwordreset_reset(reset_code, new_password):
     user.change_password(new_password)
 
     return {}
+
 
 if __name__ == '__main__':
     pass
