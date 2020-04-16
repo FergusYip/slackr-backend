@@ -82,8 +82,9 @@ def guess_hangman(token, channel_id, guess):
     dashed = get_dashed(channel.hangman.word, channel.hangman.guesses)
 
     if dashed == channel.hangman.word:
-        message.message_send(bot_token, channel_id,
-                             'Congratulations! You win!')
+        message.message_send(
+            bot_token, channel_id,
+            f'Congratulations!\nYou win!\nThe word was {dashed}')
         channel.hangman.stop()
     elif stage >= 10:
         lose = (f"Game Over.\n"
