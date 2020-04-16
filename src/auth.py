@@ -176,6 +176,9 @@ def auth_passwordreset_reset(reset_code, new_password):
             Empty Dictionary
     '''
 
+    if None in {reset_code, new_password}:
+        raise InputError(description='Insufficient parameters')
+
     reset_code = int(reset_code)
     reset_request = DATA_STORE.get_reset_request(reset_code)
 
@@ -186,7 +189,7 @@ def auth_passwordreset_reset(reset_code, new_password):
         raise InputError(description='Password is not valid')
 
     user = DATA_STORE.get_user(u_id=reset_request['u_id'])
-    user.change_password(new_password)
+    user.set_password(new_password)
 
     return {}
 
