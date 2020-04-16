@@ -70,8 +70,8 @@ class User:
             name_last (str): Last name
 
         '''
-        self.name_first = name_first
-        self.name_last = name_last
+        self._name_first = name_first
+        self._name_last = name_last
 
     def set_password(self, password):
         '''Change the user's password
