@@ -2,6 +2,7 @@
 Implementation of hangman game in a channel.
 '''
 
+import string
 from data_store import DATA_STORE
 from token_validation import decode_token
 from error import InputError
@@ -119,6 +120,9 @@ def get_dashed(word, guesses):
     '''
     Returns a string where all unguessed letters are '_'.
     '''
+    for char in word:
+        if char not in string.ascii_letters:
+            return False
 
     # getting list of all lowercase letters.
     dashed = word

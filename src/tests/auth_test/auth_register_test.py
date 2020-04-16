@@ -113,7 +113,8 @@ def test_register_unique_handle(reset):  # pylint: disable=W0613
                                 'Last')
     user_profile_2 = user.user_profile(user_2['token'], user_2['u_id'])['user']
 
-    assert user_profile_1['handle_str'] != user_profile_2['handle_str']
+    assert user_profile_1['user']['handle_str'] != user_profile_2['user'][
+        'handle_str']
 
 
 def test_register_long_handle(reset):  # pylint: disable=W0613

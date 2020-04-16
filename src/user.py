@@ -168,7 +168,7 @@ def user_profile_uploadphoto(token, img_url, area):
         token (str): The token of the authorized user to be decoded to get the u_id.
         img_url (str): A string of the image URL to upload.
         area (list): A list containing the x_start, y_start, x_end, y_end values in that order.
-    
+
     Return:
         Dictionary (dict): An empty dictionary.
     '''

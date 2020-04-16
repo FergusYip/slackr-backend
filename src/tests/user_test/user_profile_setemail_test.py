@@ -29,7 +29,7 @@ def test_profile_setemail(reset, test_user):
     user.user_profile_setemail(test_user['token'], 'tester@test.com')
     profile_info = user.user_profile(test_user['token'], test_user['u_id'])
 
-    assert profile_info['email'] == 'tester@test.com'
+    assert profile_info['user']['email'] == 'tester@test.com'
 
 
 def test_profile_setemail_used_by_other_user(reset, test_user, new_user):
@@ -80,7 +80,7 @@ def test_profile_setemail_valid_emails(reset, test_user, valid_emails):
         user.user_profile_setemail(test_user['token'], email)
         profile_info = user.user_profile(test_user['token'], test_user['u_id'])
 
-        assert profile_info['email'] == email
+        assert profile_info['user']['email'] == email
 
 
 def test_profile_setemail_invalid_emails(reset, test_user, invalid_emails):
