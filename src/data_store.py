@@ -735,11 +735,11 @@ class DataStore:
         for channel in self.channels:
             for owner in channel.owner_members:
                 if owner == user:
-                    channel.all_members.remove(owner)
+                    channel.remove_owner(owner)
                     break
             for member in channel.all_members:
                 if member == user:
-                    channel.all_members.remove(member)
+                    channel.remove_member(member)
                     break
         for message in self.messages:
             if message.sender == user:
