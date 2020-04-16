@@ -338,14 +338,54 @@ class Hangman:
 class Channel:
     ''' Channel object '''
     def __init__(self, creator, name, is_public):
-        self.channel_id = DATA_STORE.generate_id('channel_id')
-        self.name = name
-        self.is_public = is_public
-        self.owner_members = [creator]
-        self.all_members = [creator]
-        self.messages = []
-        self.standup = Standup()
-        self.hangman = Hangman()
+        self._channel_id = DATA_STORE.generate_id('channel_id')
+        self._name = name
+        self._is_public = is_public
+        self._owner_members = [creator]
+        self._all_members = [creator]
+        self._messages = []
+        self._standup = Standup()
+        self._hangman = Hangman()
+
+    @property
+    def channel_id(self):
+        '''Channel ID (int)'''
+        return self._channel_id
+
+    @property
+    def name(self):
+        '''Channel name (str)'''
+        return self._name
+
+    @property
+    def is_public(self):
+        '''Channel public status (bool)'''
+        return self._is_public
+
+    @property
+    def owner_members(self):
+        '''Channel owners (list[user_obj])'''
+        return list(self._owner_members)
+
+    @property
+    def all_members(self):
+        '''Channel members (list[user_obj])'''
+        return list(self._all_members)
+
+    @property
+    def messages(self):
+        '''Channel messages (list[message_obj])'''
+        return list(self._messages)
+
+    @property
+    def standup(self):
+        '''Channel standup (standup_obj)'''
+        return self._standup
+
+    @property
+    def hangman(self):
+        '''Channel hangman game (hangman_obj)'''
+        return self._hangman
 
     def add_owner(self, user):
         ''' Add a user to the list of owner members.
@@ -353,7 +393,7 @@ class Channel:
         Parameters:
             user (obj): A user object.
         '''
-        self.owner_members.append(user)
+        self._owner_members.append(user)
 
     def remove_owner(self, user):
         ''' Removes a user from the list of owner members.
@@ -361,7 +401,7 @@ class Channel:
         Parameters:
             user (obj): A user object.
         '''
-        self.owner_members.remove(user)
+        self._owner_members.remove(user)
 
     def add_member(self, user):
         ''' Add a user to the list of members.
@@ -369,7 +409,7 @@ class Channel:
         Parameters:
             user (obj): A user object.
         '''
-        self.all_members.append(user)
+        self._all_members.append(user)
 
     def remove_member(self, user):
         ''' Removes a user from the list of members.
@@ -377,7 +417,7 @@ class Channel:
         Parameters:
             user (obj): A user object.
         '''
-        self.all_members.remove(user)
+        self._all_members.remove(user)
 
     def is_member(self, user):
         ''' Determines if a given user is a member of the channel.
@@ -422,23 +462,41 @@ class Channel:
 
         Parameters:
             user (obj): A user object.
-        
+
         Return:
             Bool: Whether the user is an owner (True) or not (False).
         '''
         return user in self.owner_members
 
     def search(self, query_str):
+        '''Return a list of messages containing the provided query_str
+
+        Parameters:
+            query_str (str): Query string
+
+        Returns:
+            List of message objects
+        '''
         return [
             message for message in self.messages
             if query_str in message.message
         ]
 
     def send_message(self, message):
-        self.messages.append(message)
+        '''Send a message in the channel
+
+        Parameters:
+            message (obj): A message object
+        '''
+        self._messages.append(message)
 
     def remove_message(self, message):
-        self.messages.remove(message)
+        '''Remove a message from the channel
+
+        Parameters:
+            message (obj): A message object
+        '''
+        self._messages.remove(message)
 
 
 class Message:
@@ -576,7 +634,7 @@ class React:
 
         Parameters:
             u_id (int): The u_id of the user.
-        
+
         Return:
             Bool: Whether the user has reacted (True) or not (False).
         '''
@@ -713,8 +771,8 @@ class DataStore:
 
     def join_channel(self, user, channel):
         '''Make a user join a channel in the data store'''
-        user.channels.append(channel)
-        channel.all_members.append(user)
+        user.add_channel(channel)
+        channel.add_member(user)
 
     def get_user(self, u_id=None, email=None, handle_str=None):
         '''Get a user from the data store'''
