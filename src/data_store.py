@@ -273,6 +273,7 @@ class HangmanBot(User):
 
 
 class Standup:
+    '''Standup Object'''
     def __init__(self):
         self._is_active = False
         self._starting_user = None
