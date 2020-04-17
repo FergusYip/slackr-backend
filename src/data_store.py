@@ -248,6 +248,30 @@ class User:
         self._profile_img_url = profile_img_url
 
 
+class DeletedUser(User):
+    '''Deleted user object'''
+    def __init__(self):
+        self._u_id = -99
+        self._email = 'deleted'
+        self._name_first = 'Deleted'
+        self._name_last = 'User'
+        self._handle_str = 'deleted'
+        self._profile_img_url = 'https://i.imgur.com/nsoGP2n.jpg'
+
+
+class HangmanBot(User):
+    '''Hangman bot user object'''
+    def __init__(self):
+        self._u_id = -95
+        self._email = 'hangmanbot'
+        self._name_first = 'Hangman'
+        self._name_last = 'Bot'
+        self._handle_str = 'hangman_bot'
+        self._profile_img_url = 'https://i.imgur.com/olQfW6w.jpg'
+        self._messages = []
+        self._token = None
+
+
 class Standup:
     def __init__(self):
         self._is_active = False
@@ -637,72 +661,6 @@ class React:
             Bool: Whether the user has reacted (True) or not (False).
         '''
         return u_id in self.u_ids
-
-
-class DeletedUser:
-    '''Deleted user object'''
-    def __init__(self):
-        self.u_id = -99
-        self.email = 'deleted'
-        self.name_first = 'Deleted'
-        self.name_last = 'User'
-        self.handle_str = 'deleted'
-        self.profile_img_url = 'https://i.imgur.com/nsoGP2n.jpg'
-
-    @property
-    def profile(self):
-        '''Return the profile of a deleted user'''
-        return {
-            'u_id': self.u_id,
-            'email': self.email,
-            'name_first': self.name_first,
-            'name_last': self.name_last,
-            'handle_str': self.handle_str,
-            'profile_img_url': self.profile_img_url
-        }
-
-
-class HangmanBot:
-    '''Hangman bot user object'''
-    def __init__(self):
-        self.u_id = -95
-        self.email = 'hangmanbot'
-        self.name_first = 'Hangman'
-        self.name_last = 'Bot'
-        self.handle_str = 'hangman_bot'
-        self.profile_img_url = 'https://i.imgur.com/olQfW6w.jpg'
-        self.messages = []
-        self.token = None
-
-    @property
-    def profile(self):
-        '''Return the profile of a hangman bot'''
-        return {
-            'u_id': self.u_id,
-            'email': self.email,
-            'name_first': self.name_first,
-            'name_last': self.name_last,
-            'handle_str': self.handle_str,
-            'profile_img_url': self.profile_img_url
-        }
-
-    def add_message(self, message):
-        '''Add a message associated to the user
-
-        Parameters:
-            message (obj): Message object
-
-        '''
-        self.messages.append(message)
-
-    def remove_message(self, message):
-        '''Remove a message associated to the user
-
-        Parameters:
-            message (obj): Message object
-
-        '''
-        self.messages.remove(message)
 
 
 class DataStore:
