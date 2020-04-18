@@ -579,6 +579,11 @@ class Message:
         return self._sender.u_id
 
     @property
+    def sender(self):
+        ''' Get the user who sent the message. '''
+        return self._sender
+
+    @property
     def message_id(self):
         ''' Get the message_id of the message. '''
         return self._message_id
@@ -608,7 +613,6 @@ class Message:
         ''' Get a boolean value of the message's pinned status. '''
         return self._is_pinned
 
-    @property
     def details(self, user):
         '''Get a dictionary of the message's information.
 
@@ -646,6 +650,15 @@ class Message:
             'reacts': message_reacts,
             'is_pinned': self._is_pinned
         }
+
+    def set_sender(self, sender):
+        self._sender = sender
+
+    def set_channel(self, channel):
+        self._channel = channel
+
+    def edit(self, new_message):
+        self._message = new_message
 
     def pin(self):
         ''' Set a message to be pinned. '''
@@ -742,7 +755,7 @@ class React:
         Return:
             Bool: Whether the user has reacted (True) or not (False).
         '''
-        return u_id in self._users.u_id
+        return u_id in self.u_ids
 
 
 class DataStore:
@@ -784,7 +797,7 @@ class DataStore:
                     break
         for message in self.messages:
             if message.sender == user:
-                message.sender = self.preset_profiles['deleted_user']
+                message.set_sender(self.preset_profiles['deleted_user'])
         target_user = self.get_user(user.u_id)
         self.users.remove(target_user)
 
@@ -797,8 +810,8 @@ class DataStore:
         self.messages.append(message)
         user.add_message(message)
         channel.add_message(message)
-        message.user = user
-        message.channel = channel
+        message.set_sender(user)
+        message.set_channel(channel)
 
     def add_message(self, message):
         '''Add a message in the data store'''
