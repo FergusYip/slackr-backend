@@ -1,5 +1,6 @@
 '''
-Implementation of auth routes for slackr app
+Functions to provide authorisation to the program. Will allow users to
+register, login, logout, and reset their password.
 '''
 
 import smtplib
@@ -23,8 +24,8 @@ def auth_register(email, password, name_first, name_last):
 	Returns (dict):
 		u_id (int): User ID
 		token (str): JWT
-
 	'''
+
     if None in {email, password, name_first, name_last}:
         raise InputError(
             description=
@@ -133,34 +134,8 @@ def auth_passwordreset_request(email):
 
     reset_code = DATA_STORE.make_reset_request(user)
 
-    sender = 'thechunts.slackr@gmail.com'
-    password = 'chuntsslackr'
-
-    message = EmailMessage()
-    message['Subject'] = 'Slackr: Password Reset Code'
-    message['From'] = sender
-    message['To'] = email
-    message.set_content(f'Your reset code is {reset_code}')
-
-    message.add_alternative(\
-    f'''
-    <!DOCTPYE html>
-    <html>
-        <body>
-            <h1 style="color=Black, align=center">Your password reset code is {reset_code}</h1>
-        </body>
-    </html>
-    ''', subtype='html')
-
     if user is not None:
-        try:
-            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            server.login(sender, password)
-            server.send_message(message)
-            server.quit()
-            print("Successfully sent email")
-        except smtplib.SMTPException:
-            print("Error: unable to send email")
+        email_reset_code(email, reset_code)
 
     return {}
 
@@ -192,6 +167,47 @@ def auth_passwordreset_reset(reset_code, new_password):
     user.set_password(new_password)
 
     return {}
+
+
+def email_reset_code(email, reset_code):
+    '''Send a email containing a reset code to the provided email
+
+    Parameters:
+        email (str): Email
+        reset_code (int): Reset code
+
+    Return:
+        (bool): Whether the email was sent successfully
+    '''
+    sender = 'thechunts.slackr@gmail.com'
+    password = 'chuntsslackr'
+
+    message = EmailMessage()
+    message['Subject'] = 'Slackr: Password Reset Code'
+    message['From'] = sender
+    message['To'] = email
+    message.set_content(f'Your reset code is {reset_code}')
+
+    message.add_alternative(\
+    f'''
+    <!DOCTPYE html>
+    <html>
+        <body>
+            <h1 style="color=Black, align=center">Your password reset code is {reset_code}</h1>
+        </body>
+    </html>
+    ''', subtype='html')
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.login(sender, password)
+        server.send_message(message)
+        server.quit()
+        print("Successfully sent email")
+        return True
+    except smtplib.SMTPException:
+        print("Error: unable to send email")
+        return False
 
 
 if __name__ == '__main__':

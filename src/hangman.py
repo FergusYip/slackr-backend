@@ -1,5 +1,6 @@
 '''
-Implementation of hangman game in a channel.
+Functions to allow users to play a game of hangman in the program. Will allow
+users to start a game in the channel and guess letters until they win/lose.
 '''
 
 import string

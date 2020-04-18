@@ -1,6 +1,8 @@
 '''
-Implementation of users/all and search routes for slackr app
+Functions to provide miscellaneous services to the program. Will allow
+users to get a list of all users and search for messages.
 '''
+
 from data_store import DATA_STORE
 from token_validation import decode_token
 

@@ -1,4 +1,7 @@
-'''Module to encode and decode JWT'''
+'''
+Functions to encode, decode, and validate JWT tokens.
+'''
+
 from datetime import datetime, timedelta
 import jwt
 from error import AccessError

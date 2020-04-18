@@ -1,6 +1,8 @@
 '''
-Implementation of admin routes for slackr app
+Functions to provide admininistrative management tools on the program. Will
+allow admins to change user permissions and delete users.
 '''
+
 from error import AccessError, InputError
 from token_validation import decode_token
 from data_store import DATA_STORE

@@ -1,4 +1,6 @@
-''' Data Store for the slackr backend'''
+'''
+Data store for the slackr backend
+'''
 import random
 import math
 import threading

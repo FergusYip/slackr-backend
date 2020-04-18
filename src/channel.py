@@ -1,7 +1,8 @@
 '''
-Implementing channel functions -
-invite, details, messages, leave, join, addowner, removeowner
+Functions to provide channel management services to the program. Will allow
+users to join, invite, leave, view details, view messages, and manage owners.
 '''
+
 from error import AccessError, InputError
 from token_validation import decode_token
 from data_store import DATA_STORE

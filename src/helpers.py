@@ -1,4 +1,4 @@
-''' Helper module with functions to access values from data_store'''
+''' Helper module with functions generate data'''
 import string
 import hashlib
 import random
