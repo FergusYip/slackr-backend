@@ -11,7 +11,7 @@ SECRET = 'the chunts'
 
 
 class User:
-    '''User Object'''
+    ''' User Object '''
     def __init__(self, email, password, name_first, name_last):
         self._u_id = DATA_STORE.generate_id('u_id')
         self._email = email
@@ -27,36 +27,36 @@ class User:
 
     @property
     def u_id(self):
-        '''User ID (int)'''
+        ''' User ID (int) '''
         return self._u_id
 
     @property
     def email(self):
-        '''User email (str)'''
+        ''' User email (str) '''
         return self._email
 
     @property
     def password(self):
-        '''User password (str)'''
+        ''' User password (str) '''
         return self._password
 
     @property
     def name_first(self):
-        '''User's first name (str)'''
+        ''' User's first name (str) '''
         return self._name_first
 
     @property
     def name_last(self):
-        '''User's last name (str)'''
+        ''' User's last name (str) '''
         return self._name_last
 
     @property
     def handle_str(self):
-        '''User's handle (str)'''
+        ''' User's handle (str) '''
         return self._handle_str
 
     def set_email(self, email):
-        '''Set the user's email
+        ''' Set the user's email
 
         Parameters:
             email (str): email
@@ -65,7 +65,7 @@ class User:
         self._email = email
 
     def set_name(self, name_first, name_last):
-        '''Set the user's firt and last name
+        ''' Set the user's firt and last name
 
         Parameters:
             name_first (str): First name
@@ -76,7 +76,7 @@ class User:
         self._name_last = name_last
 
     def set_password(self, password):
-        '''Change the user's password
+        ''' Change the user's password
 
         Parameters:
             password (str): Password
@@ -85,7 +85,7 @@ class User:
         self._password = helpers.hash_pw(password)
 
     def set_handle_str(self, handle_str):
-        '''Set the user's handle
+        ''' Set the user's handle
 
         Parameters:
             handle_str (str): Handle String
@@ -95,11 +95,11 @@ class User:
 
     @property
     def permission_id(self):
-        ''' User's permission ID'''
+        ''' User's permission ID (int) '''
         return self._permission_id
 
     def set_permission_id(self, permission_id):
-        '''Change the user's permission ID
+        ''' Change the user's permission ID
 
         Parameters:
             permission_id (int): Permission ID
@@ -109,22 +109,22 @@ class User:
 
     @property
     def channels(self):
-        ''' User's channels'''
+        ''' User's channels (list[channel_obj])'''
         return list(self._channels)
 
     @property
     def messages(self):
-        ''' User's messages'''
+        ''' User's messages (list[message_obj]) '''
         return list(self._messages)
 
     @property
     def reacts(self):
-        ''' User's reacts'''
+        ''' User's reacts (list[react_obj]) '''
         return list(self._reacts)
 
     @property
     def profile(self):
-        '''Get a dictionary of the user's profile
+        ''' Get a dictionary of the user's profile
 
         Returns (dict):
             u_id (int): User ID
@@ -146,7 +146,7 @@ class User:
 
     @property
     def details(self):
-        '''Get a dictionary of the user's details
+        ''' Get a dictionary of the user's details
 
         Returns (dict):
             name_first (str): First name
@@ -163,7 +163,7 @@ class User:
         }
 
     def add_channel(self, channel):
-        '''Add the user to a channel
+        ''' Add the user to a channel
 
         Parameters:
             channel (obj): Channel object
@@ -172,7 +172,7 @@ class User:
         self._channels.append(channel)
 
     def remove_channel(self, channel):
-        '''Remove the user to a channel
+        ''' Remove the user to a channel
 
         Parameters:
             channel (obj): Channel object
@@ -181,7 +181,7 @@ class User:
         self._channels.remove(channel)
 
     def add_message(self, message):
-        '''Add a message associated to the user
+        ''' Add a message associated to the user
 
         Parameters:
             message (obj): Message object
@@ -190,7 +190,7 @@ class User:
         self._messages.append(message)
 
     def remove_message(self, message):
-        '''Remove a message associated to the user
+        ''' Remove a message associated to the user
 
         Parameters:
             message (obj): Message object
@@ -200,7 +200,7 @@ class User:
 
     @property
     def viewable_messages(self):
-        '''Get a list of all messages viewable to the user
+        ''' Get a list of all messages viewable to the user
 
         Returns (list):
             message (obj): Message object
@@ -213,7 +213,7 @@ class User:
         return list(msgs)
 
     def add_react(self, react):
-        '''Add a react associated to the user
+        ''' Add a react associated to the user
 
         Parameters:
             react (obj): React object
@@ -222,7 +222,7 @@ class User:
         self._reacts.append(react)
 
     def remove_react(self, react):
-        '''Remove a react associated to the user
+        ''' Remove a react associated to the user
 
         Parameters:
             react (obj): React object
@@ -232,7 +232,7 @@ class User:
 
     @property
     def profile_img_url(self):
-        '''Change the user's profile image url
+        ''' Change the user's profile image url
 
         Parameters:
             profile_img_url (str): Url of profile image
@@ -241,7 +241,7 @@ class User:
         return self._profile_img_url
 
     def set_profile_img_url(self, profile_img_url):
-        '''Change the user's profile image url
+        ''' Change the user's profile image url
 
         Parameters:
             profile_img_url (str): Url of profile image
@@ -251,7 +251,7 @@ class User:
 
 
 class DeletedUser(User):
-    '''Deleted user object'''
+    ''' Deleted user object '''
     def __init__(self):
         self._u_id = -99
         self._email = 'deleted'
@@ -262,7 +262,7 @@ class DeletedUser(User):
 
 
 class HangmanBot(User):
-    '''Hangman bot user object'''
+    ''' Hangman bot user object '''
     def __init__(self):
         self._u_id = -95
         self._email = 'hangmanbot'
@@ -275,7 +275,7 @@ class HangmanBot(User):
 
 
 class Standup:
-    '''Standup Object'''
+    ''' Standup Object '''
     def __init__(self):
         self._is_active = False
         self._starting_user = None
@@ -284,22 +284,22 @@ class Standup:
 
     @property
     def is_active(self):
-        '''Whether the standup is active (bool)'''
+        ''' Whether the standup is active (bool) '''
         return self._is_active
 
     @property
     def starting_user(self):
-        '''The user who started the standup (user_obj)'''
+        ''' The user who started the standup (user_obj) '''
         return self._starting_user
 
     @property
     def time_finish(self):
-        '''Standup end time (int)'''
+        ''' Standup end time (int) '''
         return self._time_finish
 
     @property
     def messages(self):
-        '''Standup messages (list[message_obj])'''
+        ''' Standup messages (list[message_obj]) '''
         return self._messages
 
     def start(self, user, time_finish):
@@ -308,6 +308,7 @@ class Standup:
         Parameters:
             user (obj): The user who started the standup
             time_finished (int): The desired end time of the standup
+
         '''
         self._is_active = True
         self._starting_user = user
@@ -323,6 +324,7 @@ class Standup:
         Return:
             joined_message (str): Standup summary message (joined string of all
                                   standup messages)
+
         '''
         joined_message = ''
         for message in self._messages:
@@ -341,6 +343,7 @@ class Standup:
         Parameters:
             user (obj): The user who sent the message
             message (str): Message
+
         '''
         message_dict = {'handle_str': user.handle_str, 'message': message}
         self.messages.append(message_dict)
@@ -361,6 +364,7 @@ class Hangman:
 
         Return:
             self.word (str): The word to be guessed.
+
         '''
         self.is_active = True
         self.word = helpers.get_word()
@@ -383,6 +387,7 @@ class Hangman:
 
         Return:
             Boolean: Either True if correct guess or False if incorrect.
+
         '''
         letter = letter.lower()
         self.guesses.add(letter)
@@ -411,42 +416,42 @@ class Channel:
 
     @property
     def channel_id(self):
-        '''Channel ID (int)'''
+        ''' Channel ID (int) '''
         return self._channel_id
 
     @property
     def name(self):
-        '''Channel name (str)'''
+        ''' Channel name (str) '''
         return self._name
 
     @property
     def is_public(self):
-        '''Channel public status (bool)'''
+        ''' Channel public status (bool) '''
         return self._is_public
 
     @property
     def owner_members(self):
-        '''Channel owners (list[user_obj])'''
+        ''' Channel owners (list[user_obj]) '''
         return list(self._owner_members)
 
     @property
     def all_members(self):
-        '''Channel members (list[user_obj])'''
+        ''' Channel members (list[user_obj]) '''
         return list(self._all_members)
 
     @property
     def messages(self):
-        '''Channel messages (list[message_obj])'''
+        ''' Channel messages (list[message_obj]) '''
         return list(self._messages)
 
     @property
     def standup(self):
-        '''Channel standup (standup_obj)'''
+        ''' Channel standup (standup_obj) '''
         return self._standup
 
     @property
     def hangman(self):
-        '''Channel hangman game (hangman_obj)'''
+        ''' Channel hangman game (hangman_obj) '''
         return self._hangman
 
     def add_owner(self, user):
@@ -454,6 +459,7 @@ class Channel:
 
         Parameters:
             user (obj): A user object.
+
         '''
         self._owner_members.append(user)
 
@@ -462,6 +468,7 @@ class Channel:
 
         Parameters:
             user (obj): A user object.
+
         '''
         self._owner_members.remove(user)
 
@@ -470,6 +477,7 @@ class Channel:
 
         Parameters:
             user (obj): A user object.
+
         '''
         self._all_members.append(user)
 
@@ -478,6 +486,7 @@ class Channel:
 
         Parameters:
             user (obj): A user object.
+
         '''
         self._all_members.remove(user)
 
@@ -489,6 +498,7 @@ class Channel:
 
         Return:
             Bool: Whether the user is a member of the channel (True) or not (False).
+
         '''
         return user in self.all_members
 
@@ -499,6 +509,7 @@ class Channel:
         Return (dict):
             channel_id (int): The unique identification code of the channel.
             name (str): The name of the channel.
+
         '''
         return {'channel_id': self.channel_id, 'name': self.name}
 
@@ -512,6 +523,7 @@ class Channel:
                 u_id (int): The user's ID.
             all_members (list):
                 u_id (int): The user's ID.
+
         '''
         return {
             'name': self.name,
@@ -527,17 +539,19 @@ class Channel:
 
         Return:
             Bool: Whether the user is an owner (True) or not (False).
+
         '''
         return user in self.owner_members
 
     def search(self, query_str):
-        '''Return a list of messages containing the provided query_str
+        ''' Return a list of messages containing the provided query_str
 
         Parameters:
             query_str (str): Query string
 
-        Returns:
-            List of message objects
+        Return (list):
+            message (obj): A message object.
+
         '''
         return [
             message for message in self.messages
@@ -545,18 +559,20 @@ class Channel:
         ]
 
     def send_message(self, message):
-        '''Send a message in the channel
+        ''' Send a message in the channel
 
         Parameters:
             message (obj): A message object
+
         '''
         self._messages.append(message)
 
     def remove_message(self, message):
-        '''Remove a message from the channel
+        ''' Remove a message from the channel
 
         Parameters:
             message (obj): A message object
+
         '''
         self._messages.remove(message)
 
@@ -575,46 +591,46 @@ class Message:
 
     @property
     def u_id(self):
-        ''' Get the u_id of who sent the message. '''
+        ''' Sender's u_id (int) '''
         return self._sender.u_id
 
     @property
     def sender(self):
-        ''' Get the user who sent the message. '''
+        ''' Sender of the message (user_obj) '''
         return self._sender
 
     @property
     def message_id(self):
-        ''' Get the message_id of the message. '''
+        ''' The message's message_id (int) '''
         return self._message_id
 
     @property
     def channel(self):
-        ''' Get the channel the message was posted within. '''
+        ''' Channel the message was posted in (channel_obj) '''
         return self._channel
 
     @property
     def message(self):
-        ''' Get the contents of the message. '''
+        ''' The contents of the message. (str) '''
         return self._message
 
     @property
     def time_created(self):
-        ''' Get a unix timestamp of when the message was sent. '''
+        ''' Unix timestamp of when the message was sent. (int) '''
         return self._time_created
 
     @property
     def reacts(self):
-        ''' Get a list of all reacts on the message. '''
+        ''' List of all reacts on the message. (list[react_obj]) '''
         return self._reacts
 
     @property
     def is_pinned(self):
-        ''' Get a boolean value of the message's pinned status. '''
+        ''' The message's pinned status. (bool) '''
         return self._is_pinned
 
     def details(self, user):
-        '''Get a dictionary of the message's information.
+        ''' Get a dictionary of the message's information.
 
         Parameters:
             user (obj): An object of a user.
@@ -642,12 +658,15 @@ class Message:
         }
 
     def set_sender(self, sender):
+        ''' Set the sender of the message with a user object '''
         self._sender = sender
 
     def set_channel(self, channel):
+        ''' Set the channel the message was posted within with a channel object. '''
         self._channel = channel
 
     def edit(self, new_message):
+        ''' Edit the message object with a new string. '''
         self._message = new_message
 
     def pin(self):
@@ -659,13 +678,14 @@ class Message:
         self._is_pinned = False
 
     def get_react(self, react_id):
-        ''' Function that will return a react object attached to a message.
+        ''' Return a react object attached to a message.
 
         Parameters:
             react_id (int): React ID as an integer.
 
         Returns:
             react (obj): A react object.
+
         '''
         for react in self._reacts:
             if react_id == react.react_id:
@@ -673,19 +693,11 @@ class Message:
         return None
 
     def add_react(self, react):
-        ''' Function that will append a reaction to a message.
-
-        Parameters:
-            react (obj): A react object to append to the message.
-        '''
+        ''' Append a react object to the message. '''
         self._reacts.append(react)
 
     def remove_react(self, react):
-        ''' Function that will remove a reaction from a message.
-
-        Parameters:
-            react (obj): A react object to remove from the message.
-        '''
+        ''' Remove a react object from the message. '''
         self._reacts.remove(react)
 
 
@@ -698,29 +710,37 @@ class React:
 
     @property
     def react_id(self):
-        ''' Returns the ID of the reaction.'''
+        ''' The ID of the reaction. (int) '''
         return self._react_id
 
     @property
     def users(self):
-        ''' Returns a list of user objects that have used this reaction.'''
-        return self._users
+        ''' User objects that have used this reaction. (list[user_obj])'''
+        return list(self._users)
 
     @property
     def u_ids(self):
-        ''' Gets a list of the u_ids that have reacted.
-
-        Return (list):
-            u_id (int): The u_id of a user who has reacted to the message.
-        '''
+        ''' User IDs that have used this reaction. (list[int])'''
         return [user.u_id for user in self._users]
 
     @property
     def message(self):
-        ''' Get the message object that the react is attached to. '''
+        ''' The message object that the react is attached to. (message_obj) '''
         return self._message
 
     def details(self, user):
+        ''' Details about the reaction from a given user's perspective.
+
+        Parameters:
+            user (obj): A user object.
+
+        Return (dict):
+            react_id (int): The ID of the reaction.
+            u_ids (list):
+                u_id (int): The u_id of a user who has reacted.
+            is_this_user_reacted (bool): Whether the user has reacted or not.
+
+        '''
         return {
             'react_id': self.react_id,
             'u_ids': self.u_ids,
@@ -728,19 +748,11 @@ class React:
         }
 
     def add_user(self, user):
-        ''' Adds the user to the list of users who have reacted.
-
-        Parameters:
-            user (obj): The object of a user.
-        '''
+        ''' Adds a given user object to the list of users who have reacted. '''
         self._users.append(user)
 
     def remove_user(self, user):
-        ''' Removes the user from the list of users whom have reacted.
-
-        Parameters:
-            user (obj): The object of a user.
-        '''
+        ''' Removes a given user object from the list of users who have reacted. '''
         self._users.remove(user)
 
     def is_user_reacted(self, u_id):
@@ -751,12 +763,13 @@ class React:
 
         Return:
             Bool: Whether the user has reacted (True) or not (False).
+
         '''
         return u_id in self.u_ids
 
 
 class DataStore:
-    '''Data Store object for storing slackr related information'''
+    ''' Data Store object for storing slackr related information '''
     def __init__(self):
         self.users = []
         self.channels = []
@@ -778,7 +791,7 @@ class DataStore:
         self.img_ids = []
 
     def add_user(self, new_user):
-        '''Add a user to the data store'''
+        ''' Add a user to the data store '''
         self.users.append(new_user)
 
     def delete_user(self, user):
