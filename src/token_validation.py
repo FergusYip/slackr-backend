@@ -23,7 +23,7 @@ def encode_token(u_id):
     payload = {
         'u_id': u_id,
         'iat': datetime.utcnow(),
-        'exp': datetime.utcnow() + timedelta(minutes=30)
+        'exp': datetime.utcnow() + timedelta(minutes=60)
     }
     token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
     return token
