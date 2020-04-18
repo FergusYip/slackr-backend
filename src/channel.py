@@ -63,7 +63,8 @@ def channel_details(token, channel_id):
 
     # if user asking for details is not in the channel.
     if channel.is_member(user) is False:
-        raise AccessError(description='Authorized user not in the channel')
+        raise AccessError(
+            description='The authorised user is not a member of the channel')
 
     return channel.details
 
@@ -93,7 +94,7 @@ def channel_messages(token, channel_id, start):
     # access error when authorized user not a member of channel.
     if channel.is_member(user) is False:
         raise AccessError(
-            description='Authorized user not a member of channel.')
+            description='The authorised user is not a member of the channel')
 
     end = start + 50
 
@@ -131,7 +132,7 @@ def channel_leave(token, channel_id):
     # access error when authorized user not a member of channel.
     if channel.is_member(user) is False:
         raise AccessError(
-            description='Authorized user not a member of channel.')
+            description='The authorised user is not a member of the channel')
 
     if user in channel.all_members:
         channel.remove_member(user)
@@ -208,10 +209,12 @@ def channel_addowner(token, channel_id, u_id):
 
     # access error when authorized user not owner of channel or owner of slackr.
     if False in {DATA_STORE.is_admin(admin), channel.is_owner(admin)}:
-        raise AccessError(description='Authorized user not owner of channel.')
+        raise AccessError(
+            description='The authorised user is not an owner of the channel')
 
     if channel.is_member(user) is False:
-        raise InputError(description='User is not a member of the channel')
+        raise InputError(
+            description='The authorised user is not a member of the channel')
 
     channel.add_owner(user)
 
@@ -244,11 +247,13 @@ def channel_removeowner(token, channel_id, u_id):
 
     # input error when user is not an owner
     if channel.is_owner(user) is False:
-        raise InputError(description='User is not an owner of channel.')
+        raise InputError(
+            description='The authorised user is not an owner of the channel')
 
     # access error when authorized user not owner of channel or owner of slackr.
     if False in {DATA_STORE.is_admin(admin), channel.is_owner(admin)}:
-        raise AccessError(description='Authorized user not owner of channel.')
+        raise AccessError(
+            description='The authorised user is not a member of the channel')
 
     channel.remove_owner(user)
 
