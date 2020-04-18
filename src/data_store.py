@@ -549,14 +549,14 @@ class Channel:
 class Message:
     ''' Message object '''
     def __init__(self, sender, channel, message, message_id=None):
-        self.message_id = DATA_STORE.generate_id(
+        self._message_id = DATA_STORE.generate_id(
             'message_id') if message_id is None else message_id
-        self.sender = sender
-        self.channel = channel
-        self.message = message
-        self.time_created = helpers.utc_now()
-        self.reacts = []
-        self.is_pinned = False
+        self._sender = sender
+        self._channel = channel
+        self._message = message
+        self._time_created = helpers.utc_now()
+        self._reacts = []
+        self._is_pinned = False
 
     @property
     def u_id(self):
@@ -565,8 +565,9 @@ class Message:
         Return (dict):
             u_id (int): The sender's u_id
         '''
-        return self.sender.u_id
+        return self._sender.u_id
 
+    @property
     def details(self, user):
         '''Get a dictionary of the message's information.
 
@@ -587,7 +588,7 @@ class Message:
 
         '''
         message_reacts = []
-        reacts = self.reacts
+        reacts = self._reacts
         for react in reacts:
             react_info = {
                 'react_id': react.react_id,
@@ -597,21 +598,21 @@ class Message:
             message_reacts.append(react_info)
 
         return {
-            'message_id': self.message_id,
+            'message_id': self._message_id,
             'u_id': self.u_id,
-            'message': self.message,
-            'time_created': self.time_created,
+            'message': self._message,
+            'time_created': self._time_created,
             'reacts': message_reacts,
-            'is_pinned': self.is_pinned
+            'is_pinned': self._is_pinned
         }
 
     def pin(self):
         ''' Set a message to be pinned. '''
-        self.is_pinned = True
+        self._is_pinned = True
 
     def unpin(self):
         ''' Set a message to be unpinned. '''
-        self.is_pinned = False
+        self._is_pinned = False
 
     def get_react(self, react_id):
         ''' Function that will return a react object attached to a message.
@@ -622,7 +623,7 @@ class Message:
         Returns:
             react (obj): A react object.
         '''
-        for react in self.reacts:
+        for react in self._reacts:
             if react_id == react.react_id:
                 return react
         return None
@@ -633,7 +634,7 @@ class Message:
         Parameters:
             react (obj): A react object to append to the message.
         '''
-        self.reacts.append(react)
+        self._reacts.append(react)
 
     def remove_react(self, react):
         ''' Function that will remove a reaction from a message.
@@ -641,15 +642,20 @@ class Message:
         Parameters:
             react (obj): A react object to remove from the message.
         '''
-        self.reacts.remove(react)
+        self._reacts.remove(react)
 
 
 class React:
     ''' React object '''
     def __init__(self, react_id, message):
-        self.react_id = react_id
-        self.users = []
-        self.message = message
+        self._react_id = react_id
+        self._users = []
+        self._message = message
+
+    @property
+    def react_id(self):
+        ''' Returns the ID of the reaction.'''
+        return self._react_id
 
     def add_user(self, user):
         ''' Adds the user to the list of users who have reacted.
@@ -657,7 +663,7 @@ class React:
         Parameters:
             user (obj): The object of a user.
         '''
-        self.users.append(user)
+        self._users.append(user)
 
     def remove_user(self, user):
         ''' Removes the user from the list of users whom have reacted.
@@ -665,7 +671,7 @@ class React:
         Parameters:
             user (obj): The object of a user.
         '''
-        self.users.remove(user)
+        self._users.remove(user)
 
     @property
     def u_ids(self):
@@ -674,7 +680,7 @@ class React:
         Return (list):
             u_id (int): The u_id of a user who has reacted to the message.
         '''
-        return [user.u_id for user in self.users]
+        return [user.u_id for user in self._users]
 
     def is_user_reacted(self, u_id):
         ''' Checks if a u_id is in the list of u_ids that have reacted.
@@ -685,7 +691,7 @@ class React:
         Return:
             Bool: Whether the user has reacted (True) or not (False).
         '''
-        return u_id in self.u_ids
+        return u_id in self._users.u_id
 
 
 class DataStore:
