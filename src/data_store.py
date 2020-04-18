@@ -924,7 +924,7 @@ def save():
 
 def autosave():
     '''Thread to save state every second'''
-    timer = threading.Timer(1.0, autosave)
+    timer = threading.Timer(5.0, autosave)
     timer.start()
     save()
 
