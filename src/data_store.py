@@ -948,17 +948,10 @@ def generate_handle(name_first, name_last):
     handle_str = concatentation[:20]
 
     unique_modifier = 1
-    while DATA_STORE.get_user(handle_str=handle_str) and len(handle_str) == 0:
-        split_handle = list(handle_str)
-
-        # Remove n number of characters from split_handle
+    while DATA_STORE.get_user(handle_str=handle_str) or len(handle_str) == 0:
         unique_digits = int(math.log10(unique_modifier)) + 1
-        for _ in range(unique_digits):
-            split_handle.pop()
-
-        split_handle.append(str(unique_modifier))
-        handle_str = ''.join(split_handle)
-
+        trimmed_handle = handle_str[:len(handle_str) - unique_digits]
+        handle_str = trimmed_handle + str(unique_modifier)
         unique_modifier += 1
 
     return handle_str
