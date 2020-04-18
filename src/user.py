@@ -26,6 +26,9 @@ def user_profile(token, u_id):
                            the user's handle.
     '''
 
+    if None in {token, u_id}:
+        raise InputError(description='Insufficient parameters')
+
     # By calling the decode function, multiple error checks are performed.
     decode_token(token)
 
@@ -53,6 +56,9 @@ def user_profile_setname(token, name_first, name_last):
     Return:
         Dictionary (dict): An empty dictionary.
     '''
+
+    if None in {token, name_first, name_last}:
+        raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
@@ -83,6 +89,9 @@ def user_profile_setemail(token, email):
     Return:
         Dictionary (dict): An empty dictionary.
     '''
+
+    if None in {token, email}:
+        raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
@@ -119,6 +128,9 @@ def user_profile_sethandle(token, handle_str):
     Return:
         Dictionary (dict): An empty dictionary.
     '''
+
+    if None in {token, handle_str}:
+        raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
@@ -158,6 +170,9 @@ def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):
         List (list): A list containing these values.
     '''
 
+    if None in {x_start, y_start, x_end, y_end}:
+        raise InputError(description='Insufficient parameters')
+
     return (x_start, y_start, x_end, y_end)
 
 
@@ -174,6 +189,9 @@ def user_profile_uploadphoto(token, img_url, area):
     Return:
         Dictionary (dict): An empty dictionary.
     '''
+
+    if None in {token, img_url, area}:
+        raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
     user_id = token_info['u_id']
@@ -201,12 +219,10 @@ def user_profile_uploadphoto(token, img_url, area):
             description='Crop constraints are outside of the image')
 
     if area[0] > area[2]:
-        raise InputError(
-            description='x_end cannot be greater than x_start')
+        raise InputError(description='x_end cannot be greater than x_start')
 
     if area[1] > area[3]:
-        raise InputError(
-            description='y_end cannot be greater than y_start')
+        raise InputError(description='y_end cannot be greater than y_start')
 
     if any(x < 0 for x in area):
         raise InputError(
@@ -214,7 +230,7 @@ def user_profile_uploadphoto(token, img_url, area):
 
     if not img_url.endswith('.jpg'):
         raise InputError(description='Image must be a .jpg file')
-    
+
     region = img.crop(area)
     region.save(f'src/profile_images/{user_id}.jpg')
 
