@@ -242,12 +242,14 @@ class Hangman:
         self.prev_msg = None
 
     def guess(self, letter):
+        letter = letter.lower()
         self.guesses.add(letter)
 
         # incorrect guess
-        if letter.lower() not in self.word.lower():
-            self.incorrect.add(letter)
-            self.stage += 1
+        if letter not in self.word.lower():
+            if letter not in self.incorrect:
+                self.stage += 1
+                self.incorrect.add(letter)
             return False
 
         return True
@@ -548,6 +550,24 @@ class HangmanBot:
             'profile_img_url': self.profile_img_url
         }
 
+    def add_message(self, message):
+        '''Add a message associated to the user
+
+        Parameters:
+            message (obj): Message object
+
+        '''
+        self.messages.append(message)
+
+    def remove_message(self, message):
+        '''Remove a message associated to the user
+
+        Parameters:
+            message (obj): Message object
+
+        '''
+        self.messages.remove(message)
+
 
 class DataStore:
     '''Data Store object for storing slackr related information'''
@@ -839,7 +859,7 @@ def get_word():
     word = random.choice(wikiquote.random_titles(lang='en'))
     while not word.isalpha() and not check_ascii(word):
         word = random.choice(wikiquote.random_titles(lang='en'))
-    return word
+    return word.strip()
 
 
 def check_ascii(word):
