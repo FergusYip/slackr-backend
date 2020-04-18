@@ -72,7 +72,8 @@ def guess_hangman(token, channel_id, guess):
         raise InputError(description='Game not active')
 
     # Check if there is a message to delete
-    if channel.hangman.prev_msg is not None:
+    prev_msg_id = channel.hangman.prev_msg
+    if None not in {prev_msg_id, DATA_STORE.get_message(prev_msg_id)}:
         message.message_remove(bot_token, channel.hangman.prev_msg)
 
     # Append guess to list of guesses.
