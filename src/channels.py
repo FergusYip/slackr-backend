@@ -42,7 +42,9 @@ def channels_listall(token):
         raise InputError(description='Insufficient parameters')
 
     decode_token(token)
-    channels = [channel.id_name for channel in DATA_STORE.channels]
+    channels = [
+        channel.id_name for channel in DATA_STORE.channels if channel.is_public
+    ]
     return {'channels': channels}
 
 
