@@ -1023,6 +1023,12 @@ def generate_handle(name_first, name_last):
 
 
 def change_profile_image(img, user):
+    ''' Function to change the profile image url of a given user.
+
+    Parameters:
+        img (obj): An image object
+        user (obj): A user object
+    '''
     profile_img = user.profile_img_url
     if profile_img in DATA_STORE.img_ids:
         DATA_STORE.remove_img_id(profile_img)
