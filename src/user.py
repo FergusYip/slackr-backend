@@ -4,7 +4,6 @@ as well as change their own personal information.
 '''
 
 from PIL import Image
-from random import randint
 import requests
 from error import InputError
 from email_validation import invalid_email

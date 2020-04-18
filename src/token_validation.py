@@ -2,7 +2,7 @@
 Functions to encode, decode, and validate JWT tokens.
 '''
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import jwt
 from error import AccessError
 from data_store import DATA_STORE

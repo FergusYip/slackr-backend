@@ -347,6 +347,7 @@ class Standup:
 
 
 class Hangman:
+    ''' Hangman object. '''
     def __init__(self):
         self.is_active = False
         self.word = None
@@ -356,11 +357,17 @@ class Hangman:
         self.prev_msg = None
 
     def start(self):
+        ''' Function to start a hangman game.
+
+        Return:
+            self.word (str): The word to be guessed.
+        '''
         self.is_active = True
         self.word = helpers.get_word()
         return self.word
 
     def stop(self):
+        ''' Function to stop a hangman game. '''
         self.is_active = False
         self.word = None
         self.guesses = set()
@@ -369,6 +376,14 @@ class Hangman:
         self.prev_msg = None
 
     def guess(self, letter):
+        ''' Function to make a guess at the word being played.
+
+        Parameters:
+            letter (str): The character to be guessed.
+
+        Return:
+            Boolean: Either True if correct guess or False if incorrect.
+        '''
         letter = letter.lower()
         self.guesses.add(letter)
 
@@ -572,7 +587,7 @@ class Message:
     def channel(self):
         ''' Get the channel the message was posted within. '''
         return self._channel
-    
+
     @property
     def message(self):
         ''' Get the contents of the message. '''
@@ -582,17 +597,17 @@ class Message:
     def time_created(self):
         ''' Get a unix timestamp of when the message was sent. '''
         return self._time_created
-    
+
     @property
     def reacts(self):
         ''' Get a list of all reacts on the message. '''
         return self._reacts
-    
+
     @property
     def is_pinned(self):
         ''' Get a boolean value of the message's pinned status. '''
         return self._is_pinned
-    
+
     @property
     def details(self, user):
         '''Get a dictionary of the message's information.
@@ -682,12 +697,12 @@ class React:
     def react_id(self):
         ''' Returns the ID of the reaction.'''
         return self._react_id
-    
+
     @property
     def users(self):
         ''' Returns a list of user objects that have used this reaction.'''
         return self._users
-    
+
     @property
     def u_ids(self):
         ''' Gets a list of the u_ids that have reacted.
@@ -696,7 +711,7 @@ class React:
             u_id (int): The u_id of a user who has reacted to the message.
         '''
         return [user.u_id for user in self._users]
-    
+
     @property
     def message(self):
         ''' Get the message object that the react is attached to. '''
