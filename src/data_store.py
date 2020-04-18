@@ -940,11 +940,15 @@ def generate_handle(name_first, name_last):
         handle_str (str): Unique handle
 
     """
+    # strip all whitespace in the first and last name
+    name_first = name_first.replace(' ', '')
+    name_last = name_last.replace(' ', '')
+
     concatentation = name_first.lower() + name_last.lower()
     handle_str = concatentation[:20]
 
     unique_modifier = 1
-    while DATA_STORE.get_user(handle_str=handle_str):
+    while DATA_STORE.get_user(handle_str=handle_str) and len(handle_str) == 0:
         split_handle = list(handle_str)
 
         # Remove n number of characters from split_handle
