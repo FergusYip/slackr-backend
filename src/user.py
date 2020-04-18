@@ -143,7 +143,7 @@ def user_profile_sethandle(token, handle_str):
         # user experience.
         return {}
     
-    if any(' ' in handle_str):
+    if ' ' in handle_str:
         raise InputError(
             description='Handle cannot contain spaces')
 
