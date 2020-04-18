@@ -130,6 +130,10 @@ def user_profile_sethandle(token, handle_str):
         # handle, or accidently presses the edit button. Assists with a greater
         # user experience.
         return {}
+    
+    if any(' ' in handle_str):
+        raise InputError(
+            description='Handle cannot contain spaces')
 
     if not 2 <= len(handle_str) <= 20:
         raise InputError(
