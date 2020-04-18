@@ -950,8 +950,8 @@ def generate_handle(name_first, name_last):
     unique_modifier = 1
     while DATA_STORE.get_user(handle_str=handle_str) or len(handle_str) == 0:
         unique_digits = int(math.log10(unique_modifier)) + 1
-        trimmed_handle = handle_str[:len(handle_str) - unique_digits]
-        handle_str = trimmed_handle + str(unique_modifier)
+        handle_str = handle_str[:len(handle_str) - unique_digits]
+        handle_str += str(unique_modifier)
         unique_modifier += 1
 
     return handle_str
