@@ -632,23 +632,13 @@ class Message:
             is_pinned (bool):  Whether the message has been pinned.
 
         '''
-        message_reacts = []
-        reacts = self._reacts
-        for react in reacts:
-            react_info = {
-                'react_id': react.react_id,
-                'u_ids': react.u_ids,
-                'is_this_user_reacted': react in user.reacts
-            }
-            message_reacts.append(react_info)
-
         return {
-            'message_id': self._message_id,
+            'message_id': self.message_id,
             'u_id': self.u_id,
-            'message': self._message,
-            'time_created': self._time_created,
-            'reacts': message_reacts,
-            'is_pinned': self._is_pinned
+            'message': self.message,
+            'time_created': self.time_created,
+            'reacts': [react.details(user) for react in self.reacts],
+            'is_pinned': self.is_pinned
         }
 
     def set_sender(self, sender):
@@ -729,6 +719,13 @@ class React:
     def message(self):
         ''' Get the message object that the react is attached to. '''
         return self._message
+
+    def details(self, user):
+        return {
+            'react_id': self.react_id,
+            'u_ids': self.u_ids,
+            'is_this_user_reacted': self in user.reacts
+        }
 
     def add_user(self, user):
         ''' Adds the user to the list of users who have reacted.
