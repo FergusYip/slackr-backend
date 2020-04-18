@@ -560,13 +560,39 @@ class Message:
 
     @property
     def u_id(self):
-        ''' Get a dictionary containing who sent the message.
-
-        Return (dict):
-            u_id (int): The sender's u_id
-        '''
+        ''' Get the u_id of who sent the message. '''
         return self._sender.u_id
 
+    @property
+    def message_id(self):
+        ''' Get the message_id of the message. '''
+        return self._message_id
+
+    @property
+    def channel(self):
+        ''' Get the channel the message was posted within. '''
+        return self._channel
+    
+    @property
+    def message(self):
+        ''' Get the contents of the message. '''
+        return self._message
+
+    @property
+    def time_created(self):
+        ''' Get a unix timestamp of when the message was sent. '''
+        return self._time_created
+    
+    @property
+    def reacts(self):
+        ''' Get a list of all reacts on the message. '''
+        return self._reacts
+    
+    @property
+    def is_pinned(self):
+        ''' Get a boolean value of the message's pinned status. '''
+        return self._is_pinned
+    
     @property
     def details(self, user):
         '''Get a dictionary of the message's information.
@@ -656,6 +682,25 @@ class React:
     def react_id(self):
         ''' Returns the ID of the reaction.'''
         return self._react_id
+    
+    @property
+    def users(self):
+        ''' Returns a list of user objects that have used this reaction.'''
+        return self._users
+    
+    @property
+    def u_ids(self):
+        ''' Gets a list of the u_ids that have reacted.
+
+        Return (list):
+            u_id (int): The u_id of a user who has reacted to the message.
+        '''
+        return [user.u_id for user in self._users]
+    
+    @property
+    def message(self):
+        ''' Get the message object that the react is attached to. '''
+        return self._message
 
     def add_user(self, user):
         ''' Adds the user to the list of users who have reacted.
@@ -672,15 +717,6 @@ class React:
             user (obj): The object of a user.
         '''
         self._users.remove(user)
-
-    @property
-    def u_ids(self):
-        ''' Gets a list of the u_ids that have reacted.
-
-        Return (list):
-            u_id (int): The u_id of a user who has reacted to the message.
-        '''
-        return [user.u_id for user in self._users]
 
     def is_user_reacted(self, u_id):
         ''' Checks if a u_id is in the list of u_ids that have reacted.
