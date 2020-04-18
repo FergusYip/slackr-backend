@@ -1,4 +1,7 @@
-'''Backend server file for slackr'''
+'''
+Flask backend server for Slackr web application
+'''
+
 import sys
 from json import dumps
 from flask import Flask, request, send_file

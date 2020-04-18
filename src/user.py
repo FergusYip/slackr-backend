@@ -35,6 +35,8 @@ def user_profile(token, u_id):
     if target_user is None:
         raise InputError(description='User ID is not a valid user')
 
+    print(target_user.profile)
+
     return {'user': target_user.profile}
 
 
@@ -137,7 +139,7 @@ def user_profile_sethandle(token, handle_str):
         raise InputError(
             description='Handle is already being used by another user')
 
-    user.set_handle(handle_str)
+    user.set_handle_str(handle_str)
 
     return {}
 
@@ -168,7 +170,7 @@ def user_profile_uploadphoto(token, img_url, area):
         token (str): The token of the authorized user to be decoded to get the u_id.
         img_url (str): A string of the image URL to upload.
         area (list): A list containing the x_start, y_start, x_end, y_end values in that order.
-    
+
     Return:
         Dictionary (dict): An empty dictionary.
     '''

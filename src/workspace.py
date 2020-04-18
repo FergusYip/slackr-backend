@@ -1,6 +1,7 @@
 '''
-Implementation of workspace function for slackr app
+Function to reset the state of the Slackr application.
 '''
+
 from data_store import DATA_STORE
 
 

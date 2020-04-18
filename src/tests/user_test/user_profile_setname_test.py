@@ -19,8 +19,8 @@ def test_profile_setname(reset, test_user):
     user.user_profile_setname(test_user['token'], 'Ipsum', 'Lorem')
     profile_info = user.user_profile(test_user['token'], test_user['u_id'])
 
-    assert profile_info['name_first'] == 'Ipsum'
-    assert profile_info['name_last'] == 'Lorem'
+    assert profile_info['user']['name_first'] == 'Ipsum'
+    assert profile_info['user']['name_last'] == 'Lorem'
 
 
 def test_profile_setname_empty_firstname(reset, test_user):
