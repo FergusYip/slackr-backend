@@ -9,7 +9,8 @@ import requests
 from error import InputError
 from email_validation import invalid_email
 from token_validation import decode_token
-from data_store import DATA_STORE
+from data_store import DATA_STORE, change_profile_image
+
 
 def user_profile(token, u_id):
     '''
@@ -142,10 +143,9 @@ def user_profile_sethandle(token, handle_str):
         # handle, or accidently presses the edit button. Assists with a greater
         # user experience.
         return {}
-    
+
     if ' ' in handle_str:
-        raise InputError(
-            description='Handle cannot contain spaces')
+        raise InputError(description='Handle cannot contain spaces')
 
     if not 2 <= len(handle_str) <= 20:
         raise InputError(
@@ -240,23 +240,9 @@ def user_profile_uploadphoto(token, img_url, area):
     if not img_url.endswith('.jpg'):
         raise InputError(description='Image must be a .jpg file')
 
-    region = img.crop(area)
-    region.save(f'src/profile_images/{user_id}.jpg')
+    cropped_img = img.crop(area)
 
-    base_url = 'http://127.0.0.1:6968'
-
-    profile_img = user.profile_img_url
-    DATA_STORE.remove_img_id(profile_img)
-
-    # Generate a random 15 digit integer.
-    rand = randint(10**14, 10**15 - 1)
-
-    while rand in DATA_STORE.img_ids:
-        rand = randint(10**14, 10**15 - 1)
-
-    DATA_STORE.add_img_id(rand)
-
-    user.set_profile_img_url(f'{base_url}/imgurl/{rand}.jpg')
+    change_profile_image(cropped_img, user)
 
     return {}
 
