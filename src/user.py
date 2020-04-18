@@ -179,14 +179,14 @@ def user_profile_uploadphoto(token, img_url, area):
     user_id = token_info['u_id']
     user = DATA_STORE.get_user(user_id)
 
-    url = requests.get(img_url, stream=True)
-    img = Image.open(url.raw)
-
-    width, height = img_obj.size
-
     req = requests.get(f'{img_url}')
     if req.status_code != 200:
         raise InputError(description='Image does not exist')
+
+    url = requests.get(img_url, stream=True)
+    img = Image.open(url.raw)
+
+    width, height = img.size
 
     if len(area) != 4:
         raise InputError(
