@@ -199,7 +199,7 @@ def user_profile_uploadphoto(token, img_url, area):
         Dictionary (dict): An empty dictionary.
     '''
 
-    if None in {token, img_url, area}:
+    if None in [token, img_url, area]:
         raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
