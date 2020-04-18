@@ -1,5 +1,6 @@
 '''
-Implementation of auth routes for slackr app
+Functions to provide authorisation to the program. Will allow users to
+register, login, logout, and reset their password.
 '''
 
 import smtplib
@@ -23,8 +24,8 @@ def auth_register(email, password, name_first, name_last):
 	Returns (dict):
 		u_id (int): User ID
 		token (str): JWT
-
 	'''
+
     if None in {email, password, name_first, name_last}:
         raise InputError(
             description=
@@ -133,6 +134,51 @@ def auth_passwordreset_request(email):
 
     reset_code = DATA_STORE.make_reset_request(user)
 
+    if user is not None:
+        email_reset_code(email, reset_code)
+
+    return {}
+
+
+def auth_passwordreset_reset(reset_code, new_password):
+    '''Given a reset_code, check that its valid and reset the user's password
+
+        Parameters:
+            reset_node (str): Reset code
+            new_password (str): Desired new passowrd
+
+        Returns:
+            Empty Dictionary
+    '''
+
+    if None in {reset_code, new_password}:
+        raise InputError(description='Insufficient parameters')
+
+    reset_code = int(reset_code)
+    reset_request = DATA_STORE.get_reset_request(reset_code)
+
+    if reset_request is None:
+        raise InputError(description='Reset code is not valid')
+
+    if len(new_password) < 6:
+        raise InputError(description='Password is not valid')
+
+    user = DATA_STORE.get_user(u_id=reset_request['u_id'])
+    user.set_password(new_password)
+
+    return {}
+
+
+def email_reset_code(email, reset_code):
+    '''Send a email containing a reset code to the provided email
+
+    Parameters:
+        email (str): Email
+        reset_code (int): Reset code
+
+    Return:
+        (bool): Whether the email was sent successfully
+    '''
     sender = 'thechunts.slackr@gmail.com'
     password = 'chuntsslackr'
 
@@ -152,43 +198,16 @@ def auth_passwordreset_request(email):
     </html>
     ''', subtype='html')
 
-    if user is not None:
-        try:
-            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            server.login(sender, password)
-            server.send_message(message)
-            server.quit()
-            print("Successfully sent email")
-        except smtplib.SMTPException:
-            print("Error: unable to send email")
-
-    return {}
-
-
-def auth_passwordreset_reset(reset_code, new_password):
-    '''Given a reset_code, check that its valid and reset the user's password
-
-        Parameters:
-            reset_node (str): Reset code
-            new_password (str): Desired new passowrd
-
-        Returns:
-            Empty Dictionary
-    '''
-
-    reset_code = int(reset_code)
-    reset_request = DATA_STORE.get_reset_request(reset_code)
-
-    if reset_request is None:
-        raise InputError(description='Reset code is not valid')
-
-    if len(new_password) < 6:
-        raise InputError(description='Password is not valid')
-
-    user = DATA_STORE.get_user(u_id=reset_request['u_id'])
-    user.change_password(new_password)
-
-    return {}
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.login(sender, password)
+        server.send_message(message)
+        server.quit()
+        print("Successfully sent email")
+        return True
+    except smtplib.SMTPException:
+        print("Error: unable to send email")
+        return False
 
 
 if __name__ == '__main__':

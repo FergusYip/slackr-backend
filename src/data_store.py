@@ -1,10 +1,10 @@
-''' Data Store for the slackr backend'''
+'''
+Data store for the slackr backend
+'''
 import random
 import math
 import threading
-import string
 import pickle
-import wikiquote
 import helpers
 
 SECRET = 'the chunts'
@@ -13,17 +13,47 @@ SECRET = 'the chunts'
 class User:
     '''User Object'''
     def __init__(self, email, password, name_first, name_last):
-        self.u_id = DATA_STORE.generate_id('u_id')
-        self.email = email
-        self.password = helpers.hash_pw(password)
-        self.name_first = name_first
-        self.name_last = name_last
-        self.handle_str = generate_handle(name_first, name_last)
-        self.permission_id = DATA_STORE.default_permission()
-        self.channels = []
-        self.messages = []
-        self.reacts = []
-        self.profile_img_url = default_profile_img()
+        self._u_id = DATA_STORE.generate_id('u_id')
+        self._email = email
+        self._password = helpers.hash_pw(password)
+        self._name_first = name_first
+        self._name_last = name_last
+        self._handle_str = generate_handle(name_first, name_last)
+        self._permission_id = DATA_STORE.default_permission()
+        self._channels = []
+        self._messages = []
+        self._reacts = []
+        self._profile_img_url = helpers.default_profile_img()
+
+    @property
+    def u_id(self):
+        '''User ID (int)'''
+        return self._u_id
+
+    @property
+    def email(self):
+        '''User email (str)'''
+        return self._email
+
+    @property
+    def password(self):
+        '''User password (str)'''
+        return self._password
+
+    @property
+    def name_first(self):
+        '''User's first name (str)'''
+        return self._name_first
+
+    @property
+    def name_last(self):
+        '''User's last name (str)'''
+        return self._name_last
+
+    @property
+    def handle_str(self):
+        '''User's handle (str)'''
+        return self._handle_str
 
     def set_email(self, email):
         '''Set the user's email
@@ -32,7 +62,7 @@ class User:
             email (str): email
 
         '''
-        self.email = email
+        self._email = email
 
     def set_name(self, name_first, name_last):
         '''Set the user's firt and last name
@@ -42,35 +72,55 @@ class User:
             name_last (str): Last name
 
         '''
-        self.name_first = name_first
-        self.name_last = name_last
+        self._name_first = name_first
+        self._name_last = name_last
 
-    def change_password(self, password):
+    def set_password(self, password):
         '''Change the user's password
 
         Parameters:
             password (str): Password
 
         '''
-        self.password = helpers.hash_pw(password)
+        self._password = helpers.hash_pw(password)
 
-    def set_handle(self, handle_str):
+    def set_handle_str(self, handle_str):
         '''Set the user's handle
 
         Parameters:
             handle_str (str): Handle String
 
         '''
-        self.handle_str = handle_str
+        self._handle_str = handle_str
 
-    def change_permission(self, permission_id):
+    @property
+    def permission_id(self):
+        ''' User's permission ID'''
+        return self._permission_id
+
+    def set_permission_id(self, permission_id):
         '''Change the user's permission ID
 
         Parameters:
             permission_id (int): Permission ID
 
         '''
-        self.permission_id = permission_id
+        self._permission_id = permission_id
+
+    @property
+    def channels(self):
+        ''' User's channels'''
+        return list(self._channels)
+
+    @property
+    def messages(self):
+        ''' User's messages'''
+        return list(self._messages)
+
+    @property
+    def reacts(self):
+        ''' User's reacts'''
+        return list(self._reacts)
 
     @property
     def profile(self):
@@ -86,12 +136,12 @@ class User:
 
         '''
         return {
-            'u_id': self.u_id,
-            'email': self.email,
-            'name_first': self.name_first,
-            'name_last': self.name_last,
-            'handle_str': self.handle_str,
-            'profile_img_url': self.profile_img_url
+            'u_id': self._u_id,
+            'email': self._email,
+            'name_first': self._name_first,
+            'name_last': self._name_last,
+            'handle_str': self._handle_str,
+            'profile_img_url': self._profile_img_url
         }
 
     @property
@@ -106,10 +156,10 @@ class User:
 
         '''
         return {
-            'u_id': self.u_id,
-            'name_first': self.name_first,
-            'name_last': self.name_last,
-            'profile_img_url': self.profile_img_url
+            'u_id': self._u_id,
+            'name_first': self._name_first,
+            'name_last': self._name_last,
+            'profile_img_url': self._profile_img_url
         }
 
     def add_channel(self, channel):
@@ -119,7 +169,7 @@ class User:
             channel (obj): Channel object
 
         '''
-        self.channels.append(channel)
+        self._channels.append(channel)
 
     def remove_channel(self, channel):
         '''Remove the user to a channel
@@ -128,7 +178,7 @@ class User:
             channel (obj): Channel object
 
         '''
-        self.channels.remove(channel)
+        self._channels.remove(channel)
 
     def add_message(self, message):
         '''Add a message associated to the user
@@ -137,7 +187,7 @@ class User:
             message (obj): Message object
 
         '''
-        self.messages.append(message)
+        self._messages.append(message)
 
     def remove_message(self, message):
         '''Remove a message associated to the user
@@ -146,7 +196,7 @@ class User:
             message (obj): Message object
 
         '''
-        self.messages.remove(message)
+        self._messages.remove(message)
 
     @property
     def viewable_messages(self):
@@ -157,10 +207,10 @@ class User:
 
         '''
         msgs = []
-        for channel in self.channels:
+        for channel in self._channels:
             for message in channel.messages:
                 msgs.append(message)
-        return msgs
+        return list(msgs)
 
     def add_react(self, react):
         '''Add a react associated to the user
@@ -169,7 +219,7 @@ class User:
             react (obj): React object
 
         '''
-        self.reacts.append(react)
+        self._reacts.append(react)
 
     def remove_react(self, react):
         '''Remove a react associated to the user
@@ -178,43 +228,120 @@ class User:
             react (obj): React object
 
         '''
-        self.reacts.remove(react)
+        self._reacts.remove(react)
 
-    def change_profile_img_url(self, profile_img_url):
+    @property
+    def profile_img_url(self):
         '''Change the user's profile image url
 
         Parameters:
             profile_img_url (str): Url of profile image
 
         '''
-        self.profile_img_url = profile_img_url
+        return self._profile_img_url
+
+    def set_profile_img_url(self, profile_img_url):
+        '''Change the user's profile image url
+
+        Parameters:
+            profile_img_url (str): Url of profile image
+
+        '''
+        self._profile_img_url = profile_img_url
+
+
+class DeletedUser(User):
+    '''Deleted user object'''
+    def __init__(self):
+        self._u_id = -99
+        self._email = 'deleted'
+        self._name_first = 'Deleted'
+        self._name_last = 'User'
+        self._handle_str = 'deleted'
+        self._profile_img_url = 'https://i.imgur.com/nsoGP2n.jpg'
+
+
+class HangmanBot(User):
+    '''Hangman bot user object'''
+    def __init__(self):
+        self._u_id = -95
+        self._email = 'hangmanbot'
+        self._name_first = 'Hangman'
+        self._name_last = 'Bot'
+        self._handle_str = 'hangman_bot'
+        self._profile_img_url = 'https://i.imgur.com/olQfW6w.jpg'
+        self._messages = []
+        self._token = None
 
 
 class Standup:
+    '''Standup Object'''
     def __init__(self):
-        self.is_active = False
-        self.starting_user = None
-        self.time_finish = None
-        self.messages = []
+        self._is_active = False
+        self._starting_user = None
+        self._time_finish = None
+        self._messages = []
+
+    @property
+    def is_active(self):
+        '''Whether the standup is active (bool)'''
+        return self._is_active
+
+    @property
+    def starting_user(self):
+        '''The user who started the standup (user_obj)'''
+        return self._starting_user
+
+    @property
+    def time_finish(self):
+        '''Standup end time (int)'''
+        return self._time_finish
+
+    @property
+    def messages(self):
+        '''Standup messages (list[message_obj])'''
+        return self._messages
 
     def start(self, user, time_finish):
-        self.is_active = True
-        self.starting_user = user
-        self.time_finish = time_finish
+        ''' Start the standup
+
+        Parameters:
+            user (obj): The user who started the standup
+            time_finished (int): The desired end time of the standup
+        '''
+        self._is_active = True
+        self._starting_user = user
+        self._time_finish = time_finish
 
     def stop(self):
+        ''' Stop the standup
+
+        Parameters:
+            user (obj): The user who started the standup
+            time_finished (int): The desired end time of the standup
+
+        Return:
+            joined_message (str): Standup summary message (joined string of all
+                                  standup messages)
+        '''
         joined_message = ''
-        for message in self.messages:
+        for message in self._messages:
             joined_message += f"{message['handle_str']}: {message['message']}\n"
 
-        self.is_active = False
-        self.starting_user = None
-        self.time_finish = None
-        self.messages = []
+        self._is_active = False
+        self._starting_user = None
+        self._time_finish = None
+        self._messages.clear()
 
         return joined_message
 
     def send(self, user, message):
+        ''' Send a standup message
+
+        Parameters:
+            user (obj): The user who sent the message
+            message (str): Message
+        '''
         message_dict = {'handle_str': user.handle_str, 'message': message}
         self.messages.append(message_dict)
 
@@ -230,7 +357,7 @@ class Hangman:
 
     def start(self):
         self.is_active = True
-        self.word = get_word()
+        self.word = helpers.get_word()
         return self.word
 
     def stop(self):
@@ -258,14 +385,54 @@ class Hangman:
 class Channel:
     ''' Channel object '''
     def __init__(self, creator, name, is_public):
-        self.channel_id = DATA_STORE.generate_id('channel_id')
-        self.name = name
-        self.is_public = is_public
-        self.owner_members = [creator]
-        self.all_members = [creator]
-        self.messages = []
-        self.standup = Standup()
-        self.hangman = Hangman()
+        self._channel_id = DATA_STORE.generate_id('channel_id')
+        self._name = name
+        self._is_public = is_public
+        self._owner_members = [creator]
+        self._all_members = [creator]
+        self._messages = []
+        self._standup = Standup()
+        self._hangman = Hangman()
+
+    @property
+    def channel_id(self):
+        '''Channel ID (int)'''
+        return self._channel_id
+
+    @property
+    def name(self):
+        '''Channel name (str)'''
+        return self._name
+
+    @property
+    def is_public(self):
+        '''Channel public status (bool)'''
+        return self._is_public
+
+    @property
+    def owner_members(self):
+        '''Channel owners (list[user_obj])'''
+        return list(self._owner_members)
+
+    @property
+    def all_members(self):
+        '''Channel members (list[user_obj])'''
+        return list(self._all_members)
+
+    @property
+    def messages(self):
+        '''Channel messages (list[message_obj])'''
+        return list(self._messages)
+
+    @property
+    def standup(self):
+        '''Channel standup (standup_obj)'''
+        return self._standup
+
+    @property
+    def hangman(self):
+        '''Channel hangman game (hangman_obj)'''
+        return self._hangman
 
     def add_owner(self, user):
         ''' Add a user to the list of owner members.
@@ -273,7 +440,7 @@ class Channel:
         Parameters:
             user (obj): A user object.
         '''
-        self.owner_members.append(user)
+        self._owner_members.append(user)
 
     def remove_owner(self, user):
         ''' Removes a user from the list of owner members.
@@ -281,7 +448,7 @@ class Channel:
         Parameters:
             user (obj): A user object.
         '''
-        self.owner_members.remove(user)
+        self._owner_members.remove(user)
 
     def add_member(self, user):
         ''' Add a user to the list of members.
@@ -289,7 +456,7 @@ class Channel:
         Parameters:
             user (obj): A user object.
         '''
-        self.all_members.append(user)
+        self._all_members.append(user)
 
     def remove_member(self, user):
         ''' Removes a user from the list of members.
@@ -297,14 +464,14 @@ class Channel:
         Parameters:
             user (obj): A user object.
         '''
-        self.all_members.remove(user)
+        self._all_members.remove(user)
 
     def is_member(self, user):
         ''' Determines if a given user is a member of the channel.
 
         Parameters:
             user (obj): A user object.
-        
+
         Return:
             Bool: Whether the user is a member of the channel (True) or not (False).
         '''
@@ -342,23 +509,41 @@ class Channel:
 
         Parameters:
             user (obj): A user object.
-        
+
         Return:
             Bool: Whether the user is an owner (True) or not (False).
         '''
         return user in self.owner_members
 
     def search(self, query_str):
+        '''Return a list of messages containing the provided query_str
+
+        Parameters:
+            query_str (str): Query string
+
+        Returns:
+            List of message objects
+        '''
         return [
             message for message in self.messages
             if query_str in message.message
         ]
 
     def send_message(self, message):
-        self.messages.append(message)
+        '''Send a message in the channel
+
+        Parameters:
+            message (obj): A message object
+        '''
+        self._messages.append(message)
 
     def remove_message(self, message):
-        self.messages.remove(message)
+        '''Remove a message from the channel
+
+        Parameters:
+            message (obj): A message object
+        '''
+        self._messages.remove(message)
 
 
 class Message:
@@ -496,77 +681,11 @@ class React:
 
         Parameters:
             u_id (int): The u_id of the user.
-        
+
         Return:
             Bool: Whether the user has reacted (True) or not (False).
         '''
         return u_id in self.u_ids
-
-
-class DeletedUser:
-    '''Deleted user object'''
-    def __init__(self):
-        self.u_id = -99
-        self.email = 'deleted'
-        self.name_first = 'Deleted'
-        self.name_last = 'User'
-        self.handle_str = 'deleted'
-        self.profile_img_url = 'https://i.imgur.com/nsoGP2n.jpg'
-
-    @property
-    def profile(self):
-        '''Return the profile of a deleted user'''
-        return {
-            'u_id': self.u_id,
-            'email': self.email,
-            'name_first': self.name_first,
-            'name_last': self.name_last,
-            'handle_str': self.handle_str,
-            'profile_img_url': self.profile_img_url
-        }
-
-
-class HangmanBot:
-    '''Hangman bot user object'''
-    def __init__(self):
-        self.u_id = -95
-        self.email = 'hangmanbot'
-        self.name_first = 'Hangman'
-        self.name_last = 'Bot'
-        self.handle_str = 'hangman_bot'
-        self.profile_img_url = 'https://i.imgur.com/olQfW6w.jpg'
-        self.messages = []
-        self.token = None
-
-    @property
-    def profile(self):
-        '''Return the profile of a hangman bot'''
-        return {
-            'u_id': self.u_id,
-            'email': self.email,
-            'name_first': self.name_first,
-            'name_last': self.name_last,
-            'handle_str': self.handle_str,
-            'profile_img_url': self.profile_img_url
-        }
-
-    def add_message(self, message):
-        '''Add a message associated to the user
-
-        Parameters:
-            message (obj): Message object
-
-        '''
-        self.messages.append(message)
-
-    def remove_message(self, message):
-        '''Remove a message associated to the user
-
-        Parameters:
-            message (obj): Message object
-
-        '''
-        self.messages.remove(message)
 
 
 class DataStore:
@@ -599,11 +718,11 @@ class DataStore:
         for channel in self.channels:
             for owner in channel.owner_members:
                 if owner == user:
-                    channel.all_members.remove(owner)
+                    channel.remove_owner(owner)
                     break
             for member in channel.all_members:
                 if member == user:
-                    channel.all_members.remove(member)
+                    channel.remove_member(member)
                     break
         for message in self.messages:
             if message.sender == user:
@@ -633,8 +752,8 @@ class DataStore:
 
     def join_channel(self, user, channel):
         '''Make a user join a channel in the data store'''
-        user.channels.append(channel)
-        channel.all_members.append(user)
+        user.add_channel(channel)
+        channel.add_member(user)
 
     def get_user(self, u_id=None, email=None, handle_str=None):
         '''Get a user from the data store'''
@@ -805,7 +924,7 @@ def save():
 
 def autosave():
     '''Thread to save state every second'''
-    timer = threading.Timer(1.0, autosave)
+    timer = threading.Timer(5.0, autosave)
     timer.start()
     save()
 
@@ -839,35 +958,3 @@ def generate_handle(name_first, name_last):
         unique_modifier += 1
 
     return handle_str
-
-
-def default_profile_img():
-    ''' Return a link to a randomised default image'''
-    colors = {
-        'blue': 'https://i.imgur.com/HrDzaJo.jpg',
-        'green': 'https://i.imgur.com/jETb01M.jpg',
-        'purple': 'https://i.imgur.com/qmX0dIZ.jpg',
-        'red': 'https://i.imgur.com/FTKy1XA.jpg'
-    }
-    return random.choice(list(colors.values()))
-
-
-def get_word():
-    '''
-    Function to get a random word from wikiquote
-    '''
-    word = random.choice(wikiquote.random_titles(lang='en'))
-    while not word.isalpha() and not check_ascii(word):
-        word = random.choice(wikiquote.random_titles(lang='en'))
-    return word.strip()
-
-
-def check_ascii(word):
-    '''
-    Function to check if word is valid.
-    '''
-    for char in word:
-        if char not in string.ascii_letters:
-            return False
-
-    return True

@@ -1,6 +1,8 @@
 '''
-Implementation of channels routes for slackr app
+Functions to provide channel creation and lists to the program. Will allow
+users to create channels and generate lists of channels.
 '''
+
 from error import InputError
 from data_store import DATA_STORE, Channel
 from token_validation import decode_token
@@ -9,13 +11,12 @@ from token_validation import decode_token
 def channels_list(token):
     """ Provide a list of all channels that the authorised user is part of
 
-        Parameters:
-                token (str): JWT
+    Parameters:
+            token (str): JWT
 
-        Returns (dict):
-                channels (list): List of channels
-
-        """
+    Returns (dict):
+            channels (list): List of channels
+    """
     if token is None:
         raise InputError(description='Insufficient parameters')
 
@@ -26,36 +27,36 @@ def channels_list(token):
 
 
 def channels_listall(token):
-    """ Provide a list of all channels
+    """ Provide a list of all public channels
 
-        Parameters:
-                token (str): JWT
+    Parameters:
+            token (str): JWT
 
-        Returns (dict):
-                channels (list): List of channels
-
-        """
+    Returns (dict):
+            channels (list): List of channels
+    """
 
     if token is None:
         raise InputError(description='Insufficient parameters')
 
     decode_token(token)
-    channels = [channel.id_name for channel in DATA_STORE.channels]
+    channels = [
+        channel.id_name for channel in DATA_STORE.channels if channel.is_public
+    ]
     return {'channels': channels}
 
 
 def channels_create(token, name, is_public):
     """ Creates a new public or private channel called name
 
-        Parameters:
-                token (str): JWT
-                name (str): Desired name of channel
-                is_public (bool): Whether the channel is public
+    Parameters:
+            token (str): JWT
+            name (str): Desired name of channel
+            is_public (bool): Whether the channel is public
 
-        Returns (dict):
-                channel_id  (int): Channel ID
-
-        """
+    Returns (dict):
+            channel_id  (int): Channel ID
+    """
 
     if None in {token, name, is_public}:
         raise InputError(description='Insufficient parameters')

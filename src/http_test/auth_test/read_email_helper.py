@@ -13,8 +13,7 @@ def get_body(msg):
     '''Function to get email content part i.e its body part'''
     if msg.is_multipart():
         return get_body(msg.get_payload(0))
-    else:
-        return msg.get_payload(None, True)
+    return msg.get_payload(None, True)
 
 
 def search(key, value, con):

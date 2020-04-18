@@ -1,5 +1,7 @@
 '''
-Implementation of standup routes for slackr app
+Functions to allow users participate in a standup in the program. Will allow
+users to start a timed standup where messages sent before the end time will
+be joined into one standup summary message.
 '''
 import threading
 from token_validation import decode_token

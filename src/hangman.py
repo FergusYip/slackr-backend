@@ -1,7 +1,9 @@
 '''
-Implementation of hangman game in a channel.
+Functions to allow users to play a game of hangman in the program. Will allow
+users to start a game in the channel and guess letters until they win/lose.
 '''
 
+import string
 from data_store import DATA_STORE
 from token_validation import decode_token
 from error import InputError
@@ -119,6 +121,9 @@ def get_dashed(word, guesses):
     '''
     Returns a string where all unguessed letters are '_'.
     '''
+    for char in word:
+        if char not in string.ascii_letters:
+            return False
 
     # getting list of all lowercase letters.
     dashed = word

@@ -1,6 +1,8 @@
 '''
-Implementation of admin routes for slackr app
+Functions to provide admininistrative management tools on the program. Will
+allow admins to change user permissions and delete users.
 '''
+
 from error import AccessError, InputError
 from token_validation import decode_token
 from data_store import DATA_STORE
@@ -38,14 +40,16 @@ def admin_userpermission_change(token, u_id, permission_id):
     if DATA_STORE.is_admin(admin) is False:
         raise AccessError(description='The authorised user is not an owner')
 
-    if admin.u_id == u_id and len(DATA_STORE.all_admins) == 1:
+    if admin.u_id == u_id and \
+        len(DATA_STORE.all_admins) == 1 and \
+        permission_id == DATA_STORE.permissions['member']:
         raise InputError(
             description=
-            'You must assign another user to be an admin before removing yourself'
+            'You must assign another user to be an admin before becoming a member'
         )
 
     user = DATA_STORE.get_user(u_id)
-    user.permission_id = permission_id
+    user.set_permission_id(permission_id)
 
     return {}
 
