@@ -173,6 +173,11 @@ def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):
     if None in {x_start, y_start, x_end, y_end}:
         raise InputError(description='Insufficient parameters')
 
+    x_start = int(x_start)
+    y_start = int(y_start)
+    x_end = int(x_end)
+    y_end = int(y_end)
+
     return (x_start, y_start, x_end, y_end)
 
 
@@ -234,8 +239,8 @@ def user_profile_uploadphoto(token, img_url, area):
     region = img.crop(area)
     region.save(f'src/profile_images/{user_id}.jpg')
 
-    base_url = 'http://127.0.0.1:8080'
-    user.profile_image_url = f'{base_url}/imgurl/{user_id}.jpg'
+    base_url = 'http://127.0.0.1:6968'
+    user.set_profile_img_url(f'{base_url}/imgurl/{user_id}.jpg')
 
     return {}
 
