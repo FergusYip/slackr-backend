@@ -156,13 +156,13 @@ def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):
         List (list): A list containing these values.
     '''
 
-    return [x_start, y_start, x_end, y_end]
+    return (x_start, y_start, x_end, y_end)
 
 
 def user_profile_uploadphoto(token, img_url, area):
     '''
-    Function that will take a desired url and will resize this image to specific constraints,
-    flip the image where necessary, and upload this file to a path in the directory.
+    Function that will take a desired url and will resize this image to specific constraints
+    and upload this file to a path in the directory.
 
     Parameters:
         token (str): The token of the authorized user to be decoded to get the u_id.
@@ -177,14 +177,14 @@ def user_profile_uploadphoto(token, img_url, area):
     user_id = token_info['u_id']
     user = DATA_STORE.get_user(user_id)
 
-    req = requests.get(f'{img_url}')
-    if req.status_code != 200:
-        raise InputError(description='Image does not exist')
-
     url = requests.get(img_url, stream=True)
     img = Image.open(url.raw)
 
-    width, height = img.size
+    width, height = img_obj.size
+
+    req = requests.get(f'{img_url}')
+    if req.status_code != 200:
+        raise InputError(description='Image does not exist')
 
     if len(area) != 4:
         raise InputError(
@@ -199,12 +199,12 @@ def user_profile_uploadphoto(token, img_url, area):
             description='Crop constraints are outside of the image')
 
     if area[0] > area[2]:
-        img = img.transpose(Image.FLIP_LEFT_RIGHT)
-        area[0], area[2] = area[2], area[0]
+        raise InputError(
+            description='x_end cannot be greater than x_start')
 
     if area[1] > area[3]:
-        img = img.transpose(Image.FLIP_TOP_BOTTOM)
-        area[1], area[3] = area[3], area[1]
+        raise InputError(
+            description='y_end cannot be greater than y_start')
 
     if any(x < 0 for x in area):
         raise InputError(
@@ -212,14 +212,12 @@ def user_profile_uploadphoto(token, img_url, area):
 
     if not img_url.endswith('.jpg'):
         raise InputError(description='Image must be a .jpg file')
-
+    
     region = img.crop(area)
-
     region.save(f'src/profile_images/{user_id}.jpg')
 
     base_url = 'http://127.0.0.1:8080'
     user.profile_image_url = f'{base_url}/imgurl/{user_id}.jpg'
-    # user.change_profile_image_url(f'{base_url}/imgurl/{user_id}.jpg')
 
     return {}
 
