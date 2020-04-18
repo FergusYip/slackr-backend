@@ -750,6 +750,7 @@ class DataStore:
             'hangman_bot': HangmanBot()
         }
         self.reset_requests = []
+        self.img_ids = []
 
     def add_user(self, new_user):
         '''Add a user to the data store'''
@@ -884,6 +885,7 @@ class DataStore:
         self.messages.clear()
         self.token_blacklist.clear()
         self.reset_requests.clear()
+        self.img_ids.clear()
 
         for key in self.max_ids:
             self.max_ids[key] = 0
@@ -952,6 +954,27 @@ class DataStore:
             if request['u_id'] == user.u_id:
                 self.reset_requests.remove(request)
 
+    # @property
+    # def img_ids(self):
+    #     ''' Return a list of img_ids in the data store'''
+    #     return self._img_ids
+
+    def add_img_id(self, img_id):
+        ''' Add a image url to the data store
+
+        Parameters:
+            img_id (str): Image ID
+        '''
+        self.img_ids.append(img_id)
+
+    def remove_img_id(self, img_id):
+        ''' Remove a image url from the data store
+
+        Parameters:
+            img_id (str): Image ID
+        '''
+        self.img_ids.remove(img_id)
+
 
 try:
     DATA_STORE = pickle.load(open('data_store.p', 'rb'))
@@ -997,3 +1020,24 @@ def generate_handle(name_first, name_last):
         unique_modifier += 1
 
     return handle_str
+
+
+def change_profile_image(img, user):
+    profile_img = user.profile_img_url
+    if profile_img in DATA_STORE.img_ids:
+        DATA_STORE.remove_img_id(profile_img)
+
+    # Generate a random 15 digit integer.
+    img_id = random.randint(10**14, 10**15 - 1)
+    while img_id in DATA_STORE.img_ids:
+        img_id = random.randint(10**14, 10**15 - 1)
+
+    img.save(f'src/profile_images/{img_id}.jpg')
+
+    base_url = 'http://127.0.0.1:6968'
+
+    url = f'{base_url}/imgurl/{img_id}.jpg'
+
+    DATA_STORE.add_img_id(url)
+
+    user.set_profile_img_url(url)
