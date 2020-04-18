@@ -28,7 +28,7 @@ def channels_list(token):
 
 
 def channels_listall(token):
-    """ Provide a list of all channels
+    """ Provide a list of all public channels
 
         Parameters:
                 token (str): JWT
