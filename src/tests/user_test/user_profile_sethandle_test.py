@@ -42,6 +42,16 @@ def test_profile_sethandle_above_char_limit(reset, test_user):
         user.user_profile_sethandle(test_user['token'], 'i' * 21)
 
 
+def test_profile_sethandle_spaces(reset, test_user):
+    '''
+    Case where a handle change should result in an InputError if the new
+    handle contains spaces.
+    '''
+
+    with pytest.raises(InputError):
+        user.user_profile_sethandle(test_user['token'], 'hello world')
+
+
 def test_profile_sethandle_existing_handle(reset, test_user, new_user):
     '''
     Case where a user attempts to change their handle to an existing handle.
