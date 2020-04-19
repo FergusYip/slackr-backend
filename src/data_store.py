@@ -275,6 +275,7 @@ class HangmanBot(User):
 
     @property
     def token(self):
+        ''' Get the token of the user. (str) '''
         return self._token
 
     def set_token(self, token):
