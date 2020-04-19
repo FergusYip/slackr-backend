@@ -10,6 +10,21 @@ from error import InputError
 import message
 import token_validation
 
+# Game stages
+STAGES = {
+    0: '',
+    1: '=========',
+    2: '|\n|\n|\n|\n=========',
+    3: '+------\n|\n|\n|\n|\n=========',
+    4: '+------\n|\t|\n|\n|\n|\n=========',
+    5: '+------\n|\t|\n|\tO\n|\n|\n=========',
+    6: '+------\n|\t|\n|\tO\n|       |\n|\n=========',
+    7: '+------\n|\t|\n|\tO\n|      /|\n|\n=========',
+    8: '+------\n|\t|\n|\tO\n|      /|\\\n|\n=========',
+    9: '+------\n|\t|\n|\tO\n|      /|\\\n|      /\n=========',
+    10: '+------\n|\t|\n|\tO\n|      /|\\\n|      /\\\n=========',
+}
+
 
 def start_hangman(token, channel_id):
     '''
@@ -52,21 +67,6 @@ def guess_hangman(token, channel_id, guess):
     if channel is None:
         raise InputError(description='Channel does not exist.')
 
-    # Game stages
-    stages = {
-        0: '',
-        1: '=========',
-        2: '|\n|\n|\n|\n=========',
-        3: '+------\n|\n|\n|\n|\n=========',
-        4: '+------\n|\t|\n|\n|\n|\n=========',
-        5: '+------\n|\t|\n|\tO\n|\n|\n=========',
-        6: '+------\n|\t|\n|\tO\n|       |\n|\n=========',
-        7: '+------\n|\t|\n|\tO\n|      /|\n|\n=========',
-        8: '+------\n|\t|\n|\tO\n|      /|\\\n|\n=========',
-        9: '+------\n|\t|\n|\tO\n|      /|\\\n|      /\n=========',
-        10: '+------\n|\t|\n|\tO\n|      /|\\\n|      /\\\n=========',
-    }
-
     # Check if game is already active.
     if channel.hangman.is_active is False:
         raise InputError(description='Game not active')
@@ -92,7 +92,7 @@ def guess_hangman(token, channel_id, guess):
         channel.hangman.stop()
     elif stage >= 10:
         lose = (f"Game Over.\n"
-                f"{stages[stage]}\n"
+                f"{STAGES[stage]}\n"
                 f"The word was:  {channel.hangman.word}\n")
         prev = message.message_send(bot_token, channel_id, lose)
         channel.hangman.prev_msg = prev['message_id']
@@ -109,7 +109,7 @@ def guess_hangman(token, channel_id, guess):
 
         wrong_guesses = channel.hangman.incorrect
         incorrect = (f"{guess_result}\n"
-                     f"{stages[stage]}\n"
+                     f"{STAGES[stage]}\n"
                      f"{dashed}\n"
                      f"You have guessed:\t[ {', '.join(wrong_guesses)} ]\n")
         prev = message.message_send(bot_token, channel_id, incorrect)
