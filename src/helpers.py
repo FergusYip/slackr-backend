@@ -77,9 +77,8 @@ def get_filename(url):
     ''' Extract the filename from a given url (without extension) '''
     url = url.strip()
     slash_index = len(url) - url[::-1].find('/')
-    dot_index = 
-    url[slash_index:]
-    return 
+    dot_index = len(url) - url[::-1].find('.') - 1
+    return url[slash_index:dot_index]
 
 
 if __name__ == '__main__':
