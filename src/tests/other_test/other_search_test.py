@@ -9,14 +9,14 @@ from error import AccessError
 def test_search_no_channel(reset, test_user):
     '''Test search function when there is no channel'''
 
-    assert len(other.search(test_user['token'], '')['messages']) == 0
+    assert not other.search(test_user['token'], '')['messages']
 
 
 def test_search_empty_channel(reset, test_user, new_channel):
     '''Test search function when channel has no messages'''
 
     new_channel(test_user, 'Channel')
-    assert len(other.search(test_user['token'], '')['messages']) == 0
+    assert not other.search(test_user['token'], '')['messages']
 
 
 def test_search_return_type(reset, test_user, new_channel):
@@ -67,7 +67,7 @@ def test_search_multiple_messages(reset, test_user, new_channel):
 
     assert len(other.search(test_user['token'], 'a')['messages']) == 3
     assert len(other.search(test_user['token'], 'b')['messages']) == 1
-    assert len(other.search(test_user['token'], 'Romeo')['messages']) == 0
+    assert not other.search(test_user['token'], 'Romeo')['messages']
 
 
 def test_search_multiple_channels(reset, test_user, new_channel):
@@ -97,7 +97,7 @@ def test_search_unauthorised_channels(reset, new_user, new_channel):
                          'Tom can\'t see this')
 
     assert len(other.search(jerry['token'], '')['messages']) == 1
-    assert len(other.search(tom['token'], '')['messages']) == 0
+    assert not other.search(tom['token'], '')['messages']
 
 
 def test_search_case_insensitive(reset, test_user, new_channel):

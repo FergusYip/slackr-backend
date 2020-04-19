@@ -78,7 +78,7 @@ def test_removeowner_only_owner(reset, new_user, new_channel):
     details = channel.channel_details(owner['token'],
                                       test_channel['channel_id'])
 
-    assert len(details['owner_members']) == 0
+    assert not details['owner_members']
 
     assert len(details['all_members']) == 2
 

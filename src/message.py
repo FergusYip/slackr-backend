@@ -5,15 +5,10 @@ their own messages.
 '''
 
 import threading
-from time import sleep
 from error import AccessError, InputError
-from data_store import DATA_STORE as data_store
+from data_store import DATA_STORE, Message, React
 from token_validation import decode_token
 import helpers
-
-# ======================================================================
-# =================== FUNCTION IMPLEMENTATION ==========================
-# ======================================================================
 
 
 def message_send(token, channel_id, message, message_id=None):
@@ -27,50 +22,45 @@ def message_send(token, channel_id, message, message_id=None):
         message (str): The message to be sent in the channel.
         message_id=None: An optional message_id tag default to None for standard messages
                          and given a message_id for the sendlater function.
-    
+
     Return:
         Dictionary (dict): A dictionary containing one key and value pair of the message_id.
     '''
 
+    if None in {token, channel_id, message}:
+        raise InputError(description='Insufficient parameters')
+
     token_info = decode_token(token)
-    user_id = int(token_info['u_id'])
+    u_id = int(token_info['u_id'])
+    user = DATA_STORE.get_user(u_id)
 
-    channel_info = helpers.get_channel(channel_id)
+    channel_id = int(channel_id)
+    channel = DATA_STORE.get_channel(channel_id)
 
-    time_now = helpers.utc_now()
-
-    if channel_info is None:
+    if channel is None:
         raise InputError(description='Channel does not exist.')
 
     if len(message) > 1000:
         raise InputError(
             description='Message is greater than 1,000 characters')
 
-    if len(message) == 0:
+    if not message:
         raise InputError(
             description='Message needs to be at least 1 characters')
 
-    if user_id not in channel_info['all_members'] and user_id != -95:
+    hangman_bot_u_id = DATA_STORE.preset_profiles['hangman_bot'].u_id
+    if user not in channel.all_members and u_id != hangman_bot_u_id:
         raise AccessError(
             description=
             'User does not have Access to send messages in the current channel'
         )
 
-    if message_id is None:
-        message_id = helpers.generate_message_id()
+    msg = Message(user, channel, message, message_id)
+    channel.send_message(msg)
+    DATA_STORE.add_message(msg)
+    user.add_message(msg)
 
-    message_info = {
-        'message_id': message_id,
-        'u_id': user_id,
-        'message': message,
-        'time_created': time_now,
-        'reacts': [],
-        'is_pinned': False
-    }
-
-    helpers.message_send_message(message_info, channel_id)
-
-    return {'message_id': message_id}
+    return {'message_id': msg.message_id}
 
 
 def message_remove(token, message_id):
@@ -81,30 +71,39 @@ def message_remove(token, message_id):
     Parameters:
         token (str): The user's token to be decoded to get the user's u_id.
         message_id (int): The message_id of the message that will be removed.
-    
+
     Return:
         Dictionary (dict): An empty dictionary
     '''
 
+    if None in {token, message_id}:
+        raise InputError(description='Insufficient parameters')
+
     token_info = decode_token(token)
-    user_id = int(token_info['u_id'])
+    u_id = int(token_info['u_id'])
+    user = DATA_STORE.get_user(u_id)
 
-    message_channel_info = helpers.get_channel_message(message_id)
+    message_id = int(message_id)
+    message = DATA_STORE.get_message(message_id)
 
-    if message_channel_info is not None:
-        message_info = message_channel_info['message']
-        channel_info = message_channel_info['channel']
-    else:
+    if message is None:
         raise InputError(description='Message does not exist')
 
-    channel_id = channel_info['channel_id']
+    channel = message.channel
 
-    if message_info['u_id'] != user_id and not helpers.is_user_admin(
-            user_id, channel_id):
+    if not (message.u_id == u_id
+            or DATA_STORE.is_admin_or_owner(user, channel)):
         raise AccessError(
             description='User does not have access to remove this message')
 
-    helpers.message_remove_message(message_info, channel_id)
+    if message in channel.messages:
+        channel.remove_message(message)
+
+    if message in DATA_STORE.messages:
+        DATA_STORE.remove_message(message)
+
+    if message in user.messages:
+        user.remove_message(message)
 
     return {}
 
@@ -118,36 +117,39 @@ def message_edit(token, message_id, message):
         token (str): The user's token to be decoded to get the user's u_id.
         message_id (int): The message_id of the message.
         message (str): The message the user will update the current message to.
-    
+
     Return:
         Dictionary (dict): An empty dictionary
     '''
 
+    if None in {token, message_id, message}:
+        raise InputError(description='Insufficient parameters')
+
     token_info = decode_token(token)
-    user_id = int(token_info['u_id'])
+    u_id = int(token_info['u_id'])
+    user = DATA_STORE.get_user(u_id)
 
-    message_channel_info = helpers.get_channel_message(message_id)
+    message_id = int(message_id)
+    message_obj = DATA_STORE.get_message(message_id)
 
-    if message_channel_info is not None:
-        message_info = message_channel_info['message']
-        channel_info = message_channel_info['channel']
-    else:
+    if message_obj is None:
         raise InputError(description='Message does not exist')
 
-    channel_id = channel_info['channel_id']
+    channel = message_obj.channel
 
     if len(message) > 1000:
         raise InputError(description='Message is over 1,000 characters')
 
-    if message_info['u_id'] != user_id and not helpers.is_user_admin(
-            user_id, channel_id):
+    if not (message_obj.u_id == u_id
+            or DATA_STORE.is_admin_or_owner(user, channel)):
         raise AccessError(
             description='User does not have access to remove this message')
 
-    if len(message) == 0:
-        helpers.message_remove_message(message_info, channel_id)
+    if not message and message_obj in channel.messages:
+        channel.remove_message(message_obj)
+        user.messages.remove(message_obj)
     else:
-        helpers.message_edit_message(message, message_id, channel_id)
+        message_obj.edit(message)
 
     return {}
 
@@ -162,69 +164,33 @@ def message_sendlater(token, channel_id, message, time_sent):
         channel_id (int): The channel identification number.
         message (str): The message to be sent in the channel.
         time_sent (int): The unix timestamp as an integer of when the message will be sent.
-    
+
     Return:
         Dictionary (dict): A dictionary containing one key and value pair of the message_id.
     '''
 
-    time_now = helpers.utc_now()
+    if None in {token, channel_id, message, time_sent}:
+        raise InputError(description='Insufficient parameters')
+
     decode_token(token)
+
+    channel_id = int(channel_id)
+    time_sent = int(time_sent)
+
+    time_now = helpers.utc_now()
+
     if time_now > time_sent:
         raise InputError(description='Time to send is in the past')
 
-    message_id = helpers.generate_message_id()
-    send_later_thread(token, channel_id, message, time_sent, message_id)
+    message_id = DATA_STORE.generate_id('message_id')
+
+    duration = time_sent - time_now
+    timer = threading.Timer(duration,
+                            message_send,
+                            args=[token, channel_id, message, message_id])
+    timer.start()
 
     return {'message_id': message_id}
-
-
-def send_later(token, channel_id, message, time_sent, message_id):
-    '''
-    Function that will calculate the duration until the message is sent.
-    It will then call the message_send function to send the message,
-    reserve the next available message_id, but come after any messages
-    sent between the send_later request and the actual posting of the message.
-
-    Parameters:
-        token (str): The user's token to be decoded to get the user's u_id.
-        channel_id (int): The channel identification number.
-        message (str): The message to be sent in the channel.
-        time_sent (int): The unix timestamp as an integer of when the message will be sent.
-        message_id (int): The message_id that will be assigned to this message that has
-                          been created.
-    
-    Return:
-        None
-    '''
-
-    time_now = helpers.utc_now()
-    duration = time_sent - time_now
-    sleep(duration)
-    message_send(token, channel_id, message, message_id)
-
-
-def send_later_thread(token, channel_id, message, time_sent, message_id):
-    '''
-    Function that will run the send_later function in the background as to not
-    put the entire application to sleep whilst waiting for the send_later
-    timer to end.
-
-    Parameters:
-        token (str): The user's token to be decoded to get the user's u_id.
-        channel_id (int): The channel identification number.
-        message (str): The message to be sent in the channel.
-        time_sent (int): The unix timestamp as an integer of when the message will be sent.
-        message_id (int): The message_id that will be assigned to this message that has
-                          been created.
-    
-    Return:
-        None
-    '''
-
-    thread = threading.Thread(target=send_later,
-                              args=(token, channel_id, message, time_sent,
-                                    message_id))
-    thread.start()
 
 
 def message_react(token, message_id, react_id):
@@ -236,44 +202,46 @@ def message_react(token, message_id, react_id):
         token (str): The user's token to be decoded to get the user's u_id.
         message_id (int): The message_id of the message.
         react_id (int): The type of reaction that will be added to the message.
-    
+
     Return:
         Dictionary (dict): An empty dictionary
     '''
 
+    if None in {token, message_id, react_id}:
+        raise InputError(description='Insufficient parameters')
+
     token_info = decode_token(token)
-    user_id = int(token_info['u_id'])
+    user = DATA_STORE.get_user(token_info['u_id'])
 
-    message_channel_info = helpers.get_channel_message(message_id)
+    message_id = int(message_id)
+    message = DATA_STORE.get_message(message_id)
 
-    if message_channel_info is not None:
-        channel_info = message_channel_info['channel']
-    else:
+    if message is None or message not in user.viewable_messages:
         raise InputError(description='Message does not exist')
 
-    channel_id = channel_info['channel_id']
+    react_id = int(react_id)
+    react = message.get_react(react_id)
 
-    if not helpers.is_channel_member(user_id, channel_id):
+    channel = message.channel
+
+    if channel.is_member(user.u_id):
         raise InputError(description='User is not in the channel')
 
-    if react_id not in data_store['reactions'].values():
+    if react_id not in DATA_STORE.reactions.values():
         raise InputError(description='Reaction type is invalid')
 
-    if helpers.has_user_reacted(user_id, message_id, react_id):
-        raise InputError(
-            description='User has already reacted to this message')
+    if react is not None:
+        if react in user.reacts:
+            raise InputError(
+                description='User has already reacted to this message')
 
-    react_info = helpers.get_react(message_id, react_id)
-
-    if react_info is None:
-        # If there are no reacts with react_id present yet.
-        u_ids_reacted = [user_id]
-        react_addition = {'react_id': react_id, 'u_ids': u_ids_reacted}
-        helpers.message_add_react(react_addition, message_id, channel_id)
+        react.add_user(user)
+        user.add_react(react)
     else:
-        # If another user has already reacted with react_id.
-        helpers.message_add_react_uid(user_id, message_id, channel_id,
-                                      react_id)
+        react = React(react_id, message)
+        message.add_react(react)
+        react.add_user(user)
+        user.add_react(react)
 
     return {}
 
@@ -286,45 +254,47 @@ def message_unreact(token, message_id, react_id):
         token (str): The user's token to be decoded to get the user's u_id.
         message_id (int): The message_id of the message.
         react_id (int): The type of reaction that will be unreacted from the message.
-    
+
     Return:
         Dictionary (dict): An empty dictionary
     '''
 
+    if None in {token, message_id, react_id}:
+        raise InputError(description='Insufficient parameters')
+
     token_info = decode_token(token)
-    user_id = int(token_info['u_id'])
+    user = DATA_STORE.get_user(token_info['u_id'])
 
-    message_channel_info = helpers.get_channel_message(message_id)
+    message_id = int(message_id)
+    message = DATA_STORE.get_message(message_id)
 
-    if message_channel_info is not None:
-        channel_info = message_channel_info['channel']
-    else:
+    if message is None or message not in user.viewable_messages:
         raise InputError(description='Message does not exist')
 
-    channel_id = channel_info['channel_id']
+    react_id = int(react_id)
+    react = message.get_react(react_id)
 
-    if not helpers.is_channel_member(user_id, channel_id):
+    channel = message.channel
+
+    if channel.is_member(user.u_id):
         raise InputError(description='User is not in the channel')
 
-    if react_id not in data_store['reactions'].values():
-        raise InputError(description='react_id is invalid')
+    if react_id not in DATA_STORE.reactions.values():
+        raise InputError(description='Reaction type is invalid')
 
-    if helpers.get_react(message_id, react_id) is None:
+    if react is None:
         raise InputError(
             description='Message does not have this type of reaction')
 
-    react_removal = helpers.get_react(message_id, react_id)
-
-    if user_id not in react_removal['u_ids']:
+    if user.u_id not in react.u_ids:
         raise InputError(description='User has not reacted to this message')
 
-    if len(react_removal['u_ids']) == 1:
-        # If the current user is the only reaction on the message.
-        helpers.message_remove_reaction(react_id, message_id, channel_id)
-    else:
-        # If there are other u_ids reacting with the same react ID.
-        helpers.message_remove_react_uid(user_id, message_id, channel_id,
-                                         react_id)
+    if user in react.users:
+        react.remove_user(user)
+        user.remove_react(react)
+
+    if not react.users:
+        message.remove_react(react)
 
     return {}
 
@@ -337,33 +307,37 @@ def message_pin(token, message_id):
     Parameters:
         token (str): The user's token to be decoded to get the user's u_id.
         message_id (int): The message_id of the message.
-    
+
     Return:
         Dictionary (dict): An empty dictionary
     '''
 
+    if None in {token, message_id}:
+        raise InputError(description='Insufficient parameters')
+
     token_info = decode_token(token)
-    user_id = int(token_info['u_id'])
+    u_id = int(token_info['u_id'])
+    user = DATA_STORE.get_user(u_id)
 
-    message_channel_info = helpers.get_channel_message(message_id)
+    message_id = int(message_id)
+    message = DATA_STORE.get_message(message_id)
 
-    if message_channel_info is not None:
-        channel_info = message_channel_info['channel']
-    else:
+    if message is None:
         raise InputError(description='Message does not exist')
 
-    channel_id = channel_info['channel_id']
+    channel = message.channel
 
-    if not helpers.is_user_admin(user_id, channel_id):
-        raise InputError(description='User is not an admin')
+    if DATA_STORE.is_admin_or_owner(user, channel) is False:
+        raise InputError(
+            description='User is not an admin or owner of the channel')
 
-    if helpers.is_pinned(message_id):
+    if message.is_pinned:
         raise InputError(description='Message is already pinned')
 
-    if not helpers.is_channel_member(user_id, channel_id):
+    if user not in channel.all_members:
         raise AccessError(description='User is not a member of the channel')
 
-    helpers.message_pin(message_id, channel_id)
+    message.pin()
 
     return {}
 
@@ -375,33 +349,37 @@ def message_unpin(token, message_id):
     Parameters:
         token (str): The user's token to be decoded to get the user's u_id.
         message_id (int): The message_id of the message.
-    
+
     Return:
         Dictionary (dict): An empty dictionary
     '''
 
+    if None in {token, message_id}:
+        raise InputError(description='Insufficient parameters')
+
     token_info = decode_token(token)
-    user_id = int(token_info['u_id'])
+    u_id = int(token_info['u_id'])
+    user = DATA_STORE.get_user(u_id)
 
-    message_channel_info = helpers.get_channel_message(message_id)
+    message_id = int(message_id)
+    message = DATA_STORE.get_message(message_id)
 
-    if message_channel_info is not None:
-        channel_info = message_channel_info['channel']
-    else:
+    if message is None:
         raise InputError(description='Message does not exist')
 
-    channel_id = channel_info['channel_id']
+    channel = message.channel
 
-    if not helpers.is_user_admin(user_id, channel_id):
-        raise InputError(description='User is not an admin')
+    if DATA_STORE.is_admin_or_owner(user, channel) is False:
+        raise InputError(
+            description='User is not an admin or owner of the channel')
 
-    if not helpers.is_pinned(message_id):
+    if message.is_pinned is False:
         raise InputError(description='Message is not pinned')
 
-    if not helpers.is_channel_member(user_id, channel_id):
+    if user not in channel.all_members:
         raise AccessError(description='User is not a member of the channel')
 
-    helpers.message_unpin(message_id, channel_id)
+    message.unpin()
 
     return {}
 

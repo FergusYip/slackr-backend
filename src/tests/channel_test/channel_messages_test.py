@@ -78,7 +78,7 @@ def test_messages_remove(reset, new_user, new_channel):
     messages = channel.channel_messages(owner['token'],
                                         test_channel['channel_id'], 0)
 
-    assert len(messages['messages']) == 0
+    assert not messages['messages']
 
 
 def test_messages_id(reset, test_user):

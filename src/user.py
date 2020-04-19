@@ -8,15 +8,10 @@ import requests
 from error import InputError
 from email_validation import invalid_email
 from token_validation import decode_token
-from data_store import DATA_STORE as data_store
-import helpers
-
-# ======================================================================
-# =================== FUNCTION IMPLEMENTATION ==========================
-# ======================================================================
+from data_store import DATA_STORE, change_profile_image
 
 
-def user_profile(token, target_uid):
+def user_profile(token, u_id):
     '''
     Function that will return the profile information of a desired
     user on the Slackr platform.
@@ -24,38 +19,31 @@ def user_profile(token, target_uid):
     Parameters:
         token (str): The token of the authorized user to be decoded to get the u_id.
         target_uid (int): The u_id of the target user.
-    
+
     Return:
         Dictionary (dict): A dictionary containing values of the u_id, the
                            user's email, the user's first and last name, and
                            the user's handle.
     '''
 
+    if None in {token, u_id}:
+        raise InputError(description='Insufficient parameters')
+
     # By calling the decode function, multiple error checks are performed.
     decode_token(token)
 
-    user_info = helpers.get_user(target_uid)
+    u_id = int(u_id)
+    target_user = DATA_STORE.get_user(u_id)
 
-    if target_uid == -99:
-        user_return = data_store['deleted_user_profile']
-    elif target_uid == -95:
-        user_return = data_store['hangman_bot']
-    elif user_info is None:
+    if target_user is None:
         raise InputError(description='User ID is not a valid user')
-    else:
-        user_return = {
-            'u_id': user_info['u_id'],
-            'email': user_info['email'],
-            'name_first': user_info['name_first'],
-            'name_last': user_info['name_last'],
-            'handle_str': user_info['handle_str'],
-            'profile_img_url': user_info['profile_img_url']
-        }
 
-    return {'user': user_return}
+    print(target_user.profile)
+
+    return {'user': target_user.profile}
 
 
-def user_profile_setname(token, first_name, last_name):
+def user_profile_setname(token, name_first, name_last):
     '''
     Function that will take a desired first and last name and will change
     the authorized user's information to be updated with this information.
@@ -69,18 +57,22 @@ def user_profile_setname(token, first_name, last_name):
         Dictionary (dict): An empty dictionary.
     '''
 
-    token_info = decode_token(token)
-    user_id = token_info['u_id']
+    if None in {token, name_first, name_last}:
+        raise InputError(description='Insufficient parameters')
 
-    if not helpers.user_check_name(first_name):
+    token_info = decode_token(token)
+    u_id = token_info['u_id']
+    user = DATA_STORE.get_user(u_id)
+
+    if not 1 <= len(name_first) <= 50:
         raise InputError(
             description='First name is not between 1 and 50 characters')
 
-    if not helpers.user_check_name(last_name):
+    if not 1 <= len(name_last) <= 50:
         raise InputError(
             description='Last name is not between 1 and 50 characters')
 
-    helpers.user_change_first_last_name(user_id, first_name, last_name)
+    user.set_name(name_first, name_last)
 
     return {}
 
@@ -98,12 +90,15 @@ def user_profile_setemail(token, email):
         Dictionary (dict): An empty dictionary.
     '''
 
+    if None in {token, email}:
+        raise InputError(description='Insufficient parameters')
+
     token_info = decode_token(token)
-    user_id = token_info['u_id']
+    u_id = token_info['u_id']
 
-    user_info = helpers.get_user(user_id)
+    user = DATA_STORE.get_user(u_id)
 
-    if email == user_info['email']:
+    if email == user.email:
         # To stop an error occurring when the user either types their current
         # email address, or accidently presses the edit button. Assists with
         # a greater user experience.
@@ -112,11 +107,11 @@ def user_profile_setemail(token, email):
     if invalid_email(email):
         raise InputError(description='Email address is invalid')
 
-    if helpers.is_email_used(email):
+    if DATA_STORE.get_user(email=email) is not None:
         raise InputError(
             description='Email address is already being used by another user')
 
-    helpers.user_change_email(user_id, email)
+    user.set_email(email)
 
     return {}
 
@@ -134,26 +129,32 @@ def user_profile_sethandle(token, handle_str):
         Dictionary (dict): An empty dictionary.
     '''
 
+    if None in {token, handle_str}:
+        raise InputError(description='Insufficient parameters')
+
     token_info = decode_token(token)
-    user_id = token_info['u_id']
+    u_id = token_info['u_id']
 
-    user_info = helpers.get_user(user_id)
+    user = DATA_STORE.get_user(u_id)
 
-    if handle_str == user_info['handle_str']:
+    if handle_str == user.handle_str:
         # To stop an error occurring when the user either types their current
         # handle, or accidently presses the edit button. Assists with a greater
         # user experience.
         return {}
 
-    if not helpers.handle_length_check(handle_str):
+    if ' ' in handle_str:
+        raise InputError(description='Handle cannot contain spaces')
+
+    if not 2 <= len(handle_str) <= 20:
         raise InputError(
             description='Handle is not between 2 and 20 characters')
 
-    if helpers.is_handle_used(handle_str):
+    if DATA_STORE.get_user(handle_str=handle_str):
         raise InputError(
             description='Handle is already being used by another user')
 
-    helpers.user_change_handle(user_id, handle_str)
+    user.set_handle_str(handle_str)
 
     return {}
 
@@ -172,25 +173,37 @@ def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):
         List (list): A list containing these values.
     '''
 
-    return [x_start, y_start, x_end, y_end]
+    if None in {x_start, y_start, x_end, y_end}:
+        raise InputError(description='Insufficient parameters')
+
+    x_start = int(x_start)
+    y_start = int(y_start)
+    x_end = int(x_end)
+    y_end = int(y_end)
+
+    return (x_start, y_start, x_end, y_end)
 
 
 def user_profile_uploadphoto(token, img_url, area):
     '''
-    Function that will take a desired url and will resize this image to specific constraints,
-    flip the image where necessary, and upload this file to a path in the directory.
+    Function that will take a desired url and will resize this image to specific constraints
+    and upload this file to a path in the directory.
 
     Parameters:
         token (str): The token of the authorized user to be decoded to get the u_id.
         img_url (str): A string of the image URL to upload.
         area (list): A list containing the x_start, y_start, x_end, y_end values in that order.
-    
+
     Return:
         Dictionary (dict): An empty dictionary.
     '''
 
+    if None in [token, img_url, area]:
+        raise InputError(description='Insufficient parameters')
+
     token_info = decode_token(token)
     user_id = token_info['u_id']
+    user = DATA_STORE.get_user(user_id)
 
     req = requests.get(f'{img_url}')
     if req.status_code != 200:
@@ -214,12 +227,10 @@ def user_profile_uploadphoto(token, img_url, area):
             description='Crop constraints are outside of the image')
 
     if area[0] > area[2]:
-        img = img.transpose(Image.FLIP_LEFT_RIGHT)
-        area[0], area[2] = area[2], area[0]
+        raise InputError(description='x_end cannot be greater than x_start')
 
     if area[1] > area[3]:
-        img = img.transpose(Image.FLIP_TOP_BOTTOM)
-        area[1], area[3] = area[3], area[1]
+        raise InputError(description='y_end cannot be greater than y_start')
 
     if any(x < 0 for x in area):
         raise InputError(
@@ -228,13 +239,9 @@ def user_profile_uploadphoto(token, img_url, area):
     if not img_url.endswith('.jpg'):
         raise InputError(description='Image must be a .jpg file')
 
-    region = img.crop(area)
+    cropped_img = img.crop(area)
 
-    region.save(f'src/profile_images/{user_id}.jpg')
-
-    base_url = 'http://127.0.0.1:8080'
-    helpers.change_profile_image_url(user_id,
-                                     f'{base_url}/imgurl/{user_id}.jpg')
+    change_profile_image(cropped_img, user)
 
     return {}
 

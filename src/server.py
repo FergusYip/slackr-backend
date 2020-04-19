@@ -1,9 +1,12 @@
-'''Backend server file for slackr'''
+'''
+Flask backend server for Slackr web application
+'''
+
 import sys
 from json import dumps
 from flask import Flask, request, send_file
 from flask_cors import CORS
-from data_store import autosave
+from data_store import autosave, set_port
 
 # Route implementations
 import admin
@@ -199,7 +202,7 @@ def route_message_send():
     '''Flask route for /message/send'''
     payload = request.get_json()
     token = payload.get('token')
-    channel_id = int(payload.get('channel_id'))
+    channel_id = payload.get('channel_id')
     message = payload.get('message')
     return dumps(msg.message_send(token, channel_id, message))
 
@@ -209,7 +212,7 @@ def route_message_remove():
     '''Flask route for /message/remove'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
+    message_id = payload.get('message_id')
     return dumps(msg.message_remove(token, message_id))
 
 
@@ -218,9 +221,9 @@ def route_message_edit():
     '''Flask route for /message/edit'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
-    new_message = payload.get('message')
-    return dumps(msg.message_edit(token, message_id, new_message))
+    message_id = payload.get('message_id')
+    message = payload.get('message')
+    return dumps(msg.message_edit(token, message_id, message))
 
 
 @APP.route("/message/sendlater", methods=['POST'])
@@ -228,9 +231,9 @@ def route_message_sendlater():
     '''Flask route for /message/sendlater'''
     payload = request.get_json()
     token = payload.get('token')
-    channel_id = int(payload.get('channel_id'))
+    channel_id = payload.get('channel_id')
     message = payload.get('message')
-    time_sent = int(payload.get('time_sent'))
+    time_sent = payload.get('time_sent')
     return dumps(msg.message_sendlater(token, channel_id, message, time_sent))
 
 
@@ -239,8 +242,8 @@ def route_message_react():
     '''Flask route for /message/react'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
-    react_id = int(payload.get('react_id'))
+    message_id = payload.get('message_id')
+    react_id = payload.get('react_id')
     return dumps(msg.message_react(token, message_id, react_id))
 
 
@@ -249,8 +252,8 @@ def route_message_unreact():
     '''Flask route for /message/unreact'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
-    react_id = int(payload.get('react_id'))
+    message_id = payload.get('message_id')
+    react_id = payload.get('react_id')
     return dumps(msg.message_unreact(token, message_id, react_id))
 
 
@@ -259,7 +262,7 @@ def route_message_pin():
     '''Flask route for /message/pin'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
+    message_id = payload.get('message_id')
     return dumps(msg.message_pin(token, message_id))
 
 
@@ -268,7 +271,7 @@ def route_message_unpin():
     '''Flask route for /message/unpin'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
+    message_id = payload.get('message_id')
     return dumps(msg.message_unpin(token, message_id))
 
 
@@ -357,10 +360,10 @@ def route_user_profile_uploadphoto():
     payload = request.get_json()
     token = payload.get('token')
     img_url = payload.get('img_url')
-    x_start = int(payload.get('x_start'))
-    y_start = int(payload.get('y_start'))
-    x_end = int(payload.get('x_end'))
-    y_end = int(payload.get('y_end'))
+    x_start = payload.get('x_start')
+    y_start = payload.get('y_start')
+    x_end = payload.get('x_end')
+    y_end = payload.get('y_end')
 
     area = user.user_profile_uploadphoto_area(x_start, y_start, x_end, y_end)
     return dumps(user.user_profile_uploadphoto(token, img_url, area))
@@ -400,5 +403,6 @@ def route_hangman_guess():
 if __name__ == "__main__":
     if AUTOSAVE_ENABLED:
         autosave()
-    APP.run(debug=DEBUG_MODE,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    PORT = int(sys.argv[1]) if len(sys.argv) == 2 else 8080
+    set_port(PORT)
+    APP.run(debug=DEBUG_MODE, port=PORT)

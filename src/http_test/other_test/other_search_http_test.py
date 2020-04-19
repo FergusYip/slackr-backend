@@ -37,7 +37,7 @@ def test_search_no_channel(reset, new_user):
     search_input = {'token': user['token'], 'query_str': ''}
     search = requests.get(f'{BASE_URL}/search', params=search_input).json()
 
-    assert len(search['messages']) == 0
+    assert not search['messages']
 
 
 def test_search_empty_channel(reset, new_user, new_channel):
@@ -49,7 +49,7 @@ def test_search_empty_channel(reset, new_user, new_channel):
     search_input = {'token': user['token'], 'query_str': ''}
     search = requests.get(f'{BASE_URL}/search', params=search_input).json()
 
-    assert len(search['messages']) == 0
+    assert not search['messages']
 
 
 def test_search_single_channel(reset, new_user, new_channel):
@@ -105,7 +105,7 @@ def test_search_multiple_messages(reset, new_user, new_channel, send_msg):
 
     assert len(search_a['messages']) == 3
     assert len(search_b['messages']) == 1
-    assert len(search_romeo['messages']) == 0
+    assert not search_romeo['messages']
 
 
 def test_search_multiple_channels(reset, new_user, new_channel, send_msg):
@@ -149,7 +149,7 @@ def test_search_unauthorised_channels(reset, new_user, new_channel, send_msg):
                                 params=search_input_jerry).json()
 
     assert len(search_jerry['messages']) == 1
-    assert len(search_tom['messages']) == 0
+    assert not search_tom['messages']
 
 
 def test_search_case_insensitive(reset, new_user, new_channel, send_msg):

@@ -104,6 +104,23 @@ def test_changetocurrent(reset, new_user):
     assert not set_handle
 
 
+def test_handle_spaces(reset, new_user):
+    '''
+    Testing that trying to change the handle to a string with spaces will
+    raise an error.
+    '''
+
+    user = new_user(name_first='Jim', name_last='Nottest')
+
+    func_input = {
+        'token': user['token'],
+        'handle_str': 'hello world'
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).raise_for_status()
+
+
 def test_handle_toolong(reset, new_user):
     '''
     Testing that trying to change the handle to a length greater than 20
