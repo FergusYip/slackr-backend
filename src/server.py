@@ -6,7 +6,7 @@ import sys
 from json import dumps
 from flask import Flask, request, send_file
 from flask_cors import CORS
-from data_store import autosave
+from data_store import autosave, set_port
 
 # Route implementations
 import admin
@@ -403,5 +403,6 @@ def route_hangman_guess():
 if __name__ == "__main__":
     if AUTOSAVE_ENABLED:
         autosave()
-    APP.run(debug=DEBUG_MODE,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    port = int(sys.argv[1]) if len(sys.argv) == 2 else 8080
+    set_port(port)
+    APP.run(debug=DEBUG_MODE, port=port)

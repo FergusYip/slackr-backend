@@ -8,6 +8,7 @@ import pickle
 import helpers
 
 SECRET = 'the chunts'
+PORT = 8080
 
 
 class User:
@@ -1123,10 +1124,15 @@ def change_profile_image(img, user):
 
     img.save(f'src/profile_images/{img_id}.jpg')
 
-    base_url = 'http://127.0.0.1:6968'
+    base_url = f'http://127.0.0.1:{PORT}'
 
     url = f'{base_url}/imgurl/{img_id}.jpg'
 
     DATA_STORE.add_img_id(url)
 
     user.set_profile_img_url(url)
+
+
+def set_port(port):
+    global PORT
+    PORT = port
