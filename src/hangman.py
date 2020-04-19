@@ -91,9 +91,9 @@ def guess_hangman(token, channel_id, guess):
         message.message_send(bot_token, channel_id, win_msg)
         channel.hangman.stop()
     elif stage >= 10:
-        lose = (f"Game Over.\n"
-                f"{STAGES[stage]}\n"
-                f"The word was:  {channel.hangman.word}\n")
+        lose = (f'Game Over.\n'
+                f'{STAGES["stage"]}\n'
+                f'The word was:  {channel.hangman.word}\n')
         prev = message.message_send(bot_token, channel_id, lose)
         channel.hangman.prev_msg = prev['message_id']
 
@@ -108,10 +108,10 @@ def guess_hangman(token, channel_id, guess):
             guess_result = 'That was right!'
 
         wrong_guesses = channel.hangman.incorrect
-        incorrect = (f"{guess_result}\n"
-                     f"{STAGES[stage]}\n"
-                     f"{dashed}\n"
-                     f"You have guessed:\t[ {', '.join(wrong_guesses)} ]\n")
+        incorrect = (f'{guess_result}\n'
+                     f'{STAGES["stage"]}\n'
+                     f'{dashed}\n'
+                     f'You have guessed:\t[ {", ".join(wrong_guesses)} ]\n')
         prev = message.message_send(bot_token, channel_id, incorrect)
         channel.hangman.prev_msg = prev['message_id']
 
