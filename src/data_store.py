@@ -274,6 +274,7 @@ class HangmanBot(User):
         self._token = None
 
     def set_token(self, token):
+        ''' Setting the token for the HangmanBot class with a given token. '''
         self._token = token
 
 
@@ -795,50 +796,61 @@ class DataStore:
 
     @property
     def users(self):
+        ''' List of users in the data store (list[user_obj]) '''
         return self._users
 
     @property
     def channels(self):
+        ''' List of channels in the data store (list[channel_obj]) '''
         return self._channels
 
     @property
     def messages(self):
+        ''' List of messages in the data store (list[message_obj]) '''
         return self._messages
 
     @property
     def token_blacklist(self):
+        ''' List of blacklisted tokens in the data store (list[str]) '''
         return list(self._token_blacklist)
 
     @property
     def permissions(self):
+        ''' Dictionary of permission types in the data store (dict[int]) '''
         return dict(self._permissions)
 
     @property
     def reactions(self):
+        ''' Dictionary of all reaction types in the data store (dict[int]) '''
         return dict(self._reactions)
 
     @property
     def max_ids(self):
+        ''' Dictionary of the max ID values in the data store (dict[int]) '''
         return dict(self._max_ids)
 
     @property
     def time_created(self):
+        ''' The time the data store was created as a unix timestamp. (int) '''
         return self._time_created
 
     @property
     def preset_profiles(self):
+        ''' Dictionary of the preset profiles for the data store. (dict[user_obj]) '''
         return dict(self._preset_profiles)
 
     @property
     def reset_requests(self):
+        ''' List of reset password requests. (list[dict]) '''
         return list(self._reset_requests)
 
     @property
     def img_ids(self):
+        ''' List of img_ids currently in use. (list[str]) '''
         return list(self._img_ids)
 
     def add_user(self, new_user):
-        ''' Add a user to the data store '''
+        ''' Add a given user object to the data store. '''
         self._users.append(new_user)
 
     def delete_user(self, user):
