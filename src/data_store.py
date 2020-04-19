@@ -273,6 +273,9 @@ class HangmanBot(User):
         self._messages = []
         self._token = None
 
+    def set_token(self, token):
+        self._token = token
+
 
 class Standup:
     ''' Standup Object '''
@@ -931,7 +934,7 @@ class DataStore:
 
     def is_admin(self, user):
         '''Check if a user is an admin'''
-        return user.permission_id == DATA_STORE.permissions['owner']
+        return user.permission_id == self.permissions['owner']
 
     @property
     def all_admins(self):
@@ -943,7 +946,7 @@ class DataStore:
 
     def is_admin_or_owner(self, user, channel):
         '''Check if a user is an admin or the owner of the channel'''
-        return user.permission_id == DATA_STORE.permissions[
+        return user.permission_id == self.permissions[
             'owner'] or user in channel.owner_members
 
     def add_to_blacklist(self, token):

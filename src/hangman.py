@@ -17,7 +17,7 @@ def start_hangman(token, channel_id):
     '''
     decode_token(token)
     bot_token = token_validation.encode_token(-95)
-    DATA_STORE.preset_profiles['hangman_bot'].token = bot_token
+    DATA_STORE.preset_profiles['hangman_bot'].set_token(bot_token)
 
     # getting channel.
     channel_id = int(channel_id)
