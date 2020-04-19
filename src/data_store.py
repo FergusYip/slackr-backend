@@ -253,9 +253,10 @@ class User:
 
 class DeletedUser(User):
     ''' Deleted user object '''
+
     # Disabled pylint warning because we wanted to retain the user methods
     # but have the DeletedUser object have different initial attributes
-    def __init__(self):  # pylint: disable=W0231 
+    def __init__(self):  # pylint: disable=W0231
         self._u_id = -99
         self._email = 'deleted'
         self._name_first = 'Deleted'
@@ -266,6 +267,7 @@ class DeletedUser(User):
 
 class HangmanBot(User):
     ''' Hangman bot user object '''
+
     # Pylint reasoning same as DeletedUser
     def __init__(self):  # pylint: disable=W0231
         self._u_id = -95
