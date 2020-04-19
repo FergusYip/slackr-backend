@@ -9,6 +9,16 @@ from data_store import DATA_STORE
 
 
 def channel_invite(token, channel_id, u_id):
+    ''' Invite a user into a channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel to be invited into.
+        u_id (int): ID of the user to be invited.
+
+    Returns (dict):
+        empty dictionary.
+    '''
 
     if None in {token, channel_id, u_id}:
         raise InputError(description='Insufficient parameters')
@@ -40,6 +50,17 @@ def channel_invite(token, channel_id, u_id):
 
 
 def channel_details(token, channel_id):
+    ''' Provides relavant data of channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of the channel desired.
+
+    Returns (dict):
+        name (str): Name of channel.
+        owner_members (list): list of user IDs of owner members.
+        all_members (list): list of user IDs of all members.
+    '''
 
     if None in {token, channel_id}:
         raise InputError(description='Insufficient parameters')
@@ -65,6 +86,18 @@ def channel_details(token, channel_id):
 
 
 def channel_messages(token, channel_id, start):
+    ''' Returns 50 messages from start.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel desired.
+        start (int): start index of messages.
+
+    Returns (dict):
+        messages (list): list of 50 messages from start.
+        start (int): starting index of messages.
+        end (int): ending index of messages, -1 if last message reached.
+    '''
 
     if None in {token, channel_id, start}:
         raise InputError(description='Insufficient parameters')
@@ -104,6 +137,15 @@ def channel_messages(token, channel_id, start):
 
 
 def channel_leave(token, channel_id):
+    ''' Removes user from channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel to leave.
+
+    Returns (dict):
+        Empty dictionary.
+    '''
 
     if None in {token, channel_id}:
         raise InputError(description='Insufficient parameters')
@@ -136,6 +178,15 @@ def channel_leave(token, channel_id):
 
 
 def channel_join(token, channel_id):
+    ''' Adds user into channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel to join.
+
+    Returns:
+        Empty dictionary.
+    '''
 
     if None in {token, channel_id}:
         raise InputError(description='Insufficient parameters')
@@ -165,6 +216,16 @@ def channel_join(token, channel_id):
 
 
 def channel_addowner(token, channel_id, u_id):
+    ''' Adds user as owner of channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel desired.
+        u_id (int): ID of user to be added as owner.
+
+    Returns (dict):
+        Empty dictionary.
+    '''
 
     if None in {token, channel_id, u_id}:
         raise InputError(description='Insufficient parameters')
@@ -205,6 +266,16 @@ def channel_addowner(token, channel_id, u_id):
 
 
 def channel_removeowner(token, channel_id, u_id):
+    ''' Removes user as owner of channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel desired.
+        u_id (int): ID of user to be removed as owner.
+
+    Returns (dict):
+        Empty dictionary.
+    '''
     if None in {token, channel_id, u_id}:
         raise InputError(description='Insufficient parameters')
 
