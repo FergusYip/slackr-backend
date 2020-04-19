@@ -771,32 +771,76 @@ class React:
 class DataStore:
     ''' Data Store object for storing slackr related information '''
     def __init__(self):
-        self.users = []
-        self.channels = []
-        self.messages = []
-        self.token_blacklist = []
-        self.permissions = {'owner': 1, 'member': 2}
-        self.reactions = {'thumbs_up': 1}
-        self.max_ids = {
+        self._users = []
+        self._channels = []
+        self._messages = []
+        self._token_blacklist = []
+        self._permissions = {'owner': 1, 'member': 2}
+        self._reactions = {'thumbs_up': 1}
+        self._max_ids = {
             'u_id': 0,
             'channel_id': 0,
             'message_id': 0,
         }
-        self.time_created = helpers.utc_now()
-        self.preset_profiles = {
+        self._time_created = helpers.utc_now()
+        self._preset_profiles = {
             'deleted_user': DeletedUser(),
             'hangman_bot': HangmanBot()
         }
-        self.reset_requests = []
-        self.img_ids = []
+        self._reset_requests = []
+        self._img_ids = []
+
+    @property
+    def users(self):
+        return self._users
+
+    @property
+    def channels(self):
+        return self._channels
+
+    @property
+    def messages(self):
+        return self._messages
+
+    @property
+    def token_blacklist(self):
+        return list(self._token_blacklist)
+
+    @property
+    def permissions(self):
+        return dict(self._permissions)
+
+    @property
+    def reactions(self):
+        return dict(self._reactions)
+
+    @property
+    def max_ids(self):
+        return dict(self._max_ids)
+
+    @property
+    def time_created(self):
+        return self._time_created
+
+    @property
+    def preset_profiles(self):
+        return dict(self._preset_profiles)
+
+    @property
+    def reset_requests(self):
+        return list(self._reset_requests)
+
+    @property
+    def img_ids(self):
+        return list(self._img_ids)
 
     def add_user(self, new_user):
         ''' Add a user to the data store '''
-        self.users.append(new_user)
+        self._users.append(new_user)
 
     def delete_user(self, user):
         '''Delete a user from the data store'''
-        for channel in self.channels:
+        for channel in self._channels:
             for owner in channel.owner_members:
                 if owner == user:
                     channel.remove_owner(owner)
@@ -805,11 +849,11 @@ class DataStore:
                 if member == user:
                     channel.remove_member(member)
                     break
-        for message in self.messages:
+        for message in self._messages:
             if message.sender == user:
                 message.set_sender(self.preset_profiles['deleted_user'])
         target_user = self.get_user(user.u_id)
-        self.users.remove(target_user)
+        self._users.remove(target_user)
 
     def add_channel(self, new_channel):
         '''Add a channel to the data store'''
@@ -830,11 +874,6 @@ class DataStore:
     def remove_message(self, message):
         '''Remove a message in the data store'''
         self.messages.remove(message)
-
-    def join_channel(self, user, channel):
-        '''Make a user join a channel in the data store'''
-        user.add_channel(channel)
-        channel.add_member(user)
 
     def get_user(self, u_id=None, email=None, handle_str=None):
         '''Get a user from the data store'''
@@ -909,38 +948,26 @@ class DataStore:
 
     def add_to_blacklist(self, token):
         '''Add a token to the data store blacklist'''
-        self.token_blacklist.append(token)
+        self._token_blacklist.append(token)
 
     def generate_id(self, id_type):
         '''Generate an id of id_type'''
-        self.max_ids[id_type] += 1
+        self._max_ids[id_type] += 1
         return self.max_ids[id_type]
 
     def reset(self):
         '''Reset the data store'''
-        self.users.clear()
-        self.channels.clear()
-        self.messages.clear()
-        self.token_blacklist.clear()
-        self.reset_requests.clear()
-        self.img_ids.clear()
+        self._users.clear()
+        self._channels.clear()
+        self._messages.clear()
+        self._token_blacklist.clear()
+        self._reset_requests.clear()
+        self._img_ids.clear()
 
-        for key in self.max_ids:
-            self.max_ids[key] = 0
+        for key in self._max_ids:
+            self._max_ids[key] = 0
 
-        self.time_created = helpers.utc_now()
-
-    def generate_reset_code(self):
-        '''Generate a unique 6 digit reset code'''
-        reset_code = random.randint(100000, 999999)
-        active_codes = [
-            reset_request['reset_code']
-            for reset_request in self.reset_requests
-        ]
-        while reset_code in active_codes:
-            reset_code = random.randint(100000, 999999)
-
-        return reset_code
+        self._time_created = helpers.utc_now()
 
     def make_reset_request(self, user):
         ''' Make a reset_request
@@ -950,9 +977,12 @@ class DataStore:
             u_id (int): Requested user
 
         '''
-        reset_code = self.generate_reset_code()
+        active_codes = [
+            request['reset_code'] for request in self.reset_requests
+        ]
+        reset_code = helpers.generate_reset_code(active_codes)
         reset_request = {'reset_code': reset_code, 'u_id': user.u_id}
-        self.reset_requests.append(reset_request)
+        self._reset_requests.append(reset_request)
         return reset_code
 
     def get_reset_request(self, reset_code):
@@ -965,7 +995,7 @@ class DataStore:
             reset_code (int): Reset code
             u_id (int): Requested user
         '''
-        for request in self.reset_requests:
+        for request in self._reset_requests:
             if request['reset_code'] == reset_code:
                 return request
         return None
@@ -977,9 +1007,9 @@ class DataStore:
             reset_code (int): Reset code
 
         '''
-        for request in self.reset_requests:
+        for request in self._reset_requests:
             if request['reset_code'] == reset_code:
-                self.reset_requests.remove(request)
+                self._reset_requests.remove(request)
 
     def invalidate_reset_request_from_user(self, user):
         ''' Invalidates all reset requests made by a user
@@ -988,14 +1018,9 @@ class DataStore:
             u_id (int): User ID
 
         '''
-        for request in self.reset_requests:
+        for request in self._reset_requests:
             if request['u_id'] == user.u_id:
-                self.reset_requests.remove(request)
-
-    # @property
-    # def img_ids(self):
-    #     ''' Return a list of img_ids in the data store'''
-    #     return self._img_ids
+                self._reset_requests.remove(request)
 
     def add_img_id(self, img_id):
         ''' Add a image url to the data store

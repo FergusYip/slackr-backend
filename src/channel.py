@@ -9,9 +9,6 @@ from data_store import DATA_STORE
 
 
 def channel_invite(token, channel_id, u_id):
-    '''
-    Invite a user into a channel with ID channel_id
-    '''
 
     if None in {token, channel_id, u_id}:
         raise InputError(description='Insufficient parameters')
@@ -36,25 +33,23 @@ def channel_invite(token, channel_id, u_id):
             description='The authorised user is not a member of the channel')
 
     if channel.is_member(invitee) is False:
-        DATA_STORE.join_channel(invitee, channel)
+        invitee.add_channel(channel)
+        channel.add_member(invitee)
 
     return {}
 
 
 def channel_details(token, channel_id):
-    '''
-    Implementing details function by returning json of dictionary containing
-    relavant information of a channel.
-    '''
 
     if None in {token, channel_id}:
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
-    u_id = int(token_data['u_id'])
-    channel_id = int(channel_id)
 
+    u_id = int(token_data['u_id'])
     user = DATA_STORE.get_user(u_id)
+
+    channel_id = int(channel_id)
     channel = DATA_STORE.get_channel(channel_id)
 
     # if channel doesn't exist.
@@ -70,19 +65,17 @@ def channel_details(token, channel_id):
 
 
 def channel_messages(token, channel_id, start):
-    '''
-    Implementing invite function by appending user to channel['all_members']
-    '''
 
     if None in {token, channel_id, start}:
         raise InputError(description='Insufficient parameters')
 
-    channel_id = int(channel_id)
-    start = int(start)
-
     token_data = decode_token(token)
-    channel = DATA_STORE.get_channel(channel_id)
     user = DATA_STORE.get_user(token_data['u_id'])
+
+    channel_id = int(channel_id)
+    channel = DATA_STORE.get_channel(channel_id)
+
+    start = int(start)
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -111,10 +104,6 @@ def channel_messages(token, channel_id, start):
 
 
 def channel_leave(token, channel_id):
-    '''
-    Implementing leave function by removing user from channel['all_members']
-    and channel['owner_members']
-    '''
 
     if None in {token, channel_id}:
         raise InputError(description='Insufficient parameters')
@@ -147,9 +136,6 @@ def channel_leave(token, channel_id):
 
 
 def channel_join(token, channel_id):
-    '''
-    Implementing join function by appending user to channel['all_members']
-    '''
 
     if None in {token, channel_id}:
         raise InputError(description='Insufficient parameters')
@@ -179,9 +165,6 @@ def channel_join(token, channel_id):
 
 
 def channel_addowner(token, channel_id, u_id):
-    '''
-    Implementing addowner function by appending user to channel['owner_members']
-    '''
 
     if None in {token, channel_id, u_id}:
         raise InputError(description='Insufficient parameters')
@@ -222,9 +205,6 @@ def channel_addowner(token, channel_id, u_id):
 
 
 def channel_removeowner(token, channel_id, u_id):
-    '''
-    Implementing addowner function by appending user to channel['owner_members']
-    '''
     if None in {token, channel_id, u_id}:
         raise InputError(description='Insufficient parameters')
 
