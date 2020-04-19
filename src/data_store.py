@@ -938,7 +938,7 @@ class DataStore:
 
     def default_permission(self):
         '''Get a default permission_id from data store depending on the number of users'''
-        if len(self.users) == 0:
+        if not self.users:
             return self.permissions['owner']
         return self.permissions['member']
 
@@ -1089,7 +1089,7 @@ def generate_handle(name_first, name_last):
     handle_str = concatentation[:20]
 
     unique_modifier = 1
-    while DATA_STORE.get_user(handle_str=handle_str) or len(handle_str) == 0:
+    while DATA_STORE.get_user(handle_str=handle_str) or not handle_str:
         unique_digits = int(math.log10(unique_modifier)) + 1
         handle_str = handle_str[:len(handle_str) - unique_digits]
         handle_str += str(unique_modifier)

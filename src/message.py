@@ -44,7 +44,7 @@ def message_send(token, channel_id, message, message_id=None):
         raise InputError(
             description='Message is greater than 1,000 characters')
 
-    if len(message) == 0:
+    if not message:
         raise InputError(
             description='Message needs to be at least 1 characters')
 
@@ -145,7 +145,7 @@ def message_edit(token, message_id, message):
         raise AccessError(
             description='User does not have access to remove this message')
 
-    if len(message) == 0 and message_obj in channel.messages:
+    if not message and message_obj in channel.messages:
         channel.remove_message(message_obj)
         user.messages.remove(message_obj)
     else:
@@ -293,7 +293,7 @@ def message_unreact(token, message_id, react_id):
         react.remove_user(user)
         user.remove_react(react)
 
-    if len(react.users) == 0:
+    if not react.users:
         message.remove_react(react)
 
     return {}
