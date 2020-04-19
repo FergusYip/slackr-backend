@@ -2,7 +2,7 @@
 Functions to encode, decode, and validate JWT tokens.
 '''
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import jwt
 from error import AccessError
 from data_store import DATA_STORE
@@ -23,7 +23,6 @@ def encode_token(u_id):
     payload = {
         'u_id': u_id,
         'iat': datetime.utcnow(),
-        'exp': datetime.utcnow() + timedelta(minutes=30)
     }
     token = jwt.encode(payload, SECRET, algorithm='HS256').decode('utf-8')
     return token
@@ -45,8 +44,6 @@ def decode_token(token):
 
     try:
         payload = jwt.decode(token.encode('utf-8'), SECRET, algorithms='HS256')
-    except jwt.ExpiredSignatureError:
-        raise AccessError(description='Session has expired')
     except:
         raise AccessError(description='Token is invalid')
 

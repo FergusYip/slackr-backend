@@ -8,7 +8,7 @@ import requests
 from error import InputError
 from email_validation import invalid_email
 from token_validation import decode_token
-from data_store import DATA_STORE
+from data_store import DATA_STORE, change_profile_image
 
 
 def user_profile(token, u_id):
@@ -25,6 +25,9 @@ def user_profile(token, u_id):
                            user's email, the user's first and last name, and
                            the user's handle.
     '''
+
+    if None in {token, u_id}:
+        raise InputError(description='Insufficient parameters')
 
     # By calling the decode function, multiple error checks are performed.
     decode_token(token)
@@ -53,6 +56,9 @@ def user_profile_setname(token, name_first, name_last):
     Return:
         Dictionary (dict): An empty dictionary.
     '''
+
+    if None in {token, name_first, name_last}:
+        raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
@@ -83,6 +89,9 @@ def user_profile_setemail(token, email):
     Return:
         Dictionary (dict): An empty dictionary.
     '''
+
+    if None in {token, email}:
+        raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
@@ -120,6 +129,9 @@ def user_profile_sethandle(token, handle_str):
         Dictionary (dict): An empty dictionary.
     '''
 
+    if None in {token, handle_str}:
+        raise InputError(description='Insufficient parameters')
+
     token_info = decode_token(token)
     u_id = token_info['u_id']
 
@@ -130,6 +142,9 @@ def user_profile_sethandle(token, handle_str):
         # handle, or accidently presses the edit button. Assists with a greater
         # user experience.
         return {}
+
+    if ' ' in handle_str:
+        raise InputError(description='Handle cannot contain spaces')
 
     if not 2 <= len(handle_str) <= 20:
         raise InputError(
@@ -158,13 +173,21 @@ def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):
         List (list): A list containing these values.
     '''
 
-    return [x_start, y_start, x_end, y_end]
+    if None in {x_start, y_start, x_end, y_end}:
+        raise InputError(description='Insufficient parameters')
+
+    x_start = int(x_start)
+    y_start = int(y_start)
+    x_end = int(x_end)
+    y_end = int(y_end)
+
+    return (x_start, y_start, x_end, y_end)
 
 
 def user_profile_uploadphoto(token, img_url, area):
     '''
-    Function that will take a desired url and will resize this image to specific constraints,
-    flip the image where necessary, and upload this file to a path in the directory.
+    Function that will take a desired url and will resize this image to specific constraints
+    and upload this file to a path in the directory.
 
     Parameters:
         token (str): The token of the authorized user to be decoded to get the u_id.
@@ -174,6 +197,9 @@ def user_profile_uploadphoto(token, img_url, area):
     Return:
         Dictionary (dict): An empty dictionary.
     '''
+
+    if None in [token, img_url, area]:
+        raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
     user_id = token_info['u_id']
@@ -201,12 +227,10 @@ def user_profile_uploadphoto(token, img_url, area):
             description='Crop constraints are outside of the image')
 
     if area[0] > area[2]:
-        img = img.transpose(Image.FLIP_LEFT_RIGHT)
-        area[0], area[2] = area[2], area[0]
+        raise InputError(description='x_end cannot be greater than x_start')
 
     if area[1] > area[3]:
-        img = img.transpose(Image.FLIP_TOP_BOTTOM)
-        area[1], area[3] = area[3], area[1]
+        raise InputError(description='y_end cannot be greater than y_start')
 
     if any(x < 0 for x in area):
         raise InputError(
@@ -215,13 +239,9 @@ def user_profile_uploadphoto(token, img_url, area):
     if not img_url.endswith('.jpg'):
         raise InputError(description='Image must be a .jpg file')
 
-    region = img.crop(area)
+    cropped_img = img.crop(area)
 
-    region.save(f'src/profile_images/{user_id}.jpg')
-
-    base_url = 'http://127.0.0.1:8080'
-    user.profile_image_url = f'{base_url}/imgurl/{user_id}.jpg'
-    # user.change_profile_image_url(f'{base_url}/imgurl/{user_id}.jpg')
+    change_profile_image(cropped_img, user)
 
     return {}
 

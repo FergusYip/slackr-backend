@@ -149,7 +149,7 @@ def message_edit(token, message_id, message):
         channel.remove_message(message_obj)
         user.messages.remove(message_obj)
     else:
-        message_obj.message = message
+        message_obj.edit(message)
 
     return {}
 

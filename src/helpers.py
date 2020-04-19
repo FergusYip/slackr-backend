@@ -65,5 +65,13 @@ def check_ascii(word):
     return True
 
 
+def generate_reset_code(reset_codes):
+    '''Generate a unique 6 digit reset code'''
+    reset_code = random.randint(10**5, 10**6 - 1)
+    while reset_code in reset_codes:
+        reset_code = random.randint(100000, 999999)
+    return reset_code
+
+
 if __name__ == '__main__':
     pass

@@ -104,7 +104,8 @@ def test_uploadphoto_greater_xend(reset, test_user):
     This will flip the image horizontally.
     '''
 
-    user.user_profile_uploadphoto(test_user['token'], IMG_URL, AREA_HORIZONTAL_FLIP)
+    with pytest.raises(InputError):
+        user.user_profile_uploadphoto(test_user['token'], IMG_URL, AREA_HORIZONTAL_FLIP)
 
 
 def test_uploadphoto_greater_yend(reset, test_user):
@@ -113,49 +114,8 @@ def test_uploadphoto_greater_yend(reset, test_user):
     This will flip the image vertically.
     '''
 
-    user.user_profile_uploadphoto(test_user['token'], IMG_URL, AREA_VERTICAL_FLIP)
-
-
-def test_uploadphoto_greater_xandy_end(reset, test_user):
-    '''
-    Testing the average case scenario for if a user inputs a greater y_start location than y_end
-    and a greater x_start than x_end. This will flip the image vertically and horizontally.
-    '''
-
-    user.user_profile_uploadphoto(test_user['token'], IMG_URL, AREA_HORI_VERTI_FLIP)
-
-
-def test_uploadphoto_flip_vert_outofbounds(reset, test_user):
-    '''
-    Testing that if any of the coordinates in the cropping area are outside of the image
-    area, an error will be raised.
-    '''
-
-    invalid_area = [200, 0, -1, 943]
     with pytest.raises(InputError):
-        user.user_profile_uploadphoto(test_user['token'], IMG_URL, invalid_area)
-
-
-def test_uploadphoto_flip_horiz_outofbounds(reset, test_user):
-    '''
-    Testing that if any of the coordinates in the cropping area are outside of the image
-    area, an error will be raised.
-    '''
-
-    invalid_area = [0, 200, 200, -1]
-    with pytest.raises(InputError):
-        user.user_profile_uploadphoto(test_user['token'], IMG_URL, invalid_area)
-
-
-def test_uploadphoto_flip_horiverti_outofbounds(reset, test_user):
-    '''
-    Testing that if any of the coordinates in the cropping area are outside of the image
-    area, an error will be raised.
-    '''
-
-    invalid_area = [200, 200, -1, -1]
-    with pytest.raises(InputError):
-        user.user_profile_uploadphoto(test_user['token'], IMG_URL, invalid_area)
+        user.user_profile_uploadphoto(test_user['token'], IMG_URL, AREA_VERTICAL_FLIP)
 
 
 def test_uploadphoto_invalid_token(reset, invalid_token):

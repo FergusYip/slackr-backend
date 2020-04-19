@@ -6,7 +6,7 @@ import sys
 from json import dumps
 from flask import Flask, request, send_file
 from flask_cors import CORS
-from data_store import autosave
+from data_store import autosave, set_port
 
 # Route implementations
 import admin
@@ -360,10 +360,10 @@ def route_user_profile_uploadphoto():
     payload = request.get_json()
     token = payload.get('token')
     img_url = payload.get('img_url')
-    x_start = int(payload.get('x_start'))
-    y_start = int(payload.get('y_start'))
-    x_end = int(payload.get('x_end'))
-    y_end = int(payload.get('y_end'))
+    x_start = payload.get('x_start')
+    y_start = payload.get('y_start')
+    x_end = payload.get('x_end')
+    y_end = payload.get('y_end')
 
     area = user.user_profile_uploadphoto_area(x_start, y_start, x_end, y_end)
     return dumps(user.user_profile_uploadphoto(token, img_url, area))
@@ -403,5 +403,6 @@ def route_hangman_guess():
 if __name__ == "__main__":
     if AUTOSAVE_ENABLED:
         autosave()
-    APP.run(debug=DEBUG_MODE,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    port = int(sys.argv[1]) if len(sys.argv) == 2 else 8080
+    set_port(port)
+    APP.run(debug=DEBUG_MODE, port=port)

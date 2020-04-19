@@ -203,8 +203,8 @@ def test_xstart_greater_xend(reset, new_user):
         'x_end': 0,
         'y_end': 943
     }
-
-    requests.post(f'{BASE_URL}/user/profile/uploadphoto', json=func_input).raise_for_status()
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/user/profile/uploadphoto', json=func_input).raise_for_status()
 
 
 def test_ystart_greater_yend(reset, new_user):
@@ -222,91 +222,9 @@ def test_ystart_greater_yend(reset, new_user):
         'x_end': 200,
         'y_end': 0
     }
-
-    requests.post(f'{BASE_URL}/user/profile/uploadphoto', json=func_input).raise_for_status()
-
-
-def test_ystartandxstart_greater_yendxend(reset, new_user):
-    '''
-    Testing a case where both the x_start and y_start integers are greater
-    than the x_end and y_end respectively.
-    '''
-
-    user = new_user()
-
-    func_input = {
-        'token': user['token'],
-        'img_url': IMG_URL,
-        'x_start': 200,
-        'y_start': 200,
-        'x_end': 0,
-        'y_end': 0
-    }
-
-    requests.post(f'{BASE_URL}/user/profile/uploadphoto', json=func_input).raise_for_status()
-
-
-def test_horizontal_flip_crop_outofbounds(reset, new_user):
-    '''
-    Testing a case where the crop is out of bounds after a flip. Specifically
-    testing that the array swap does not impact the values.
-    '''
-
-    user = new_user()
-
-    func_input = {
-        'token': user['token'],
-        'img_url': IMG_URL,
-        'x_start': 200,
-        'y_start': 0,
-        'x_end': -1,
-        'y_end': 943
-    }
-
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/user/profile/uploadphoto', json=func_input).raise_for_status()
 
-
-def test_vertical_flip_crop_outofbounds(reset, new_user):
-    '''
-    Testing a case where the crop is out of bounds after a flip. Specifically
-    testing that the array swap does not impact the values.
-    '''
-
-    user = new_user()
-
-    func_input = {
-        'token': user['token'],
-        'img_url': IMG_URL,
-        'x_start': 0,
-        'y_start': 200,
-        'x_end': 200,
-        'y_end': -1
-    }
-
-    with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/user/profile/uploadphoto', json=func_input).raise_for_status()
-
-
-def test_verthoriz_flip_crop_outofbounds(reset, new_user):
-    '''
-    Testing a case where the crop is out of bounds after a flip. Specifically
-    testing that the array swap does not impact the values.
-    '''
-
-    user = new_user()
-
-    func_input = {
-        'token': user['token'],
-        'img_url': IMG_URL,
-        'x_start': 200,
-        'y_start': 200,
-        'x_end': -1,
-        'y_end': -1
-    }
-
-    with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/user/profile/uploadphoto', json=func_input).raise_for_status()
 
 
 def test_uploadphoto_invalid_token(reset, new_user, invalid_token):
