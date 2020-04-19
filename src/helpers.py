@@ -66,11 +66,20 @@ def check_ascii(word):
 
 
 def generate_reset_code(reset_codes):
-    '''Generate a unique 6 digit reset code'''
+    ''' Generate a unique 6 digit reset code '''
     reset_code = random.randint(10**5, 10**6 - 1)
     while reset_code in reset_codes:
         reset_code = random.randint(100000, 999999)
     return reset_code
+
+
+def get_filename(url):
+    ''' Extract the filename from a given url (without extension) '''
+    url = url.strip()
+    slash_index = len(url) - url[::-1].find('/')
+    dot_index = 
+    url[slash_index:]
+    return 
 
 
 if __name__ == '__main__':

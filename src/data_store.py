@@ -1113,9 +1113,10 @@ def change_profile_image(img, user):
         img (obj): An image object
         user (obj): A user object
     '''
-    profile_img = user.profile_img_url
-    if profile_img in DATA_STORE.img_ids:
-        DATA_STORE.remove_img_id(profile_img)
+    curr_id = helpers.get_jpg_filename(user.profile_img_url).replace(
+        '.jpg', '')
+    if curr_id in DATA_STORE.img_ids:
+        DATA_STORE.remove_img_id(curr_id)
 
     # Generate a random 15 digit integer.
     img_id = random.randint(10**14, 10**15 - 1)
@@ -1124,12 +1125,10 @@ def change_profile_image(img, user):
 
     img.save(f'src/profile_images/{img_id}.jpg')
 
+    DATA_STORE.add_img_id(img_id)
+
     base_url = f'http://127.0.0.1:{PORT}'
-
     url = f'{base_url}/imgurl/{img_id}.jpg'
-
-    DATA_STORE.add_img_id(url)
-
     user.set_profile_img_url(url)
 
 
