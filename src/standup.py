@@ -63,7 +63,7 @@ def stop_standup(token, channel):
 
     standup_message = channel.standup.stop()
 
-    if not standup_message:
+    if len(standup_message) > 0:
         message_send(token, channel.channel_id, standup_message)
 
 
@@ -129,7 +129,7 @@ def standup_send(token, channel_id, message):
         raise InputError(
             description='Message cannot be more than 1000 characters')
 
-    if not message:
+    if len(message) == 0:
         raise InputError(description='Message cannot be zero characters')
 
     if channel.standup.is_active is False:

@@ -195,7 +195,7 @@ def test_unreact_multiple_users(reset, new_user, new_channel):
     message_hello = requests.get(f'{BASE_URL}/channel/messages',
                                  params=func_input).json()
     # Assert that the reaction was removed as there were no u_ids in the react.
-    assert len(message_hello['messages'][0]['reacts']) == 0
+    assert not message_hello['messages'][0]['reacts']
 
 
 def test_unreact_invalid_message(reset, new_user, new_channel):

@@ -47,7 +47,7 @@ def test_listall_no_channels(reset, new_user):
     listall_input = {'token': user['token']}
     channels_list = requests.get(f'{BASE_URL}/channels/listall',
                                  params=listall_input).json()['channels']
-    assert len(channels_list) == 0
+    assert not channels_list
 
 
 def test_listall_invalid_token(reset, invalid_token):
