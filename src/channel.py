@@ -9,8 +9,15 @@ from data_store import DATA_STORE
 
 
 def channel_invite(token, channel_id, u_id):
-    '''
-    Invite a user into a channel with ID channel_id
+    ''' Invite a user into a channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel to be invited into.
+        u_id (int): ID of the user to be invited.
+
+    Returns (dict):
+        empty dictionary.
     '''
 
     if None in {token, channel_id, u_id}:
@@ -42,9 +49,16 @@ def channel_invite(token, channel_id, u_id):
 
 
 def channel_details(token, channel_id):
-    '''
-    Implementing details function by returning json of dictionary containing
-    relavant information of a channel.
+    ''' Provides relavant data of channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of the channel desired.
+
+    Returns (dict):
+        name (str): Name of channel.
+        owner_members (list): list of user IDs of owner members.
+        all_members (list): list of user IDs of all members.
     '''
 
     if None in {token, channel_id}:
@@ -69,8 +83,17 @@ def channel_details(token, channel_id):
 
 
 def channel_messages(token, channel_id, start):
-    '''
-    Implementing invite function by appending user to channel['all_members']
+    ''' Returns 50 messages from start.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel desired.
+        start (int): start index of messages.
+
+    Returns (dict):
+        messages (list): list of 50 messages from start.
+        start (int): starting index of messages.
+        end (int): ending index of messages, -1 if last message reached.
     '''
 
     if None in {token, channel_id, start}:
@@ -110,9 +133,14 @@ def channel_messages(token, channel_id, start):
 
 
 def channel_leave(token, channel_id):
-    '''
-    Implementing leave function by removing user from channel['all_members']
-    and channel['owner_members']
+    ''' Removes user from channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel to leave.
+
+    Returns (dict):
+        Empty dictionary.
     '''
 
     if None in {token, channel_id}:
@@ -146,8 +174,14 @@ def channel_leave(token, channel_id):
 
 
 def channel_join(token, channel_id):
-    '''
-    Implementing join function by appending user to channel['all_members']
+    ''' Adds user into channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel to join.
+
+    Returns:
+        Empty dictionary.
     '''
 
     if None in {token, channel_id}:
@@ -178,8 +212,15 @@ def channel_join(token, channel_id):
 
 
 def channel_addowner(token, channel_id, u_id):
-    '''
-    Implementing addowner function by appending user to channel['owner_members']
+    ''' Adds user as owner of channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel desired.
+        u_id (int): ID of user to be added as owner.
+
+    Returns (dict):
+        Empty dictionary.
     '''
 
     if None in {token, channel_id, u_id}:
@@ -219,8 +260,15 @@ def channel_addowner(token, channel_id, u_id):
 
 
 def channel_removeowner(token, channel_id, u_id):
-    '''
-    Implementing addowner function by appending user to channel['owner_members']
+    ''' Removes user as owner of channel.
+
+    Parameters:
+        token (str): JWT of session.
+        channel_id (int): ID of channel desired.
+        u_id (int): ID of user to be removed as owner.
+
+    Returns (dict):
+        Empty dictionary.
     '''
     if None in {token, channel_id, u_id}:
         raise InputError(description='Insufficient parameters')
