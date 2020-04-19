@@ -5,10 +5,9 @@ users to start a game in the channel and guess letters until they win/lose.
 
 import string
 from data_store import DATA_STORE
-from token_validation import decode_token
+from token_validation import encode_token, decode_token
 from error import InputError
 import message
-import token_validation
 
 # Game stages
 STAGES = {
@@ -31,7 +30,7 @@ def start_hangman(token, channel_id):
     Initializes the hangman game.
     '''
     decode_token(token)
-    bot_token = token_validation.encode_token(-95)
+    bot_token = encode_token(-95)
     DATA_STORE.preset_profiles['hangman_bot'].set_token(bot_token)
 
     # getting channel.
