@@ -253,7 +253,9 @@ class User:
 
 class DeletedUser(User):
     ''' Deleted user object '''
-    def __init__(self):
+    # Disabled pylint warning because we wanted to retain the user methods
+    # but have the DeletedUser object have different initial attributes
+    def __init__(self):  # pylint: disable=W0231 
         self._u_id = -99
         self._email = 'deleted'
         self._name_first = 'Deleted'
@@ -264,7 +266,8 @@ class DeletedUser(User):
 
 class HangmanBot(User):
     ''' Hangman bot user object '''
-    def __init__(self):
+    # Pylint reasoning same as DeletedUser
+    def __init__(self):  # pylint: disable=W0231
         self._u_id = -95
         self._email = 'hangmanbot'
         self._name_first = 'Hangman'
@@ -880,14 +883,6 @@ class DataStore:
         '''Add a channel to the data store'''
         self.channels.append(new_channel)
 
-    def send_message(self, user, channel, message):
-        '''Send a message in the data store'''
-        self.messages.append(message)
-        user.add_message(message)
-        channel.add_message(message)
-        message.set_sender(user)
-        message.set_channel(channel)
-
     def add_message(self, message):
         '''Add a message in the data store'''
         self.messages.append(message)
@@ -938,11 +933,6 @@ class DataStore:
             if message_id == message.message_id:
                 return message
         return None
-
-    @property
-    def permission_values(self):
-        '''Get a list of permission values from the data store'''
-        return self.permissions.values()
 
     def default_permission(self):
         '''Get a default permission_id from data store depending on the number of users'''
@@ -1133,5 +1123,5 @@ def change_profile_image(img, user):
 
 def set_port(port):
     ''' Set the port the server will run on from a given integer. '''
-    global PORT
+    global PORT  # pylint: disable=W0603
     PORT = port

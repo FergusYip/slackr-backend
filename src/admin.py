@@ -33,7 +33,7 @@ def admin_userpermission_change(token, u_id, permission_id):
     if u_id not in DATA_STORE.u_ids:
         raise InputError(description='u_id does not refer to a valid user')
 
-    if permission_id not in DATA_STORE.permission_values:
+    if permission_id not in DATA_STORE.permissions.values():
         raise InputError(
             description='permission_id does not refer to a valid permission')
 
