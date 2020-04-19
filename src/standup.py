@@ -63,7 +63,7 @@ def stop_standup(token, channel):
 
     standup_message = channel.standup.stop()
 
-    if len(standup_message) > 0:
+    if standup_message:
         message_send(token, channel.channel_id, standup_message)
 
 
