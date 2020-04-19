@@ -1133,5 +1133,6 @@ def change_profile_image(img, user):
 
 
 def set_port(port):
+    ''' Set the port the server will run on from a given integer. '''
     global PORT
     PORT = port

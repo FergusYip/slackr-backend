@@ -403,6 +403,6 @@ def route_hangman_guess():
 if __name__ == "__main__":
     if AUTOSAVE_ENABLED:
         autosave()
-    port = int(sys.argv[1]) if len(sys.argv) == 2 else 8080
-    set_port(port)
-    APP.run(debug=DEBUG_MODE, port=port)
+    PORT = int(sys.argv[1]) if len(sys.argv) == 2 else 8080
+    set_port(PORT)
+    APP.run(debug=DEBUG_MODE, port=PORT)
