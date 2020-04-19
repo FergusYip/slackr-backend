@@ -273,6 +273,10 @@ class HangmanBot(User):
         self._messages = []
         self._token = None
 
+    @property
+    def token(self):
+        return self._token
+
     def set_token(self, token):
         ''' Setting the token for the HangmanBot class with a given token. '''
         self._token = token
