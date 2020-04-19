@@ -68,7 +68,7 @@ def test_empty_owner(reset, new_user, new_channel, get_channel_details):
 
     details = get_channel_details(user1['token'], channel['channel_id'])
 
-    assert len(details['owner_members']) == 0
+    assert not details['owner_members']
     assert len(details['all_members']) == 1
 
 

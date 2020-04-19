@@ -1,5 +1,13 @@
 '''
 Testing the message_send functionality.
+
+Parameters:
+    reset: Reset is a function defined in conftest.py that restores all values
+           in the data_store back to being empty.
+    new_user: A function defined in conftest.py that will create a new user based on
+              default values that can be specified. Returns the u_id and token.
+    new_channel: A function defined in conftest.py that will create a new channel based on
+              default values that can be specified. Returns the channel_id.
 '''
 
 import requests
@@ -10,6 +18,7 @@ BASE_URL = 'http://127.0.0.1:8080'
 # =====================================================
 # ========== TESTING MESSAGE SEND FUNCTION ============
 # =====================================================
+
 
 def test_send_returntype(reset, new_user, new_channel):
     '''
@@ -25,7 +34,8 @@ def test_send_returntype(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    test_message = requests.post(f'{BASE_URL}/message/send', json=message_info).json()
+    test_message = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_info).json()
 
     assert isinstance(test_message, dict)
     assert isinstance(test_message['message_id'], int)
@@ -54,9 +64,11 @@ def test_send_message(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages',
+                                     params=func_input).json()
 
-    assert message_from_data['messages'][0]['message_id'] == test_message['message_id']
+    assert message_from_data['messages'][0]['message_id'] == test_message[
+        'message_id']
 
 
 def test_message_user(reset, new_user, new_channel):
@@ -82,7 +94,8 @@ def test_message_user(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages',
+                                     params=func_input).json()
 
     assert message_from_data['messages'][0]['u_id'] == user['u_id']
 
@@ -109,9 +122,10 @@ def test_send_reacts(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages',
+                                     params=func_input).json()
 
-    assert len(message_from_data['messages'][0]['reacts']) == 0
+    assert not message_from_data['messages'][0]['reacts']
 
 
 def test_send_pinned(reset, new_user, new_channel):
@@ -136,7 +150,8 @@ def test_send_pinned(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages',
+                                     params=func_input).json()
 
     assert not message_from_data['messages'][0]['is_pinned']
 
@@ -196,6 +211,7 @@ def test_send_invalid_channel(reset, new_user):
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/message/send',
                       json=message_info).raise_for_status()
+
 
 def test_send_channel_notmember(reset, new_user, new_channel):
     '''

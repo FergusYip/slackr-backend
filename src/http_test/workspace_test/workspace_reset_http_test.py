@@ -47,7 +47,7 @@ def test_workspace_reset_channels(reset, new_user, new_channel):
     all_channels = requests.get(f'{BASE_URL}/channels/listall',
                                 params=channels_listall_input).json()
 
-    assert len(all_channels['channels']) == 0
+    assert not all_channels['channels']
 
 
 def test_workspace_reset_old_token(reset, new_user):

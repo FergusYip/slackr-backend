@@ -36,7 +36,7 @@ def test_workspace_reset_channels(reset, new_user, new_channel):  # pylint: disa
 
     user = new_user()
     all_channels = channels_listall(user['token'])
-    assert len(all_channels['channels']) == 0
+    assert not all_channels['channels']
 
 
 def test_workspace_reset_old_token(reset, new_user):  # pylint: disable=W0613

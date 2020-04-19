@@ -19,7 +19,7 @@ def test_profile_sethandle(reset, test_user):
     user.user_profile_sethandle(test_user['token'], 'knownhandle')
     profile_info = user.user_profile(test_user['token'], test_user['u_id'])
 
-    assert profile_info['handle_str'] == 'knownhandle'
+    assert profile_info['user']['handle_str'] == 'knownhandle'
 
 
 def test_profile_sethandle_below_char_limit(reset, test_user):
@@ -40,6 +40,16 @@ def test_profile_sethandle_above_char_limit(reset, test_user):
 
     with pytest.raises(InputError):
         user.user_profile_sethandle(test_user['token'], 'i' * 21)
+
+
+def test_profile_sethandle_spaces(reset, test_user):
+    '''
+    Case where a handle change should result in an InputError if the new
+    handle contains spaces.
+    '''
+
+    with pytest.raises(InputError):
+        user.user_profile_sethandle(test_user['token'], 'hello world')
 
 
 def test_profile_sethandle_existing_handle(reset, test_user, new_user):

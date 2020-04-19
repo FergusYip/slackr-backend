@@ -77,7 +77,7 @@ def test_leave_owner(reset, new_user, new_channel):
     details = requests.get(f'{BASE_URL}/channel/details',
                            params=join_dict).json()
 
-    assert len(details['owner_members']) == 0
+    assert not details['owner_members']
 
 
 def test_leave_member(reset, new_user, new_channel):

@@ -1,5 +1,13 @@
 '''
 Testing the functionality of the user_profile_setname function.
+
+Parameters used:
+    reset: Reset is a function defined in conftest.py that restores all values
+           in the data_store back to being empty.
+    new_user: A function defined in conftest.py that will create a new user based on
+              default values that can be specified. Returns the u_id and token.
+    invalid_token: A function defined in conftest.py that creates a new user, stores the
+                   token, and logs the user out. It will then return this invalid token.
 '''
 
 import requests
@@ -46,7 +54,7 @@ def test_setfirstname(reset, new_user):
     user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_firstname = 'Jim'
 
-    assert user_pre_info['name_first'] == expected_firstname
+    assert user_pre_info['user']['name_first'] == expected_firstname
 
     # ================ TESTING ==================
 
@@ -56,12 +64,12 @@ def test_setfirstname(reset, new_user):
         'name_last': 'Test'
     }
 
-    requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).json()
+    requests.put(f'{BASE_URL}/user/profile/setname', json=func_input)
 
     user_post_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_firstname = 'John'
 
-    assert user_post_info['name_first'] == expected_firstname
+    assert user_post_info['user']['name_first'] == expected_firstname
 
 
 def test_setlastname(reset, new_user):
@@ -81,7 +89,7 @@ def test_setlastname(reset, new_user):
     user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_lastname = 'Nottest'
 
-    assert user_pre_info['name_last'] == expected_lastname
+    assert user_pre_info['user']['name_last'] == expected_lastname
 
     # ================ TESTING ==================
 
@@ -91,12 +99,12 @@ def test_setlastname(reset, new_user):
         'name_last': 'Test'
     }
 
-    requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).json()
+    requests.put(f'{BASE_URL}/user/profile/setname', json=func_input)
 
     user_post_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_lastname = 'Test'
 
-    assert user_post_info['name_last'] == expected_lastname
+    assert user_post_info['user']['name_last'] == expected_lastname
 
 
 def test_setboth(reset, new_user):
@@ -118,8 +126,8 @@ def test_setboth(reset, new_user):
     expected_firstname = 'Jim'
     expected_lastname = 'Nottest'
 
-    assert user_pre_info['name_first'] == expected_firstname
-    assert user_pre_info['name_last'] == expected_lastname
+    assert user_pre_info['user']['name_first'] == expected_firstname
+    assert user_pre_info['user']['name_last'] == expected_lastname
 
     # ================ TESTING ==================
 
@@ -129,14 +137,14 @@ def test_setboth(reset, new_user):
         'name_last': 'Test'
     }
 
-    requests.put(f'{BASE_URL}/user/profile/setname', json=func_input).json()
+    requests.put(f'{BASE_URL}/user/profile/setname', json=func_input)
 
     user_post_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_firstname = 'John'
     expected_lastname = 'Test'
 
-    assert user_post_info['name_first'] == expected_firstname
-    assert user_post_info['name_last'] == expected_lastname
+    assert user_post_info['user']['name_first'] == expected_firstname
+    assert user_post_info['user']['name_last'] == expected_lastname
 
 
 def test_invalid_firstname(reset, new_user):

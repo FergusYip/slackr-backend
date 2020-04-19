@@ -1,5 +1,13 @@
 '''
 Testing the message_unreact functionality.
+
+Parameters:
+    reset: Reset is a function defined in conftest.py that restores all values
+           in the data_store back to being empty.
+    new_user: A function defined in conftest.py that will create a new user based on
+              default values that can be specified. Returns the u_id and token.
+    new_channel: A function defined in conftest.py that will create a new channel based on
+              default values that can be specified. Returns the channel_id.
 '''
 
 import requests
@@ -27,7 +35,8 @@ def test_unreact_returntype(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # Reacting to the message with react_id of 1.
     react_input = {
@@ -45,7 +54,8 @@ def test_unreact_returntype(reset, new_user, new_channel):
         'react_id': 1
     }
 
-    unreact_return = requests.post(f'{BASE_URL}/message/unreact', json=unreact_info).json()
+    unreact_return = requests.post(f'{BASE_URL}/message/unreact',
+                                   json=unreact_info).json()
 
     assert isinstance(unreact_return, dict)
 
@@ -66,7 +76,8 @@ def test_unreact_message(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # Adding a reaction to the message.
     react_input = {
@@ -84,8 +95,10 @@ def test_unreact_message(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
-    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][0] == user['u_id']
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages',
+                                     params=func_input).json()
+    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][0] == user[
+        'u_id']
 
     unreact_info = {
         'token': user['token'],
@@ -95,10 +108,11 @@ def test_unreact_message(reset, new_user, new_channel):
 
     requests.post(f'{BASE_URL}/message/unreact', json=unreact_info)
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages',
+                                     params=func_input).json()
 
     # Assert there are no values in the list of reactions.
-    assert len(message_from_data['messages'][0]['reacts']) == 0
+    assert not message_from_data['messages'][0]['reacts']
 
 
 def test_unreact_multiple_users(reset, new_user, new_channel):
@@ -126,7 +140,8 @@ def test_unreact_multiple_users(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # Adding a reaction to the message as user.
     react_input = {
@@ -148,7 +163,8 @@ def test_unreact_multiple_users(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages',
+                                     params=func_input).json()
 
     assert len(message_from_data['messages'][0]['reacts'][0]['u_ids']) == 2
 
@@ -162,21 +178,24 @@ def test_unreact_multiple_users(reset, new_user, new_channel):
     requests.post(f'{BASE_URL}/message/unreact', json=unreact_info)
 
     # Update the list of messages in the channel.
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages',
+                                     params=func_input).json()
 
     # Assert there remains only one reaction type.
     assert len(message_from_data['messages'][0]['reacts']) == 1
     # Assert the zero indexed react u_id is now the second_user.
-    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][0] == second_user['u_id']
+    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][
+        0] == second_user['u_id']
 
     # Unreacting as second_user.
     unreact_info['token'] = second_user['token']
     requests.post(f'{BASE_URL}/message/unreact', json=unreact_info)
 
     # Updating the list of messages in the channel.
-    message_hello = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
+    message_hello = requests.get(f'{BASE_URL}/channel/messages',
+                                 params=func_input).json()
     # Assert that the reaction was removed as there were no u_ids in the react.
-    assert len(message_hello['messages'][0]['reacts']) == 0
+    assert not message_hello['messages'][0]['reacts']
 
 
 def test_unreact_invalid_message(reset, new_user, new_channel):
@@ -194,7 +213,8 @@ def test_unreact_invalid_message(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # Add a reaction to the message.
     react_input = {
@@ -207,13 +227,10 @@ def test_unreact_invalid_message(reset, new_user, new_channel):
 
     # Attempt to unreact to a message_id that does not exist.
     # (ID #2 does not exist)
-    unreact_info = {
-        'token': user['token'],
-        'message_id': 2,
-        'react_id': 1
-    }
+    unreact_info = {'token': user['token'], 'message_id': 2, 'react_id': 1}
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/unreact', json=unreact_info).raise_for_status()
+        requests.post(f'{BASE_URL}/message/unreact',
+                      json=unreact_info).raise_for_status()
 
 
 def test_unreact_notchannelmember(reset, new_user, new_channel):
@@ -242,7 +259,8 @@ def test_unreact_notchannelmember(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # Reacting to the message as second_user.
     react_input = {
@@ -268,8 +286,10 @@ def test_unreact_notchannelmember(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=function_input).json()
-    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][0] == second_user['u_id']
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages',
+                                     params=function_input).json()
+    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][
+        0] == second_user['u_id']
 
     # Attempting to unreact as second_user should raise an error.
     unreact_info = {
@@ -279,7 +299,8 @@ def test_unreact_notchannelmember(reset, new_user, new_channel):
     }
 
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/unreact', json=unreact_info).raise_for_status()
+        requests.post(f'{BASE_URL}/message/unreact',
+                      json=unreact_info).raise_for_status()
 
 
 def test_unreact_invalid_reactid(reset, new_user, new_channel):
@@ -298,7 +319,8 @@ def test_unreact_invalid_reactid(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # Reacting to the message with react_id of 1.
     react_input = {
@@ -316,7 +338,8 @@ def test_unreact_invalid_reactid(reset, new_user, new_channel):
         'react_id': 2
     }
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/unreact', json=unreact_info).raise_for_status()
+        requests.post(f'{BASE_URL}/message/unreact',
+                      json=unreact_info).raise_for_status()
 
 
 def test_notyetreacted(reset, new_user, new_channel):
@@ -335,7 +358,8 @@ def test_notyetreacted(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # Attempting to unreact to a message that the user has not yet reacted to.
     unreact_info = {
@@ -345,7 +369,8 @@ def test_notyetreacted(reset, new_user, new_channel):
     }
 
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/unreact', json=unreact_info).raise_for_status()
+        requests.post(f'{BASE_URL}/message/unreact',
+                      json=unreact_info).raise_for_status()
 
 
 def test_uid_not_reacted(reset, new_user, new_channel):
@@ -374,7 +399,8 @@ def test_uid_not_reacted(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # Reacting to the message as user.
     react_input = {
@@ -392,7 +418,8 @@ def test_uid_not_reacted(reset, new_user, new_channel):
         'react_id': 1
     }
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/unreact', json=unreact_info).raise_for_status()
+        requests.post(f'{BASE_URL}/message/unreact',
+                      json=unreact_info).raise_for_status()
 
 
 def test_unreact_invalid_token(reset, new_user, new_channel):
@@ -411,7 +438,8 @@ def test_unreact_invalid_token(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     func_input = {
         'token': user['token'],
@@ -430,4 +458,5 @@ def test_unreact_invalid_token(reset, new_user, new_channel):
         'react_id': 1
     }
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/unreact', json=unreact_info).raise_for_status()
+        requests.post(f'{BASE_URL}/message/unreact',
+                      json=unreact_info).raise_for_status()

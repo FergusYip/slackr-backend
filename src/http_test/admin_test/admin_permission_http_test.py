@@ -1,4 +1,4 @@
-'''Pytest script for testing /auth/logout route'''
+'''Pytest script for testing /admin/permission/change route'''
 import requests
 import pytest
 
@@ -101,15 +101,44 @@ def test_admin_userpermission_change_self(reset, new_user):
     '''Test that admin can change their own permission value'''
 
     admin = new_user(email='admin@slackr.com')
+    member = new_user(email='plebian@slackr.com')
 
-    permission_input = {
+    # Change member to admin
+    member_to_admin = {
+        'token': admin['token'],
+        'u_id': member['u_id'],
+        'permission_id': 1
+    }
+
+    requests.post(f'{BASE_URL}/admin/userpermission/change',
+                  json=member_to_admin).raise_for_status()
+
+    # Change self (admin) to member
+    admin_to_member = {
         'token': admin['token'],
         'u_id': admin['u_id'],
         'permission_id': 2
     }
 
     requests.post(f'{BASE_URL}/admin/userpermission/change',
-                  json=permission_input).raise_for_status()
+                  json=admin_to_member).raise_for_status()
+
+    # Attempt to change permission as a member
+    with pytest.raises(requests.HTTPError):
+        requests.post(f'{BASE_URL}/admin/userpermission/change',
+                      json=admin_to_member).raise_for_status()
+
+
+def test_admin_userpermission_change_no_owner(reset, new_user):
+    '''Test that error is raised when change would result in no owener'''
+
+    admin = new_user(email='admin@slackr.com')
+
+    permission_input = {
+        'token': admin['token'],
+        'u_id': admin['u_id'],
+        'permission_id': 2
+    }
 
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/admin/userpermission/change',

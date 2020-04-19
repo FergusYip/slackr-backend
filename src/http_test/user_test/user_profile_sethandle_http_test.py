@@ -1,5 +1,13 @@
 '''
 Testing the functionality of the user_profile_sethandle function.
+
+Parameters used:
+    reset: Reset is a function defined in conftest.py that restores all values
+           in the data_store back to being empty.
+    new_user: A function defined in conftest.py that will create a new user based on
+              default values that can be specified. Returns the u_id and token.
+    invalid_token: A function defined in conftest.py that creates a new user, stores the
+                   token, and logs the user out. It will then return this invalid token.
 '''
 
 import requests
@@ -26,6 +34,7 @@ def test_profile_sethandle_return(reset, new_user):
     set_handle = requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).json()
 
     assert isinstance(set_handle, dict)
+    assert not set_handle
 
 
 def test_sethandle(reset, new_user):
@@ -45,7 +54,7 @@ def test_sethandle(reset, new_user):
     user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_handle = 'jimnottest'
 
-    assert user_pre_info['handle_str'] == expected_handle
+    assert user_pre_info['user']['handle_str'] == expected_handle
 
     # ================ TESTING ==================
 
@@ -54,12 +63,12 @@ def test_sethandle(reset, new_user):
         'handle_str': 'uniquehandle'
     }
 
-    requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).json()
+    requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input)
 
     user_post_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_handle = 'uniquehandle'
 
-    assert user_post_info['handle_str'] == expected_handle
+    assert user_post_info['user']['handle_str'] == expected_handle
 
 
 def test_changetocurrent(reset, new_user):
@@ -80,7 +89,7 @@ def test_changetocurrent(reset, new_user):
     user_pre_info = requests.get(f'{BASE_URL}/user/profile', params=input_for_profile).json()
     expected_handle = 'jimnottest'
 
-    assert user_pre_info['handle_str'] == expected_handle
+    assert user_pre_info['user']['handle_str'] == expected_handle
 
     # ================ TESTING ==================
 
@@ -92,6 +101,24 @@ def test_changetocurrent(reset, new_user):
     set_handle = requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).json()
 
     assert isinstance(set_handle, dict)
+    assert not set_handle
+
+
+def test_handle_spaces(reset, new_user):
+    '''
+    Testing that trying to change the handle to a string with spaces will
+    raise an error.
+    '''
+
+    user = new_user(name_first='Jim', name_last='Nottest')
+
+    func_input = {
+        'token': user['token'],
+        'handle_str': 'hello world'
+    }
+
+    with pytest.raises(requests.HTTPError):
+        requests.put(f'{BASE_URL}/user/profile/sethandle', json=func_input).raise_for_status()
 
 
 def test_handle_toolong(reset, new_user):
@@ -147,7 +174,7 @@ def test_handle_used(reset, new_user):
     expected_handle = 'jimnottest'
 
     # Assert that string expected_handle is being used.
-    assert user_info['handle_str'] == expected_handle
+    assert user_info['user']['handle_str'] == expected_handle
 
     # ================ TESTING ==================
 

@@ -36,7 +36,7 @@ def test_listall_no_channels(reset, test_user):  # pylint: disable=W0613
     '''Test that channels_listall doesn't return any channels when there aren't any'''
 
     all_channels = channels.channels_listall(test_user['token'])['channels']
-    assert len(all_channels) == 0
+    assert not all_channels
 
 
 def test_listall_invalid_token(reset, invalid_token):  # pylint: disable=W0613

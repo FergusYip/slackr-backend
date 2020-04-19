@@ -37,7 +37,7 @@ def test_list(reset, new_user, new_channel):
                                    params=list_input_2).json()
 
     assert len(user_1_channels['channels']) == 1
-    assert len(user_2_channels['channels']) == 0
+    assert not user_2_channels['channels']
 
 
 def test_list_no_channels(reset, new_user):
@@ -46,7 +46,7 @@ def test_list_no_channels(reset, new_user):
     list_input = {'token': user['token']}
     channels_list = requests.get(f'{BASE_URL}/channels/list',
                                  params=list_input).json()['channels']
-    assert len(channels_list) == 0
+    assert not channels_list
 
 
 def test_list_invalid_token(reset, invalid_token):

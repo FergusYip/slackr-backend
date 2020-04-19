@@ -115,7 +115,7 @@ def test_message_remove(reset, new_user, new_channel):
     message_history = requests.get(f'{BASE_URL}/channel/messages',
                                    params=history_in).json()
 
-    assert len(message_history['messages']) == 0
+    assert not message_history['messages']
 
 
 def test_invalid_id(reset, new_user, new_channel):

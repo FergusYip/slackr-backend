@@ -1,9 +1,12 @@
-'''Backend server file for slackr'''
+'''
+Flask backend server for Slackr web application
+'''
+
 import sys
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, send_file
 from flask_cors import CORS
-from data_store import autosave
+from data_store import autosave, set_port
 
 # Route implementations
 import admin
@@ -15,12 +18,13 @@ import other
 import standup
 import user
 import workspace
+import hangman
 
 AUTOSAVE_ENABLED = True
 DEBUG_MODE = not AUTOSAVE_ENABLED  # Do not change this line
 
 
-def defaultHandler(err):
+def default_handler(err):
     '''Default handler for errors'''
     response = err.get_response()
     print('response', err, err.get_response())
@@ -37,7 +41,7 @@ APP = Flask(__name__)
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
-APP.register_error_handler(Exception, defaultHandler)
+APP.register_error_handler(Exception, default_handler)
 
 
 @APP.route('/admin/userpermission/change', methods=['POST'])
@@ -48,6 +52,15 @@ def route_admin_userpermission_change():
     u_id = payload.get('u_id')
     permission_id = payload.get('permission_id')
     return dumps(admin.admin_userpermission_change(token, u_id, permission_id))
+
+
+@APP.route('/admin/user/remove', methods=['DELETE'])
+def route_admin_user_remove():
+    '''Flask route for /admin/userpermission/change'''
+    payload = request.get_json()
+    token = payload.get('token')
+    u_id = payload.get('u_id')
+    return dumps(admin.admin_user_remove(token, u_id))
 
 
 @APP.route("/auth/register", methods=['POST'])
@@ -76,6 +89,23 @@ def route_auth_logout():
     payload = request.get_json()
     token = payload.get('token')
     return dumps(auth.auth_logout(token))
+
+
+@APP.route("/auth/passwordreset/request", methods=['POST'])
+def route_auth_passwordreset_request():
+    '''Flask route for /auth/passwordreset/request'''
+    payload = request.get_json()
+    email = payload.get('email')
+    return dumps(auth.auth_passwordreset_request(email))
+
+
+@APP.route("/auth/passwordreset/reset", methods=['POST'])
+def route_auth_passwordreset_reset():
+    '''Flask route for /auth/logout'''
+    payload = request.get_json()
+    reset_code = payload.get('reset_code')
+    new_password = payload.get('new_password')
+    return dumps(auth.auth_passwordreset_reset(reset_code, new_password))
 
 
 @APP.route("/channel/invite", methods=['POST'])
@@ -172,7 +202,7 @@ def route_message_send():
     '''Flask route for /message/send'''
     payload = request.get_json()
     token = payload.get('token')
-    channel_id = int(payload.get('channel_id'))
+    channel_id = payload.get('channel_id')
     message = payload.get('message')
     return dumps(msg.message_send(token, channel_id, message))
 
@@ -182,7 +212,7 @@ def route_message_remove():
     '''Flask route for /message/remove'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
+    message_id = payload.get('message_id')
     return dumps(msg.message_remove(token, message_id))
 
 
@@ -191,9 +221,9 @@ def route_message_edit():
     '''Flask route for /message/edit'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
-    new_message = payload.get('message')
-    return dumps(msg.message_edit(token, message_id, new_message))
+    message_id = payload.get('message_id')
+    message = payload.get('message')
+    return dumps(msg.message_edit(token, message_id, message))
 
 
 @APP.route("/message/sendlater", methods=['POST'])
@@ -201,9 +231,9 @@ def route_message_sendlater():
     '''Flask route for /message/sendlater'''
     payload = request.get_json()
     token = payload.get('token')
-    channel_id = int(payload.get('channel_id'))
+    channel_id = payload.get('channel_id')
     message = payload.get('message')
-    time_sent = int(payload.get('time_sent'))
+    time_sent = payload.get('time_sent')
     return dumps(msg.message_sendlater(token, channel_id, message, time_sent))
 
 
@@ -212,8 +242,8 @@ def route_message_react():
     '''Flask route for /message/react'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
-    react_id = int(payload.get('react_id'))
+    message_id = payload.get('message_id')
+    react_id = payload.get('react_id')
     return dumps(msg.message_react(token, message_id, react_id))
 
 
@@ -222,8 +252,8 @@ def route_message_unreact():
     '''Flask route for /message/unreact'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
-    react_id = int(payload.get('react_id'))
+    message_id = payload.get('message_id')
+    react_id = payload.get('react_id')
     return dumps(msg.message_unreact(token, message_id, react_id))
 
 
@@ -232,7 +262,7 @@ def route_message_pin():
     '''Flask route for /message/pin'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
+    message_id = payload.get('message_id')
     return dumps(msg.message_pin(token, message_id))
 
 
@@ -241,7 +271,7 @@ def route_message_unpin():
     '''Flask route for /message/unpin'''
     payload = request.get_json()
     token = payload.get('token')
-    message_id = int(payload.get('message_id'))
+    message_id = payload.get('message_id')
     return dumps(msg.message_unpin(token, message_id))
 
 
@@ -324,14 +354,55 @@ def route_user_profile_sethandle():
     return dumps(user.user_profile_sethandle(token, desired_handle))
 
 
+@APP.route('/user/profile/uploadphoto', methods=['POST'])
+def route_user_profile_uploadphoto():
+    '''Flask route for /user/profile/uploadphoto'''
+    payload = request.get_json()
+    token = payload.get('token')
+    img_url = payload.get('img_url')
+    x_start = payload.get('x_start')
+    y_start = payload.get('y_start')
+    x_end = payload.get('x_end')
+    y_end = payload.get('y_end')
+
+    area = user.user_profile_uploadphoto_area(x_start, y_start, x_end, y_end)
+    return dumps(user.user_profile_uploadphoto(token, img_url, area))
+
+
+@APP.route('/imgurl/<imgsrc>', methods=['GET'])
+def route_img_display(imgsrc):
+    '''Flask route for /imgurl'''
+    return send_file(f'./profile_images/{imgsrc}')
+
+
 @APP.route("/workspace/reset", methods=['POST'])
 def route_workspace_reset():
     ''' Flask route for /workspace/reset'''
     return dumps(workspace.workspace_reset())
 
 
+@APP.route("/hangman/start", methods=['POST'])
+def route_hangman_start():
+    '''Flask route for /hangman/start'''
+    payload = request.get_json()
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    return dumps(hangman.start_hangman(token, channel_id))
+
+
+@APP.route("/hangman/guess", methods=['POST'])
+def route_hangman_guess():
+    '''Flask route for /hangman/start'''
+    payload = request.get_json()
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    guess = payload.get('guess')
+    return dumps(hangman.guess_hangman(token, channel_id, guess))
+
+
 if __name__ == "__main__":
     if AUTOSAVE_ENABLED:
         autosave()
-    APP.run(debug=DEBUG_MODE,
-            port=(int(sys.argv[1]) if len(sys.argv) == 2 else 8080))
+    PORT = int(sys.argv[1]) if len(sys.argv) == 2 else 8080
+    set_port(PORT)
+    APP.run(debug=DEBUG_MODE, port=PORT)
