@@ -1113,8 +1113,7 @@ def change_profile_image(img, user):
         img (obj): An image object
         user (obj): A user object
     '''
-    curr_id = helpers.get_jpg_filename(user.profile_img_url).replace(
-        '.jpg', '')
+    curr_id = helpers.get_filename(user.profile_img_url).replace('.jpg', '')
     if curr_id in DATA_STORE.img_ids:
         DATA_STORE.remove_img_id(curr_id)
 
