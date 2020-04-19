@@ -143,6 +143,27 @@ disable=print-statement,
         duplicate-code,
         redefined-outer-name
 
+# ==========================================================================================
+# ============================== REASONING FOR EXCLUSIONS ==================================
+# ==========================================================================================
+
+# ADDED UNUSED-ARGUMENT TO PYLINT DISABLE
+      # Our reset data store function is called in every test but does not need to be
+      # referred to in the test.
+
+# ADDED DUPLICATE-CODE TO PYLINT DISABLE
+      # All of our tests and modules have similar styling at the beginning with many
+      # having the same imports and a basic ascii art title. This has been disables only
+      # after checking to make sure these are the only cases where this occurs.
+
+# ADDED REDEFINED-OUTER-NAME TO PYLINT DISABLE
+      # Many of our tests use names that are similar to a different module's variable names.
+      # This element has no effect on the test outcome.
+
+# ==========================================================================================
+# ================================ PYLINT CONFIGURATION ====================================
+# ==========================================================================================
+
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
