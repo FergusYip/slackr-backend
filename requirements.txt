@@ -2,3 +2,6 @@ flask
 flask-cors
 Pillow
 wikiquote
+pytest
+pyjwt
+requests
