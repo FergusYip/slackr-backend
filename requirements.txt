@@ -5,4 +5,3 @@ wikiquote
 pytest
 pyjwt
 requests
-gunicorn
