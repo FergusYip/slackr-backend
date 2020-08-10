@@ -7,7 +7,7 @@ import threading
 import pickle
 import helpers
 
-SECRET = 'the chunts'
+SECRET = 'secret'
 PORT = 8080
 
 

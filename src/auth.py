@@ -179,8 +179,8 @@ def email_reset_code(email, reset_code):
     Return:
         (bool): Whether the email was sent successfully
     '''
-    sender = 'thechunts.slackr@gmail.com'
-    password = 'chuntsslackr'
+    sender = None
+    password = None
 
     message = EmailMessage()
     message['Subject'] = 'Slackr: Password Reset Code'
