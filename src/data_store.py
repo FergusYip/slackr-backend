@@ -1062,8 +1062,8 @@ def save():
 
 
 def autosave():
-    '''Thread to save state every minutes'''
-    timer = threading.Timer(60.0 * 30, autosave)
+    '''Thread to save state every day'''
+    timer = threading.Timer(86400, autosave)
     timer.start()
     save()
 
