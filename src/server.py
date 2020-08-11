@@ -400,8 +400,9 @@ def route_hangman_guess():
     return dumps(hangman.guess_hangman(token, channel_id, guess))
 
 
+if AUTOSAVE_ENABLED:
+    autosave()
+
 if __name__ == "__main__":
-    if AUTOSAVE_ENABLED:
-        autosave()
     PORT = int(sys.argv[1]) if len(sys.argv) == 2 else 8080
     APP.run(debug=DEBUG_MODE, port=PORT)

@@ -1059,12 +1059,11 @@ except FileNotFoundError:
 def save():
     '''Save the state of the data_store into a pickle'''
     pickle.dump(DATA_STORE, open('data_store.p', 'wb'))
-    print('saved')
 
 
 def autosave():
-    '''Thread to save state every second'''
-    timer = threading.Timer(5.0, autosave)
+    '''Thread to save state every minutes'''
+    timer = threading.Timer(60.0 * 30, autosave)
     timer.start()
     save()
 
