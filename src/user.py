@@ -38,8 +38,6 @@ def user_profile(token, u_id):
     if target_user is None:
         raise InputError(description='User ID is not a valid user')
 
-    print(target_user.profile)
-
     return {'user': target_user.profile}
 
 
