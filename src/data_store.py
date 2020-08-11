@@ -6,9 +6,7 @@ import math
 import threading
 import pickle
 import helpers
-
-SECRET = 'secret'
-PORT = 8080
+import config
 
 
 class User:
@@ -1061,6 +1059,7 @@ except FileNotFoundError:
 def save():
     '''Save the state of the data_store into a pickle'''
     pickle.dump(DATA_STORE, open('data_store.p', 'wb'))
+    print('saved')
 
 
 def autosave():
@@ -1118,12 +1117,6 @@ def change_profile_image(img, user):
 
     DATA_STORE.add_img_id(img_id)
 
-    base_url = f'http://127.0.0.1:{PORT}'
+    base_url = config.URL
     url = f'{base_url}/imgurl/{img_id}.jpg'
     user.set_profile_img_url(url)
-
-
-def set_port(port):
-    ''' Set the port the server will run on from a given integer. '''
-    global PORT  # pylint: disable=W0603
-    PORT = port

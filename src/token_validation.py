@@ -6,8 +6,7 @@ from datetime import datetime
 import jwt
 from error import AccessError
 from data_store import DATA_STORE
-
-SECRET = 'the chunts'
+from config import SECRET
 
 
 def encode_token(u_id):

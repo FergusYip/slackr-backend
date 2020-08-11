@@ -6,7 +6,7 @@ import sys
 from json import dumps
 from flask import Flask, request, send_file
 from flask_cors import CORS
-from data_store import autosave, set_port
+from data_store import autosave
 
 # Route implementations
 import admin
@@ -404,5 +404,4 @@ if __name__ == "__main__":
     if AUTOSAVE_ENABLED:
         autosave()
     PORT = int(sys.argv[1]) if len(sys.argv) == 2 else 8080
-    set_port(PORT)
     APP.run(debug=DEBUG_MODE, port=PORT)
