@@ -116,10 +116,13 @@ def channel_messages(token, channel_id, start):
 
     end = start + 50
 
+    sent_messages = [m for m in channel.messages if not m.is_hidden]
+    sent_messages.sort(key=lambda m: m.time_created)
+
     messages = []
     for i in range(50):
         try:
-            message = channel.messages[start + i]
+            message = sent_messages[start + i]
             messages.append(message.details(user))
         except IndexError:
             end = -1

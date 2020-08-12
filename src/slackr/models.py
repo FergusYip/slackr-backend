@@ -177,6 +177,7 @@ class Message(db.Model):
     )
     reacts = db.relationship("React", backref="message", lazy=True)
     is_pinned = db.Column(db.Boolean, default=False)
+    is_hidden = db.Column(db.Boolean, default=False)
 
     def __init__(self, message, u_id, channel_id):
         self.message = message
