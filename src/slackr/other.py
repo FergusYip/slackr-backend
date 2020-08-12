@@ -3,8 +3,8 @@ Functions to provide miscellaneous services to the program. Will allow
 users to get a list of all users and search for messages.
 '''
 
-from slackr.data_store import DATA_STORE
 from slackr.token_validation import decode_token
+from slackr.models import User
 
 
 def users_all(token):
@@ -18,8 +18,7 @@ def users_all(token):
 
 	'''
     decode_token(token)
-    users = DATA_STORE.users_all
-    return {'users': users}
+    return {'users': [user.profile for user in User.query.all()]}
 
 
 def search(token, query_str):
@@ -35,11 +34,12 @@ def search(token, query_str):
 
 	'''
     token_payload = decode_token(token)
-    user = DATA_STORE.get_user(token_payload['u_id'])
-    messages = [
-        message.details(user) for message in user.viewable_messages
-        if query_str.lower() in message.message.lower()
-    ]
+    user = User.query.get(token_payload['u_id'])
+    messages = []
+    for channel in user.channels:
+        for message in channel.messages:
+            if query_str.lower() in message.message.lower():
+                messages.append(message.details(user))
     return {'messages': messages}
 
 
