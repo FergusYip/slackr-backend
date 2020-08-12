@@ -1,1 +1,1 @@
-web: gunicorn server:APP --chdir src --threads 2
+web: gunicorn slackr:APP --chdir src --threads 2
