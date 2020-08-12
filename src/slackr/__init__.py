@@ -2,7 +2,7 @@ from json import dumps
 from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-from slackr.utils.constants import SQL
+from slackr.utils.constants import DATABASE_URL
 
 
 def default_handler(err):
@@ -22,7 +22,7 @@ APP = Flask(__name__)
 CORS(APP)
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
 APP.register_error_handler(Exception, default_handler)
-APP.config['SQLALCHEMY_DATABASE_URI'] = SQL
+APP.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(APP)
 
