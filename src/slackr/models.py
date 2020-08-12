@@ -110,6 +110,7 @@ class User(db.Model):
     permission_id = db.Column(db.Integer)
     messages = db.relationship('Message', backref='sender', lazy=True)
     reacts = db.relationship("React", secondary=user_react_identifier)
+    profile_img_url = db.Column(db.String(2000))
 
     def __init__(self, email, password, name_first, name_last, handle):
         self.email = email
@@ -118,7 +119,7 @@ class User(db.Model):
         self.name_last = name_last
         self.handle_str = handle
         self.permission_id = PERMISSIONS['member']
-        # self.profile_img_url = helpers.default_profile_img()
+        self.profile_img_url = helpers.default_profile_img()
 
     def __repr__(self):
         return f'{self.email}: {self.name_first}'
@@ -141,8 +142,8 @@ class User(db.Model):
             'email': self.email,
             'name_first': self.name_first,
             'name_last': self.name_last,
-            'handle_str': self.handle_str
-            # 'profile_img_url': self.profile_img_url
+            'handle_str': self.handle_str,
+            'profile_img_url': self.profile_img_url
         }
 
     @property
@@ -347,6 +348,11 @@ class ExpiredToken(db.Model):
 
     def __init__(self, token):
         self.token = token
+
+
+class ImageID(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_id = db.Column(db.String(15))
 
 
 db.create_all()
