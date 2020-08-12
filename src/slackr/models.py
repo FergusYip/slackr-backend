@@ -46,6 +46,28 @@ class User(db.Model):
     def __repr__(self):
         return f'{self.email}: {self.name_first}'
 
+    @property
+    def profile(self):
+        ''' Get a dictionary of the user's profile
+
+        Returns (dict):
+            u_id (int): User ID
+            email (str): Email
+            name_first (str): First name
+            name_last (str): Last name
+            handle_str (str): Handle
+            profile_img_url (str): Url of profile image
+
+        '''
+        return {
+            'u_id': self.u_id,
+            'email': self.email,
+            'name_first': self.name_first,
+            'name_last': self.name_last,
+            'handle_str': self.handle_str
+            # 'profile_img_url': self._profile_img_url
+        }
+
 
 class Channel(db.Model):
     channel_id = db.Column(db.Integer, primary_key=True)

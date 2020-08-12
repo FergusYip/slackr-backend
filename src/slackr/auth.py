@@ -119,6 +119,7 @@ def auth_logout(token):
     decode_token(token)
 
     db.session.add(ExpiredToken(token))
+    db.session.commit()
 
     is_success = ExpiredToken.query.filter_by(token=token).first() is not None
 

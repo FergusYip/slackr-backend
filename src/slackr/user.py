@@ -9,6 +9,8 @@ from slackr.error import InputError
 from slackr.email_validation import invalid_email
 from slackr.token_validation import decode_token
 from slackr.data_store import DATA_STORE, change_profile_image
+from slackr.models import User
+from slackr import db
 
 
 def user_profile(token, u_id):
@@ -32,8 +34,7 @@ def user_profile(token, u_id):
     # By calling the decode function, multiple error checks are performed.
     decode_token(token)
 
-    u_id = int(u_id)
-    target_user = DATA_STORE.get_user(u_id)
+    target_user = User.query.get(u_id)
 
     if target_user is None:
         raise InputError(description='User ID is not a valid user')
@@ -60,7 +61,7 @@ def user_profile_setname(token, name_first, name_last):
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
-    user = DATA_STORE.get_user(u_id)
+    user = User.query.get(u_id)
 
     if not 1 <= len(name_first) <= 50:
         raise InputError(
@@ -70,7 +71,9 @@ def user_profile_setname(token, name_first, name_last):
         raise InputError(
             description='Last name is not between 1 and 50 characters')
 
-    user.set_name(name_first, name_last)
+    user.name_first = name_first
+    user.name_last = name_last
+    db.session.commit()
 
     return {}
 
@@ -93,23 +96,19 @@ def user_profile_setemail(token, email):
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
+    user = User.query.get(u_id)
 
-    user = DATA_STORE.get_user(u_id)
+    if email != user.email:
+        if invalid_email(email):
+            raise InputError(description='Email address is invalid')
 
-    if email == user.email:
-        # To stop an error occurring when the user either types their current
-        # email address, or accidently presses the edit button. Assists with
-        # a greater user experience.
-        return {}
+        if User.query.filter_by(email=email).first() is not None:
+            raise InputError(
+                description=
+                'Email address is already being used by another user')
 
-    if invalid_email(email):
-        raise InputError(description='Email address is invalid')
-
-    if DATA_STORE.get_user(email=email) is not None:
-        raise InputError(
-            description='Email address is already being used by another user')
-
-    user.set_email(email)
+        user.email = email
+        db.session.commit()
 
     return {}
 
@@ -132,27 +131,22 @@ def user_profile_sethandle(token, handle_str):
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
+    user = User.query.get(u_id)
 
-    user = DATA_STORE.get_user(u_id)
+    if handle_str != user.handle_str:
+        if ' ' in handle_str:
+            raise InputError(description='Handle cannot contain spaces')
 
-    if handle_str == user.handle_str:
-        # To stop an error occurring when the user either types their current
-        # handle, or accidently presses the edit button. Assists with a greater
-        # user experience.
-        return {}
+        if not 2 <= len(handle_str) <= 20:
+            raise InputError(
+                description='Handle is not between 2 and 20 characters')
 
-    if ' ' in handle_str:
-        raise InputError(description='Handle cannot contain spaces')
+        if User.query.filter_by(handle_str=handle_str).first():
+            raise InputError(
+                description='Handle is already being used by another user')
 
-    if not 2 <= len(handle_str) <= 20:
-        raise InputError(
-            description='Handle is not between 2 and 20 characters')
-
-    if DATA_STORE.get_user(handle_str=handle_str):
-        raise InputError(
-            description='Handle is already being used by another user')
-
-    user.set_handle_str(handle_str)
+        user.handle_str = handle_str
+        db.session.commit()
 
     return {}
 
@@ -201,7 +195,7 @@ def user_profile_uploadphoto(token, img_url, area):
 
     token_info = decode_token(token)
     user_id = token_info['u_id']
-    user = DATA_STORE.get_user(user_id)
+    user = User.query.get()
 
     req = requests.get(f'{img_url}')
     if req.status_code != 200:
