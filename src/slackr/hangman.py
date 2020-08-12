@@ -4,10 +4,10 @@ users to start a game in the channel and guess letters until they win/lose.
 '''
 
 import string
-from data_store import DATA_STORE
-from token_validation import encode_token, decode_token
-from error import InputError
-import message
+from slackr.data_store import DATA_STORE
+from slackr.token_validation import encode_token, decode_token
+from slackr.error import InputError
+import slackr.message
 
 # Game stages
 STAGES = {

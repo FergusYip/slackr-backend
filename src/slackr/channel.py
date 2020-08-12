@@ -3,9 +3,11 @@ Functions to provide channel management services to the program. Will allow
 users to join, invite, leave, view details, view messages, and manage owners.
 '''
 
-from error import AccessError, InputError
-from token_validation import decode_token
-from data_store import DATA_STORE
+from slackr.error import AccessError, InputError
+from slackr.token_validation import decode_token
+from slackr import db
+from slackr.models import User, Channel
+from slackr.utils.constants import PERMISSIONS
 
 
 def channel_invite(token, channel_id, u_id):
@@ -23,14 +25,10 @@ def channel_invite(token, channel_id, u_id):
     if None in {token, channel_id, u_id}:
         raise InputError(description='Insufficient parameters')
 
-    channel_id = int(channel_id)
-    channel = DATA_STORE.get_channel(channel_id)
-
-    u_id = int(u_id)
-    invitee = DATA_STORE.get_user(u_id)
-
     token_data = decode_token(token)
-    inviter = DATA_STORE.get_user(token_data['u_id'])
+    inviter = User.query.get(token_data['u_id'])
+    invitee = User.query.get(u_id)
+    channel = Channel.query.get(channel_id)
 
     if channel is None:
         raise InputError(description='Channel does not exist')
@@ -43,14 +41,14 @@ def channel_invite(token, channel_id, u_id):
             description='The authorised user is not a member of the channel')
 
     if channel.is_member(invitee) is False:
-        invitee.add_channel(channel)
-        channel.add_member(invitee)
+        channel.all_members.append(invitee)
+        db.session.commit()
 
     return {}
 
 
 def channel_details(token, channel_id):
-    ''' Provides relavant data of channel.
+    ''' Provides relevant data of channel.
 
     Parameters:
         token (str): JWT of session.
@@ -66,12 +64,8 @@ def channel_details(token, channel_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
-
-    u_id = int(token_data['u_id'])
-    user = DATA_STORE.get_user(u_id)
-
-    channel_id = int(channel_id)
-    channel = DATA_STORE.get_channel(channel_id)
+    user = User.query.get(int(token_data['u_id']))
+    channel = Channel.query.get(int(channel_id))
 
     # if channel doesn't exist.
     if channel is None:
@@ -103,10 +97,8 @@ def channel_messages(token, channel_id, start):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
-    user = DATA_STORE.get_user(token_data['u_id'])
-
-    channel_id = int(channel_id)
-    channel = DATA_STORE.get_channel(channel_id)
+    user = User.query.get(int(token_data['u_id']))
+    channel = Channel.query.get(int(channel_id))
 
     start = int(start)
 
@@ -124,10 +116,13 @@ def channel_messages(token, channel_id, start):
 
     end = start + 50
 
+    sent_messages = [m for m in channel.messages if not m.is_hidden]
+    sent_messages.sort(key=lambda m: m.time_created)
+
     messages = []
     for i in range(50):
         try:
-            message = channel.messages[start + i]
+            message = sent_messages[start + i]
             messages.append(message.details(user))
         except IndexError:
             end = -1
@@ -151,10 +146,8 @@ def channel_leave(token, channel_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
-    user = DATA_STORE.get_user(token_data['u_id'])
-
-    channel_id = int(channel_id)
-    channel = DATA_STORE.get_channel(channel_id)
+    user = User.query.get(int(token_data['u_id']))
+    channel = Channel.query.get(int(channel_id))
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -166,13 +159,12 @@ def channel_leave(token, channel_id):
             description='The authorised user is not a member of the channel')
 
     if user in channel.all_members:
-        channel.remove_member(user)
+        channel.all_members.remove(user)
 
     if user in channel.owner_members:
-        channel.remove_owner(user)
+        channel.owner_members.remove(user)
 
-    if channel in user.channels:
-        user.remove_channel(channel)
+    db.session.commit()
 
     return {}
 
@@ -192,10 +184,10 @@ def channel_join(token, channel_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
-    user = DATA_STORE.get_user(token_data['u_id'])
+    user = User.query.get(int(token_data['u_id']))
 
     channel_id = int(channel_id)
-    channel = DATA_STORE.get_channel(channel_id)
+    channel = Channel.query.get(int(channel_id))
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -207,10 +199,8 @@ def channel_join(token, channel_id):
 
     # Add user to channel if user is not already a member.
     if channel.is_member(user) is False:
-        channel.add_member(user)
-
-    if channel not in user.channels:
-        user.add_channel(channel)
+        channel.all_members.append(user)
+        db.session.commit()
 
     return {}
 
@@ -231,13 +221,9 @@ def channel_addowner(token, channel_id, u_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
-    admin = DATA_STORE.get_user(token_data['u_id'])
-
-    channel_id = int(channel_id)
-    channel = DATA_STORE.get_channel(channel_id)
-
-    u_id = int(u_id)
-    user = DATA_STORE.get_user(u_id)
+    admin = User.query.get(token_data['u_id'])
+    channel = Channel.query.get(int(channel_id))
+    user = User.query.get(u_id)
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -252,7 +238,8 @@ def channel_addowner(token, channel_id, u_id):
         raise InputError(description='User already owner of channel.')
 
     # access error when authorized user not owner of channel or owner of slackr.
-    if not DATA_STORE.is_admin(admin) and not channel.is_owner(admin):
+    if admin.permission_id != PERMISSIONS['owner'] and not channel.is_owner(
+            admin):
         raise AccessError(
             description='The authorised user is not an owner of the channel')
 
@@ -260,7 +247,8 @@ def channel_addowner(token, channel_id, u_id):
         raise InputError(
             description='The authorised user is not a member of the channel')
 
-    channel.add_owner(user)
+    channel.owner_members.append(user)
+    db.session.commit()
 
     return {}
 
@@ -280,13 +268,11 @@ def channel_removeowner(token, channel_id, u_id):
         raise InputError(description='Insufficient parameters')
 
     token_data = decode_token(token)
-    admin = DATA_STORE.get_user(token_data['u_id'])
+    admin = User.query.get(token_data['u_id'])
 
     channel_id = int(channel_id)
-    channel = DATA_STORE.get_channel(channel_id)
-
-    u_id = int(u_id)
-    user = DATA_STORE.get_user(u_id)
+    channel = Channel.query.get(int(channel_id))
+    user = User.query.get(int(u_id))
 
     # input error if channel doesn't exist.
     if channel is None:
@@ -302,11 +288,13 @@ def channel_removeowner(token, channel_id, u_id):
             description='The authorised user is not an owner of the channel')
 
     # access error when authorized user not owner of channel or owner of slackr.
-    if not DATA_STORE.is_admin(admin) and not channel.is_owner(admin):
+    if admin.permission_id != PERMISSIONS['owner'] and not channel.is_owner(
+            admin):
         raise AccessError(
             description='The authorised user is not a member of the channel')
 
-    channel.remove_owner(user)
+    channel.owner_members.remove(user)
+    db.session.commit()
 
     return {}
 

@@ -5,10 +5,7 @@ import random
 import math
 import threading
 import pickle
-import helpers
-
-SECRET = 'secret'
-PORT = 8080
+from slackr import helpers
 
 
 class User:
@@ -66,7 +63,7 @@ class User:
         self._email = email
 
     def set_name(self, name_first, name_last):
-        ''' Set the user's firt and last name
+        ''' Set the user's first and last name
 
         Parameters:
             name_first (str): First name
@@ -132,7 +129,7 @@ class User:
             email (str): Email
             name_first (str): First name
             name_last (str): Last name
-            handle_strd (str): Handle
+            handle_str (str): Handle
             profile_img_url (str): Url of profile image
 
         '''
@@ -152,7 +149,7 @@ class User:
         Returns (dict):
             name_first (str): First name
             name_last (str): Last name
-            handle_strd (str): Handle
+            handle_str (str): Handle
             profile_img_url (str): Url of profile image
 
         '''
@@ -651,7 +648,7 @@ class Message:
             user (obj): An object of a user.
 
         Returns (dict):
-            message_id (int): The message's unqiue identification number.
+            message_id (int): The message's unique identification number.
             u_id (int): The user who sent the message's u_id.
             message (str): The contents of the message to be sent.
             time_created (int): A unix timestamp of when the message was sent.
@@ -1064,38 +1061,10 @@ def save():
 
 
 def autosave():
-    '''Thread to save state every second'''
-    timer = threading.Timer(5.0, autosave)
+    '''Thread to save state every day'''
+    timer = threading.Timer(5, autosave)
     timer.start()
     save()
-
-
-def generate_handle(name_first, name_last):
-    """ Generate a handle based on name_first and name_last
-
-    Parameters:
-        name_first (str): First name
-        name_last (str): Last name
-
-    Returns:
-        handle_str (str): Unique handle
-
-    """
-    # strip all whitespace in the first and last name
-    name_first = name_first.replace(' ', '')
-    name_last = name_last.replace(' ', '')
-
-    concatentation = name_first.lower() + name_last.lower()
-    handle_str = concatentation[:20]
-
-    unique_modifier = 1
-    while DATA_STORE.get_user(handle_str=handle_str) or not handle_str:
-        unique_digits = int(math.log10(unique_modifier)) + 1
-        handle_str = handle_str[:len(handle_str) - unique_digits]
-        handle_str += str(unique_modifier)
-        unique_modifier += 1
-
-    return handle_str
 
 
 def change_profile_image(img, user):
@@ -1118,12 +1087,6 @@ def change_profile_image(img, user):
 
     DATA_STORE.add_img_id(img_id)
 
-    base_url = f'http://127.0.0.1:{PORT}'
-    url = f'{base_url}/imgurl/{img_id}.jpg'
-    user.set_profile_img_url(url)
-
-
-def set_port(port):
-    ''' Set the port the server will run on from a given integer. '''
-    global PORT  # pylint: disable=W0603
-    PORT = port
+    # base_url = .URL
+    # url = f'{base_url}/imgurl/{img_id}.jpg'
+    # user.set_profile_img_url(url)

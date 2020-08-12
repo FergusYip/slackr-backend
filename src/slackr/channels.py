@@ -3,9 +3,10 @@ Functions to provide channel creation and lists to the program. Will allow
 users to create channels and generate lists of channels.
 '''
 
-from error import InputError
-from data_store import DATA_STORE, Channel
-from token_validation import decode_token
+from slackr.error import InputError
+from slackr.token_validation import decode_token
+from slackr import db
+from slackr.models import User, Channel
 
 
 def channels_list(token):
@@ -21,7 +22,7 @@ def channels_list(token):
         raise InputError(description='Insufficient parameters')
 
     token_payload = decode_token(token)
-    user = DATA_STORE.get_user(token_payload['u_id'])
+    user = User.query.get(token_payload['u_id'])
     channels = [channel.id_name for channel in user.channels]
     return {'channels': channels}
 
@@ -40,9 +41,8 @@ def channels_listall(token):
         raise InputError(description='Insufficient parameters')
 
     decode_token(token)
-    channels = [
-        channel.id_name for channel in DATA_STORE.channels if channel.is_public
-    ]
+    public_channels = Channel.query.filter_by(is_public=True).all()
+    channels = [channel.id_name for channel in public_channels]
     return {'channels': channels}
 
 
@@ -66,10 +66,12 @@ def channels_create(token, name, is_public):
     if len(name) > 20:
         raise InputError(description='Name is more than 20 characters long')
 
-    user = DATA_STORE.get_user(token_payload['u_id'])
+    user = User.query.get(token_payload['u_id'])
     channel = Channel(user, name, is_public)
-    DATA_STORE.add_channel(channel)
-    user.add_channel(channel)
+
+    db.session.add(channel)
+    db.session.commit()
+
     return {'channel_id': channel.channel_id}
 
 

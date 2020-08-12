@@ -4,6 +4,7 @@ import hashlib
 import random
 from datetime import datetime, timezone
 import wikiquote
+from slackr.utils.constants import URL
 
 
 def utc_now():
@@ -35,13 +36,16 @@ def hash_pw(password):
 
 def default_profile_img():
     ''' Return a link to a randomised default image'''
-    colors = {
-        'blue': 'https://i.imgur.com/HrDzaJo.jpg',
-        'green': 'https://i.imgur.com/jETb01M.jpg',
-        'purple': 'https://i.imgur.com/qmX0dIZ.jpg',
-        'red': 'https://i.imgur.com/FTKy1XA.jpg'
-    }
-    return random.choice(list(colors.values()))
+
+    # colors = {
+    #     'blue': 'https://i.imgur.com/HrDzaJo.jpg',
+    #     'green': 'https://i.imgur.com/jETb01M.jpg',
+    #     'purple': 'https://i.imgur.com/qmX0dIZ.jpg',
+    #     'red': 'https://i.imgur.com/FTKy1XA.jpg'
+    # }
+    # return random.choice(list(colors.values()))
+
+    return f'{URL}/imgurl/defaults/default_profile_pic.jpg'
 
 
 def get_word():

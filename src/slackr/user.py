@@ -3,12 +3,16 @@ Functionality for users of the program to get other user's profile information,
 as well as change their own personal information.
 '''
 
+import random
 from PIL import Image
 import requests
-from error import InputError
-from email_validation import invalid_email
-from token_validation import decode_token
-from data_store import DATA_STORE, change_profile_image
+from slackr.error import InputError
+from slackr.email_validation import invalid_email
+from slackr.token_validation import decode_token
+from slackr.models import User, ImageID
+from slackr import db
+from slackr.utils.constants import URL
+from slackr import helpers
 
 
 def user_profile(token, u_id):
@@ -32,8 +36,7 @@ def user_profile(token, u_id):
     # By calling the decode function, multiple error checks are performed.
     decode_token(token)
 
-    u_id = int(u_id)
-    target_user = DATA_STORE.get_user(u_id)
+    target_user = User.query.get(u_id)
 
     if target_user is None:
         raise InputError(description='User ID is not a valid user')
@@ -60,7 +63,7 @@ def user_profile_setname(token, name_first, name_last):
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
-    user = DATA_STORE.get_user(u_id)
+    user = User.query.get(u_id)
 
     if not 1 <= len(name_first) <= 50:
         raise InputError(
@@ -70,7 +73,9 @@ def user_profile_setname(token, name_first, name_last):
         raise InputError(
             description='Last name is not between 1 and 50 characters')
 
-    user.set_name(name_first, name_last)
+    user.name_first = name_first
+    user.name_last = name_last
+    db.session.commit()
 
     return {}
 
@@ -93,23 +98,19 @@ def user_profile_setemail(token, email):
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
+    user = User.query.get(u_id)
 
-    user = DATA_STORE.get_user(u_id)
+    if email != user.email:
+        if invalid_email(email):
+            raise InputError(description='Email address is invalid')
 
-    if email == user.email:
-        # To stop an error occurring when the user either types their current
-        # email address, or accidently presses the edit button. Assists with
-        # a greater user experience.
-        return {}
+        if User.query.filter_by(email=email).first() is not None:
+            raise InputError(
+                description=
+                'Email address is already being used by another user')
 
-    if invalid_email(email):
-        raise InputError(description='Email address is invalid')
-
-    if DATA_STORE.get_user(email=email) is not None:
-        raise InputError(
-            description='Email address is already being used by another user')
-
-    user.set_email(email)
+        user.email = email
+        db.session.commit()
 
     return {}
 
@@ -132,27 +133,22 @@ def user_profile_sethandle(token, handle_str):
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
+    user = User.query.get(u_id)
 
-    user = DATA_STORE.get_user(u_id)
+    if handle_str != user.handle_str:
+        if ' ' in handle_str:
+            raise InputError(description='Handle cannot contain spaces')
 
-    if handle_str == user.handle_str:
-        # To stop an error occurring when the user either types their current
-        # handle, or accidently presses the edit button. Assists with a greater
-        # user experience.
-        return {}
+        if not 2 <= len(handle_str) <= 20:
+            raise InputError(
+                description='Handle is not between 2 and 20 characters')
 
-    if ' ' in handle_str:
-        raise InputError(description='Handle cannot contain spaces')
+        if User.query.filter_by(handle_str=handle_str).first():
+            raise InputError(
+                description='Handle is already being used by another user')
 
-    if not 2 <= len(handle_str) <= 20:
-        raise InputError(
-            description='Handle is not between 2 and 20 characters')
-
-    if DATA_STORE.get_user(handle_str=handle_str):
-        raise InputError(
-            description='Handle is already being used by another user')
-
-    user.set_handle_str(handle_str)
+        user.handle_str = handle_str
+        db.session.commit()
 
     return {}
 
@@ -182,6 +178,31 @@ def user_profile_uploadphoto_area(x_start, y_start, x_end, y_end):
     return (x_start, y_start, x_end, y_end)
 
 
+def change_profile_image(img, user):
+    ''' Function to change the profile image url of a given user.
+
+    Parameters:
+        img (obj): An image object
+        user (obj): A user object
+    '''
+    curr_id = helpers.get_filename(user.profile_img_url).replace('.jpg', '')
+    image_id = ImageID.query.filter_by(image_id=curr_id).first()
+
+    # Generate a random 15 digit integer.
+    img_id = random.randint(10**14, 10**15 - 1)
+    while img_id in [image.image_id for image in ImageID.query.all()]:
+        img_id = random.randint(10**14, 10**15 - 1)
+
+    img.save(f'src/profile_images/{img_id}.jpg')
+
+    url = f'{URL}/imgurl/{img_id}.jpg'
+    user.profile_img_url = url
+    if not image_id:
+        image_id = ImageID()
+    image_id.image_id = img_id
+    db.session.commit()
+
+
 def user_profile_uploadphoto(token, img_url, area):
     '''
     Function that will take a desired url and will resize this image to specific constraints
@@ -201,7 +222,7 @@ def user_profile_uploadphoto(token, img_url, area):
 
     token_info = decode_token(token)
     user_id = token_info['u_id']
-    user = DATA_STORE.get_user(user_id)
+    user = User.query.get(user_id)
 
     req = requests.get(f'{img_url}')
     if req.status_code != 200:

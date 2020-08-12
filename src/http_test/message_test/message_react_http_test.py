@@ -35,7 +35,8 @@ def test_react_returntype(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     react_input = {
         'token': user['token'],
@@ -43,7 +44,8 @@ def test_react_returntype(reset, new_user, new_channel):
         'react_id': 1
     }
 
-    react_return = requests.post(f'{BASE_URL}/message/react', json=react_input).json()
+    react_return = requests.post(f'{BASE_URL}/message/react',
+                                 json=react_input).json()
 
     assert isinstance(react_return, dict)
 
@@ -64,7 +66,8 @@ def test_add_react(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     react_input = {
         'token': user['token'],
@@ -80,10 +83,13 @@ def test_add_react(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=func_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages',
+                                     params=func_input).json()
 
     assert len(message_from_data['messages'][0]['reacts']) == 1
-    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][0] == user['u_id']
+    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][0] == user[
+        'u_id']
+
 
 def test_react_invalid_message(reset, new_user, new_channel):
     '''
@@ -103,14 +109,11 @@ def test_react_invalid_message(reset, new_user, new_channel):
     requests.post(f'{BASE_URL}/message/send', json=message_input)
 
     # Message ID of 2 does not exist. (only ID #1 exists)
-    react_input = {
-        'token': user['token'],
-        'message_id': 2,
-        'react_id': 1
-    }
+    react_input = {'token': user['token'], 'message_id': 2, 'react_id': 1}
 
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/react', json=react_input).raise_for_status()
+        requests.post(f'{BASE_URL}/message/react',
+                      json=react_input).raise_for_status()
 
 
 def test_react_messagenotinchannel(reset, new_user, new_channel):
@@ -131,14 +134,11 @@ def test_react_messagenotinchannel(reset, new_user, new_channel):
     requests.post(f'{BASE_URL}/message/send', json=message_input)
 
     # Message with ID 2 does not exist.
-    react_input = {
-        'token': user['token'],
-        'message_id': 2,
-        'react_id': 1
-    }
+    react_input = {'token': user['token'], 'message_id': 2, 'react_id': 1}
 
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/react', json=react_input).raise_for_status()
+        requests.post(f'{BASE_URL}/message/react',
+                      json=react_input).raise_for_status()
 
 
 def test_react_notinchannel(reset, new_user, new_channel):
@@ -157,13 +157,11 @@ def test_react_notinchannel(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # Leave the channel as user.
-    leave_input = {
-        'token': user['token'],
-        'channel_id': channel['channel_id']
-    }
+    leave_input = {'token': user['token'], 'channel_id': channel['channel_id']}
 
     requests.post(f'{BASE_URL}/channel/leave', json=leave_input)
 
@@ -175,7 +173,8 @@ def test_react_notinchannel(reset, new_user, new_channel):
     }
 
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/react', json=react_input).raise_for_status()
+        requests.post(f'{BASE_URL}/message/react',
+                      json=react_input).raise_for_status()
 
 
 def test_invalid_reactid(reset, new_user, new_channel):
@@ -194,7 +193,8 @@ def test_invalid_reactid(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # React ID of 2 does not exist. (only ID #1 exists)
     react_input = {
@@ -204,7 +204,8 @@ def test_invalid_reactid(reset, new_user, new_channel):
     }
 
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/react', json=react_input).raise_for_status()
+        requests.post(f'{BASE_URL}/message/react',
+                      json=react_input).raise_for_status()
 
 
 def test_react_already_reacted(reset, new_user, new_channel):
@@ -223,7 +224,8 @@ def test_react_already_reacted(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     react_input = {
         'token': user['token'],
@@ -235,7 +237,8 @@ def test_react_already_reacted(reset, new_user, new_channel):
 
     # If the user attempts to react again, it should raise an error.
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/react', json=react_input).raise_for_status()
+        requests.post(f'{BASE_URL}/message/react',
+                      json=react_input).raise_for_status()
 
 
 def test_react_multiple_users(reset, new_user, new_channel):
@@ -265,7 +268,8 @@ def test_react_multiple_users(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # Making user react to the message.
     react_input = {
@@ -288,13 +292,16 @@ def test_react_multiple_users(reset, new_user, new_channel):
         'start': 0
     }
 
-    message_from_data = requests.get(f'{BASE_URL}/channel/messages', params=function_input).json()
+    message_from_data = requests.get(f'{BASE_URL}/channel/messages',
+                                     params=function_input).json()
 
     # Should still only be one reaction, just with multiple IDs.
     assert len(message_from_data['messages'][0]['reacts']) == 1
     # Should append u_ids in the order that they reacted.
-    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][0] == user['u_id']
-    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][1] == second_user['u_id']
+    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][0] == user[
+        'u_id']
+    assert message_from_data['messages'][0]['reacts'][0]['u_ids'][
+        1] == second_user['u_id']
 
 
 def test_react_invalid_token(reset, new_user, new_channel):
@@ -313,7 +320,8 @@ def test_react_invalid_token(reset, new_user, new_channel):
         'message': 'Message'
     }
 
-    message_info = requests.post(f'{BASE_URL}/message/send', json=message_input).json()
+    message_info = requests.post(f'{BASE_URL}/message/send',
+                                 json=message_input).json()
 
     # Logging the user out.
     token = user['token']
@@ -326,4 +334,5 @@ def test_react_invalid_token(reset, new_user, new_channel):
     }
 
     with pytest.raises(requests.HTTPError):
-        requests.post(f'{BASE_URL}/message/react', json=func_input).raise_for_status()
+        requests.post(f'{BASE_URL}/message/react',
+                      json=func_input).raise_for_status()
