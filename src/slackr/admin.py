@@ -53,6 +53,7 @@ def admin_userpermission_change(token, u_id, permission_id):
         )
 
     user.permission_id = permission_id
+    db.session.commit()
 
     return {}
 
