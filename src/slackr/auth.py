@@ -5,11 +5,11 @@ register, login, logout, and reset their password.
 
 import smtplib
 from email.message import EmailMessage
-from error import InputError
-from email_validation import invalid_email
-from data_store import DATA_STORE, User
-from token_validation import decode_token, encode_token
-import helpers
+from slackr.error import InputError
+from slackr.email_validation import invalid_email
+from slackr.data_store import DATA_STORE, User
+from slackr.token_validation import decode_token, encode_token
+import slackr.helpers
 
 
 def auth_register(email, password, name_first, name_last):

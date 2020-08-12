@@ -3,8 +3,8 @@ Functions to provide miscellaneous services to the program. Will allow
 users to get a list of all users and search for messages.
 '''
 
-from data_store import DATA_STORE
-from token_validation import decode_token
+from slackr.data_store import DATA_STORE
+from slackr.token_validation import decode_token
 
 
 def users_all(token):

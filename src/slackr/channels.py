@@ -3,9 +3,9 @@ Functions to provide channel creation and lists to the program. Will allow
 users to create channels and generate lists of channels.
 '''
 
-from error import InputError
-from data_store import DATA_STORE, Channel
-from token_validation import decode_token
+from slackr.error import InputError
+from slackr.data_store import DATA_STORE, Channel
+from slackr.token_validation import decode_token
 
 
 def channels_list(token):

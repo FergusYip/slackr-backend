@@ -1,5 +1,5 @@
 '''
-Functions to provide admininistrative management tools on the program. Will
+Functions to provide administrative management tools on the program. Will
 allow admins to change user permissions and delete users.
 '''
 

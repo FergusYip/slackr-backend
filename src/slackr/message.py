@@ -5,10 +5,10 @@ their own messages.
 '''
 
 import threading
-from error import AccessError, InputError
-from data_store import DATA_STORE, Message, React
-from token_validation import decode_token
-import helpers
+from slackr.error import AccessError, InputError
+from slackr.data_store import DATA_STORE, Message, React
+from slackr.token_validation import decode_token
+import slackr.helpers
 
 
 def message_send(token, channel_id, message, message_id=None):

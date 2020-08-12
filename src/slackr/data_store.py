@@ -5,7 +5,7 @@ import random
 import math
 import threading
 import pickle
-import helpers
+from slackr import helpers
 
 SECRET = 'secret'
 PORT = 8080
@@ -66,7 +66,7 @@ class User:
         self._email = email
 
     def set_name(self, name_first, name_last):
-        ''' Set the user's firt and last name
+        ''' Set the user's first and last name
 
         Parameters:
             name_first (str): First name
@@ -132,7 +132,7 @@ class User:
             email (str): Email
             name_first (str): First name
             name_last (str): Last name
-            handle_strd (str): Handle
+            handle_str (str): Handle
             profile_img_url (str): Url of profile image
 
         '''
@@ -152,7 +152,7 @@ class User:
         Returns (dict):
             name_first (str): First name
             name_last (str): Last name
-            handle_strd (str): Handle
+            handle_str (str): Handle
             profile_img_url (str): Url of profile image
 
         '''
@@ -651,7 +651,7 @@ class Message:
             user (obj): An object of a user.
 
         Returns (dict):
-            message_id (int): The message's unqiue identification number.
+            message_id (int): The message's unique identification number.
             u_id (int): The user who sent the message's u_id.
             message (str): The contents of the message to be sent.
             time_created (int): A unix timestamp of when the message was sent.

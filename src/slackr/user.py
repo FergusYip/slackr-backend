@@ -5,10 +5,10 @@ as well as change their own personal information.
 
 from PIL import Image
 import requests
-from error import InputError
-from email_validation import invalid_email
-from token_validation import decode_token
-from data_store import DATA_STORE, change_profile_image
+from slackr.error import InputError
+from slackr.email_validation import invalid_email
+from slackr.token_validation import decode_token
+from slackr.data_store import DATA_STORE, change_profile_image
 
 
 def user_profile(token, u_id):

@@ -4,44 +4,20 @@ Flask backend server for Slackr web application
 
 import sys
 from json import dumps
-from flask import Flask, request, send_file
-from flask_cors import CORS
-from data_store import autosave, set_port
+from flask import request, send_file
+from slackr import APP
 
 # Route implementations
-import admin
-import auth
-import channel
-import channels
-import message as msg
-import other
-import standup
-import user
-import workspace
-import hangman
-
-AUTOSAVE_ENABLED = True
-DEBUG_MODE = not AUTOSAVE_ENABLED  # Do not change this line
-
-
-def default_handler(err):
-    '''Default handler for errors'''
-    response = err.get_response()
-    print('response', err, err.get_response())
-    response.data = dumps({
-        "code": err.code,
-        "name": "System Error",
-        "message": err.get_description(),
-    })
-    response.content_type = 'application/json'
-    return response
-
-
-APP = Flask(__name__)
-CORS(APP)
-
-APP.config['TRAP_HTTP_EXCEPTIONS'] = True
-APP.register_error_handler(Exception, default_handler)
+from slackr import admin
+from slackr import auth
+from slackr import channel
+from slackr import channels
+from slackr import message as msg
+from slackr import other
+from slackr import standup
+from slackr import user
+from slackr import workspace
+from slackr import hangman
 
 
 @APP.route('/admin/userpermission/change', methods=['POST'])
@@ -398,11 +374,3 @@ def route_hangman_guess():
     channel_id = payload.get('channel_id')
     guess = payload.get('guess')
     return dumps(hangman.guess_hangman(token, channel_id, guess))
-
-
-if __name__ == "__main__":
-    if AUTOSAVE_ENABLED:
-        autosave()
-    PORT = int(sys.argv[1]) if len(sys.argv) == 2 else 8080
-    set_port(PORT)
-    APP.run(debug=DEBUG_MODE, port=PORT)

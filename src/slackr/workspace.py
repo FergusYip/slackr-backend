@@ -2,7 +2,7 @@
 Function to reset the state of the Slackr application.
 '''
 
-from data_store import DATA_STORE
+from slackr.data_store import DATA_STORE
 
 
 def workspace_reset():

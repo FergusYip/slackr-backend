@@ -4,8 +4,8 @@ Functions to encode, decode, and validate JWT tokens.
 
 from datetime import datetime
 import jwt
-from error import AccessError
-from data_store import DATA_STORE
+from slackr.error import AccessError
+from slackr.data_store import DATA_STORE
 
 SECRET = 'the chunts'
 
