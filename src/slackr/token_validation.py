@@ -5,7 +5,7 @@ Functions to encode, decode, and validate JWT tokens.
 from datetime import datetime
 import jwt
 from slackr.error import AccessError
-from slackr.data_store import DATA_STORE
+from slackr.models import ExpiredToken, User
 
 SECRET = 'the chunts'
 
@@ -39,7 +39,7 @@ def decode_token(token):
 
 	'''
 
-    if token in DATA_STORE.token_blacklist:
+    if ExpiredToken.query.filter_by(token=token).first() is not None:
         raise AccessError(description='Token is invalid')
 
     try:
@@ -47,13 +47,14 @@ def decode_token(token):
     except:
         raise AccessError(description='Token is invalid')
 
-    if payload['iat'] < DATA_STORE.time_created:
-        raise AccessError(description='Session has expired')
+    # if payload['iat'] < DATA_STORE.time_created:
+    #     raise AccessError(description='Session has expired')
 
     u_id = payload['u_id']
-    hangman_bot_u_id = DATA_STORE.preset_profiles['hangman_bot'].u_id
+    # hangman_bot_u_id = DATA_STORE.preset_profiles['hangman_bot'].u_id
 
-    if u_id not in DATA_STORE.u_ids and u_id != hangman_bot_u_id:
+    if User.query.filter_by(u_id=u_id).first() is None:
+        # if u_id not in DATA_STORE.u_ids and u_id != hangman_bot_u_id:
         raise AccessError(description='u_id does not belong to a user')
 
     return payload

@@ -7,9 +7,10 @@ import smtplib
 from email.message import EmailMessage
 from slackr.error import InputError
 from slackr.email_validation import invalid_email
-from slackr.data_store import DATA_STORE, User
 from slackr.token_validation import decode_token, encode_token
-import slackr.helpers
+from slackr import helpers
+from slackr import db
+from slackr.models import User, ExpiredToken
 
 
 def auth_register(email, password, name_first, name_last):
@@ -49,12 +50,13 @@ def auth_register(email, password, name_first, name_last):
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
 
-    if DATA_STORE.get_user(email=email) is not None:
+    if User.query.filter_by(email=email).first() is not None:
         raise InputError(
             description='Email address is already being used by another user')
 
     user = User(email, password, name_first, name_last)
-    DATA_STORE.add_user(user)
+    db.session.add(user)
+    db.session.commit()
 
     return {
         'u_id': user.u_id,
@@ -79,7 +81,7 @@ def auth_login(email, password):
             description='Insufficient parameters. Requires email and password.'
         )
 
-    user = DATA_STORE.get_user(email=email)
+    user = User.query.filter_by(email=email).first()
 
     if invalid_email(email):
         raise InputError(description='Email entered is not a valid email ')
@@ -108,9 +110,10 @@ def auth_logout(token):
             description='Insufficient parameters. Requires token.')
 
     decode_token(token)
-    DATA_STORE.add_to_blacklist(token)
 
-    is_success = token in DATA_STORE.token_blacklist
+    db.session.add(ExpiredToken(token))
+
+    is_success = ExpiredToken.query.filter_by(token=token).first() is not None
 
     return {'is_success': is_success}
 
@@ -119,23 +122,23 @@ def auth_passwordreset_request(email):
     ''' Makes a password reset request and sends a email to the desired email
 
     Parameters:
-        email (str): Email assocaited to the account the user wants to reset
+        email (str): Email associated to the account the user wants to reset
 
     Returns:
         Empty Dictionary
     '''
 
-    if email is None:
-        raise InputError(description='Insufficient parameters')
+    # if email is None:
+    #     raise InputError(description='Insufficient parameters')
 
-    user = DATA_STORE.get_user(email=email)
+    # user = DATA_STORE.get_user(email=email)
 
-    DATA_STORE.invalidate_reset_request_from_user(user)
+    # DATA_STORE.invalidate_reset_request_from_user(user)
 
-    reset_code = DATA_STORE.make_reset_request(user)
+    # reset_code = DATA_STORE.make_reset_request(user)
 
-    if user is not None:
-        email_reset_code(email, reset_code)
+    # if user is not None:
+    #     email_reset_code(email, reset_code)
 
     return {}
 
@@ -151,20 +154,20 @@ def auth_passwordreset_reset(reset_code, new_password):
             Empty Dictionary
     '''
 
-    if None in {reset_code, new_password}:
-        raise InputError(description='Insufficient parameters')
+    # if None in {reset_code, new_password}:
+    #     raise InputError(description='Insufficient parameters')
 
-    reset_code = int(reset_code)
-    reset_request = DATA_STORE.get_reset_request(reset_code)
+    # reset_code = int(reset_code)
+    # reset_request = DATA_STORE.get_reset_request(reset_code)
 
-    if reset_request is None:
-        raise InputError(description='Reset code is not valid')
+    # if reset_request is None:
+    #     raise InputError(description='Reset code is not valid')
 
-    if len(new_password) < 6:
-        raise InputError(description='Password is not valid')
+    # if len(new_password) < 6:
+    #     raise InputError(description='Password is not valid')
 
-    user = DATA_STORE.get_user(u_id=reset_request['u_id'])
-    user.set_password(new_password)
+    # user = DATA_STORE.get_user(u_id=reset_request['u_id'])
+    # user.set_password(new_password)
 
     return {}
 
@@ -179,35 +182,37 @@ def email_reset_code(email, reset_code):
     Return:
         (bool): Whether the email was sent successfully
     '''
-    sender = None
-    password = None
+    # sender = None
+    # password = None
 
-    message = EmailMessage()
-    message['Subject'] = 'Slackr: Password Reset Code'
-    message['From'] = sender
-    message['To'] = email
-    message.set_content(f'Your reset code is {reset_code}')
+    # message = EmailMessage()
+    # message['Subject'] = 'Slackr: Password Reset Code'
+    # message['From'] = sender
+    # message['To'] = email
+    # message.set_content(f'Your reset code is {reset_code}')
 
-    message.add_alternative(\
-    f'''
-    <!DOCTPYE html>
-    <html>
-        <body>
-            <h1 style="color=Black, align=center">Your password reset code is {reset_code}</h1>
-        </body>
-    </html>
-    ''', subtype='html')
+    # message.add_alternative(\
+    # f'''
+    # <!DOCTPYE html>
+    # <html>
+    #     <body>
+    #         <h1 style="color=Black, align=center">Your password reset code is {reset_code}</h1>
+    #     </body>
+    # </html>
+    # ''', subtype='html')
 
-    try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.login(sender, password)
-        server.send_message(message)
-        server.quit()
-        print("Successfully sent email")
-        return True
-    except smtplib.SMTPException:
-        print("Error: unable to send email")
-        return False
+    # try:
+    #     server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+    #     server.login(sender, password)
+    #     server.send_message(message)
+    #     server.quit()
+    #     print("Successfully sent email")
+    #     return True
+    # except smtplib.SMTPException:
+    #     print("Error: unable to send email")
+    #     return False
+
+    return False
 
 
 if __name__ == '__main__':
