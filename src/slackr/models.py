@@ -1,3 +1,4 @@
+from datetime import datetime
 from slackr import db
 from slackr import helpers
 from slackr.utils.constants import PERMISSIONS
@@ -31,8 +32,9 @@ class User(db.Model):
     name_last = db.Column(db.String(50))
     handle_str = db.Column(db.String(20))
     permission_id = db.Column(db.Integer)
+    messages = db.relationship('Message', backref='sender', lazy=True)
 
-    # messages = db.relationship('Message', backref='sender', lazy=True)
+    # reacts = db.relationship("React", backref="user", lazy=True)
 
     def __init__(self, email, password, name_first, name_last, handle):
         self.email = email
@@ -65,7 +67,25 @@ class User(db.Model):
             'name_first': self.name_first,
             'name_last': self.name_last,
             'handle_str': self.handle_str
-            # 'profile_img_url': self._profile_img_url
+            # 'profile_img_url': self.profile_img_url
+        }
+
+    @property
+    def details(self):
+        ''' Get a dictionary of the user's details
+
+        Returns (dict):
+            name_first (str): First name
+            name_last (str): Last name
+            handle_str (str): Handle
+            profile_img_url (str): Url of profile image
+
+        '''
+        return {
+            'u_id': self.u_id,
+            'name_first': self.name_first,
+            'name_last': self.name_last,
+            # 'profile_img_url': self.profile_img_url
         }
 
 
@@ -81,25 +101,120 @@ class Channel(db.Model):
                                   backref=db.backref('channels', lazy=True),
                                   secondary=user_channel_identifier)
     messages = db.relationship('Message', backref='channel', lazy=True)
+
     # standup = db.Column(db.Integer)
     # hangman = None
+
+    def __init__(self, user, name, is_public):
+        self.name = name
+        self.is_public = is_public
+        self.all_members.append(user)
+        self.owner_members.append(user)
+
+    @property
+    def details(self):
+        ''' Get a dictionary containing information within the channel.
+
+        Return (dict):
+            name (str): The name of the channel.
+            owner_members (list):
+                u_id (int): The user's ID.
+            all_members (list):
+                u_id (int): The user's ID.
+
+        '''
+        return {
+            'name': self.name,
+            'owner_members': [user.details for user in self.owner_members],
+            'all_members': [user.details for user in self.all_members]
+        }
+
+    def is_member(self, user):
+        ''' Determines if a given user is a member of the channel.
+
+        Parameters:
+            user (obj): A user object.
+
+        Return:
+            Bool: Whether the user is a member of the channel (True) or not (False).
+
+        '''
+        return user in self.all_members
+
+    def is_owner(self, user):
+        ''' Determines whether a user is an owner member.
+
+        Parameters:
+            user (obj): A user object.
+
+        Return:
+            Bool: Whether the user is an owner (True) or not (False).
+
+        '''
+        return user in self.owner_members
+
+    @property
+    def id_name(self):
+        ''' Get a dictionary containing channel information.
+
+        Return (dict):
+            channel_id (int): The unique identification code of the channel.
+            name (str): The name of the channel.
+
+        '''
+        return {'channel_id': self.channel_id, 'name': self.name}
 
 
 class Message(db.Model):
     message_id = db.Column(db.Integer, primary_key=True)
-    # sender_id = db.Column(db.Integer,
-    #                       db.ForeignKey('user.u_id'),
-    #                       nullable=False)
+    u_id = db.Column(db.Integer, db.ForeignKey('user.u_id'), nullable=False)
     channel_id = db.Column(db.Integer,
                            db.ForeignKey('channel.channel_id'),
                            nullable=False)
     message = db.Column(db.String(1000))
-    time_created = db.Column(db.DateTime)
+    time_created = db.Column(
+        db.Integer,
+        nullable=False,
+    )
     reacts = db.relationship("React", backref="message", lazy=True)
-    is_pinned = db.Column(db.Boolean)
+    is_pinned = db.Column(db.Boolean, default=False)
+
+    def __init__(self, message, u_id, channel_id):
+        self.message = message
+        self.u_id = u_id
+        self.channel_id = channel_id
+        self.time_created = helpers.utc_now()
 
     def __repr__(self):
         return f'{self.time_created}: {self.message}'
+
+    def details(self, user):
+        ''' Get a dictionary of the message's information.
+
+        Parameters:
+            user (obj): An object of a user.
+
+        Returns (dict):
+            message_id (int): The message's unique identification number.
+            u_id (int): The user who sent the message's u_id.
+            message (str): The contents of the message to be sent.
+            time_created (int): A unix timestamp of when the message was sent.
+            reacts (list):
+                react_id (int): The ID of the reaction denoting which type of reaction it is.
+                u_ids (list):
+                    u_id (int): The u_id of the users who have made this specific reaction.
+                is_this_user_reacted (bool): Whether the user has reacted to the message.
+            is_pinned (bool):  Whether the message has been pinned.
+
+        '''
+        return {
+            'message_id': self.message_id,
+            'u_id': self.u_id,
+            'message': self.message,
+            'time_created': self.time_created,
+            'reacts': [react.details(user) for react in self.reacts],
+            'is_pinned': self.is_pinned
+        }
 
 
 class React(db.Model):

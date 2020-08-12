@@ -156,7 +156,7 @@ def auth_passwordreset_reset(reset_code, new_password):
 
         Parameters:
             reset_node (str): Reset code
-            new_password (str): Desired new passowrd
+            new_password (str): Desired new password
 
         Returns:
             Empty Dictionary
@@ -201,7 +201,7 @@ def email_reset_code(email, reset_code):
 
     # message.add_alternative(\
     # f'''
-    # <!DOCTPYE html>
+    # <!DOCTYPE html>
     # <html>
     #     <body>
     #         <h1 style="color=Black, align=center">Your password reset code is {reset_code}</h1>

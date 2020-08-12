@@ -6,12 +6,14 @@ their own messages.
 
 import threading
 from slackr.error import AccessError, InputError
-from slackr.data_store import DATA_STORE, Message, React
 from slackr.token_validation import decode_token
 import slackr.helpers
+from slackr.models import User, Channel, Message, React
+from slackr import db
+from slackr.utils.constants import PERMISSIONS, REACTIONS
 
 
-def message_send(token, channel_id, message, message_id=None):
+def message_send(token, channel_id, message):
     '''
     Function that will take in a message as a string
     and append this message to a channel's list of messages.
@@ -32,10 +34,10 @@ def message_send(token, channel_id, message, message_id=None):
 
     token_info = decode_token(token)
     u_id = int(token_info['u_id'])
-    user = DATA_STORE.get_user(u_id)
+    user = User.query.get(u_id)
 
     channel_id = int(channel_id)
-    channel = DATA_STORE.get_channel(channel_id)
+    channel = Channel.query.get(channel_id)
 
     if channel is None:
         raise InputError(description='Channel does not exist.')
@@ -48,17 +50,17 @@ def message_send(token, channel_id, message, message_id=None):
         raise InputError(
             description='Message needs to be at least 1 characters')
 
-    hangman_bot_u_id = DATA_STORE.preset_profiles['hangman_bot'].u_id
-    if user not in channel.all_members and u_id != hangman_bot_u_id:
+    # hangman_bot_u_id = DATA_STORE.preset_profiles['hangman_bot'].u_id
+    if user not in channel.all_members:  # and u_id != hangman_bot_u_id:
         raise AccessError(
             description=
             'User does not have Access to send messages in the current channel'
         )
 
-    msg = Message(user, channel, message, message_id)
-    channel.send_message(msg)
-    DATA_STORE.add_message(msg)
-    user.add_message(msg)
+    msg = Message(message, user.u_id, channel.channel_id)
+    channel.messages.append(msg)
+    user.messages.append(msg)
+    db.session.commit()
 
     return {'message_id': msg.message_id}
 
@@ -80,30 +82,21 @@ def message_remove(token, message_id):
         raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
-    u_id = int(token_info['u_id'])
-    user = DATA_STORE.get_user(u_id)
-
-    message_id = int(message_id)
-    message = DATA_STORE.get_message(message_id)
+    user = User.query.get(int(token_info['u_id']))
+    message = Message.query.get(int(message_id))
 
     if message is None:
         raise InputError(description='Message does not exist')
 
     channel = message.channel
 
-    if not (message.u_id == u_id
-            or DATA_STORE.is_admin_or_owner(user, channel)):
+    if not (message.u_id == user.u_id or user.permission_id
+            == PERMISSIONS['owner'] or channel.is_owner(user)):
         raise AccessError(
             description='User does not have access to remove this message')
 
-    if message in channel.messages:
-        channel.remove_message(message)
-
-    if message in DATA_STORE.messages:
-        DATA_STORE.remove_message(message)
-
-    if message in user.messages:
-        user.remove_message(message)
+    db.session.delete(message)
+    db.session.commit()
 
     return {}
 
@@ -127,10 +120,10 @@ def message_edit(token, message_id, message):
 
     token_info = decode_token(token)
     u_id = int(token_info['u_id'])
-    user = DATA_STORE.get_user(u_id)
+    user = User.query.get(u_id)
 
     message_id = int(message_id)
-    message_obj = DATA_STORE.get_message(message_id)
+    message_obj = Message.query.get(message_id)
 
     if message_obj is None:
         raise InputError(description='Message does not exist')
@@ -140,16 +133,17 @@ def message_edit(token, message_id, message):
     if len(message) > 1000:
         raise InputError(description='Message is over 1,000 characters')
 
-    if not (message_obj.u_id == u_id
-            or DATA_STORE.is_admin_or_owner(user, channel)):
+    if not (message_obj.u_id == u_id or user.permission_id
+            == PERMISSIONS['owner'] or channel.is_owner(user)):
         raise AccessError(
             description='User does not have access to remove this message')
 
-    if not message and message_obj in channel.messages:
-        channel.remove_message(message_obj)
-        user.messages.remove(message_obj)
+    if not message:
+        db.session.delete(message_obj)
     else:
-        message_obj.edit(message)
+        message_obj.message = message
+
+    db.session.commit()
 
     return {}
 
@@ -211,37 +205,25 @@ def message_react(token, message_id, react_id):
         raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
-    user = DATA_STORE.get_user(token_info['u_id'])
+    user = User.query.get(token_info['u_id'])
 
     message_id = int(message_id)
-    message = DATA_STORE.get_message(message_id)
-
-    if message is None or message not in user.viewable_messages:
-        raise InputError(description='Message does not exist')
-
-    react_id = int(react_id)
-    react = message.get_react(react_id)
-
+    message = Message.query.get(message_id)
     channel = message.channel
 
-    if channel.is_member(user.u_id):
+    if message is None or not channel.is_member(user):
+        raise InputError(description='Message does not exist')
+
+    if channel.is_member(user):
         raise InputError(description='User is not in the channel')
 
-    if react_id not in DATA_STORE.reactions.values():
+    if react_id not in REACTIONS.values():
         raise InputError(description='Reaction type is invalid')
 
-    if react is not None:
-        if react in user.reacts:
-            raise InputError(
-                description='User has already reacted to this message')
-
-        react.add_user(user)
-        user.add_react(react)
-    else:
-        react = React(react_id, message)
-        message.add_react(react)
-        react.add_user(user)
-        user.add_react(react)
+    react = React(int(react_id))
+    # react.users.append(user)
+    # message.reacts.append(react)
+    db.session.commit()
 
     return {}
 
@@ -263,23 +245,19 @@ def message_unreact(token, message_id, react_id):
         raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
-    user = DATA_STORE.get_user(token_info['u_id'])
-
-    message_id = int(message_id)
-    message = DATA_STORE.get_message(message_id)
+    user = User.query.get(token_info['u_id'])
+    message = Message.query.get(int(message_id))
 
     if message is None or message not in user.viewable_messages:
         raise InputError(description='Message does not exist')
 
-    react_id = int(react_id)
-    react = message.get_react(react_id)
-
+    react = React.query.get(int(react_id))
     channel = message.channel
 
-    if channel.is_member(user.u_id):
+    if channel.is_member(user):
         raise InputError(description='User is not in the channel')
 
-    if react_id not in DATA_STORE.reactions.values():
+    if react_id not in REACTIONS.values():
         raise InputError(description='Reaction type is invalid')
 
     if react is None:
@@ -289,12 +267,12 @@ def message_unreact(token, message_id, react_id):
     if user.u_id not in react.u_ids:
         raise InputError(description='User has not reacted to this message')
 
-    if user in react.users:
-        react.remove_user(user)
-        user.remove_react(react)
+    react.users.remove(user)
 
     if not react.users:
-        message.remove_react(react)
+        db.session.delete(react)
+
+    db.session.commit()
 
     return {}
 
@@ -316,28 +294,27 @@ def message_pin(token, message_id):
         raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
-    u_id = int(token_info['u_id'])
-    user = DATA_STORE.get_user(u_id)
-
-    message_id = int(message_id)
-    message = DATA_STORE.get_message(message_id)
+    user = User.query.get(int(token_info['u_id']))
+    message = Message.query.get(int(message_id))
 
     if message is None:
         raise InputError(description='Message does not exist')
 
     channel = message.channel
 
-    if DATA_STORE.is_admin_or_owner(user, channel) is False:
+    if not (user.permission_id == PERMISSIONS['owner']
+            or channel.is_owner(user)):
         raise InputError(
             description='User is not an admin or owner of the channel')
 
     if message.is_pinned:
         raise InputError(description='Message is already pinned')
 
-    if user not in channel.all_members:
+    if not channel.is_member(user):
         raise AccessError(description='User is not a member of the channel')
 
-    message.pin()
+    message.is_pinned = True
+    db.session.commit()
 
     return {}
 
@@ -358,28 +335,27 @@ def message_unpin(token, message_id):
         raise InputError(description='Insufficient parameters')
 
     token_info = decode_token(token)
-    u_id = int(token_info['u_id'])
-    user = DATA_STORE.get_user(u_id)
-
-    message_id = int(message_id)
-    message = DATA_STORE.get_message(message_id)
+    user = User.query.get(int(token_info['u_id']))
+    message = Message.query.get(int(message_id))
 
     if message is None:
         raise InputError(description='Message does not exist')
 
     channel = message.channel
 
-    if DATA_STORE.is_admin_or_owner(user, channel) is False:
+    if not (user.permission_id == PERMISSIONS['owner']
+            or channel.is_owner(user)):
         raise InputError(
             description='User is not an admin or owner of the channel')
 
-    if message.is_pinned is False:
+    if not message.is_pinned:
         raise InputError(description='Message is not pinned')
 
     if user not in channel.all_members:
         raise AccessError(description='User is not a member of the channel')
 
-    message.unpin()
+    message.is_pinned = False
+    db.session.commit()
 
     return {}
 
