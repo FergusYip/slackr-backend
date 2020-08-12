@@ -7,9 +7,6 @@ import threading
 import pickle
 from slackr import helpers
 
-SECRET = 'secret'
-PORT = 8080
-
 
 class User:
     ''' User Object '''
@@ -1064,8 +1061,8 @@ def save():
 
 
 def autosave():
-    '''Thread to save state every second'''
-    timer = threading.Timer(5.0, autosave)
+    '''Thread to save state every day'''
+    timer = threading.Timer(5, autosave)
     timer.start()
     save()
 
@@ -1090,12 +1087,6 @@ def change_profile_image(img, user):
 
     DATA_STORE.add_img_id(img_id)
 
-    base_url = f'http://127.0.0.1:{PORT}'
-    url = f'{base_url}/imgurl/{img_id}.jpg'
-    user.set_profile_img_url(url)
-
-
-def set_port(port):
-    ''' Set the port the server will run on from a given integer. '''
-    global PORT  # pylint: disable=W0603
-    PORT = port
+    # base_url = .URL
+    # url = f'{base_url}/imgurl/{img_id}.jpg'
+    # user.set_profile_img_url(url)

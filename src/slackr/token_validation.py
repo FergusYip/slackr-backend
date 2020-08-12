@@ -6,8 +6,7 @@ from datetime import datetime
 import jwt
 from slackr.error import AccessError
 from slackr.models import ExpiredToken, User
-
-SECRET = 'the chunts'
+from slackr.utils.constants import SECRET
 
 
 def encode_token(u_id):
