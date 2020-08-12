@@ -41,7 +41,7 @@ def channels_listall(token):
         raise InputError(description='Insufficient parameters')
 
     decode_token(token)
-    public_channels = Channels.query.filter_by(is_public=true).all()
+    public_channels = Channel.query.filter_by(is_public=True).all()
     channels = [channel.id_name for channel in public_channels]
     return {'channels': channels}
 
