@@ -11,6 +11,8 @@ from slackr.token_validation import decode_token, encode_token
 from slackr import helpers
 from slackr import db
 from slackr.models import User, ExpiredToken
+from slackr.utils.constants import PERMISSIONS
+import math
 
 
 def auth_register(email, password, name_first, name_last):
@@ -54,7 +56,12 @@ def auth_register(email, password, name_first, name_last):
         raise InputError(
             description='Email address is already being used by another user')
 
-    user = User(email, password, name_first, name_last)
+    handle = generate_handle(name_first, name_last)
+    user = User(email, password, name_first, name_last, handle)
+
+    if len(User.query.all()) == 0:
+        user.permission_id = PERMISSIONS['owner']
+
     db.session.add(user)
     db.session.commit()
 
@@ -213,6 +220,35 @@ def email_reset_code(email, reset_code):
     #     return False
 
     return False
+
+
+def generate_handle(name_first, name_last):
+    """ Generate a handle based on name_first and name_last
+
+    Parameters:
+        name_first (str): First name
+        name_last (str): Last name
+
+    Returns:
+        handle_str (str): Unique handle
+
+    """
+    # strip all whitespace in the first and last name
+    name_first = name_first.replace(' ', '')
+    name_last = name_last.replace(' ', '')
+
+    concatentation = name_first.lower() + name_last.lower()
+    handle_str = concatentation[:20]
+
+    unique_modifier = 1
+    while User.query.filter_by(
+            handle_str=handle_str).first() or not handle_str:
+        unique_digits = int(math.log10(unique_modifier)) + 1
+        handle_str = handle_str[:len(handle_str) - unique_digits]
+        handle_str += str(unique_modifier)
+        unique_modifier += 1
+
+    return handle_str
 
 
 if __name__ == '__main__':

@@ -1070,34 +1070,6 @@ def autosave():
     save()
 
 
-def generate_handle(name_first, name_last):
-    """ Generate a handle based on name_first and name_last
-
-    Parameters:
-        name_first (str): First name
-        name_last (str): Last name
-
-    Returns:
-        handle_str (str): Unique handle
-
-    """
-    # strip all whitespace in the first and last name
-    name_first = name_first.replace(' ', '')
-    name_last = name_last.replace(' ', '')
-
-    concatentation = name_first.lower() + name_last.lower()
-    handle_str = concatentation[:20]
-
-    unique_modifier = 1
-    while DATA_STORE.get_user(handle_str=handle_str) or not handle_str:
-        unique_digits = int(math.log10(unique_modifier)) + 1
-        handle_str = handle_str[:len(handle_str) - unique_digits]
-        handle_str += str(unique_modifier)
-        unique_modifier += 1
-
-    return handle_str
-
-
 def change_profile_image(img, user):
     ''' Function to change the profile image url of a given user.
 

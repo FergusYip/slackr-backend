@@ -2,12 +2,13 @@
 Function to reset the state of the Slackr application.
 '''
 
-from slackr.data_store import DATA_STORE
+from slackr import db
 
 
 def workspace_reset():
     '''Reset the workspace state'''
-    DATA_STORE.reset()
+    db.drop_all()
+    db.create_all()
     return {}
 
 

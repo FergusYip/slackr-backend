@@ -1,5 +1,6 @@
 from slackr import db
 from slackr import helpers
+from slackr.utils.constants import PERMISSIONS
 
 user_channel_identifier = db.Table(
     'user_channel_identifier',
@@ -10,11 +11,6 @@ owner_channel_identifier = db.Table(
     'owner_channel_identifier',
     db.Column('u_id', db.Integer, db.ForeignKey('user.u_id')),
     db.Column('channel_id', db.Integer, db.ForeignKey('channel.channel_id')))
-
-# user_channel_identifier = db.Table(
-#     'user_channel_identifier',
-#     db.Column('u_id', db.Integer, db.ForeignKey('user.u_id')),
-#     db.Column('channel_id', db.Integer, db.ForeignKey('channel.channel_id')))
 
 message_react_identifier = db.Table(
     'message_react_identifier',
@@ -36,14 +32,15 @@ class User(db.Model):
     handle_str = db.Column(db.String(20))
     permission_id = db.Column(db.Integer)
 
-    def __init__(self, email, password, name_first, name_last):
+    # messages = db.relationship('Message', backref='sender', lazy=True)
+
+    def __init__(self, email, password, name_first, name_last, handle):
         self.email = email
-        # self.password = password
         self.password = helpers.hash_pw(password)
         self.name_first = name_first
         self.name_last = name_last
-        self.handle_str = name_first  # generate_handle(name_first, name_last)
-        self.permission_id = 1  #DATA_STORE.default_permission()
+        self.handle_str = handle
+        self.permission_id = PERMISSIONS['member']
         # self.profile_img_url = helpers.default_profile_img()
 
     def __repr__(self):
@@ -68,9 +65,9 @@ class Channel(db.Model):
 
 class Message(db.Model):
     message_id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer,
-                          db.ForeignKey('sender.u_id'),
-                          nullable=False)
+    # sender_id = db.Column(db.Integer,
+    #                       db.ForeignKey('user.u_id'),
+    #                       nullable=False)
     channel_id = db.Column(db.Integer,
                            db.ForeignKey('channel.channel_id'),
                            nullable=False)
