@@ -6,9 +6,9 @@ be joined into one standup summary message.
 import threading
 from slackr.token_validation import decode_token
 from slackr.error import AccessError, InputError
-from slackr.data_store import DATA_STORE as data_store
-import slackr.helpers
+from slackr import helpers
 from slackr.message import message_send
+from slackr.models import User, Channel
 
 
 def standup_start(token, channel_id, length):
@@ -29,10 +29,10 @@ def standup_start(token, channel_id, length):
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
-    user = data_store.get_user(u_id)
+    user = User.query.get(u_id)
 
     channel_id = int(channel_id)
-    channel = data_store.get_channel(channel_id)
+    channel = Channel.query.get(channel_id)
 
     if channel is None:
         raise InputError(description='Channel does not exist.')
@@ -87,7 +87,7 @@ def standup_active(token, channel_id):
     decode_token(token)
 
     channel_id = int(channel_id)
-    channel = data_store.get_channel(channel_id)
+    channel = Channel.query.get(channel_id)
 
     # input error if channel does not exist.
     if channel is None:
@@ -117,10 +117,10 @@ def standup_send(token, channel_id, message):
 
     token_info = decode_token(token)
     u_id = token_info['u_id']
-    user = data_store.get_user(u_id)
+    user = User.query.get(u_id)
 
     channel_id = int(channel_id)
-    channel = data_store.get_channel(channel_id)
+    channel = Channel.query.get(channel_id)
 
     if channel is None:
         raise InputError(description="Channel ID is not a valid channel")
