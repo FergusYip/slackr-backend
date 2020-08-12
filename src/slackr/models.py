@@ -33,8 +33,7 @@ class User(db.Model):
     handle_str = db.Column(db.String(20))
     permission_id = db.Column(db.Integer)
     messages = db.relationship('Message', backref='sender', lazy=True)
-
-    # reacts = db.relationship("React", backref="user", lazy=True)
+    reacts = db.relationship("React", secondary=user_react_identifier)
 
     def __init__(self, email, password, name_first, name_last, handle):
         self.email = email
@@ -216,6 +215,21 @@ class Message(db.Model):
             'is_pinned': self.is_pinned
         }
 
+    def get_react(self, react_id):
+        ''' Return a react object attached to a message.
+
+        Parameters:
+            react_id (int): React ID as an integer.
+
+        Returns:
+            react (obj): A react object.
+
+        '''
+        for react in self.reacts:
+            if react_id == react.react_id:
+                return react
+        return None
+
 
 class React(db.Model):
     react_id = db.Column(db.Integer, primary_key=True)
@@ -245,7 +259,7 @@ class React(db.Model):
         '''
         return {
             'react_id': self.react_id,
-            'u_ids': self.users,
+            'u_ids': [user.u_id for user in self.users],
             'is_this_user_reacted': self in user.reacts
         }
 

@@ -7,7 +7,7 @@ their own messages.
 import threading
 from slackr.error import AccessError, InputError
 from slackr.token_validation import decode_token
-import slackr.helpers
+from slackr import helpers
 from slackr.models import User, Channel, Message, React
 from slackr import db
 from slackr.utils.constants import PERMISSIONS, REACTIONS
@@ -57,9 +57,10 @@ def message_send(token, channel_id, message):
             'User does not have Access to send messages in the current channel'
         )
 
-    msg = Message(message, user.u_id, channel.channel_id)
+    msg = Message(message, u_id, channel_id)
     channel.messages.append(msg)
     user.messages.append(msg)
+    db.session.add(msg)
     db.session.commit()
 
     return {'message_id': msg.message_id}
@@ -166,25 +167,46 @@ def message_sendlater(token, channel_id, message, time_sent):
     if None in {token, channel_id, message, time_sent}:
         raise InputError(description='Insufficient parameters')
 
-    decode_token(token)
+    token_info = decode_token(token)
+    u_id = int(token_info['u_id'])
+    user = User.query.get(u_id)
 
     channel_id = int(channel_id)
-    time_sent = int(time_sent)
+    channel = Channel.query.get(channel_id)
 
+    time_sent = int(time_sent)
     time_now = helpers.utc_now()
 
     if time_now > time_sent:
         raise InputError(description='Time to send is in the past')
 
-    message_id = DATA_STORE.generate_id('message_id')
+    if channel is None:
+        raise InputError(description='Channel does not exist.')
+
+    if len(message) > 1000:
+        raise InputError(
+            description='Message is greater than 1,000 characters')
+
+    if not message:
+        raise InputError(
+            description='Message needs to be at least 1 characters')
+
+    # hangman_bot_u_id = DATA_STORE.preset_profiles['hangman_bot'].u_id
+    if not channel.is_member(user):  # and u_id != hangman_bot_u_id:
+        raise AccessError(
+            description=
+            'User does not have Access to send messages in the current channel'
+        )
+
+    msg = Message(message, u_id, channel_id)
 
     duration = time_sent - time_now
     timer = threading.Timer(duration,
-                            message_send,
-                            args=[token, channel_id, message, message_id])
+                            send_message,
+                            args=[msg, channel_id, u_id])
     timer.start()
 
-    return {'message_id': message_id}
+    return {'message_id': msg.message_id}
 
 
 def message_react(token, message_id, react_id):
@@ -209,20 +231,30 @@ def message_react(token, message_id, react_id):
 
     message_id = int(message_id)
     message = Message.query.get(message_id)
-    channel = message.channel
 
-    if message is None or not channel.is_member(user):
+    if message is None:
         raise InputError(description='Message does not exist')
 
-    if channel.is_member(user):
+    channel = message.channel
+
+    if not channel.is_member(user):
         raise InputError(description='User is not in the channel')
 
     if react_id not in REACTIONS.values():
         raise InputError(description='Reaction type is invalid')
 
-    react = React(int(react_id))
-    # react.users.append(user)
-    # message.reacts.append(react)
+    react_id = int(react_id)
+    react = message.get_react(react_id)
+
+    if not react:
+        react = React(react_id)
+        message.reacts.append(react)
+        db.session.add(react)
+    elif user in react.users:
+        raise InputError(
+            description='User has already reacted to this reaction')
+
+    react.users.append(user)
     db.session.commit()
 
     return {}
@@ -235,7 +267,7 @@ def message_unreact(token, message_id, react_id):
     Parameters:
         token (str): The user's token to be decoded to get the user's u_id.
         message_id (int): The message_id of the message.
-        react_id (int): The type of reaction that will be unreacted from the message.
+        react_id (int): The type of reaction that will be removed from the message.
 
     Return:
         Dictionary (dict): An empty dictionary
@@ -248,13 +280,13 @@ def message_unreact(token, message_id, react_id):
     user = User.query.get(token_info['u_id'])
     message = Message.query.get(int(message_id))
 
-    if message is None or message not in user.viewable_messages:
+    if not message:  #or message not in user.viewable_messages:
         raise InputError(description='Message does not exist')
 
-    react = React.query.get(int(react_id))
+    react = message.get_react(int(react_id))
     channel = message.channel
 
-    if channel.is_member(user):
+    if not channel.is_member(user):
         raise InputError(description='User is not in the channel')
 
     if react_id not in REACTIONS.values():
@@ -264,7 +296,7 @@ def message_unreact(token, message_id, react_id):
         raise InputError(
             description='Message does not have this type of reaction')
 
-    if user.u_id not in react.u_ids:
+    if user not in react.users:
         raise InputError(description='User has not reacted to this message')
 
     react.users.remove(user)
@@ -358,6 +390,15 @@ def message_unpin(token, message_id):
     db.session.commit()
 
     return {}
+
+
+def send_message(message, channel_id, u_id):
+    user = User.query.get(u_id)
+    channel = Channel.query.get(channel_id)
+    channel.messages.append(message)
+    user.messages.append(message)
+    db.session.add(message)
+    db.session.commit()
 
 
 if __name__ == "__main__":

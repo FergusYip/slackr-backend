@@ -235,7 +235,8 @@ def channel_addowner(token, channel_id, u_id):
         raise InputError(description='User already owner of channel.')
 
     # access error when authorized user not owner of channel or owner of slackr.
-    if not DATA_STORE.is_admin(admin) and not channel.is_owner(admin):
+    if admin.permission_id != PERMISSIONS['owner'] and not channel.is_owner(
+            admin):
         raise AccessError(
             description='The authorised user is not an owner of the channel')
 
