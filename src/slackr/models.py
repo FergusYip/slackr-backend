@@ -161,7 +161,7 @@ class User(db.Model):
             'u_id': self.u_id,
             'name_first': self.name_first,
             'name_last': self.name_last,
-            # 'profile_img_url': self.profile_img_url
+            'profile_img_url': self.profile_img_url
         }
 
 

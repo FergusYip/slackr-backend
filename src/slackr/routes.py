@@ -351,6 +351,12 @@ def route_img_display(imgsrc):
     return send_file(f'../profile_images/{imgsrc}')
 
 
+@APP.route('/imgurl/defaults/<imgsrc>', methods=['GET'])
+def route_defaults_img_display(imgsrc):
+    '''Flask route for /imgurl'''
+    return send_file(f'../profile_images/defaults/{imgsrc}')
+
+
 @APP.route("/workspace/reset", methods=['POST'])
 def route_workspace_reset():
     ''' Flask route for /workspace/reset'''
