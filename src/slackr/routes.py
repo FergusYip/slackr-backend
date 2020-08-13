@@ -298,7 +298,7 @@ def route_standup_send():
 def route_user_profile():
     '''Flask route for /user/profile'''
     token = request.values.get('token')
-    target_user = int(request.values.get('u_id'))
+    target_user = request.values.get('u_id')
     return dumps(user.user_profile(token, target_user))
 
 

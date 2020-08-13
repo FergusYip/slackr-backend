@@ -5,7 +5,7 @@ allow admins to change user permissions and delete users.
 
 from slackr.error import AccessError, InputError
 from slackr.token_validation import decode_token
-from slackr.models import User
+from slackr.models.user import User
 from slackr import db
 from slackr.utils.constants import PERMISSIONS
 

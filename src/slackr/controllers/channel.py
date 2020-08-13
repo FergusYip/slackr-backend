@@ -3,10 +3,11 @@ Functions to provide channel management services to the program. Will allow
 users to join, invite, leave, view details, view messages, and manage owners.
 '''
 
-from slackr.error import AccessError, InputError
-from slackr.token_validation import decode_token
 from slackr import db
-from slackr.models import User, Channel
+from slackr.error import AccessError, InputError
+from slackr.models.channel import Channel
+from slackr.models.user import User
+from slackr.token_validation import decode_token
 from slackr.utils.constants import PERMISSIONS
 
 

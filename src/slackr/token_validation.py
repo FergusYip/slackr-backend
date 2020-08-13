@@ -3,9 +3,12 @@ Functions to encode, decode, and validate JWT tokens.
 '''
 
 from datetime import datetime
+
 import jwt
+
 from slackr.error import AccessError
-from slackr.models import ExpiredToken, User
+from slackr.models.expired_token import ExpiredToken
+from slackr.models.user import User
 from slackr.utils.constants import SECRET
 
 

@@ -3,16 +3,17 @@ Functions to provide authorisation to the program. Will allow users to
 register, login, logout, and reset their password.
 '''
 
+import math
 import smtplib
 from email.message import EmailMessage
-from slackr.error import InputError
+
+from slackr import db, helpers
 from slackr.email_validation import invalid_email
+from slackr.error import InputError
+from slackr.models.expired_token import ExpiredToken
+from slackr.models.user import User
 from slackr.token_validation import decode_token, encode_token
-from slackr import helpers
-from slackr import db
-from slackr.models import User, ExpiredToken
 from slackr.utils.constants import PERMISSIONS
-import math
 
 
 def auth_register(email, password, name_first, name_last):

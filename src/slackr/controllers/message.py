@@ -5,11 +5,14 @@ their own messages.
 '''
 
 import threading
+
+from slackr import db, helpers
 from slackr.error import AccessError, InputError
+from slackr.models.channel import Channel
+from slackr.models.message import Message
+from slackr.models.react import React
+from slackr.models.user import User
 from slackr.token_validation import decode_token
-from slackr import helpers
-from slackr.models import User, Channel, Message, React
-from slackr import db
 from slackr.utils.constants import PERMISSIONS, REACTIONS
 
 

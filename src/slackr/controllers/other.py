@@ -4,7 +4,7 @@ users to get a list of all users and search for messages.
 '''
 
 from slackr.token_validation import decode_token
-from slackr.models import User
+from slackr.models.user import User
 
 
 def users_all(token):

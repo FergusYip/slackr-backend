@@ -4,11 +4,13 @@ users to start a timed standup where messages sent before the end time will
 be joined into one standup summary message.
 '''
 import threading
-from slackr.token_validation import decode_token
-from slackr.error import AccessError, InputError
+
 from slackr import helpers
 from slackr.controllers.message import message_send
-from slackr.models import User, Channel
+from slackr.error import AccessError, InputError
+from slackr.models.channel import Channel
+from slackr.models.user import User
+from slackr.token_validation import decode_token
 
 
 def standup_start(token, channel_id, length):

@@ -6,7 +6,8 @@ users to create channels and generate lists of channels.
 from slackr.error import InputError
 from slackr.token_validation import decode_token
 from slackr import db
-from slackr.models import User, Channel
+from slackr.models.user import User
+from slackr.models.channel import Channel
 
 
 def channels_list(token):

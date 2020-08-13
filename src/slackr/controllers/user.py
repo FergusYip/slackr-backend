@@ -4,15 +4,17 @@ as well as change their own personal information.
 '''
 
 import random
-from PIL import Image
+
 import requests
-from slackr.error import InputError
+from PIL import Image
+
+from slackr import db, helpers
 from slackr.email_validation import invalid_email
+from slackr.error import InputError
+from slackr.models.image_id import ImageID
+from slackr.models.user import User
 from slackr.token_validation import decode_token
-from slackr.models import User, ImageID
-from slackr import db
 from slackr.utils.constants import URL
-from slackr import helpers
 
 
 def user_profile(token, u_id):
