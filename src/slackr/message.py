@@ -208,7 +208,7 @@ def message_sendlater(token, channel_id, message, time_sent):
     db.session.commit()
 
     duration = time_sent - time_now
-    timer = threading.Timer(duration, show_message, args=[msg])
+    timer = threading.Timer(duration, show_message, args=[msg.message_id])
     timer.start()
 
     return {'message_id': msg.message_id}
@@ -397,7 +397,8 @@ def message_unpin(token, message_id):
     return {}
 
 
-def show_message(message):
+def show_message(message_id):
+    message = Message.query.get(message_id)
     message.is_hidden = False
     message.time_created = helpers.utc_now()
     db.session.commit()

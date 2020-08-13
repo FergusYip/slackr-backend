@@ -1,7 +1,9 @@
 from json import dumps
+
 from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+
 from slackr.utils.constants import DATABASE_URL
 
 
