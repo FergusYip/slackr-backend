@@ -7,7 +7,7 @@ import threading
 from slackr.token_validation import decode_token
 from slackr.error import AccessError, InputError
 from slackr import helpers
-from slackr.message import message_send
+from slackr.controllers.message import message_send
 from slackr.models import User, Channel
 
 

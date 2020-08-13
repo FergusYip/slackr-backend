@@ -8,16 +8,16 @@ from flask import request, send_file
 from slackr import APP
 
 # Route implementations
-from slackr import admin
-from slackr import auth
-from slackr import channel
-from slackr import channels
-from slackr import message as msg
-from slackr import other
-from slackr import standup
-from slackr import user
-from slackr import workspace
-from slackr import hangman
+from slackr.controllers import admin
+from slackr.controllers import auth
+from slackr.controllers import channel
+from slackr.controllers import channels
+from slackr.controllers import message as msg
+from slackr.controllers import other
+from slackr.controllers import standup
+from slackr.controllers import user
+from slackr.controllers import workspace
+from slackr.controllers import hangman
 
 
 @APP.route('/admin/userpermission/change', methods=['POST'])
