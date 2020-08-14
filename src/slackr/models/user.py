@@ -14,6 +14,7 @@ class User(db.Model):
     messages = db.relationship('Message', backref='sender', lazy=True)
     reacts = db.relationship("React", secondary=user_react_identifier)
     profile_img_url = db.Column(db.String(2000))
+    standups = db.relationship('Standup', backref='starting_user')
 
     def __init__(self, email, password, name_first, name_last, handle):
         self.email = email

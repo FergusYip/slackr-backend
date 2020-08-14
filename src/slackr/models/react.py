@@ -3,7 +3,8 @@ from slackr.models import user_react_identifier
 
 
 class React(db.Model):
-    react_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    react_id = db.Column(db.Integer)
     users = db.relationship("User", secondary=user_react_identifier)
     message_id = db.Column(db.Integer,
                            db.ForeignKey('message.message_id'),

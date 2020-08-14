@@ -11,6 +11,7 @@ from slackr.error import AccessError, InputError
 from slackr.models.channel import Channel
 from slackr.models.user import User
 from slackr.token_validation import decode_token
+from slackr import db
 
 
 def standup_start(token, channel_id, length):
@@ -46,15 +47,23 @@ def standup_start(token, channel_id, length):
 
     time_finish = helpers.utc_now() + length
 
-    channel.standup.start(user, time_finish)
+    # channel.standup.start(user, time_finish)
 
-    timer = threading.Timer(length, stop_standup, args=[token, channel])
+    channel.standup.starting_user = user
+    channel.standup.is_active = True
+    channel.standup.time_finish = time_finish
+
+    db.session.commit()
+
+    timer = threading.Timer(length,
+                            stop_standup,
+                            args=[token, channel.channel_id])
     timer.start()
 
     return {'time_finish': time_finish}
 
 
-def stop_standup(token, channel):
+def stop_standup(token, channel_id):
     ''' Stops a standup in a specified channel and sends a message containing
         all standup messages
 
@@ -63,10 +72,19 @@ def stop_standup(token, channel):
 		channel_id (int): ID of the specified channel
     '''
 
-    standup_message = channel.standup.stop()
+    channel = Channel.query.get(channel_id)
 
-    if standup_message:
-        message_send(token, channel.channel_id, standup_message)
+    channel.standup.is_active = False
+    channel.standup.starting_user = None
+    channel.standup.time_finish = None
+
+    message = channel.standup.message
+    channel.standup.message = ''
+
+    db.session.commit()
+
+    if message:
+        message_send(token, channel_id, message)
 
 
 def standup_active(token, channel_id):
@@ -145,6 +163,7 @@ def standup_send(token, channel_id, message):
             'The authorised user is not a member of the channel that the message is within'
         )
 
-    channel.standup.send(user, message)
+    channel.standup.message += f"{user.handle_str}: {message}\n"
+    db.session.commit()
 
     return {}

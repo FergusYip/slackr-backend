@@ -40,16 +40,16 @@ def test_standup_start(reset, new_user, new_channel):  # pylint: disable=W0613
         'start': 0
     }
 
-    message_hist = requests.get(
-        f'{BASE_URL}/channel/messages', params=history_in).json()
+    message_hist = requests.get(f'{BASE_URL}/channel/messages',
+                                params=history_in).json()
 
     # should be empty before 1s has passed.
     assert not message_hist['messages']
 
     sleep(10)
 
-    message_hist = requests.get(
-        f'{BASE_URL}/channel/messages', params=history_in).json()
+    message_hist = requests.get(f'{BASE_URL}/channel/messages',
+                                params=history_in).json()
 
     assert len(message_hist['messages']) == 1
 
@@ -62,11 +62,7 @@ def test_invalid_channel(reset, new_user, new_channel):  # pylint: disable=W0613
     user = new_user()
     new_channel(user)
 
-    start_in = {
-        'token': user['token'],
-        'channel_id': -1,
-        'length': 1
-    }
+    start_in = {'token': user['token'], 'channel_id': -1, 'length': 1}
 
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/standup/start',
@@ -106,11 +102,7 @@ def test_invalid_id(reset, new_user, new_channel):  # pylint: disable=W0613
 
     new_channel(user1)
 
-    start_in = {
-        'token': user1['token'],
-        'channel_id': -1,
-        'length': 1
-    }
+    start_in = {'token': user1['token'], 'channel_id': -1, 'length': 1}
 
     with pytest.raises(requests.HTTPError):
         requests.post(f'{BASE_URL}/standup/start',
@@ -145,5 +137,4 @@ def test_insufficient_params(reset):  # pylint: disable=W0613
     '''
 
     with pytest.raises(requests.HTTPError):
-        requests.post(f"{BASE_URL}/standup/start",
-                      json={}).raise_for_status()
+        requests.post(f"{BASE_URL}/standup/start", json={}).raise_for_status()

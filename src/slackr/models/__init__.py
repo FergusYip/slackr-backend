@@ -13,9 +13,9 @@ owner_channel_identifier = db.Table(
 message_react_identifier = db.Table(
     'message_react_identifier',
     db.Column('message_id', db.Integer, db.ForeignKey('message.message_id')),
-    db.Column('react_id', db.Integer, db.ForeignKey('react.react_id')))
+    db.Column('id', db.Integer, db.ForeignKey('react.id')))
 
 user_react_identifier = db.Table(
     'user_react_identifier',
     db.Column('u_id', db.Integer, db.ForeignKey('user.u_id')),
-    db.Column('react_id', db.Integer, db.ForeignKey('react.react_id')))
+    db.Column('id', db.Integer, db.ForeignKey('react.id')))
