@@ -4,8 +4,9 @@ Flask backend server for Slackr web application
 
 import sys
 from json import dumps
-from flask import request, send_file
+from flask import request, send_file, g
 from slackr import APP
+from slackr.middleware import auth_middleware
 
 # Route implementations
 from slackr.controllers import admin
@@ -21,6 +22,7 @@ from slackr.controllers import hangman
 
 
 @APP.route('/admin/userpermission/change', methods=['POST'])
+@auth_middleware
 def route_admin_userpermission_change():
     '''Flask route for /admin/userpermission/change'''
     payload = request.get_json()
@@ -31,6 +33,7 @@ def route_admin_userpermission_change():
 
 
 @APP.route('/admin/user/remove', methods=['DELETE'])
+@auth_middleware
 def route_admin_user_remove():
     '''Flask route for /admin/userpermission/change'''
     payload = request.get_json()
@@ -85,6 +88,7 @@ def route_auth_passwordreset_reset():
 
 
 @APP.route("/channel/invite", methods=['POST'])
+@auth_middleware
 def route_channel_invite():
     '''Flask route for /channel/invite'''
     payload = request.get_json()
@@ -95,6 +99,7 @@ def route_channel_invite():
 
 
 @APP.route("/channel/details", methods=['GET'])
+@auth_middleware
 def route_channel_details():
     '''Flask route for /channel/details'''
     token = request.values.get('token')
@@ -103,6 +108,7 @@ def route_channel_details():
 
 
 @APP.route("/channel/messages", methods=['GET'])
+@auth_middleware
 def route_channel_messages():
     '''Flask route for /channel/messages'''
     token = request.values.get('token')
@@ -112,6 +118,7 @@ def route_channel_messages():
 
 
 @APP.route("/channel/leave", methods=['POST'])
+@auth_middleware
 def route_channel_leave():
     '''Flask route for /channel/leave'''
     payload = request.get_json()
@@ -121,6 +128,7 @@ def route_channel_leave():
 
 
 @APP.route("/channel/join", methods=['POST'])
+@auth_middleware
 def route_channel_join():
     '''Flask route for /channel/join'''
     payload = request.get_json()
@@ -130,6 +138,7 @@ def route_channel_join():
 
 
 @APP.route("/channel/addowner", methods=['POST'])
+@auth_middleware
 def route_channel_addowner():
     '''Flask route for /channel/addowner'''
     payload = request.get_json()
@@ -140,6 +149,7 @@ def route_channel_addowner():
 
 
 @APP.route("/channel/removeowner", methods=['POST'])
+@auth_middleware
 def route_channel_removeowner():
     '''Flask route for /channel/removeowner'''
     payload = request.get_json()
@@ -150,6 +160,7 @@ def route_channel_removeowner():
 
 
 @APP.route("/channels/list", methods=['GET'])
+@auth_middleware
 def route_channels_list():
     '''Flask route for /channels/list'''
     token = request.values.get('token')
@@ -157,6 +168,7 @@ def route_channels_list():
 
 
 @APP.route("/channels/listall", methods=['GET'])
+@auth_middleware
 def route_channels_listall():
     '''Flask route for /channels/listall'''
     token = request.values.get('token')
@@ -164,6 +176,7 @@ def route_channels_listall():
 
 
 @APP.route("/channels/create", methods=['POST'])
+@auth_middleware
 def route_channels_create():
     '''Flask route for /channels/create'''
     payload = request.get_json()
@@ -174,6 +187,7 @@ def route_channels_create():
 
 
 @APP.route("/message/send", methods=['POST'])
+@auth_middleware
 def route_message_send():
     '''Flask route for /message/send'''
     payload = request.get_json()
@@ -184,6 +198,7 @@ def route_message_send():
 
 
 @APP.route("/message/remove", methods=['DELETE'])
+@auth_middleware
 def route_message_remove():
     '''Flask route for /message/remove'''
     payload = request.get_json()
@@ -193,6 +208,7 @@ def route_message_remove():
 
 
 @APP.route("/message/edit", methods=['PUT'])
+@auth_middleware
 def route_message_edit():
     '''Flask route for /message/edit'''
     payload = request.get_json()
@@ -203,6 +219,7 @@ def route_message_edit():
 
 
 @APP.route("/message/sendlater", methods=['POST'])
+@auth_middleware
 def route_message_sendlater():
     '''Flask route for /message/sendlater'''
     payload = request.get_json()
@@ -214,6 +231,7 @@ def route_message_sendlater():
 
 
 @APP.route("/message/react", methods=['POST'])
+@auth_middleware
 def route_message_react():
     '''Flask route for /message/react'''
     payload = request.get_json()
@@ -224,6 +242,7 @@ def route_message_react():
 
 
 @APP.route("/message/unreact", methods=['POST'])
+@auth_middleware
 def route_message_unreact():
     '''Flask route for /message/unreact'''
     payload = request.get_json()
@@ -234,6 +253,7 @@ def route_message_unreact():
 
 
 @APP.route("/message/pin", methods=['POST'])
+@auth_middleware
 def route_message_pin():
     '''Flask route for /message/pin'''
     payload = request.get_json()
@@ -243,6 +263,7 @@ def route_message_pin():
 
 
 @APP.route("/message/unpin", methods=['POST'])
+@auth_middleware
 def route_message_unpin():
     '''Flask route for /message/unpin'''
     payload = request.get_json()
@@ -252,6 +273,7 @@ def route_message_unpin():
 
 
 @APP.route("/users/all", methods=['GET'])
+@auth_middleware
 def route_users_all():
     '''Flask route for /users/all'''
     token = request.values.get('token')
@@ -259,6 +281,7 @@ def route_users_all():
 
 
 @APP.route("/search", methods=['GET'])
+@auth_middleware
 def route_search():
     '''Flask route for /search'''
     token = request.values.get('token')
@@ -267,6 +290,7 @@ def route_search():
 
 
 @APP.route("/standup/start", methods=['POST'])
+@auth_middleware
 def route_standup_start():
     '''Flask route for /standup/start'''
     payload = request.get_json()
@@ -277,6 +301,7 @@ def route_standup_start():
 
 
 @APP.route("/standup/active", methods=['GET'])
+@auth_middleware
 def route_standup_active():
     '''Flask route for /standup/active'''
     token = request.values.get('token')
@@ -285,6 +310,7 @@ def route_standup_active():
 
 
 @APP.route("/standup/send", methods=['POST'])
+@auth_middleware
 def route_standup_send():
     '''Flask route for /standup/send'''
     payload = request.get_json()
@@ -295,6 +321,7 @@ def route_standup_send():
 
 
 @APP.route('/user/profile', methods=['GET'])
+@auth_middleware
 def route_user_profile():
     '''Flask route for /user/profile'''
     token = request.values.get('token')
@@ -303,6 +330,7 @@ def route_user_profile():
 
 
 @APP.route('/user/profile/setname', methods=['PUT'])
+@auth_middleware
 def route_user_profile_setname():
     '''Flask route for /user/profile/setname'''
     payload = request.get_json()
@@ -313,6 +341,7 @@ def route_user_profile_setname():
 
 
 @APP.route('/user/profile/setemail', methods=['PUT'])
+@auth_middleware
 def route_user_profile_setemail():
     '''Flask route for /user/profile/setemail'''
     payload = request.get_json()
@@ -322,6 +351,7 @@ def route_user_profile_setemail():
 
 
 @APP.route('/user/profile/sethandle', methods=['PUT'])
+@auth_middleware
 def route_user_profile_sethandle():
     '''Flask route for /user/profile/sethandle'''
     payload = request.get_json()
@@ -331,6 +361,7 @@ def route_user_profile_sethandle():
 
 
 @APP.route('/user/profile/uploadphoto', methods=['POST'])
+@auth_middleware
 def route_user_profile_uploadphoto():
     '''Flask route for /user/profile/uploadphoto'''
     payload = request.get_json()
@@ -346,6 +377,7 @@ def route_user_profile_uploadphoto():
 
 
 @APP.route('/imgurl/<imgsrc>', methods=['GET'])
+@auth_middleware
 def route_img_display(imgsrc):
     '''Flask route for /imgurl'''
     return send_file(f'../profile_images/{imgsrc}')
@@ -364,6 +396,7 @@ def route_workspace_reset():
 
 
 @APP.route("/hangman/start", methods=['POST'])
+@auth_middleware
 def route_hangman_start():
     '''Flask route for /hangman/start'''
     payload = request.get_json()
@@ -373,6 +406,7 @@ def route_hangman_start():
 
 
 @APP.route("/hangman/guess", methods=['POST'])
+@auth_middleware
 def route_hangman_guess():
     '''Flask route for /hangman/start'''
     payload = request.get_json()
