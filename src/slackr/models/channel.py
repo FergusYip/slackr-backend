@@ -1,6 +1,7 @@
 from slackr import db
 from slackr.models import owner_channel_identifier, user_channel_identifier
 from slackr.models.standup import Standup
+from slackr.models.hangman import Hangman
 
 
 class Channel(db.Model):
@@ -16,6 +17,7 @@ class Channel(db.Model):
                                   secondary=user_channel_identifier)
     messages = db.relationship('Message', backref='channel', lazy=True)
     standup = db.relationship('Standup', backref='channel', uselist=False)
+    hangman = db.relationship('Hangman', backref='channel', uselist=False)
 
     # hangman = None
 
@@ -25,6 +27,7 @@ class Channel(db.Model):
         self.all_members.append(user)
         self.owner_members.append(user)
         self.standup = Standup()
+        self.hangman = Hangman()
 
     @property
     def details(self):

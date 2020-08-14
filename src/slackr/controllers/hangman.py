@@ -4,10 +4,16 @@ users to start a game in the channel and guess letters until they win/lose.
 '''
 
 import string
-from slackr.controllers.data_store import DATA_STORE
-from slackr.token_validation import encode_token, decode_token
+
+import slackr.controllers.message as message
+from slackr import db, helpers
 from slackr.error import InputError
-import slackr.controllers.message
+from slackr.models.channel import Channel
+from slackr.models.hangman import Hangman
+from slackr.models.message import Message
+from slackr.models.user import User
+from slackr.token_validation import decode_token, encode_token
+from slackr.utils.constants import RESERVED_UID, PERMISSIONS
 
 # Game stages
 STAGES = {
@@ -24,18 +30,24 @@ STAGES = {
     10: '+------\n|\t|\n|\tO\n|      /|\\\n|      /\\\n=========',
 }
 
+bot = User.query.get(RESERVED_UID['hangman_bot'])
+if not bot:
+    bot = User('', '', 'Hangman Bot', '', 'hangman_bot')
+    bot.u_id = RESERVED_UID['hangman_bot']
+    bot.permission_id = PERMISSIONS['bot']
+    db.session.add(bot)
+    db.session.commit()
+
 
 def start_hangman(token, channel_id):
     '''
     Initializes the hangman game.
     '''
     decode_token(token)
-    bot_token = encode_token(-95)
-    DATA_STORE.preset_profiles['hangman_bot'].set_token(bot_token)
 
     # getting channel.
     channel_id = int(channel_id)
-    channel = DATA_STORE.get_channel(channel_id)
+    channel = Channel.query.get(channel_id)
 
     if channel is None:
         raise InputError(description='Channel does not exist.')
@@ -43,12 +55,22 @@ def start_hangman(token, channel_id):
     if channel.hangman.is_active:
         raise InputError(description='Game already in progress.')
 
-    word = channel.hangman.start()
+    word = helpers.get_word()
+
+    channel.hangman.is_active = True
+    channel.hangman.word = word
+
+    db.session.commit()
+
     dashes = get_dashed(word, [])
+
+    bot_token = encode_token(RESERVED_UID['hangman_bot'])
 
     # sending the welcome message.
     welcome_msg = (f'Welcome to Hangman!\nWord:\t{dashes}')
-    message.message_send(bot_token, channel_id, welcome_msg)
+    prev = message.message_send(bot_token, channel_id, welcome_msg)
+    channel.hangman.prev_msg_id = prev['message_id']
+    db.session.commit()
 
     return {}
 
@@ -60,8 +82,8 @@ def guess_hangman(token, channel_id, guess):
 
     decode_token(token)
     channel_id = int(channel_id)
-    channel = DATA_STORE.get_channel(channel_id)
-    bot_token = DATA_STORE.preset_profiles['hangman_bot'].token
+    channel = Channel.query.get(channel_id)
+    bot_token = encode_token(RESERVED_UID['hangman_bot'])
 
     if channel is None:
         raise InputError(description='Channel does not exist.')
@@ -71,12 +93,13 @@ def guess_hangman(token, channel_id, guess):
         raise InputError(description='Game not active')
 
     # Check if there is a message to delete
-    prev_msg_id = channel.hangman.prev_msg
-    if None not in {prev_msg_id, DATA_STORE.get_message(prev_msg_id)}:
-        message.message_remove(bot_token, channel.hangman.prev_msg)
+    prev_msg_id = channel.hangman.prev_msg_id
+    print(f'prev_msg is {prev_msg_id}')
+    if None not in {prev_msg_id, Message.query.get(prev_msg_id)}:
+        message.message_remove(bot_token, prev_msg_id)
 
     # Append guess to list of guesses.
-    is_correct = channel.hangman.guess(guess)
+    is_correct = guess_letter(channel.channel_id, guess)
 
     stage = channel.hangman.stage
 
@@ -88,16 +111,16 @@ def guess_hangman(token, channel_id, guess):
                    f'You win!\n'
                    f'The word was {dashed}')
         message.message_send(bot_token, channel_id, win_msg)
-        channel.hangman.stop()
+        stop(channel_id)
+
     elif stage >= 10:
         lose = (f'Game Over.\n'
                 f'{STAGES[stage]}\n'
                 f'The word was:  {channel.hangman.word}\n')
-        prev = message.message_send(bot_token, channel_id, lose)
-        channel.hangman.prev_msg = prev['message_id']
+        message.message_send(bot_token, channel_id, lose)
 
         # End and reset game.
-        channel.hangman.stop()
+        stop(channel_id)
 
     # incorrect guess.
     else:
@@ -106,13 +129,14 @@ def guess_hangman(token, channel_id, guess):
         else:
             guess_result = 'That was right!'
 
-        wrong_guesses = channel.hangman.incorrect
+        wrong_guesses = [letter for letter in channel.hangman.incorrect]
         incorrect = (f'{guess_result}\n'
                      f'{STAGES[stage]}\n'
                      f'{dashed}\n'
                      f'You have guessed:\t[ {", ".join(wrong_guesses)} ]\n')
         prev = message.message_send(bot_token, channel_id, incorrect)
-        channel.hangman.prev_msg = prev['message_id']
+        channel.hangman.prev_msg_id = prev['message_id']
+        db.session.commit()
 
     return {}
 
@@ -133,3 +157,33 @@ def get_dashed(word, guesses):
         elif char == ' ':
             dashed = dashed.replace(char, '   ')
     return dashed
+
+
+def guess_letter(channel_id, letter):
+    channel = Channel.query.get(channel_id)
+    letter = letter.lower()
+    if letter not in channel.hangman.guesses:
+        channel.hangman.guesses += letter
+
+    # incorrect guess
+    is_correct = True
+    if letter not in channel.hangman.word.lower():
+        if letter not in channel.hangman.incorrect:
+            channel.hangman.stage += 1
+            channel.hangman.incorrect += letter
+        is_correct = False
+
+    db.session.commit()
+
+    return is_correct
+
+
+def stop(channel_id):
+    channel = Channel.query.get(channel_id)
+    channel.hangman.is_active = False
+    channel.hangman.word = None
+    channel.hangman.guesses = ''
+    channel.hangman.incorrect = ''
+    channel.hangman.stage = 0
+    channel.hangman.prev_msg_id = 0
+    db.session.commit()

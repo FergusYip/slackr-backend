@@ -53,8 +53,8 @@ def message_send(token, channel_id, message):
         raise InputError(
             description='Message needs to be at least 1 characters')
 
-    # hangman_bot_u_id = DATA_STORE.preset_profiles['hangman_bot'].u_id
-    if user not in channel.all_members:  # and u_id != hangman_bot_u_id:
+    if user not in channel.all_members and user.permission_id != PERMISSIONS[
+            'bot']:
         raise AccessError(
             description=
             'User does not have Access to send messages in the current channel'
@@ -95,7 +95,8 @@ def message_remove(token, message_id):
     channel = message.channel
 
     if not (message.u_id == user.u_id or user.permission_id
-            == PERMISSIONS['owner'] or channel.is_owner(user)):
+            == PERMISSIONS['owner'] or channel.is_owner(user)
+            or user.permission_id == PERMISSIONS['bot']):
         raise AccessError(
             description='User does not have access to remove this message')
 
