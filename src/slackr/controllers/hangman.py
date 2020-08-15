@@ -86,7 +86,6 @@ def guess_hangman(token, channel_id, guess):
 
     # Check if there is a message to delete
     prev_msg_id = channel.hangman.prev_msg_id
-    print(f'prev_msg is {prev_msg_id}')
     if None not in {prev_msg_id, Message.query.get(prev_msg_id)}:
         message.message_remove(bot_token, prev_msg_id)
 
