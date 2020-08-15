@@ -1,0 +1,6 @@
+{
+  "name": "Slackr Backend",
+  "scripts": {
+    "postdeploy": "python3 src/setup.py"
+  }
+}
