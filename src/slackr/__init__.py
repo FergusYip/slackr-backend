@@ -28,4 +28,26 @@ APP.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(APP)
 
-from slackr import routes
+from slackr.routes.admin_route import ADMIN_ROUTE
+from slackr.routes.auth_route import AUTH_ROUTE
+from slackr.routes.channel_route import CHANNEL_ROUTE
+from slackr.routes.channels_route import CHANNELS_ROUTE
+from slackr.routes.hangman_route import HANGMAN_ROUTE
+from slackr.routes.img_url_route import IMG_URL_ROUTE
+from slackr.routes.message_route import MESSAGE_ROUTE
+from slackr.routes.other_route import OTHER_ROUTE
+from slackr.routes.standup_route import STANDUP_ROUTE
+from slackr.routes.user_route import USER_ROUTE
+from slackr.routes.workspace_route import WORKSPACE_ROUTE
+
+APP.register_blueprint(ADMIN_ROUTE)
+APP.register_blueprint(AUTH_ROUTE)
+APP.register_blueprint(CHANNEL_ROUTE)
+APP.register_blueprint(CHANNELS_ROUTE)
+APP.register_blueprint(HANGMAN_ROUTE)
+APP.register_blueprint(IMG_URL_ROUTE)
+APP.register_blueprint(MESSAGE_ROUTE)
+APP.register_blueprint(OTHER_ROUTE)
+APP.register_blueprint(STANDUP_ROUTE)
+APP.register_blueprint(USER_ROUTE)
+APP.register_blueprint(WORKSPACE_ROUTE)
