@@ -25,7 +25,7 @@ def route_user_setname():
     token = payload.get('token')
     first_name = payload.get('name_first')
     last_name = payload.get('name_last')
-    return dumps(user.user_setname(token, first_name, last_name))
+    return dumps(user.user_profile_setname(token, first_name, last_name))
 
 
 @USER_ROUTE.route('/user/profile/setemail', methods=['PUT'])
@@ -35,7 +35,7 @@ def route_user_setemail():
     payload = request.get_json()
     token = payload.get('token')
     desired_email = payload.get('email')
-    return dumps(user.user_setemail(token, desired_email))
+    return dumps(user.user_profile_setemail(token, desired_email))
 
 
 @USER_ROUTE.route('/user/profile/sethandle', methods=['PUT'])
@@ -45,7 +45,7 @@ def route_user_sethandle():
     payload = request.get_json()
     token = payload.get('token')
     desired_handle = payload.get('handle_str')
-    return dumps(user.user_sethandle(token, desired_handle))
+    return dumps(user.user_profile_sethandle(token, desired_handle))
 
 
 @USER_ROUTE.route('/user/profile/uploadphoto', methods=['POST'])

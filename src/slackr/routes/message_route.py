@@ -1,6 +1,8 @@
+from json import dumps
+
 from flask import Blueprint, request
 
-from slackr.controllers import message
+from slackr.controllers import message as msg
 from slackr.middleware import auth_middleware
 
 MESSAGE_ROUTE = Blueprint('message', __name__)
