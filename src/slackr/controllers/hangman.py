@@ -30,14 +30,6 @@ STAGES = {
     10: '+------\n|\t|\n|\tO\n|      /|\\\n|      /\\\n=========',
 }
 
-bot = User.query.get(RESERVED_UID['hangman_bot'])
-if not bot:
-    bot = User('', '', 'Hangman Bot', '', 'hangman_bot')
-    bot.u_id = RESERVED_UID['hangman_bot']
-    bot.permission_id = PERMISSIONS['bot']
-    db.session.add(bot)
-    db.session.commit()
-
 
 def start_hangman(token, channel_id):
     '''
