@@ -8,3 +8,4 @@ RESERVED_UID = {'hangman_bot': -95}
 URL = os.environ['URL']
 DATABASE_URL = os.environ['DATABASE_URL']
 SECRET = os.environ['SECRET']
+SECRET_KEY = os.environ['SECRET_KEY']
