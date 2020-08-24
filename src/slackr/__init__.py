@@ -2,7 +2,7 @@ from json import dumps
 
 from flask import Flask
 from flask_cors import CORS
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit, join_room, leave_room, send
 from flask_sqlalchemy import SQLAlchemy
 
 from slackr.utils.constants import DATABASE_URL, SECRET_KEY
@@ -32,7 +32,40 @@ APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(APP)
 
 APP.config['SECRET_KEY'] = SECRET_KEY
-socketio = SocketIO(APP)
+socketio = SocketIO(APP, cors_allowed_origins="*")
+
+
+@socketio.on('connect')
+def test_connect():
+    print('Client connected')
+    emit('my response', {'data': 'Connected'})
+
+
+@socketio.on('disconnect')
+def test_disconnect():
+    print('Client disconnected')
+
+
+@socketio.on('message')
+def handle_message(message):
+    print('received message: ' + message)
+
+
+@socketio.on('join')
+def handle_join(data):
+    print('handle join')
+    room = data.get('room')
+    join_room(room)
+    emit('joined', {'message': f'Joined room {room}'})
+
+
+@socketio.on('leave')
+def handle_leave(data):
+    room = data.get('room')
+    leave_room(room)
+
+
+from slackr.routes import socket_route
 
 from slackr.routes.admin_route import ADMIN_ROUTE
 from slackr.routes.auth_route import AUTH_ROUTE

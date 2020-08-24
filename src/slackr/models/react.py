@@ -34,3 +34,6 @@ class React(db.Model):
             'u_ids': [user.u_id for user in self.users],
             'is_this_user_reacted': self in user.reacts
         }
+
+    def u_ids(self):
+        return [user.u_id for user in self.users]

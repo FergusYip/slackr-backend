@@ -66,7 +66,7 @@ def message_send(token, channel_id, message):
     db.session.add(msg)
     db.session.commit()
 
-    return {'message_id': msg.message_id}
+    return msg.details(user)
 
 
 def message_remove(token, message_id):
@@ -103,7 +103,7 @@ def message_remove(token, message_id):
     db.session.delete(message)
     db.session.commit()
 
-    return {}
+    return {'channel_id': channel.channel_id, 'message_id': message.message_id}
 
 
 def message_edit(token, message_id, message):
@@ -150,7 +150,11 @@ def message_edit(token, message_id, message):
 
     db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'message_id': message_obj.message_id,
+        'message': message
+    }
 
 
 def message_sendlater(token, channel_id, message, time_sent):
@@ -266,7 +270,12 @@ def message_react(token, message_id, react_id):
     react.users.append(user)
     db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'message_id': message_id,
+        'react_id': react_id,
+        'u_ids': react.u_ids()
+    }
 
 
 def message_unreact(token, message_id, react_id):
@@ -315,7 +324,12 @@ def message_unreact(token, message_id, react_id):
 
     db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'message_id': message_id,
+        'react_id': react_id,
+        'u_ids': react.u_ids()
+    }
 
 
 def message_pin(token, message_id):
@@ -357,7 +371,11 @@ def message_pin(token, message_id):
     message.is_pinned = True
     db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'message_id': message_id,
+        'is_pinned': True
+    }
 
 
 def message_unpin(token, message_id):
@@ -398,7 +416,11 @@ def message_unpin(token, message_id):
     message.is_pinned = False
     db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'message_id': message_id,
+        'is_pinned': False
+    }
 
 
 def show_message(message_id):
