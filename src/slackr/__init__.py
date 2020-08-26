@@ -56,7 +56,6 @@ def handle_join(data):
     print('handle join')
     room = data.get('room')
     join_room(room)
-    emit('joined', {'message': f'Joined room {room}'})
 
 
 @socketio.on('leave')

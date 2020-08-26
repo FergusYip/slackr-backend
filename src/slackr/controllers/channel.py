@@ -167,7 +167,11 @@ def channel_leave(token, channel_id):
 
     db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'name': channel.name,
+        'is_public': channel.is_public
+    }
 
 
 def channel_join(token, channel_id):
@@ -203,7 +207,11 @@ def channel_join(token, channel_id):
         channel.all_members.append(user)
         db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'name': channel.name,
+        'is_public': channel.is_public
+    }
 
 
 def channel_addowner(token, channel_id, u_id):
