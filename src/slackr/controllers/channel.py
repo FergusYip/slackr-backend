@@ -45,7 +45,14 @@ def channel_invite(token, channel_id, u_id):
         channel.all_members.append(invitee)
         db.session.commit()
 
-    return {}
+    return {
+        'channel': {
+            'channel_id': channel.channel_id,
+            'name': channel.name,
+            'is_public': channel.is_public
+        },
+        'user': invitee.details
+    }
 
 
 def channel_details(token, channel_id):
@@ -168,9 +175,12 @@ def channel_leave(token, channel_id):
     db.session.commit()
 
     return {
-        'channel_id': channel.channel_id,
-        'name': channel.name,
-        'is_public': channel.is_public
+        'channel': {
+            'channel_id': channel.channel_id,
+            'name': channel.name,
+            'is_public': channel.is_public
+        },
+        'user': user.details
     }
 
 
@@ -208,9 +218,12 @@ def channel_join(token, channel_id):
         db.session.commit()
 
     return {
-        'channel_id': channel.channel_id,
-        'name': channel.name,
-        'is_public': channel.is_public
+        'channel': {
+            'channel_id': channel.channel_id,
+            'name': channel.name,
+            'is_public': channel.is_public
+        },
+        'user': user.details
     }
 
 
