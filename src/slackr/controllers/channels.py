@@ -73,7 +73,11 @@ def channels_create(token, name, is_public):
     db.session.add(channel)
     db.session.commit()
 
-    return {'channel_id': channel.channel_id}
+    return {
+        'channel_id': channel.channel_id,
+        'is_public': is_public,
+        'name': name
+    }
 
 
 if __name__ == "__main__":
