@@ -40,3 +40,27 @@ def socket_channel_invite(payload):
     response = channel.channel_invite(token, channel_id, u_id)
     emit('channel_new_member', response['user'], room=str(channel_id))
     # Will have to find a way to emit only to invited user
+
+
+@socketio.on('channel_addowner')
+def socket_channel_addowner(payload):
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    u_id = payload.get('u_id')
+    response = channel.channel_addowner(token, channel_id, u_id)
+    emit('channel_new_owner',
+         response,
+         room=str(channel_id),
+         include_self=False)
+
+
+@socketio.on('channel_removeowner')
+def socket_channel_removeowner(payload):
+    token = payload.get('token')
+    channel_id = payload.get('channel_id')
+    u_id = payload.get('u_id')
+    response = channel.channel_removeowner(token, channel_id, u_id)
+    emit('channel_removed_owner',
+         response,
+         room=str(channel_id),
+         include_self=False)

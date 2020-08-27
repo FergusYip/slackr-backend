@@ -272,7 +272,7 @@ def channel_addowner(token, channel_id, u_id):
     channel.owner_members.append(user)
     db.session.commit()
 
-    return {}
+    return user.details
 
 
 def channel_removeowner(token, channel_id, u_id):
@@ -318,7 +318,7 @@ def channel_removeowner(token, channel_id, u_id):
     channel.owner_members.remove(user)
     db.session.commit()
 
-    return {}
+    return user.details
 
 
 if __name__ == '__main__':
