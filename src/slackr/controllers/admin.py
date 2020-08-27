@@ -108,6 +108,8 @@ def admin_user_remove(token, u_id):
             'You must assign another user to be an admin before removing yourself'
         )
 
+    target_user.delete_all()
+
     db.session.delete(target_user)
     db.session.commit()
 
