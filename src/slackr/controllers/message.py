@@ -141,7 +141,7 @@ def message_edit(token, message_id, message):
     if not (message_obj.u_id == u_id or user.permission_id
             == PERMISSIONS['owner'] or channel.is_owner(user)):
         raise AccessError(
-            description='User does not have access to remove this message')
+            description='User does not have access to edit this message')
 
     if not message:
         db.session.delete(message_obj)
