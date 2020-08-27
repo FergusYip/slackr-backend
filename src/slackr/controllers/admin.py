@@ -69,7 +69,7 @@ def admin_userpermission_change(token, u_id, permission_id):
     user.permission_id = permission_id
     db.session.commit()
 
-    return {}
+    return {'u_id': user.u_id, 'permission_id': permission_id}
 
 
 def admin_user_remove(token, u_id):
@@ -111,7 +111,7 @@ def admin_user_remove(token, u_id):
     db.session.delete(target_user)
     db.session.commit()
 
-    return {}
+    return {'u_id': u_id}
 
 
 if __name__ == '__main__':
