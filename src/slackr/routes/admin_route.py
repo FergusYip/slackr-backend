@@ -8,6 +8,12 @@ from slackr.middleware import auth_middleware
 ADMIN_ROUTE = Blueprint('admin', __name__)
 
 
+@ADMIN_ROUTE.route('/admin/is_admin', methods=['GET'])
+def route_admin_is_admin():
+    token = request.values.get('token')
+    return dumps(admin.admin_is_admin(token))
+
+
 @ADMIN_ROUTE.route('/admin/userpermission/change', methods=['POST'])
 @auth_middleware
 def route_admin_userpermission_change():
