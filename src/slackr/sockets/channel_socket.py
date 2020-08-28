@@ -71,4 +71,4 @@ def socket_channels_remove(payload):
     token = payload.get('token')
     channel_id = payload.get('channel_id')
     response = channels.channels_delete(token, channel_id)
-    emit('channel_removed', response, broadcast=True, include_self=False)
+    emit('channel_removed', response, broadcast=True)

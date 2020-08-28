@@ -89,11 +89,6 @@ class Channel(db.Model):
         for message in self.messages:
             message.delete_all()
             db.session.delete(message)
-
-        for standup in self.standups:
-            db.session.delete(standup)
-
-        for hangman in self.hangman:
-            db.session.delete(hangman)
-
+        db.session.delete(self.standup)
+        db.session.delete(self.hangman)
         db.session.commit()
