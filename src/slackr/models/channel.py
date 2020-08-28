@@ -84,3 +84,16 @@ class Channel(db.Model):
 
         '''
         return {'channel_id': self.channel_id, 'name': self.name}
+
+    def delete_all(self):
+        for message in self.messages:
+            message.delete_all()
+            db.session.delete(message)
+
+        for standup in self.standups:
+            db.session.delete(standup)
+
+        for hangman in self.hangman:
+            db.session.delete(hangman)
+
+        db.session.commit()

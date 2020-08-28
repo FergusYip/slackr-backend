@@ -3,11 +3,12 @@ Functions to provide channel creation and lists to the program. Will allow
 users to create channels and generate lists of channels.
 '''
 
-from slackr.error import InputError
+from slackr.error import InputError, AccessError
 from slackr.token_validation import decode_token
 from slackr import db
 from slackr.models.user import User
 from slackr.models.channel import Channel
+from slackr.utils.constants import PERMISSIONS
 
 
 def channels_list(token):
@@ -79,6 +80,34 @@ def channels_create(token, name, is_public):
         'channel_id': channel.channel_id,
         'is_public': is_public,
         'name': name
+    }
+
+
+def channels_delete(token, channel_id):
+
+    if None in {token, channel_id}:
+        raise InputError(description='Insufficient parameters')
+
+    token_payload = decode_token(token)
+
+    user = User.query.get(token_payload['u_id'])
+
+    if user.permission_id != PERMISSIONS['owner']:
+        raise AccessError('User is not authorised to delete channel')
+
+    channel = Channel.query.get(int(channel_id))
+
+    if not channel:
+        raise InputError('Channel does not exist')
+
+    channel.delete_all()
+    db.session.delete(channel)
+    db.session.commit()
+
+    return {
+        'channel_id': channel.channel_id,
+        'is_public': channel.is_public,
+        'name': channel.name
     }
 
 
