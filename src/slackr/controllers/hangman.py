@@ -49,9 +49,9 @@ def start_hangman(token, channel_id):
     # sending the welcome message.
     welcome_msg = (f'Welcome to Hangman!\nWord:\t{dashes}')
     prev = message.message_send(bot_token, channel_id, welcome_msg)
-    channel.hangman.set_prev_msg_id(prev['message_id'])
+    # channel.hangman.set_prev_msg_id(prev['message_id'])
 
-    return {}
+    return prev
 
 
 def guess_hangman(token, channel_id, guess):
@@ -72,9 +72,9 @@ def guess_hangman(token, channel_id, guess):
         raise InputError(description='Game not active')
 
     # Check if there is a message to delete
-    prev_msg_id = channel.hangman.prev_msg_id
-    if None not in {prev_msg_id, Message.query.get(prev_msg_id)}:
-        message.message_remove(bot_token, prev_msg_id)
+    # prev_msg_id = channel.hangman.prev_msg_id
+    # if None not in {prev_msg_id, Message.query.get(prev_msg_id)}:
+    #     message.message_remove(bot_token, prev_msg_id)
 
     # Append guess to list of guesses.
     is_correct = channel.hangman.guess(guess)
@@ -85,7 +85,7 @@ def guess_hangman(token, channel_id, guess):
     dashed = channel.hangman.get_dashed()
 
     if dashed == channel.hangman.word:
-        msg = (f'Congratulations!\n' f'You win!\n' f'The word was {dashed}')
+        msg = (f'Congratulations!\nYou win!\nThe word was {dashed}')
         channel.hangman.stop()
 
     elif stage >= 10:
@@ -105,9 +105,9 @@ def guess_hangman(token, channel_id, guess):
             f'{guess_result}\n'
             f'{STAGES[stage]}\n'
             f'{dashed}\n'
-            f'You have guessed:\t[ {", ".join(channel.hangman.incorrect)} ]\n')
+            f'You have guessed: [ {", ".join(channel.hangman.incorrect)} ]\n')
 
     prev = message.message_send(bot_token, channel_id, msg)
-    channel.hangman.set_prev_msg_id(prev['message_id'])
+    # channel.hangman.set_prev_msg_id(prev['message_id'])
 
-    return {}
+    return prev

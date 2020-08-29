@@ -13,7 +13,7 @@ class Hangman(db.Model):
     guesses = db.Column(db.String(23), default='')
     incorrect = db.Column(db.String(23), default='')
     stage = db.Column(db.Integer, default=0)
-    prev_msg_id = db.Column(db.Integer)
+    # prev_msg_id = db.Column(db.Integer)
     channel_id = db.Column(db.Integer, db.ForeignKey('channel.channel_id'))
 
     def start(self):
@@ -22,9 +22,9 @@ class Hangman(db.Model):
         db.session.commit()
         return self.get_dashed()
 
-    def set_prev_msg_id(self, prev_msg_id):
-        self.prev_msg_id = prev_msg_id
-        db.session.commit()
+    # def set_prev_msg_id(self, prev_msg_id):
+    #     self.prev_msg_id = prev_msg_id
+    #     db.session.commit()
 
     def guess(self, letter):
         letter = letter.lower()
@@ -49,7 +49,7 @@ class Hangman(db.Model):
         self.guesses = ''
         self.incorrect = ''
         self.stage = 0
-        self.prev_msg_id = 0
+        # self.prev_msg_id = 0
         db.session.commit()
 
     def get_dashed(self):
