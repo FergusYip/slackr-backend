@@ -68,6 +68,7 @@ from slackr.routes import socket_route
 from slackr.sockets import channel_socket
 from slackr.sockets import admin_socket
 from slackr.sockets import hangman_socket
+from slackr.sockets import standup_socket
 
 from slackr.routes.admin_route import ADMIN_ROUTE
 from slackr.routes.auth_route import AUTH_ROUTE

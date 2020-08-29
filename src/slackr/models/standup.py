@@ -8,3 +8,4 @@ class Standup(db.Model):
     channel_id = db.Column(db.Integer, db.ForeignKey('channel.channel_id'))
     time_finish = db.Column(db.Integer)
     message = db.Column(db.String(1000), default='')
+    prev_message_id = db.Column(db.Integer)
