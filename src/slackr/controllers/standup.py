@@ -15,7 +15,7 @@ from slackr import db
 from slackr.models.message import Message
 
 
-def standup_start(token, channel_id, length):
+def standup_start(token, channel_id, length, callback=None):
     ''' Starts a standup in a specified channel
 
 	Parameters:
@@ -58,13 +58,13 @@ def standup_start(token, channel_id, length):
 
     timer = threading.Timer(length,
                             stop_standup,
-                            args=[token, channel.channel_id])
+                            args=[token, channel.channel_id, callback])
     timer.start()
 
     return {'standup_id': channel.standup.id, 'time_finish': time_finish}
 
 
-def stop_standup(token, channel_id):
+def stop_standup(token, channel_id, callback=None):
     ''' Stops a standup in a specified channel and sends a message containing
         all standup messages
 
@@ -72,6 +72,10 @@ def stop_standup(token, channel_id):
 		token (str): JWT
 		channel_id (int): ID of the specified channel
     '''
+
+    token_info = decode_token(token)
+    u_id = token_info['u_id']
+    user = User.query.get(u_id)
 
     channel = Channel.query.get(channel_id)
 
@@ -82,11 +86,13 @@ def stop_standup(token, channel_id):
     message = channel.standup.message
     channel.standup.message = ''
 
+    db.session.commit()
+
     if message:
         prev_msg = message_send(token, channel_id, message)
-        channel.standup.prev_message_id = prev_msg['message_id']
-
-    db.session.commit()
+        if callback:
+            standup_message = Message.query.get(prev_msg['message_id'])
+            callback(channel_id, standup_message.details(user))
 
 
 def standup_active(token, channel_id):
@@ -169,23 +175,3 @@ def standup_send(token, channel_id, message):
     db.session.commit()
 
     return {}
-
-
-def standup_fetch_previous(token, channel_id):
-    if None in {token, channel_id}:
-        raise InputError(description='Insufficient parameters')
-
-    token_info = decode_token(token)
-    u_id = token_info['u_id']
-    user = User.query.get(u_id)
-
-    channel_id = int(channel_id)
-    channel = Channel.query.get(channel_id)
-
-    # input error if channel does not exist.
-    if channel is None:
-        raise InputError(description='Channel does not exist.')
-
-    message = Message.query.get(channel.standup.prev_message_id)
-
-    return message.details(user)

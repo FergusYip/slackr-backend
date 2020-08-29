@@ -5,7 +5,11 @@ from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room, send
 from flask_sqlalchemy import SQLAlchemy
 
+import eventlet
+
 from slackr.utils.constants import DATABASE_URL, SECRET_KEY
+
+eventlet.monkey_patch()
 
 
 def default_handler(err):
