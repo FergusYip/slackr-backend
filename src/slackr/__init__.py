@@ -39,22 +39,6 @@ APP.config['SECRET_KEY'] = SECRET_KEY
 socketio = SocketIO(APP, cors_allowed_origins="*")
 
 
-@socketio.on('connect')
-def test_connect():
-    print('Client connected')
-    emit('my response', {'data': 'Connected'})
-
-
-@socketio.on('disconnect')
-def test_disconnect():
-    print('Client disconnected')
-
-
-@socketio.on('message')
-def handle_message(message):
-    print('received message: ' + message)
-
-
 @socketio.on('join')
 def handle_join(data):
     print('handle join')
@@ -68,7 +52,7 @@ def handle_leave(data):
     leave_room(room)
 
 
-from slackr.routes import socket_route
+from slackr.sockets import message_socket
 from slackr.sockets import channel_socket
 from slackr.sockets import admin_socket
 from slackr.sockets import hangman_socket

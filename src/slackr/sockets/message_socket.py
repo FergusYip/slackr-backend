@@ -35,17 +35,6 @@ def handle_message_edit(payload):
     emit('message_edited', edited_message, room=channel_id)
 
 
-# @MESSAGE_ROUTE.route("/message/sendlater", methods=['POST'])
-# @auth_middleware
-# def route_message_sendlater():
-#     '''Flask route for /message/sendlater'''
-#     payload = request.get_json()
-#     token = payload.get('token')
-#     channel_id = payload.get('channel_id')
-#     message = payload.get('message')
-#     time_sent = payload.get('time_sent')
-#     return dumps(msg.message_sendlater(token, channel_id, message, time_sent))
-
 # @MESSAGE_ROUTE.route("/message/react", methods=['POST'])
 # @auth_middleware
 # @socketio.on('message_react')
