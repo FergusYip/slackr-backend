@@ -1,9 +1,9 @@
 ''' Helper module with functions generate data'''
-import string
 import hashlib
 import random
+import string
 from datetime import datetime, timezone
-import wikiquote
+
 from slackr.utils.constants import URL
 
 
@@ -46,27 +46,6 @@ def default_profile_img():
     # return random.choice(list(colors.values()))
 
     return f'{URL}/imgurl/defaults/default_profile_pic.jpg'
-
-
-def get_word():
-    '''
-    Function to get a random word from wikiquote
-    '''
-    word = random.choice(wikiquote.random_titles(lang='en'))
-    while not word.isalpha() and not check_ascii(word):
-        word = random.choice(wikiquote.random_titles(lang='en'))
-    return word.strip()
-
-
-def check_ascii(word):
-    '''
-    Function to check if word is valid.
-    '''
-    for char in word:
-        if char not in string.ascii_letters:
-            return False
-
-    return True
 
 
 def generate_reset_code(reset_codes):

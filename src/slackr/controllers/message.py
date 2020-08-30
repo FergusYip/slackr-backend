@@ -66,7 +66,7 @@ def message_send(token, channel_id, message):
     db.session.add(msg)
     db.session.commit()
 
-    return {'message_id': msg.message_id}
+    return msg.details(user)
 
 
 def message_remove(token, message_id):
@@ -103,7 +103,7 @@ def message_remove(token, message_id):
     db.session.delete(message)
     db.session.commit()
 
-    return {}
+    return {'channel_id': channel.channel_id, 'message_id': message.message_id}
 
 
 def message_edit(token, message_id, message):
@@ -141,7 +141,7 @@ def message_edit(token, message_id, message):
     if not (message_obj.u_id == u_id or user.permission_id
             == PERMISSIONS['owner'] or channel.is_owner(user)):
         raise AccessError(
-            description='User does not have access to remove this message')
+            description='User does not have access to edit this message')
 
     if not message:
         db.session.delete(message_obj)
@@ -150,10 +150,14 @@ def message_edit(token, message_id, message):
 
     db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'message_id': message_obj.message_id,
+        'message': message
+    }
 
 
-def message_sendlater(token, channel_id, message, time_sent):
+def message_sendlater(token, channel_id, message, time_sent, callback=None):
     '''
     Function that will send a message in a desired channel at a specified
     time in the future.
@@ -212,7 +216,9 @@ def message_sendlater(token, channel_id, message, time_sent):
     db.session.commit()
 
     duration = time_sent - time_now
-    timer = threading.Timer(duration, show_message, args=[msg.message_id])
+    timer = threading.Timer(duration,
+                            show_message,
+                            args=[msg.message_id, user, callback])
     timer.start()
 
     return {'message_id': msg.message_id}
@@ -266,7 +272,12 @@ def message_react(token, message_id, react_id):
     react.users.append(user)
     db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'message_id': message_id,
+        'react_id': react_id,
+        'u_ids': react.u_ids()
+    }
 
 
 def message_unreact(token, message_id, react_id):
@@ -315,7 +326,12 @@ def message_unreact(token, message_id, react_id):
 
     db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'message_id': message_id,
+        'react_id': react_id,
+        'u_ids': react.u_ids()
+    }
 
 
 def message_pin(token, message_id):
@@ -357,7 +373,11 @@ def message_pin(token, message_id):
     message.is_pinned = True
     db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'message_id': message_id,
+        'is_pinned': True
+    }
 
 
 def message_unpin(token, message_id):
@@ -398,14 +418,21 @@ def message_unpin(token, message_id):
     message.is_pinned = False
     db.session.commit()
 
-    return {}
+    return {
+        'channel_id': channel.channel_id,
+        'message_id': message_id,
+        'is_pinned': False
+    }
 
 
-def show_message(message_id):
+def show_message(message_id, user, callback=None):
     message = Message.query.get(message_id)
     message.is_hidden = False
     message.time_created = helpers.utc_now()
     db.session.commit()
+
+    if callback:
+        callback(message.details(user), message.channel_id)
 
 
 if __name__ == "__main__":

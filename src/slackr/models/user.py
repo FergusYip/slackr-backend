@@ -67,3 +67,15 @@ class User(db.Model):
             'name_last': self.name_last,
             'profile_img_url': self.profile_img_url
         }
+
+    def delete_all(self):
+        for message in self.messages:
+            db.session.delete(message)
+
+        for react in self.reacts:
+            db.session.delete(react)
+
+        for standup in self.standups:
+            db.session.delete(standup)
+
+        db.session.commit()

@@ -10,6 +10,20 @@ from slackr import db
 from slackr.utils.constants import PERMISSIONS
 
 
+def admin_is_admin(token):
+    if None in {token}:
+        raise InputError(description='Insufficient parameters')
+
+    token_payload = decode_token(token)
+    u_id = token_payload['u_id']
+    user = User.query.get(u_id)
+
+    if user is None:
+        raise InputError(description='u_id does not refer to a valid user')
+
+    return {'is_admin': user.permission_id == PERMISSIONS['owner']}
+
+
 def admin_userpermission_change(token, u_id, permission_id):
     """ Changes the permission level of a specified user
 
@@ -55,7 +69,7 @@ def admin_userpermission_change(token, u_id, permission_id):
     user.permission_id = permission_id
     db.session.commit()
 
-    return {}
+    return {'u_id': user.u_id, 'permission_id': permission_id}
 
 
 def admin_user_remove(token, u_id):
@@ -94,10 +108,12 @@ def admin_user_remove(token, u_id):
             'You must assign another user to be an admin before removing yourself'
         )
 
+    target_user.delete_all()
+
     db.session.delete(target_user)
     db.session.commit()
 
-    return {}
+    return {'u_id': u_id}
 
 
 if __name__ == '__main__':

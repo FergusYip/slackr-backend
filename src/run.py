@@ -1,4 +1,4 @@
-from slackr import APP
+from slackr import APP, socketio
 
 if __name__ == "__main__":
-    APP.run(debug=True, port=8080)
+    socketio.run(APP, debug=True, port=8080)

@@ -42,9 +42,12 @@ class Channel(db.Model):
 
         '''
         return {
-            'name': self.name,
+            'name':
+            self.name,
             'owner_members': [user.details for user in self.owner_members],
-            'all_members': [user.details for user in self.all_members]
+            'all_members':
+            sorted([user.details for user in self.all_members],
+                   key=lambda user: user['name_first'] + user['name_last'])
         }
 
     def is_member(self, user):
@@ -81,3 +84,11 @@ class Channel(db.Model):
 
         '''
         return {'channel_id': self.channel_id, 'name': self.name}
+
+    def delete_all(self):
+        for message in self.messages:
+            message.delete_all()
+            db.session.delete(message)
+        db.session.delete(self.standup)
+        db.session.delete(self.hangman)
+        db.session.commit()

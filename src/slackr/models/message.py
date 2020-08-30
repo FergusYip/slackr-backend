@@ -67,3 +67,9 @@ class Message(db.Model):
             if react_id == react.react_id:
                 return react
         return None
+
+    def delete_all(self):
+        for react in self.reacts:
+            db.session.delete(react)
+
+        db.session.commit()

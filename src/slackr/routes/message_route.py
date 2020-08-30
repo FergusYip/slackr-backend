@@ -2,6 +2,7 @@ from json import dumps
 
 from flask import Blueprint, request
 
+from slackr import socketio
 from slackr.controllers import message as msg
 from slackr.middleware import auth_middleware
 
@@ -49,7 +50,9 @@ def route_message_sendlater():
     channel_id = payload.get('channel_id')
     message = payload.get('message')
     time_sent = payload.get('time_sent')
-    return dumps(msg.message_sendlater(token, channel_id, message, time_sent))
+    return dumps(
+        msg.message_sendlater(token, channel_id, message, time_sent,
+                              send_later_callback))
 
 
 @MESSAGE_ROUTE.route("/message/react", methods=['POST'])
@@ -92,3 +95,7 @@ def route_message_unpin():
     token = payload.get('token')
     message_id = payload.get('message_id')
     return dumps(msg.message_unpin(token, message_id))
+
+
+def send_later_callback(message_details, channel_id):
+    socketio.emit('message_received', message_details, room=str(channel_id))
