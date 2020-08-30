@@ -13,7 +13,7 @@ from slackr.error import InputError
 from slackr.models.expired_token import ExpiredToken
 from slackr.models.user import User
 from slackr.token_validation import decode_token, encode_token
-from slackr.utils.constants import PERMISSIONS
+from slackr.utils.constants import PERMISSIONS, RESERVED_UID
 
 
 def auth_register(email, password, name_first, name_last):
@@ -60,7 +60,10 @@ def auth_register(email, password, name_first, name_last):
     handle = generate_handle(name_first, name_last)
     user = User(email, password, name_first, name_last, handle)
 
-    if len(User.query.all()) == 0:
+    if len(
+            list(
+                filter(lambda u_id: u_id not in RESERVED_UID.values(),
+                       [user.u_id for user in User.query.all()]))) == 0:
         user.permission_id = PERMISSIONS['owner']
 
     db.session.add(user)
