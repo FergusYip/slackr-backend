@@ -1,1 +1,1 @@
-web: python3 src/setup.py; gunicorn slackr:APP --chdir src --threads 2
+web: python3 src/setup.py; gunicorn slackr:APP --chdir src --threads 2 --worker-class eventlet
