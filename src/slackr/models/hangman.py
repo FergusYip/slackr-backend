@@ -17,6 +17,8 @@ class Hangman(db.Model):
     channel_id = db.Column(db.Integer, db.ForeignKey('channel.channel_id'))
 
     def start(self):
+        if self.is_active:
+            return
         self.is_active = True
         self.word = get_word()
         db.session.commit()
