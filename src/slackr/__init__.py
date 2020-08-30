@@ -41,7 +41,6 @@ socketio = SocketIO(APP, cors_allowed_origins="*")
 
 @socketio.on('join')
 def handle_join(data):
-    print('handle join')
     room = data.get('room')
     join_room(room)
 
