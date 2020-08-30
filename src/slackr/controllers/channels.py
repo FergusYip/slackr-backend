@@ -26,7 +26,6 @@ def channels_list(token):
     token_payload = decode_token(token)
     user = User.query.get(token_payload['u_id'])
     channels = [channel.id_name for channel in user.channels]
-    channels.sort(key=lambda c: c['name'])
     return {'channels': channels}
 
 
@@ -46,7 +45,6 @@ def channels_listall(token):
     decode_token(token)
     public_channels = Channel.query.filter_by(is_public=True).all()
     channels = [channel.id_name for channel in public_channels]
-    channels.sort(key=lambda c: c['name'])
     return {'channels': channels}
 
 
