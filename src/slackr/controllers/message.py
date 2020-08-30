@@ -157,7 +157,7 @@ def message_edit(token, message_id, message):
     }
 
 
-def message_sendlater(token, channel_id, message, time_sent):
+def message_sendlater(token, channel_id, message, time_sent, callback=None):
     '''
     Function that will send a message in a desired channel at a specified
     time in the future.
@@ -216,7 +216,9 @@ def message_sendlater(token, channel_id, message, time_sent):
     db.session.commit()
 
     duration = time_sent - time_now
-    timer = threading.Timer(duration, show_message, args=[msg.message_id])
+    timer = threading.Timer(duration,
+                            show_message,
+                            args=[msg.message_id, user, callback])
     timer.start()
 
     return {'message_id': msg.message_id}
@@ -423,11 +425,14 @@ def message_unpin(token, message_id):
     }
 
 
-def show_message(message_id):
+def show_message(message_id, user, callback=None):
     message = Message.query.get(message_id)
     message.is_hidden = False
     message.time_created = helpers.utc_now()
     db.session.commit()
+
+    if callback:
+        callback(message.details(user), message.channel_id)
 
 
 if __name__ == "__main__":
